@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#071722" name="theme-color"/>
-<meta content="light" name="color-scheme"/><meta content="V18" name="morothon-version"/>
+<meta content="light" name="color-scheme"/><meta content="V19" name="morothon-version"/>
 <meta content="Søgne Morothon historikk 1992–2025. Finn din Morothon-historie, se adelskalender, lojalitet og resultater år for år." name="description"/>
 <meta content="Morothon Historikk" property="og:title"/>
 <meta content="Finn din plass i Morothon-historien – resultater fra 1992 til 2025." property="og:description"/>
@@ -287,6 +287,25 @@ header{background:rgba(3,17,24,.94);border-bottom:1px solid rgba(100,213,218,.12
  #milestoneShowcase .milestone-art{padding:8px!important;min-height:112px!important;overflow:visible!important}
  #milestoneShowcase .milestone-art img{height:100px!important}
 }
+
+/* V19 — search results must float above hero artwork and following sections */
+.hero-v10{overflow:visible;z-index:20}
+.hero-v10-copy{z-index:40}
+.hero-search-deck{position:relative;z-index:60}
+.hero-search-deck .searchbox{z-index:60}
+.hero-search-deck .suggestions{z-index:1000;max-height:min(410px,52vh);overflow-y:auto;overscroll-behavior:contain;background:#fff;isolation:isolate}
+.hero-v10-scene{z-index:1}
+.hero-v10-metrics{position:relative;z-index:1}
+@media(max-width:620px){
+  .hero-search-deck .suggestions{max-height:min(520px,58vh);border-radius:18px;box-shadow:0 22px 60px rgba(0,0,0,.34)}
+  .hero-v10-copy{z-index:50}
+  .hero-v10-scene{z-index:1}
+}
+
+/* Search result row readability */
+.hero-search-deck .suggestion>span{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:5px;row-gap:1px;min-width:0}
+.hero-search-deck .suggestion>b{flex:0 0 auto;white-space:nowrap}
+@media(max-width:620px){.hero-search-deck .suggestion{padding:14px 16px}.hero-search-deck .suggestion>span{column-gap:4px}.hero-search-deck .suggestion small{font-size:12px}}
 </style>
 </head>
 <body>
