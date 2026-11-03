@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#071722" name="theme-color"/>
-<meta content="light" name="color-scheme"/><meta content="V16" name="morothon-version"/>
+<meta content="light" name="color-scheme"/><meta content="V17" name="morothon-version"/>
 <meta content="Søgne Morothon historikk 1992–2025. Finn din Morothon-historie, se adelskalender, lojalitet og resultater år for år." name="description"/>
 <meta content="Morothon Historikk" property="og:title"/>
 <meta content="Finn din plass i Morothon-historien – resultater fra 1992 til 2025." property="og:description"/>
@@ -510,7 +510,8 @@ function performanceStats(pid){
  for(const y of winYears){current=(prev!==null&&y===prev+1)?current+1:1;longestWinStreak=Math.max(longestWinStreak,current);prev=y}
  const ranked=rows.slice().sort((a,b)=>classPlacement(a)-classPlacement(b)||(a[2]==='Morothon'?-1:1)||(b[0]-a[0]));
  const bestRow=ranked[0]||null,bestPlace=bestRow?classPlacement(bestRow):null;
- return {wins:wins.length,podiums:podiumRows.length,longestWinStreak,bestPlace,bestRow,winYears};
+ const winRow=wins.slice().sort((a,b)=>b[0]-a[0])[0]||null;
+ return {wins:wins.length,podiums:podiumRows.length,longestWinStreak,bestPlace,bestRow,winYears,winRow,podiumRows};
 }
 function performanceBadgeList(p){
  const s=performanceStats(p.i),list=[];
@@ -521,11 +522,12 @@ function performanceBadgeList(p){
  return list;
 }
 function strongestPerformance(pid){
- const p=person(pid),s=performanceStats(pid);
- if(s.wins>=3)return {type:'wins',label:'FLERGANGSVINNER',value:s.wins+' klasseseire',sub:s.podiums?s.podiums+' pallplasser registrert':''};
- if(s.podiums>=5)return {type:'podium',label:'PALLGJENGANGER',value:s.podiums+' pallplasser',sub:s.wins?s.wins+' klasseseire registrert':''};
- if(s.wins>=1)return {type:'wins',label:'KLASSEVINNER',value:s.wins===1?'1 klasseseier':s.wins+' klasseseire',sub:s.bestRow?`${s.bestRow[3]} · ${s.bestRow[0]}`:''};
- if(s.podiums>=1)return {type:'podium',label:'BESTE PLASSERING',value:(p?.g==='Dame'?'Dame':'Herre')+' nr. '+s.bestPlace,sub:s.bestRow?`${s.bestRow[3]} · ${s.bestRow[0]}`:''};
+ const p=person(pid),s=performanceStats(pid),klass=p?.g==='Dame'?'Dame':'Herre';
+ if(s.wins>=3)return {type:'wins',label:'FLERGANGSVINNER',value:s.wins+' klasseseire',sub:s.podiums?`${s.podiums} pallplasser totalt`:''};
+ if(s.wins===2)return {type:'wins',label:'2× KLASSEVINNER',value:'2 klasseseire',sub:s.podiums>2?`${s.podiums} pallplasser totalt`:''};
+ if(s.wins===1)return {type:'wins',label:'KLASSEVINNER',value:'1 klasseseier',sub:s.winRow?`${s.winRow[3]} · ${s.winRow[0]}`:''};
+ if(s.podiums>=2)return {type:'podium',label:'PALLPLASSER',value:s.podiums+' pallplasser',sub:s.bestRow?`Beste: ${klass} nr. ${s.bestPlace} · ${s.bestRow[0]}`:''};
+ if(s.podiums===1)return {type:'podium',label:'PALLPLASS',value:`${klass} nr. ${s.bestPlace}`,sub:s.bestRow?`${s.bestRow[3]} · ${s.bestRow[0]}`:''};
  return null;
 }
 function loadCanvasImage(src){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src})}
