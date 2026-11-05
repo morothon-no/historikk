@@ -167,6 +167,8 @@
   function pick(pid) {
     const p = person(pid);
     if (!p || !$id('duelSearchA')) return;
+    const disclosure = $id('duelDisclosure');
+    if (disclosure) disclosure.open = true;
     choose('A', p.i);
     if (selected.B === p.i) {
       selected.B = null;
