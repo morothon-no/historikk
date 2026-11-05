@@ -1,4 +1,4 @@
-/* Morothon: grafisk tidsutvikling, alltid gruppert per løp og registrert distanse. */
+/* Morothon: grafisk tidsutvikling gruppert per løp, registrert distanse og løypeperiode (før/etter 2014). */
 (function () {
   'use strict';
   const safe = (value) => esc(String(value ?? ''));
@@ -17,8 +17,10 @@
       if (!isCompletedResult(r) || isRelayRace(r) || isJuniorRace(r)) continue;
       const seconds = timeSeconds(r[5]);
       if (seconds === null || !Number.isFinite(seconds) || seconds <= 0) continue;
-      const label = `${r[2] === 'Morothon' ? 'Langmoro' : 'Kortmoro'} · ${String(r[3] || '').trim()}`;
-      const key = `${r[2]}|${r[3]}`;
+      const era = Number(r[0]) >= 2014 ? 'new' : 'old';
+      const eraLabel = era === 'new' ? '2014 og nyere' : 'Før 2014';
+      const label = `${r[2] === 'Morothon' ? 'Langmoro' : 'Kortmoro'} · ${String(r[3] || '').trim()} · ${eraLabel}`;
+      const key = `${r[2]}|${r[3]}|${era}`;
       if (!grouped.has(key)) grouped.set(key, { key, label, rows: new Map(), lastYear: 0 });
       const group = grouped.get(key);
       group.lastYear = Math.max(group.lastYear, r[0]);
@@ -59,7 +61,7 @@
   function render(pid, preferredGroup) {
     const options = groups(pid);
     if (!options.length) return '<section class="moro-progress"><h3>Min tidsutvikling</h3><p class="progress-note">Ingen registrerte fullførte løp med gyldig sluttid.</p></section>';
-    // Velg den nyeste distansen med minst to resultater, ellers nyeste registrerte.
+    // Velg den nyeste distansen og løypeperioden med minst to resultater.
     const chosen = options.find((g) => g.key === preferredGroup) || options.find((g) => g.runs.length >= 2) || options[0];
     const rows = chosen.runs, first = rows[0], last = rows[rows.length - 1];
     const fastest = rows.reduce((best, item) => item.seconds < best.seconds ? item : best, rows[0]);
@@ -69,7 +71,7 @@
     const plot = rows.length < 2
       ? '<p class="progress-note">Bare én tid er registrert for denne distansen. Graf vises når det finnes minst to fullføringer.</p>'
       : svgChart(rows);
-    return `<section class="moro-progress" data-progression-pid="${safe(pid)}"><div class="progress-heading"><div><h3>Min tidsutvikling</h3><p>Sluttider år for år · raskere tid vises høyere</p></div><label>Velg løp og distanse<select data-moro-progression-select aria-label="Velg løp og distanse">${controls}</select></label></div>${plot}<div class="progress-numbers"><div><small>Første</small><strong>${clock(first.seconds)}</strong><span>${first.year}</span></div><div><small>Beste tid</small><strong>${clock(fastest.seconds)}</strong><span>${fastest.year}</span></div><div><small>Siste</small><strong>${clock(last.seconds)}</strong><span>${last.year}</span></div><div><small>Endring første–siste</small><strong>${safe(change)}</strong><span>${rows.length} registrerte år</span></div></div><p class="progress-warning">Resultater vises bare innen samme løpsnavn og oppgitte distanse. En like lang løype kan likevel ha hatt ulike traséer og forhold. Tidene er derfor ikke nødvendigvis direkte sammenlignbare mellom år.</p></section>`;
+    return `<section class="moro-progress" data-progression-pid="${safe(pid)}"><div class="progress-heading"><div><h3>Min tidsutvikling</h3><p>Sluttider år for år · raskere tid vises høyere</p></div><label>Velg løp og distanse<select data-moro-progression-select aria-label="Velg løp og distanse">${controls}</select></label></div>${plot}<div class="progress-numbers"><div><small>Første</small><strong>${clock(first.seconds)}</strong><span>${first.year}</span></div><div><small>Beste tid</small><strong>${clock(fastest.seconds)}</strong><span>${fastest.year}</span></div><div><small>Siste</small><strong>${clock(last.seconds)}</strong><span>${last.year}</span></div><div><small>Endring første–siste</small><strong>${safe(change)}</strong><span>${rows.length} registrerte år</span></div></div><p class="progress-warning">Resultater fra før og etter løypeendringen i 2014 holdes adskilt. Hver graf gjelder samme løpsnavn og oppgitte distanse innen én periode. Like lange løp kan fortsatt ha hatt ulike traséer og forhold mellom år.</p></section>`;
   }
 
   function init() {
