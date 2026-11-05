@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#071722" name="theme-color"/>
-<meta content="light" name="color-scheme"/><meta content="V26" name="morothon-version"/>
+<meta content="light" name="color-scheme"/><meta content="V27" name="morothon-version"/>
 <meta content="Søgne Morothon historikk fra 1992 og framover. Finn din Morothon-historie, se adelskalender, lojalitet og resultater år for år." name="description"/>
 <meta content="Morothon Historikk" property="og:title"/>
 <meta content="Finn din plass i Morothon-historien – alle resultater fra 1992 og framover." property="og:description"/>
@@ -571,6 +571,51 @@ header{background:rgba(3,17,24,.94);border-bottom:1px solid rgba(100,213,218,.12
 .moro-rank-award-content strong{font-size:13px}
 }
 </style>
+
+<style id="morothon-v27-style">
+/* V27: prioriter resultatene fremfor filtre og forklaringer på mobil. */
+.moro-v27-ranking{max-width:100%;}
+.moro-v27-filters{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;align-items:end}
+.moro-v27-select-label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px;font-weight:750;color:#516d74}
+.moro-v27-select-label select{width:100%;max-width:100%;min-width:0;min-height:46px;border:1px solid #bfd2d4;border-radius:12px;background:#f3f8f8;color:#103741;padding:10px 29px 10px 11px;font:inherit;font-size:14px;font-weight:720;cursor:pointer}
+.moro-v27-select-label select:focus-visible,.moro-v27-era-buttons button:focus-visible,.moro-v27-more:focus-visible{outline:3px solid #51b3b6;outline-offset:2px}
+.moro-v27-era{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #e1e9e9;margin:15px 0 13px;padding:0 0 15px}
+.moro-v27-era-label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:750;color:#4e6a72}
+.moro-v27-era-info{position:relative}
+.moro-v27-era-info>summary{display:grid;place-items:center;list-style:none;border:1px solid #cfdddd;border-radius:50%;width:25px;height:25px;font-size:14px;font-weight:700;cursor:pointer;color:#3c7279;background:#f5fafa}
+.moro-v27-era-info>summary::-webkit-details-marker{display:none}
+.moro-v27-era-info[open] p{position:absolute;z-index:15;top:30px;left:-45px;width:min(310px,70vw);margin:0;border:1px solid #cde0de;border-radius:12px;padding:13px;background:#fff;box-shadow:0 16px 40px rgba(5,39,51,.14);font-size:12px;font-weight:450;line-height:1.6;color:#506970}
+.moro-v27-era-buttons{display:flex;gap:4px;border-radius:13px;background:#ecf3f3;border:1px solid #d3e0e0;padding:3px;flex-shrink:0}
+.moro-v27-era-buttons button{appearance:none;border:0;background:transparent;color:#38606a;border-radius:9px;padding:9px 13px;font:inherit;font-size:13px;font-weight:730;cursor:pointer;white-space:nowrap}
+.moro-v27-era-buttons button.is-active{background:#103944;color:white}
+.moro-v27-rank-top{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:4px 0 9px}
+.moro-v27-rank-top strong{font-size:16px;color:#123840}
+.moro-v27-rank-meta{font-size:12px;color:#5b777d;line-height:1.45;text-align:right}
+.moro-v27-more{display:flex;align-items:center;justify-content:center;width:100%;border:1px solid #c6dcdc;border-radius:12px;padding:11px 13px;margin:13px 0 2px;background:#eef7f5;color:#115e62;cursor:pointer;font:inherit;font-size:14px;font-weight:760}
+.moro-v27-more:hover{background:#dff2ed}
+.moro-v27-extra{border-top:1px solid #e2eaea;margin:15px 0 0;padding:0}
+.moro-v27-extra>summary{display:flex;justify-content:space-between;align-items:center;list-style:none;padding:12px 2px 4px;cursor:pointer;font-size:13px;font-weight:740;color:#336d72}
+.moro-v27-extra>summary::-webkit-details-marker{display:none}
+.moro-v27-extra[open]>summary span{transform:rotate(180deg)}
+.moro-v27-extra-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px 0 3px}
+.moro-v27-extra-fields .moro-ranking-field{min-width:0}
+.moro-v27-extra-fields select{width:100%;max-width:100%;font-size:13px}
+.moro-v27-ranking .moro-ranking-table{margin:0}
+@media(max-width:680px){
+.moro-record-history-body .moro-v27-ranking{padding:10px}
+.moro-v27-filters{gap:8px;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr)}
+.moro-v27-select-label{font-size:11px}
+.moro-v27-select-label select{font-size:12px;min-height:42px;padding:8px 23px 8px 8px}
+.moro-v27-era{gap:5px;margin:12px 0 10px;padding-bottom:11px;flex-wrap:wrap}
+.moro-v27-era-label{font-size:11px;gap:3px}
+.moro-v27-era-buttons button{font-size:11px;padding:8px 9px}
+.moro-v27-rank-top{align-items:flex-start;flex-direction:column;gap:1px;margin:3px 0 8px}
+.moro-v27-rank-top strong{font-size:15px}
+.moro-v27-rank-meta{font-size:11px;text-align:left}
+.moro-v27-extra-fields{gap:8px}
+.moro-v27-extra-fields .moro-ranking-field{font-size:11px}
+}
+</style>
 </head>
 <body>
 <div class="loading" id="loading"><div><div class="spinner"></div><strong>Laster Morothon-historikken …</strong></div></div>
@@ -636,53 +681,53 @@ header{background:rgba(3,17,24,.94);border-bottom:1px solid rgba(100,213,218,.12
 </div></div></section>
 <section class="section moro-record-section" id="rekorder">
  <div class="shell">
-  <div class="section-head"><div><p class="kicker">REKORDER OG HISTORIKK</p><h2>Rekorder</h2><p>Gjeldende løyperekorder først. Åpne historiske topptider når du ønsker å utforske resultatene bakover i tid.</p></div></div>
+  <div class="section-head"><div><p class="kicker">REKORDER OG HISTORIKK</p><h2>Rekorder</h2><p>Gjeldende løyperekorder og historiske topptider.</p></div></div>
   <div class="records-compact moro-records-visible">
    <div class="record-head"><h3>Gjeldende løyperekorder</h3><p>Rekorder på dagens løype/trasé.</p></div>
    <div class="records-grid" id="recordGrid"></div>
    <button class="loadmore record-more" id="recordOtherMore">Vis også Kortmoro-rekorder</button>
   </div>
   <details class="moro-main-disclosure moro-records-history-disclosure" id="recordsHistoryDisclosure">
-   <summary><span><b>Tidenes raskeste</b><small>Se topplister etter kjønn, distanse og løypeperiode</small></span><span class="moro-disclosure-arrow" aria-hidden="true">⌄</span></summary>
+   <summary><span><b>Tidenes raskeste</b><small>Historiske topptider</small></span><span class="moro-disclosure-arrow" aria-hidden="true">⌄</span></summary>
    <div class="moro-record-history-body" id="tidenes-raskeste">
-    <p class="moro-records-intro">Historiske topptider. Langmoro 20 km og Kortmoro 10 km står først, mens tidligere distanser kan velges i listen.</p>
-<div class="moro-ranking-shell">
-   <div class="moro-ranking-period" role="group" aria-label="Velg løypeperiode">
-    <span class="moro-ranking-period-title">Løypehistorikk · tydelig skille i 2014</span>
-    <div class="moro-ranking-era-buttons">
-     <button type="button" class="is-active" aria-pressed="true" data-ranking-period="new">2014 og nyere</button>
-     <button type="button" aria-pressed="false" data-ranking-period="old">Før 2014 · 1992–2013</button>
-    </div>
-    <p>Større løypeendringer kom i 2014. Dagens standarddistanser 20 km Langmoro og 10 km Kortmoro er registrert fra 2021. Eldre år og andre distanser vises separat.</p>
-   </div>
-   <div class="moro-ranking-controls">
-    <div class="moro-ranking-tabs" role="group" aria-label="Velg hoveddistanse">
-     <button type="button" class="is-active" aria-pressed="true" data-ranking-preset="Morothon|20 km">Langmoro · 20 km</button>
-     <button type="button" aria-pressed="false" data-ranking-preset="Kortmoro|10 km">Kortmoro · 10 km</button>
-    </div>
-   </div>
-   <div class="moro-ranking-options">
-    <div class="moro-ranking-genders" role="group" aria-label="Velg kjønn">
-     <button type="button" class="is-active" aria-pressed="true" data-ranking-gender="Herre">Herrer</button>
-     <button type="button" aria-pressed="false" data-ranking-gender="Dame">Damer</button>
-    </div>
-    <details class="moro-ranking-advanced moro-main-disclosure"><summary><span><b>Flere listevalg</b><small>Andre distanser · topp 10/25/50 · alle tider</small></span><span class="moro-disclosure-arrow" aria-hidden="true">⌄</span></summary>
-      <div class="moro-ranking-advanced-fields">
-       <label class="moro-ranking-field moro-ranking-field--others" for="rankingOther">Andre distanser i valgt periode
-        <select id="rankingOther"><option value="">Andre historiske distanser …</option></select>
-       </label>
-       <label class="moro-ranking-field" for="rankingMode">Ranger
+    <div class="moro-ranking-shell moro-v27-ranking">
+     <div class="moro-v27-filters">
+      <label class="moro-v27-select-label" for="rankingDistance">Distanse
+       <select id="rankingDistance" aria-label="Velg løp og distanse">
+        <option value="Morothon|20 km">Langmoro · 20 km</option>
+        <option value="Kortmoro|10 km">Kortmoro · 10 km</option>
+       </select>
+      </label>
+      <label class="moro-v27-select-label" for="rankingGenderSelect">Kjønn
+       <select id="rankingGenderSelect" aria-label="Velg kjønn">
+        <option value="Herre">Herrer</option>
+        <option value="Dame">Damer</option>
+       </select>
+      </label>
+     </div>
+     <div class="moro-v27-era">
+      <div class="moro-v27-era-label">
+       <span>Løypeperiode</span>
+       <details class="moro-v27-era-info"><summary aria-label="Hvorfor deles resultatene ved 2014?" title="Om løypeendringen">ⓘ</summary><p>Løypa ble vesentlig endret i 2014, derfor holdes tidene før og etter dette året adskilt. Lik distanse garanterer ikke identisk trasé. Dagens 20 km Langmoro og 10 km Kortmoro er registrert fra 2021. Dette er historiske topptider, ikke nødvendigvis offisielle løyperekorder.</p></details>
+      </div>
+      <div class="moro-v27-era-buttons" role="group" aria-label="Velg løypeperiode">
+       <button type="button" class="is-active" aria-pressed="true" data-ranking-period="new">2014+</button>
+       <button type="button" aria-pressed="false" data-ranking-period="old">Før 2014</button>
+      </div>
+     </div>
+     <div id="rankingResults" aria-live="polite"><p class="moro-ranking-empty">Laster historiske topptider …</p></div>
+     <details class="moro-v27-extra" id="rankingExtras">
+      <summary>Flere valg <span aria-hidden="true">⌄</span></summary>
+      <div class="moro-v27-extra-fields">
+       <label class="moro-ranking-field" for="rankingMode">Rangering
         <select id="rankingMode"><option value="unique">Beste tid per løper</option><option value="all">Alle registrerte tider</option></select>
        </label>
        <label class="moro-ranking-field" for="rankingLimit">Vis antall
         <select id="rankingLimit"><option value="5">Topp 5</option><option value="10">Topp 10</option><option value="25">Topp 25</option><option value="50">Topp 50</option><option value="all">Alle</option></select>
        </label>
       </div>
-    </details>
-   </div>
-   <div id="rankingResults" aria-live="polite"><p class="moro-ranking-empty">Laster historiske topptider …</p></div>
-  
-  </div>
+     </details>
+    </div>
    </div>
   </details>
  </div>
