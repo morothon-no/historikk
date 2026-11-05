@@ -6,7 +6,7 @@
 
   const MAIN = 'Morothon|20 km';
   const SHORT = 'Kortmoro|10 km';
-  const state = { period: 'new', eventDistance: MAIN, gender: 'Herre', mode: 'unique', limit: 10 };
+  const state = { period: 'new', eventDistance: MAIN, gender: 'Herre', mode: 'unique', limit: 5 };
   const indexed = new Map();
   const byEventDistance = new Map();
   const periodOf = (year) => Number(year) >= 2014 ? 'new' : 'old';
@@ -173,7 +173,8 @@
     if (!items.length) return '';
     return `<section class="moro-profile-rankings"><h3>Min historiske plassering</h3>
       <p class="moro-profile-era-note">Historikken er delt ved løypeendringen i 2014. Rangeringer fra før og etter 2014 sammenlignes ikke.</p>
-      <div class="moro-profile-ranking-grid">${items.join('')}</div>
+      <div class="moro-profile-ranking-grid">${items.slice(0,2).join('')}</div>
+      ${items.length > 2 ? `<details class="moro-profile-rank-more moro-profile-disclosure"><summary><span><b>Vis alle historiske plasseringer</b><small>${items.length-2} flere distanser eller løypeperioder</small></span><span class="moro-disclosure-arrow" aria-hidden="true">⌄</span></summary><div class="moro-profile-ranking-grid">${items.slice(2).join('')}</div></details>` : ''}
       <p>Hver rangering gjelder samme registrerte distanse, kjønn og periode. Lik distanse betyr ikke nødvendigvis identisk løypetrasé.</p></section>`;
   }
 
