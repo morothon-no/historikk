@@ -94,10 +94,17 @@
       state.eventDistance = all.find((k) => byEventDistance.has(`${state.period}|${k}`)) || MAIN;
     }
     const el = $id('rankingDistance');
-    if (!el) return;
-    el.innerHTML = `<optgroup label="Hoveddistanser">${main.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('')}</optgroup>`
-      + (other.length ? `<optgroup label="Andre distanser">${other.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('')}</optgroup>` : '');
-    el.value = state.eventDistance;
+    if (el) {
+      el.innerHTML = `<optgroup label="Hoveddistanser">${main.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('')}</optgroup>`
+        + (other.length ? `<optgroup label="Andre distanser">${other.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('')}</optgroup>` : '');
+      el.value = state.eventDistance;
+    }
+    // Older HTML may be cached while the updated JavaScript is already live.
+    const legacyOther = $id('rankingOther');
+    if (legacyOther) {
+      legacyOther.innerHTML = '<option value="">Andre distanser i perioden …</option>' +
+        other.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('');
+    }
   }
 
   function nextLimit(n) {
@@ -117,9 +124,22 @@
     }
     const distance = $id('rankingDistance');
     if (distance) distance.value = state.eventDistance;
-    $id('rankingGenderSelect').value = state.gender;
-    $id('rankingMode').value = state.mode;
-    $id('rankingLimit').value = String(state.limit);
+    const genderSelect = $id('rankingGenderSelect');
+    if (genderSelect) genderSelect.value = state.gender;
+    for (const btn of document.querySelectorAll('[data-ranking-preset]')) {
+      const active = btn.dataset.rankingPreset === state.eventDistance;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    }
+    for (const btn of document.querySelectorAll('[data-ranking-gender]')) {
+      const active = btn.dataset.rankingGender === state.gender;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    }
+    const legacyOther = $id('rankingOther');
+    if (legacyOther) legacyOther.value = [...legacyOther.options].some((o) => o.value === state.eventDistance) ? state.eventDistance : '';
+    if ($id('rankingMode')) $id('rankingMode').value = state.mode;
+    if ($id('rankingLimit')) $id('rankingLimit').value = String(state.limit);
 
     const group = indexed.get(`${state.period}|${state.eventDistance}|${state.gender}`);
     if (!group || !group.all.length) {
@@ -214,16 +234,32 @@
         render();
       });
     }
-    $id('rankingDistance').addEventListener('change', (e) => {
+    // Support both V27 selectors and V26 buttons to avoid a fatal error
+    // when Safari/CDN serves an older cached HTML with newer JavaScript.
+    const distance = $id('rankingDistance');
+    if (distance) distance.addEventListener('change', (e) => {
       state.eventDistance = e.target.value;
       render();
     });
-    $id('rankingGenderSelect').addEventListener('change', (e) => {
+    const genderSelect = $id('rankingGenderSelect');
+    if (genderSelect) genderSelect.addEventListener('change', (e) => {
       state.gender = e.target.value;
       render();
     });
-    $id('rankingMode').addEventListener('change', (e) => { state.mode = e.target.value; render(); });
-    $id('rankingLimit').addEventListener('change', (e) => { state.limit = e.target.value; render(); });
+    for (const btn of document.querySelectorAll('[data-ranking-preset]')) {
+      btn.addEventListener('click', () => { state.eventDistance = btn.dataset.rankingPreset; render(); });
+    }
+    for (const btn of document.querySelectorAll('[data-ranking-gender]')) {
+      btn.addEventListener('click', () => { state.gender = btn.dataset.rankingGender; render(); });
+    }
+    const legacyOther = $id('rankingOther');
+    if (legacyOther) legacyOther.addEventListener('change', (e) => {
+      if (!e.target.value) return;
+      state.eventDistance = e.target.value;
+      render();
+    });
+    if ($id('rankingMode')) $id('rankingMode').addEventListener('change', (e) => { state.mode = e.target.value; render(); });
+    if ($id('rankingLimit')) $id('rankingLimit').addEventListener('change', (e) => { state.limit = e.target.value; render(); });
     $id('rankingResults').addEventListener('click', (e) => {
       const profile = e.target.closest('[data-ranking-person]');
       if (profile) { openProfile(profile.dataset.rankingPerson); return; }
