@@ -148,14 +148,14 @@
         <div class="moro-ranking-row moro-ranking-head" role="row"><span role="columnheader">#</span><span role="columnheader">Løper</span><span role="columnheader">Tid</span><span role="columnheader">År</span></div>
         ${rows}</div>
       <p class="moro-ranking-foot">Viser ${shown.length.toLocaleString('no-NO')} av ${list.length.toLocaleString('no-NO')} ${state.mode === 'unique' ? 'løpere' : 'resultater'} i valgt kategori. Ved like tider deles plasseringen.</p>
-      <p class="moro-ranking-warning"><strong>Viktig om historiske tider:</strong> Løypeendringen i 2014 er et skille: resultater fra før og etter 2014 blandes aldri. Innen hver periode sorteres det etter registrert løpsnavn, antall kilometer og kjønn. Samme distanse kan likevel ha ulik trasé og ulike forhold mellom år. Dagens standarddistanser, 20 km Langmoro og 10 km Kortmoro, er registrert fra 2021. Listene er <strong>historiske topptider</strong>, ikke automatisk offisielle løyperekorder.</p>`;
+      <details class="moro-ranking-info"><summary>ⓘ Om historiske tider og løypeendringen i 2014</summary><p>Resultater før og etter 2014 rangeres separat. Innen hver periode sorteres de etter løpsnavn, registrert kilometerlengde og kjønn. Lik distanse betyr ikke nødvendigvis identisk trasé eller forhold. Standarddistansene 20 km Langmoro og 10 km Kortmoro er registrert fra 2021. Disse listene viser historiske topptider, ikke automatisk offisielle løyperekorder.</p></details>`;
   }
 
   function profileHtml(pid) {
     const p = person(pid);
     if (!p || (p.g !== 'Dame' && p.g !== 'Herre')) return '';
     const items = [];
-    // Hold løpsperioder atskilt også i den personlige rangeringen.
+    // All rankings use the person's BEST time, separately by period, distance and gender.
     for (const period of ['new', 'old']) {
       const distances = [...byEventDistance.keys()]
         .filter((k) => k.startsWith(`${period}|`))
@@ -165,17 +165,44 @@
         const group = indexed.get(`${period}|${eventDistance}|${p.g}`);
         const r = group?.byPid.get(p.i);
         if (!r) continue;
-        items.push(`<div class="moro-profile-ranking-item"><span>${safe(eventLabel(eventDistance))} · ${safe(periodLabel(period))}</span>
-          <strong>Nr. ${r.uniqueRank} av ${group.unique.length.toLocaleString('no-NO')}</strong>
-          <small>Beste registrerte tid ${formatTime(r.seconds)} (${r.year})</small></div>`);
+        items.push({
+          period, eventDistance, rank: r.uniqueRank, total: group.unique.length,
+          year: r.year, seconds: r.seconds,
+          priority: period === 'new' ? (eventDistance === MAIN ? 0 : eventDistance === SHORT ? 1 : 2)
+            : eventDistance === MAIN ? 3 : eventDistance === SHORT ? 4 : 5
+        });
       }
     }
     if (!items.length) return '';
-    return `<section class="moro-profile-rankings"><h3>Min historiske plassering</h3>
-      <p class="moro-profile-era-note">Historikken er delt ved løypeendringen i 2014. Rangeringer fra før og etter 2014 sammenlignes ikke.</p>
-      <div class="moro-profile-ranking-grid">${items.slice(0,2).join('')}</div>
-      ${items.length > 2 ? `<details class="moro-profile-rank-more moro-profile-disclosure"><summary><span><b>Vis alle historiske plasseringer</b><small>${items.length-2} flere distanser eller løypeperioder</small></span><span class="moro-disclosure-arrow" aria-hidden="true">⌄</span></summary><div class="moro-profile-ranking-grid">${items.slice(2).join('')}</div></details>` : ''}
-      <p>Hver rangering gjelder samme registrerte distanse, kjønn og periode. Lik distanse betyr ikke nødvendigvis identisk løypetrasé.</p></section>`;
+    const marks = items.filter((r) => r.rank <= 10)
+      .sort((a, b) => a.priority - b.priority || a.rank - b.rank)
+      .slice(0, 2);
+    const awardHtml = marks.length ? `<div class="moro-rank-awards">${marks.map((r) => {
+      const label = r.rank === 1 ? 'Historisk ener' : r.rank <= 3 ? 'Historisk pallplass' : 'Historisk topp 10';
+      const cls = r.rank === 1 ? 'is-first' : r.rank === 2 ? 'is-second' : r.rank === 3 ? 'is-third' : '';
+      return `<button class="moro-rank-award ${cls}" type="button" onclick="window.MorothonRankings.openProfileRankings()" aria-label="Åpne mine historiske plasseringer">
+        <span class="moro-rank-award-icon" aria-hidden="true">${r.rank <= 3 ? '★' : '🏅'}</span>
+        <span class="moro-rank-award-content"><strong>${label} · Nr. ${r.rank}</strong><small>${safe(eventLabel(r.eventDistance))} · ${safe(periodLabel(r.period))} · ${p.g === 'Herre' ? 'Herrer' : 'Damer'}</small></span>
+        <span class="moro-rank-award-chevron" aria-hidden="true">⌄</span></button>`;
+    }).join('')}</div>` : '';
+    const rowHtml = items.map((r) => `<div class="moro-profile-ranking-item">
+      <span>${safe(eventLabel(r.eventDistance))} · ${safe(periodLabel(r.period))}</span>
+      <strong>Nr. ${r.rank} av ${r.total.toLocaleString('no-NO')}</strong>
+      <small>Beste registrerte tid ${formatTime(r.seconds)} (${r.year})</small>
+    </div>`).join('');
+    const best = [...items].sort((a,b)=>a.rank-b.rank||a.priority-b.priority)[0];
+    const summary = `${items.length} ${items.length===1?'rangering':'rangeringer'} · beste plassering: nr. ${best.rank}`;
+    return `${awardHtml}<details class="moro-profile-disclosure" id="profileRankingDisclosure"><summary>
+      <span><b>Mine historiske plasseringer</b><small>${safe(summary)} – trykk for alle distanser</small></span><span class="moro-disclosure-arrow" aria-hidden="true">⌄</span>
+      </summary><section class="moro-profile-rankings"><div class="moro-profile-ranking-grid">${rowHtml}</div>
+      <p>Resultater fra før og etter løypeendringen i 2014 sammenlignes ikke. Rangeringene gjelder samme oppgitte distanse og kjønn. Lik distanse betyr ikke nødvendigvis identisk trasé.</p></section></details>`;
+  }
+
+  function openProfileRankings() {
+    const section = $id('profileRankingDisclosure');
+    if (!section) return;
+    section.open = true;
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function init() {
@@ -209,5 +236,5 @@
     render();
   }
 
-  window.MorothonRankings = { init, render, profileHtml, indexResults, getState: () => ({ ...state }) };
+  window.MorothonRankings = { init, render, profileHtml, indexResults, openProfileRankings, getState: () => ({ ...state }) };
 })();
