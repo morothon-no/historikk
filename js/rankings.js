@@ -78,20 +78,33 @@
   }
 
   function availableDistanceOptions() {
+    const main = [MAIN, SHORT];
     const other = [...byEventDistance.keys()]
       .filter((k) => k.startsWith(`${state.period}|`))
       .map((k) => k.slice(state.period.length + 1))
-      .filter((k) => k !== MAIN && k !== SHORT);
+      .filter((k) => !main.includes(k));
     const numericDistance = (k) => Number(k.split('|')[1].split(' ')[0].replace(',', '.'));
     other.sort((a, b) => {
       const aEvent = a.startsWith('Morothon|') ? 0 : 1;
       const bEvent = b.startsWith('Morothon|') ? 0 : 1;
       return aEvent - bEvent || numericDistance(b) - numericDistance(a) || a.localeCompare(b, 'no');
     });
-    const el = $id('rankingOther');
-    el.innerHTML = '<option value="">Andre distanser i perioden …</option>' + other.map((k) =>
-      `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`
-    ).join('');
+    const all = [...main, ...other];
+    if (!byEventDistance.has(`${state.period}|${state.eventDistance}`)) {
+      state.eventDistance = all.find((k) => byEventDistance.has(`${state.period}|${k}`)) || MAIN;
+    }
+    const el = $id('rankingDistance');
+    if (!el) return;
+    el.innerHTML = `<optgroup label="Hoveddistanser">${main.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('')}</optgroup>`
+      + (other.length ? `<optgroup label="Andre distanser">${other.map((k) => `<option value="${safe(k)}">${safe(eventLabel(k))}</option>`).join('')}</optgroup>` : '');
+    el.value = state.eventDistance;
+  }
+
+  function nextLimit(n) {
+    const stops = [5, 10, 25, 50, 'all'];
+    if (n === 'all') return null;
+    const pos = stops.indexOf(Number(n));
+    return stops[pos + 1] || 'all';
   }
 
   function render() {
@@ -102,31 +115,20 @@
       btn.classList.toggle('is-active', active);
       btn.setAttribute('aria-pressed', String(active));
     }
-    for (const btn of document.querySelectorAll('[data-ranking-preset]')) {
-      const active = btn.dataset.rankingPreset === state.eventDistance;
-      btn.classList.toggle('is-active', active);
-      btn.setAttribute('aria-pressed', String(active));
-    }
-    for (const btn of document.querySelectorAll('[data-ranking-gender]')) {
-      const active = btn.dataset.rankingGender === state.gender;
-      btn.classList.toggle('is-active', active);
-      btn.setAttribute('aria-pressed', String(active));
-    }
-    const other = $id('rankingOther');
-    other.value = [...other.options].some((o) => o.value === state.eventDistance) ? state.eventDistance : '';
+    const distance = $id('rankingDistance');
+    if (distance) distance.value = state.eventDistance;
+    $id('rankingGenderSelect').value = state.gender;
     $id('rankingMode').value = state.mode;
     $id('rankingLimit').value = String(state.limit);
 
     const group = indexed.get(`${state.period}|${state.eventDistance}|${state.gender}`);
     if (!group || !group.all.length) {
-      target.innerHTML = '<p class="moro-ranking-empty">Ingen fullførte løp med gyldig tid i denne kategorien.</p>';
+      target.innerHTML = `<p class="moro-ranking-empty">Ingen fullførte løp med gyldig tid for ${safe(eventLabel(state.eventDistance))} i valgt periode. Prøv en annen distanse.</p>`;
       return;
     }
     const list = state.mode === 'unique' ? group.unique : group.all;
     const shown = state.limit === 'all' ? list : list.slice(0, Number(state.limit));
     const years = yearsDescription(byEventDistance.get(`${state.period}|${state.eventDistance}`));
-    const descriptor = state.mode === 'unique' ? 'beste registrerte tid per løper' : 'alle fullførte løp';
-    const title = eventLabel(state.eventDistance);
     const rows = shown.map((r) => {
       const place = state.mode === 'unique' ? r.uniqueRank : r.allRank;
       const medal = place <= 3 ? ` is-medal-${place}` : '';
@@ -137,18 +139,14 @@
         <span class="moro-ranking-year" role="cell">${r.year}</span>
       </div>`;
     }).join('');
-
-    target.innerHTML = `<div class="moro-ranking-summary"><div>
-      <h3>${safe(title)} <span>· ${state.gender === 'Dame' ? 'Damer' : 'Herrer'}</span></h3>
-      <p class="moro-ranking-era">${safe(periodLabel(state.period))}</p>
-      <p>${group.unique.length.toLocaleString('no-NO')} løpere · ${group.all.length.toLocaleString('no-NO')} fullførte løp</p>
-      <p class="moro-ranking-years">Registrerte år med denne distansen: ${safe(years)}</p>
-      </div><span class="moro-ranking-modeinfo">${safe(descriptor)}</span></div>
-      <div class="moro-ranking-table" role="table" aria-label="Topptider ${safe(title)}, ${state.gender}">
+    const next = nextLimit(state.limit);
+    const nextLabel = next === 'all' ? 'Vis alle' : `Vis topp ${next}`;
+    const showMore = next !== null && shown.length < list.length;
+        target.innerHTML = `<div class="moro-v27-rank-top"><strong>${state.limit === 'all' ? 'Alle' : 'Topp ' + state.limit} ${state.mode === 'all' ? 'tider' : 'løpere'}</strong><span class="moro-v27-rank-meta">${group.unique.length.toLocaleString('no-NO')} løpere · ${group.all.length.toLocaleString('no-NO')} fullføringer · ${safe(years)}</span></div>
+      <div class="moro-ranking-table" role="table" aria-label="Topptider ${safe(eventLabel(state.eventDistance))}, ${state.gender}">
         <div class="moro-ranking-row moro-ranking-head" role="row"><span role="columnheader">#</span><span role="columnheader">Løper</span><span role="columnheader">Tid</span><span role="columnheader">År</span></div>
         ${rows}</div>
-      <p class="moro-ranking-foot">Viser ${shown.length.toLocaleString('no-NO')} av ${list.length.toLocaleString('no-NO')} ${state.mode === 'unique' ? 'løpere' : 'resultater'} i valgt kategori. Ved like tider deles plasseringen.</p>
-      <details class="moro-ranking-info"><summary>ⓘ Om historiske tider og løypeendringen i 2014</summary><p>Resultater før og etter 2014 rangeres separat. Innen hver periode sorteres de etter løpsnavn, registrert kilometerlengde og kjønn. Lik distanse betyr ikke nødvendigvis identisk trasé eller forhold. Standarddistansene 20 km Langmoro og 10 km Kortmoro er registrert fra 2021. Disse listene viser historiske topptider, ikke automatisk offisielle løyperekorder.</p></details>`;
+      ${showMore ? `<button type="button" class="moro-v27-more" data-ranking-show-next="${next}">${nextLabel}</button>` : ''}`;
   }
 
   function profileHtml(pid) {
@@ -216,22 +214,21 @@
         render();
       });
     }
-    for (const btn of document.querySelectorAll('[data-ranking-preset]')) {
-      btn.addEventListener('click', () => { state.eventDistance = btn.dataset.rankingPreset; render(); });
-    }
-    for (const btn of document.querySelectorAll('[data-ranking-gender]')) {
-      btn.addEventListener('click', () => { state.gender = btn.dataset.rankingGender; render(); });
-    }
-    $id('rankingOther').addEventListener('change', (e) => {
-      if (!e.target.value) return;
+    $id('rankingDistance').addEventListener('change', (e) => {
       state.eventDistance = e.target.value;
+      render();
+    });
+    $id('rankingGenderSelect').addEventListener('change', (e) => {
+      state.gender = e.target.value;
       render();
     });
     $id('rankingMode').addEventListener('change', (e) => { state.mode = e.target.value; render(); });
     $id('rankingLimit').addEventListener('change', (e) => { state.limit = e.target.value; render(); });
     $id('rankingResults').addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-ranking-person]');
-      if (btn) openProfile(btn.dataset.rankingPerson);
+      const profile = e.target.closest('[data-ranking-person]');
+      if (profile) { openProfile(profile.dataset.rankingPerson); return; }
+      const more = e.target.closest('[data-ranking-show-next]');
+      if (more) { state.limit = more.dataset.rankingShowNext === 'all' ? 'all' : Number(more.dataset.rankingShowNext); render(); }
     });
     render();
   }
