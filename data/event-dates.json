@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "name": "EQ Timings historiske arrangementsoversikt",
+    "evidence": "Datoer bekreftet av arrangøren i chatten 09.11.2026, med henvisning til dokumenterende skjermbilde."
+  },
+  "dates": {
+    "2014": "2014-11-08",
+    "2015": "2015-11-07",
+    "2016": "2016-11-12",
+    "2017": "2017-11-11",
+    "2018": "2018-11-11",
+    "2019": "2019-11-09",
+    "2020": "2020-11-07",
+    "2021": "2021-11-13",
+    "2022": "2022-11-12",
+    "2023": "2023-11-11",
+    "2024": "2024-11-09",
+    "2025": "2025-11-08",
+    "2026": "2026-11-07"
+  }
+}

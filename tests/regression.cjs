@@ -14,7 +14,7 @@ before(async () => {
     if (!file.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
     try {
       const content = await fs.readFile(file);
-      res.setHeader('Content-Type', file.endsWith('.js') ? 'text/javascript' : file.endsWith('.json') ? 'application/json' : 'text/html');
+      res.setHeader('Content-Type', file.endsWith('.svg') ? 'image/svg+xml' : file.endsWith('.css') ? 'text/css' : file.endsWith('.js') ? 'text/javascript' : file.endsWith('.json') ? 'application/json' : 'text/html');
       res.end(content);
     } catch { res.writeHead(404).end(); }
   });
@@ -394,6 +394,226 @@ test('annual milestone rules: all ten thresholds, unique years, DNS, DNF, canoni
     await page.locator('[data-annual-category="50"]').click();
     assert.equal(await page.locator('.annual-person').count(), 1);
     assert.match(await page.locator('.annual-person').textContent(), /Testløper/);
+    assert.deepEqual(errors, []);
+  } finally { await context.close(); }
+});
+
+test('Enny-Karin correction: one documented 1999 result, canonical alias/redirect and preserved historical data', async () => {
+  const { createHash } = require('node:crypto');
+  const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  // Preservation fingerprints from approved V28 (dd2aff6), excluding only the affected rows/profile.
+  assert.equal(hash(data.people.filter(p => !['MOR-72A949A', 'MOR-4CB0E52'].includes(p.i))), '0b2cfcbdc71789a0f1e758e166fc4b2fa16e53f13ef1b31bc9ea3e936025e896');
+  assert.equal(hash(data.results.filter(r => !(r[0] === 1999 && ['MOR-72A949A', 'MOR-4CB0E52'].includes(r[1])))), '4a9090ac739e5205087f563446fda4ba21626b37f5af4b7b580fe062195a3b17');
+  assert.equal(hash(data.yearStats.filter(s => s[0] !== 1999)), '81d11f1378a320c3a1cadd5018c6e137bc8ea1db6c75adee8148e97136aa7625');
+  assert.equal(hash(data.teamResults), 'c04ab350260c74fcfcc566904bbb762b7fe5ac8ba07fd8977a2c05c8a92b5b93');
+  assert.equal(data.people.length, 2643);
+  assert.equal(data.results.length, 6914);
+  assert.equal(data.people.some(p => p.i === 'MOR-4CB0E52'), false);
+  assert.equal(data.results.some(r => r[1] === 'MOR-4CB0E52'), false);
+  assert.deepEqual(data.results.filter(r => r[1] === 'MOR-72A949A' && r[0] === 1999), [[1999, 'MOR-72A949A', 'Kortmoro', '13 km', 'Fullført', '1:22:22', 20, '', '', '']]);
+  assert.equal(data.redirects['MOR-4CB0E52'], 'MOR-72A949A');
+  assert.ok(data.aliases['MOR-72A949A'].includes('Enny Dvergsnes'));
+  assert.deepEqual(data.yearStats.find(s => s[0] === 1999), [1999, 204, 204, 204, 204, 0, 0, 57, 147, 0]);
+  assert.match(data.people.find(p => p.i === 'MOR-72A949A').z, /dokumentert.*1:22:22, 20\. plass/);
+  const { context, page, errors } = await load();
+  try {
+    const state = await page.evaluate(() => {
+      const p = person('MOR-4CB0E52');
+      return { id: p.i, count: p.c, years: startedYears(p).length, highest: highestMilestone(p).n,
+        debut1999: MorothonMilestones.calculate(1999).debutants.filter(q => q.i === p.i).length,
+        participants: MorothonMilestones.calculate(1999).participants.length };
+    });
+    assert.deepEqual(state, { id: 'MOR-72A949A', count: 23, years: 23, highest: 20, debut1999: 1, participants: 204 });
+    await page.locator('#mainSearch').fill('Enny Dvergsnes');
+    await page.locator('#searchGo').click();
+    assert.match(await page.locator('#profile').textContent(), /Enny-Karin Vindheim/);
+    assert.match(await page.locator('#profile .result-row').filter({ hasText: '1999' }).textContent(), /1:22:22/);
+    assert.match(await page.locator('#profile .result-row').filter({ hasText: '1999' }).textContent(), /20\. plass i kildelisten/);
+    await page.goto(base + '/index.html#lop=MOR-4CB0E52');
+    await page.locator('#panel').waitFor({ state: 'visible' });
+    assert.match(page.url(), /#lop=MOR-72A949A$/);
+    assert.deepEqual(errors, []);
+  } finally { await context.close(); }
+});
+
+test('Skrytekort V2: official earned medals, tier hierarchy, record honor and responsive profiles', async () => {
+  const { context, page, errors } = await load();
+  try {
+    const samples = await page.evaluate(() => [1, 5, 10, 15, 20, 25, 30, 35].map(n => {
+      const p = S.people.find(p => p.c >= n && p.c < (n === 1 ? 5 : n + 5));
+      return { id: p.i, tier: MorothonCard.model(p.i).tier };
+    }));
+    assert.deepEqual(samples.map(s => s.tier), ['none', 'bronze', 'silver', 'gold', 'platinum', 'titanium', 'legend', 'honorary']);
+    for (const width of [320, 390, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      for (const sample of samples) {
+        await page.evaluate(pid => openProfile(pid), sample.id);
+        const info = await page.evaluate(pid => {
+          const m = MorothonCard.model(pid), card = document.querySelector('.brag-card');
+          const largest = card.querySelector('.brag-main-medal'), previous = [...card.querySelectorAll('.brag-medal-row img')];
+          return { earned: m.earned.map(b => b.n), previous: previous.map(img => img.alt), expectedPrevious: m.previous.map(b => b.name),
+            officialHighest: !largest || largest.src === BADGE_IMAGES[String(m.highest.n)],
+            officialPrevious: previous.every((img, i) => img.src === BADGE_IMAGES[String(m.previous[i].n)]),
+            mainHeight: largest?.getBoundingClientRect().height || 0, smallHeight: previous[0]?.getBoundingClientRect().height || 0,
+            fits: document.querySelector('#panel').scrollWidth <= document.querySelector('#panel').clientWidth,
+            honor: card.classList.contains('brag-honorary'), frame: getComputedStyle(card).borderTopWidth,
+            centered: [...card.querySelectorAll('.brag-count,.brag-earned,.brag-stats>div,.brag-previous,.brag-support')].every(el => getComputedStyle(el).textAlign === 'center'),
+            collectionHeading: card.querySelector('.brag-previous h4')?.textContent,
+            captions: card.querySelectorAll('.brag-medal-row figcaption').length,
+            duplicatedHighest: !!largest && previous.some(img => img.src === largest.src),
+            active: m.active,
+            medalY: largest ? largest.getBoundingClientRect().top + largest.getBoundingClientRect().height / 2 : 0,
+            countY: card.querySelector('.brag-count').getBoundingClientRect().top + card.querySelector('.brag-count').getBoundingClientRect().height / 2,
+            numberCenter: (() => { const r = card.querySelector('.brag-count strong').getBoundingClientRect(); return r.left + r.width / 2; })(),
+            countCenter: (() => { const r = card.querySelector('.brag-count').getBoundingClientRect(); return r.left + r.width / 2; })(),
+            statLabels: [...card.querySelectorAll('.brag-stats>div')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.querySelector('small').textContent),
+            medalCenter: largest ? largest.getBoundingClientRect().left + largest.getBoundingClientRect().width / 2 : 0,
+            cardCenter: card.getBoundingClientRect().left + card.getBoundingClientRect().width / 2,
+            text: card.textContent };
+        }, sample.id);
+        assert.deepEqual(info.previous, info.expectedPrevious);
+        assert.equal(info.captions, 0);
+        assert.equal(info.duplicatedHighest, false);
+        if (info.previous.length) assert.equal(info.collectionHeading, 'Min medaljesamling');
+        assert.equal(info.officialHighest, true);
+        assert.equal(info.officialPrevious, true);
+        if (info.smallHeight) assert.ok(info.mainHeight > info.smallHeight * 2);
+        assert.equal(info.centered, true);
+        assert.ok(Math.abs(info.numberCenter - info.countCenter) < 1);
+        if (!info.honor && info.earned.length) assert.ok(Math.abs(info.medalY - info.countY) < 1, 'Medal and number must use the same centre line');
+        assert.equal(info.fits, true, `Profile ${sample.id} must fit ${width}px`);
+        if (info.active > 0) assert.match(info.text, /aktiv rekke/);
+        else { assert.equal(info.statLabels.includes('aktiv rekke'), false); assert.equal(info.statLabels[0], 'lengste historiske rekke'); }
+        assert.match(info.text, /lengste historiske rekke/);
+        assert.equal(info.text.includes('høydemeter'), false);
+        if (info.honor) { assert.equal(info.frame, '3px'); assert.match(info.text, /MOROTHON-ÆRESLØPER/); assert.ok(Math.abs(info.medalCenter - info.cardCenter) < 2); }
+        if (sample.tier === 'legend') assert.match(info.text, /MOROTHON-LEGENDE/);
+        if (sample.tier === 'titanium') assert.equal(info.frame, '2px');
+        if (!info.earned.length) assert.match(info.text, /På vei mot Bronsemerket/);
+        await page.evaluate(() => closeProfile());
+      }
+      await page.evaluate(() => openProfile('MOR-96EB117'));
+      assert.equal(await page.locator('.brag-main-medal').count(), 0);
+      assert.equal(await page.locator('.brag-identity + .profile-record-strip').count(), 1);
+      assert.match(await page.locator('.profile-record-strip').textContent(), /Langmoro 20 km · Herrer · 1:31:24 \(2026\)/);
+      assert.equal(await page.locator('.brag-count strong').textContent(), '4');
+      await page.evaluate(() => closeProfile());
+    }
+    // Actually export every tier, including the long named silver medal profile.
+    for (const pid of [...samples.map(s => s.id), 'MOR-C788866', 'MOR-96EB117', 'MOR-6D5A088']) {
+      const exported = await page.evaluate(async pid => {
+        const text = [], images = [], originalText = CanvasRenderingContext2D.prototype.fillText, originalImage = CanvasRenderingContext2D.prototype.drawImage;
+        CanvasRenderingContext2D.prototype.fillText = function(value, x, y, ...args) { const width = this.measureText(String(value)).width; text.push({ value: String(value), x: x - (this.textAlign === 'center' ? width / 2 : 0), y, width, align: this.textAlign }); return originalText.call(this, value, x, y, ...args); };
+        CanvasRenderingContext2D.prototype.drawImage = function(img, ...args) { images.push(img.src); return originalImage.call(this, img, ...args); };
+        try {
+          const m = MorothonCard.model(pid), result = await buildShareCard(pid);
+          const bitmap = await createImageBitmap(result.blob);
+          const size = [bitmap.width, bitmap.height]; bitmap.close(); URL.revokeObjectURL(result.url);
+          return { text, size, bytes: result.blob.size, earned: m.earned.map(b => BADGE_IMAGES[String(b.n)]), images,
+            name: m.p.n, active: m.active, tier: m.tier, honorary: m.honorary, records: m.records.length };
+        } finally { CanvasRenderingContext2D.prototype.fillText = originalText; CanvasRenderingContext2D.prototype.drawImage = originalImage; }
+      }, pid);
+      assert.deepEqual(exported.size, [1080, 1350]);
+      assert.ok(exported.bytes > 10000);
+      assert.ok(exported.text.every(t => t.x >= 0 && t.x + t.width <= 1035 && t.y > 0 && t.y < 1315), `Text must fit canvas for ${pid}`);
+      assert.ok(exported.earned.every(src => exported.images.includes(src)));
+      if (exported.earned.length > 1) {
+        const collection = exported.text.find(t => t.value === 'MIN MEDALJESAMLING');
+        assert.ok(collection);
+        assert.equal(exported.text.some(t => t.y > collection.y && t.y < collection.y + 110 && /^\d+$/.test(t.value)), false);
+      }
+      for (const label of ['DELTAKELSER', ...(exported.active > 0 ? ['AKTIV REKKE'] : []), 'LENGSTE HISTORISKE REKKE', 'LOJALITET SIDEN DEBUT', 'DEBUTÅR']) {
+        assert.ok(exported.text.some(t => t.value === label && t.align === 'center'), `${label} must be centered`);
+      }
+      if (!exported.active) assert.equal(exported.text.some(t => t.value === 'AKTIV REKKE'), false);
+      if (exported.tier === 'legend') assert.ok(exported.text.some(t => t.value === 'MOROTHON-LEGENDE'));
+      assert.equal(exported.text.some(t => /HØYDEMETER/.test(t.value)), false);
+      if (exported.honorary) assert.ok(exported.text.some(t => t.value === 'MOROTHON-ÆRESLØPER'));
+      if (exported.records) assert.ok(exported.text.some(t => t.value === 'REGJERENDE REKORDHOLDER'));
+    }
+    assert.deepEqual(errors, []);
+  } finally { await context.close(); }
+});
+
+test('honorary status: all-edition recognition is dynamic, record status survives and very long names wrap', async () => {
+  const { context, page, errors } = await load();
+  try {
+    for (const pid of ['MOR-15AF3A3', 'MOR-6D5A088']) {
+      assert.match(await page.evaluate(pid => MorothonCard.honorText(MorothonCard.model(pid)), pid), /alle 35 utgaver/);
+    }
+    const state = await page.evaluate(async () => {
+      const p = person('MOR-15AF3A3');
+      S.stats.push([2027, 0, 0]);
+      const m = MorothonCard.model(p.i), text = MorothonCard.honorText(m);
+      S.courseRecords.push({ pid: p.i, name: p.n, event: 'Langmoro 20 km', gender: 'Herrer', time: '1:00:00', year: 2026 });
+      const longName = 'Gunnar Kåsa Med Et Svært Langt Historisk Navn Som Skal Få Plass Uten Avkutting';
+      p.n = longName;
+      openProfile(p.i);
+      const result = await buildShareCard(p.i);
+      URL.revokeObjectURL(result.url);
+      const canvas = document.createElement('canvas').getContext('2d'); canvas.font = '700 42px Arial';
+      const lines = MorothonCard.linesFor(canvas, longName, 964);
+      return { allEditions: m.allEditions, text, honorary: m.honorary,
+        record: !!document.querySelector('.brag-honorary .brag-record'),
+        longName: document.querySelector('.brag-identity h2').textContent,
+        fits: lines.every(line => canvas.measureText(line).width <= 964), reconstructed: lines.join(' ') };
+    });
+    assert.equal(state.allEditions, false);
+    assert.equal(state.text.includes('alle 35'), false);
+    assert.equal(state.honorary, true);
+    assert.equal(state.record, true);
+    assert.equal(state.longName, state.reconstructed);
+    assert.equal(state.fits, true);
+    assert.deepEqual(errors, []);
+  } finally { await context.close(); }
+});
+
+test('shared grid: optical number centring, aligned medal tracks and consistent lower sections for 5/10/15/25/31/35', async () => {
+  const { context, page, errors } = await load();
+  try {
+    const layouts = [];
+    for (const count of [5, 10, 15, 25, 31, 35]) {
+      const result = await page.evaluate(async count => {
+        const p = S.people.find(p => p.c === count), m = MorothonCard.model(p.i), layout = MorothonCard.heroLayout(m);
+        const originalText = CanvasRenderingContext2D.prototype.fillText, originalImage = CanvasRenderingContext2D.prototype.drawImage;
+        let number, medal, supportY;
+        CanvasRenderingContext2D.prototype.fillText = function(value, x, y, ...args) {
+          if (String(value) === String(count) && parseFloat(this.font.match(/([\d.]+)px/)[1]) >= 80) {
+            const metrics = this.measureText(String(value));
+            number = { x: x + (metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft) / 2,
+              y: y + (metrics.actualBoundingBoxDescent - metrics.actualBoundingBoxAscent) / 2 };
+          }
+          if (String(value) === 'Samlet registrert distanse') supportY = y;
+          return originalText.call(this, value, x, y, ...args);
+        };
+        CanvasRenderingContext2D.prototype.drawImage = function(img, ...args) {
+          if (img.src === BADGE_IMAGES[String(m.highest.n)]) medal = { x: args[0] + args[2] / 2, y: args[1] + args[3] / 2 };
+          return originalImage.call(this, img, ...args);
+        };
+        try {
+          const exported = await buildShareCard(p.i); URL.revokeObjectURL(exported.url);
+          return { number, medal, supportY, layout };
+        } finally { CanvasRenderingContext2D.prototype.fillText = originalText; CanvasRenderingContext2D.prototype.drawImage = originalImage; }
+      }, count);
+      const n = result.layout.number, m = result.layout.medal;
+      assert.ok(Math.abs(result.number.x - (58 + n.x + n.width / 2)) < .01, `Visible ink for ${count} must be centred`);
+      assert.ok(Math.abs((result.number.y - result.medal.y) - (n.y + n.height / 2 - m.y - m.height / 2)) < .01);
+      if (count !== 35) layouts.push(result);
+    }
+    assert.ok(layouts.every(r => r.supportY === layouts[0].supportY), 'Lower information must share the same vertical position');
+    assert.ok(layouts.every(r => JSON.stringify(r.layout.medal) === JSON.stringify(layouts[0].layout.medal)));
+    for (const width of [320, 390, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      for (const name of ['Inger Katherin Dahl Frantzen', 'Solbjørg Tronstad Hausvik']) {
+        const fits = await page.evaluate(name => {
+          const p = S.people.find(p => p.n === name); openProfile(p.i);
+          const heading = document.querySelector('.brag-identity h2'), panel = document.querySelector('#panel');
+          return heading.textContent === name && heading.scrollWidth <= heading.clientWidth + 1 && panel.scrollWidth <= panel.clientWidth + 1;
+        }, name);
+        assert.equal(fits, true, `${name} must fit at ${width}px`);
+        await page.evaluate(() => closeProfile());
+      }
+    }
     assert.deepEqual(errors, []);
   } finally { await context.close(); }
 });

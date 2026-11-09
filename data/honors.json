@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "source": "Brukerens bekreftelser i denne samtalen. Ingen biografiske opplysninger eller løper-ID-er er utledet.",
+  "groups": [
+    {
+      "id": "founders",
+      "badgeId": "service-grunnlegger",
+      "title": "Grunnleggere",
+      "description": "Grunnleggere bekreftet av arrangøren.",
+      "members": [
+        {
+          "id": "oscar-lohne",
+          "name": "Oscar Lohne",
+          "status": "confirmed",
+          "reason": null,
+          "roleSource": "Bekreftet av arrangøren i denne samtalen",
+          "stories": []
+        },
+        {
+          "id": "helge-andersen",
+          "name": "Helge Andersen",
+          "status": "confirmed",
+          "reason": null,
+          "roleSource": "Bekreftet av arrangøren i denne samtalen",
+          "stories": []
+        },
+        {
+          "id": "arnfinn-haverstad",
+          "name": "Arnfinn Håverstad",
+          "status": "confirmed",
+          "reason": null,
+          "roleSource": "Bekreftet av arrangøren i denne samtalen",
+          "stories": []
+        },
+        {
+          "id": "einar-danielsen",
+          "name": "Einar Danielsen",
+          "status": "confirmed",
+          "reason": null,
+          "roleSource": "Bekreftet av arrangøren i denne samtalen",
+          "stories": []
+        }
+      ]
+    },
+    {
+      "id": "volunteers",
+      "badgeId": "service-dugnadshelt",
+      "title": "Dugnadshelter",
+      "description": "Foreløpig navneliste. Flere navn og begrunnelser kan legges til senere.",
+      "members": [
+        {
+          "id": "dag-morten-frantzen",
+          "name": "Dag Morten Frantzen",
+          "status": "provisional",
+          "reason": null,
+          "roleSource": "Foreløpig oppført av arrangøren i denne samtalen",
+          "stories": []
+        },
+        {
+          "id": "hakon-lohne",
+          "name": "Håkon Lohne",
+          "status": "provisional",
+          "reason": null,
+          "roleSource": "Foreløpig oppført av arrangøren i denne samtalen",
+          "stories": []
+        }
+      ]
+    }
+  ]
+}
