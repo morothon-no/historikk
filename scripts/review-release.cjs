@@ -1,0 +1,27 @@
+// Review artifacts only. Never pushes, merges or deploys.
+const fs=require('node:fs/promises'),path=require('node:path');const {createHarness}=require('./diploma-harness.cjs');
+(async()=>{const out=path.resolve(process.argv[2]||'/tmp/morothon-release-review');await fs.mkdir(out,{recursive:true});const h=await createHarness();try{
+ const p=await h.browser.newPage({viewport:{width:1440,height:1000}});
+ await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"] a').waitFor();await p.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));await p.screenshot({path:path.join(out,'hedersside-PC.png'),fullPage:true});
+ for(const [id,label]of [['oscar-lohne','Oscar'],['dag-morten-frantzen','Dag-Morten']]){
+  await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();await p.screenshot({path:path.join(out,label+'-profil-PC.png'),fullPage:true});
+  await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert') || document.querySelector('.honor-diploma-status').textContent.includes('sperret'));
+  const html=await p.evaluate(async id=>MorothonDiplomas.documentHtml(await MorothonDiplomas.serviceDraft(id)),id);
+  const d=await h.browser.newPage({viewport:{width:1123,height:794},deviceScaleFactor:1.5});await d.setContent(html,{waitUntil:'load'});await d.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()));});
+  await d.locator('.diploma-sheet').screenshot({path:path.join(out,label+'-diplom-A4.png')});await d.pdf({path:path.join(out,label+'-diplom-A4.pdf'),format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,displayHeaderFooter:false,margin:{top:'0',right:'0',bottom:'0',left:'0'}});await d.close();
+ }
+ await p.setViewportSize({width:390,height:844});await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));await p.locator('.mobile-menu summary').click();await p.screenshot({path:path.join(out,'mobilmeny.png')});await p.locator('.mobile-menu a[href="heder.html"]').click();await p.locator('[data-honoree="oscar-lohne"] a').click();await p.locator('#profileName').waitFor();await p.screenshot({path:path.join(out,'Oscar-profil-mobil.png'),fullPage:true});
+ await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert') || document.querySelector('.honor-diploma-status').textContent.includes('sperret'));await p.screenshot({path:path.join(out,'Oscar-diplom-mobil.png'),fullPage:true});
+ const quality=await p.evaluate(async()=>{
+  const proof=await(await fetch('assets/medals/review/cutouts/proof-quality.json')).json(),rows=[];
+  for(const b of MorothonBadges.list('participation').concat([MorothonBadges.get('record')])){
+   const a=await MorothonDiplomas.inspectAsset(b.id),old=proof.medals.find(m=>m.id===b.id),box=old.bounds;
+   const factor=Math.min(a.boxWidthMm/a.width,a.boxHeightMm/a.height);
+   rows.push({id:b.id,title:b.name,source:b.src,hash:a.digest,pixels:[a.width,a.height],actualImageMm:[a.widthMm,a.heightMm],actualMotifLongestMm:Math.max(box[2]-box[0],box[3]-box[1])*factor,dpiInDiploma:a.dpi,dpiAt55mmMotif:old.effectiveDpiAt55,userApproved:!!b.printApproval,sourceCheck:a.ready,transparent:a.transparent,warnings:a.warnings});
+  }
+  return rows;
+ });await fs.writeFile(path.join(out,'faktisk-bildekvalitet.json'),JSON.stringify(quality,null,2)+'\n');
+ const table=quality.map(r=>`| ${r.title} | ${r.pixels.join(' × ')} | ${r.dpiAt55mmMotif.toFixed(0)} | ${r.dpiInDiploma.toFixed(0)} | ${r.actualMotifLongestMm.toFixed(1)} mm | ${r.sourceCheck?'Godkjent':'Avvik'} |`).join('\n');
+ await fs.writeFile(path.join(out,'faktisk-bildekvalitet.md'),`# Faktisk bildekvalitet\n\nAlle elleve aktive løper-/rekordfiler er kontrollert mot fellesregisteret. Samme fil benyttes i profiler, skrytekort og diplomer. Ingen bilde er gjort skarpere eller mer detaljert ved oppskalering.\n\n| Merke | Native piksler | DPI ved 55 mm synlig motiv | DPI i gjeldende diplomfelt | Lengste synlige motivkant i diplom | Kildekontroll |\n|---|---:|---:|---:|---:|---|\n${table}\n\n55 mm i gjeldende diplommal er bildefeltet. Transparent luft i filen kan gjøre medaljen mindre enn 55 mm; tabellen oppgir faktisk størrelse. Det separate A4-testarket viser 55 mm synlig motiv og gir derfor lavere DPI for enkelte filer. 5–30 har cirka 168–189 DPI i det testarket, rekordmerket cirka 298 DPI. Brukeren har godkjent disse konkrete filene med dokumenterte avvik. Dette er ikke en påstand om 300 DPI-detaljer eller et fysisk prøvetrykk.\n\nGrunnleggerbildet er rendret fra eksisterende vektorkilde til 2400 × 2400, og bare den kryssende streken er fjernet. Det er samme korrigerte PNG i katalogen, hedersprofilen og diplomet. Hedersdiplomene er merket som utkast og er ikke utstedt; foreløpige dugnadsoppføringer gir ikke en bekreftet tildeling.\n`);
+ console.log(JSON.stringify({out,medalFiles:quality.length,filesChecked:quality.every(r=>r.sourceCheck)}));
+}finally{await h.close();}})().catch(e=>{console.error(e);process.exitCode=1});

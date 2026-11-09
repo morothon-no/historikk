@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "method": "Non-generative alpha masks on unchanged native source pixels. No resizing, sharpening, inpainting or RGB changes.",
+  "cutouts": [
+    {
+      "id": "badge-5",
+      "source": "assets/medals/originals/badge-5-430x320-eeaabf4108.webp",
+      "sourceSha256": "eeaabf410847d3a0c678817c5f77515e5f3599b6c239107b7ec67c746a782f8d",
+      "src": "assets/medals/review/cutouts/badge-5.png",
+      "sha256": "9ce0d3ec6f2918b98bb8791fa6752ecef4ae9f5123fecfb6afb7a7fa736bb9e2",
+      "width": 430,
+      "height": 320,
+      "visibleBounds": [
+        46,
+        5,
+        412,
+        320
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    },
+    {
+      "id": "badge-10",
+      "source": "assets/medals/originals/badge-10-435x320-5bd69f7feb.webp",
+      "sourceSha256": "5bd69f7feb724aeeb058b376d6e2fd5727c158553c24ccfb144f0349ad30a196",
+      "src": "assets/medals/review/cutouts/badge-10.png",
+      "sha256": "6300fdbb48c9ad05c076fb6a2669df511fe78882beaef794ea0c190a966e9698",
+      "width": 435,
+      "height": 320,
+      "visibleBounds": [
+        28,
+        8,
+        392,
+        320
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    },
+    {
+      "id": "badge-15",
+      "source": "assets/medals/originals/badge-15-445x325-dfbdfbe1dc.webp",
+      "sourceSha256": "dfbdfbe1dc61c0bca2ae27f48bbd8a4b38c82b13f48d5f4457d41c0a94784854",
+      "src": "assets/medals/review/cutouts/badge-15.png",
+      "sha256": "886bb3bd9e1fa9e4e7a933a428a27217cf4c7074d21b5a51fa7c2f6e4d06bbc8",
+      "width": 445,
+      "height": 325,
+      "visibleBounds": [
+        17,
+        7,
+        388,
+        325
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    },
+    {
+      "id": "badge-20",
+      "source": "assets/medals/originals/badge-20-430x345-95ccb32150.webp",
+      "sourceSha256": "95ccb32150db0e73bebd74d08828677c4187647ae9a3eb30935e24b0160ed2d7",
+      "src": "assets/medals/review/cutouts/badge-20.png",
+      "sha256": "d5bdb0d23880df1a60fa43eb6d793590a242410dd3f7e93cad6372f5448ee628",
+      "width": 430,
+      "height": 345,
+      "visibleBounds": [
+        13,
+        5,
+        386,
+        330
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    },
+    {
+      "id": "badge-25",
+      "source": "assets/medals/originals/badge-25-435x340-79cec154be.webp",
+      "sourceSha256": "79cec154be1ade91568adb5fc9c053a2ab434d7d6313d8f77608f25cbb3dfb9a",
+      "src": "assets/medals/review/cutouts/badge-25.png",
+      "sha256": "45169bebff90ebd7255bf990802545b5eef7a45e05e49a0775ad0e775bef2315",
+      "width": 435,
+      "height": 340,
+      "visibleBounds": [
+        0,
+        3,
+        387,
+        332
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    },
+    {
+      "id": "badge-30",
+      "source": "assets/medals/originals/badge-30-450x375-da15977447.webp",
+      "sourceSha256": "da15977447e71969c9386489b5e6b41e67c96ada41ffaccc767539ec3f39c5f2",
+      "src": "assets/medals/review/cutouts/badge-30.png",
+      "sha256": "ee751d35f23310919de0df021893b509d13ad42fce05c1c69aca87448d46cd49",
+      "width": 450,
+      "height": 375,
+      "visibleBounds": [
+        12,
+        2,
+        421,
+        362
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    },
+    {
+      "id": "record",
+      "source": "assets/medals/originals/record-900x600-abafd159cd.webp",
+      "sourceSha256": "abafd159cd3d422f49465991059f4871f6a38f20819d967cee8adc2cb2fd762f",
+      "src": "assets/medals/review/cutouts/record.png",
+      "sha256": "3ac3595195bf1898366839f581db26c85252d6fb60e5eabfce441d4dd431055c",
+      "width": 900,
+      "height": 600,
+      "visibleBounds": [
+        118,
+        4,
+        764,
+        596
+      ],
+      "nativeRgbPreserved": true,
+      "resized": false,
+      "generatedMotif": false,
+      "status": "review-pending",
+      "printReady": false,
+      "notes": [
+        "Manuell konservativ maske. Kantrester og mulige avvik i masken må vurderes visuelt.",
+        "Originalens fotografiske detaljer er uendret; nye detaljer er ikke oppfunnet."
+      ]
+    }
+  ]
+}

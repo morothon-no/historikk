@@ -1,0 +1,519 @@
+{
+  "gitHtmlAndImageBlobsScanned": 23,
+  "gitCommitsAvailable": 45,
+  "scanned": [
+    {
+      "blob": "8a6623f10ed50b92c1ae579cd49e337396780f92",
+      "path": "index.html"
+    },
+    {
+      "blob": "9874b2432b5fc2521bf56a4799d5883494e7b083",
+      "path": "index.html"
+    },
+    {
+      "blob": "bc9ea70744b7fb02a5998c5050350aeee5ea1064",
+      "path": "index.html"
+    },
+    {
+      "blob": "d23b24a9520bc52b10a2ed41bc936433c1f01d2e",
+      "path": "index.html"
+    },
+    {
+      "blob": "dfb053065e082d925ab7e928953fd02bebfb7d5e",
+      "path": "index.html"
+    },
+    {
+      "blob": "7bfbe35dce03150c69609024a8afdb35305830e1",
+      "path": "index.html"
+    },
+    {
+      "blob": "ac2c4595d3338b8fa0dd302022fe9fab7b2f9125",
+      "path": "index.html"
+    },
+    {
+      "blob": "ad0e357b1383a412d178d83b2f1a79760b11faad",
+      "path": "index.html"
+    },
+    {
+      "blob": "220997be68326c35fcc70a9e01d79c2b3ec6c0d1",
+      "path": "index.html"
+    },
+    {
+      "blob": "65ecb541c27957b060fb6c30edae03caaa48512c",
+      "path": "index.html"
+    },
+    {
+      "blob": "946da48ad9a64e86390ec3f670f68c467b086f12",
+      "path": "index.html"
+    },
+    {
+      "blob": "e7efa7b890f692f2eb6f29b1f31c1daded7a52b6",
+      "path": "index.html"
+    },
+    {
+      "blob": "34dded62d056c9b1380cd4af109ce51918087177",
+      "path": "index.html"
+    },
+    {
+      "blob": "632a92010517b9ffa146001f74735ba7c4784294",
+      "path": "index.html"
+    },
+    {
+      "blob": "d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a",
+      "path": "index.html"
+    },
+    {
+      "blob": "8b5f5081e821eafddcc15d50b0aa71c64af50d36",
+      "path": "index.html"
+    },
+    {
+      "blob": "7efe52ba03ddee9e5bf28303998eab7342ba64d5",
+      "path": "index.html"
+    },
+    {
+      "blob": "27c66042d889041621075b88afe21eb86b0a3cd4",
+      "path": "index.html"
+    },
+    {
+      "blob": "33730b03c344b754bd9e0506e08e83cd7bae24d5",
+      "path": "index.html"
+    },
+    {
+      "blob": "0d6bb9a7156ec971f3fa0024fd150f5e15014c59",
+      "path": "index.html"
+    },
+    {
+      "blob": "5887a48182d670d8e0c32492f1a8c22a979e7a55",
+      "path": "index.html"
+    },
+    {
+      "blob": "f6ae32528bba7685e12f39af8975807963696f34",
+      "path": "index.html"
+    },
+    {
+      "blob": "f7a57e1413198d1be23d2c848bb14343bb07cd3b",
+      "path": "index.html"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "badge-5",
+      "width": 430,
+      "height": 320,
+      "sha256": "eeaabf410847d3a0c678817c5f77515e5f3599b6c239107b7ec67c746a782f8d",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[5]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[5]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[5]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[5]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[5]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[5]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[5]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[5]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[5]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[5]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[5]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[5]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[5]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[5]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[5]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[5]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[5]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[5]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[5]",
+        "assets/badges/originals/participation-5.webp",
+        "local-audit:medalje-5.webp"
+      ],
+      "file": "assets/medals/originals/badge-5-430x320-eeaabf4108.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-10",
+      "width": 435,
+      "height": 320,
+      "sha256": "5bd69f7feb724aeeb058b376d6e2fd5727c158553c24ccfb144f0349ad30a196",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[10]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[10]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[10]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[10]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[10]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[10]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[10]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[10]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[10]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[10]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[10]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[10]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[10]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[10]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[10]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[10]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[10]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[10]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[10]",
+        "assets/badges/originals/participation-10.webp",
+        "local-audit:medalje-10.webp"
+      ],
+      "file": "assets/medals/originals/badge-10-435x320-5bd69f7feb.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-15",
+      "width": 445,
+      "height": 325,
+      "sha256": "dfbdfbe1dc61c0bca2ae27f48bbd8a4b38c82b13f48d5f4457d41c0a94784854",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[15]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[15]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[15]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[15]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[15]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[15]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[15]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[15]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[15]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[15]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[15]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[15]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[15]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[15]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[15]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[15]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[15]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[15]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[15]",
+        "assets/badges/originals/participation-15.webp",
+        "local-audit:medalje-15.webp"
+      ],
+      "file": "assets/medals/originals/badge-15-445x325-dfbdfbe1dc.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-20",
+      "width": 430,
+      "height": 345,
+      "sha256": "95ccb32150db0e73bebd74d08828677c4187647ae9a3eb30935e24b0160ed2d7",
+      "format": "WEBP",
+      "sources": [
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[20]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[20]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[20]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[20]"
+      ],
+      "file": "assets/medals/originals/badge-20-430x345-95ccb32150.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-20",
+      "width": 430,
+      "height": 330,
+      "sha256": "1bc558a3e901454e98ad2192bda3aab9f23860330b233e01f67defb989ee082b",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[20]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[20]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[20]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[20]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[20]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[20]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[20]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[20]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[20]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[20]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[20]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[20]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[20]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[20]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[20]",
+        "assets/badges/originals/participation-20.webp",
+        "local-audit:medalje-20.webp"
+      ],
+      "file": "assets/medals/originals/badge-20-430x330-1bc558a3e9.webp",
+      "highestAvailable": false
+    },
+    {
+      "id": "badge-25",
+      "width": 435,
+      "height": 340,
+      "sha256": "79cec154be1ade91568adb5fc9c053a2ab434d7d6313d8f77608f25cbb3dfb9a",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[25]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[25]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[25]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[25]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[25]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[25]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[25]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[25]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[25]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[25]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[25]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[25]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[25]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[25]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[25]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[25]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[25]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[25]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[25]",
+        "assets/badges/originals/participation-25.webp",
+        "local-audit:medalje-25.webp"
+      ],
+      "file": "assets/medals/originals/badge-25-435x340-79cec154be.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-30",
+      "width": 450,
+      "height": 375,
+      "sha256": "da15977447e71969c9386489b5e6b41e67c96ada41ffaccc767539ec3f39c5f2",
+      "format": "WEBP",
+      "sources": [
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[30]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[30]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[30]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[30]"
+      ],
+      "file": "assets/medals/originals/badge-30-450x375-da15977447.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-30",
+      "width": 450,
+      "height": 350,
+      "sha256": "68fe3327922ca690bb405103203eacee6660bcbcf13ffee9c9950a8fd41ae94d",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[30]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[30]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[30]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[30]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[30]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[30]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[30]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[30]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[30]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[30]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[30]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[30]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[30]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[30]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[30]",
+        "assets/badges/originals/participation-30.webp",
+        "local-audit:medalje-30.webp"
+      ],
+      "file": "assets/medals/originals/badge-30-450x350-68fe332792.webp",
+      "highestAvailable": false
+    },
+    {
+      "id": "badge-35",
+      "width": 700,
+      "height": 700,
+      "sha256": "041fb8f38ea4a3a9f337e2475c1aefd62f384575887402de7e89d94f59c55257",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[35]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[35]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[35]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[35]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[35]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[35]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[35]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[35]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[35]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[35]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[35]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[35]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[35]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[35]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[35]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[35]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[35]",
+        "assets/badges/originals/participation-35.webp",
+        "local-audit:medalje-35.webp"
+      ],
+      "file": "assets/medals/originals/badge-35-700x700-041fb8f38e.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-35",
+      "width": 234,
+      "height": 241,
+      "sha256": "b6a978ca221662d6783a25e8cfe8c2ed0fdd23dadea4eeaa9d9927defb07dda1",
+      "format": "PNG",
+      "sources": [
+        "master-v2:medal_transparent",
+        "master-v2:html-embedded-image"
+      ],
+      "file": "assets/medals/originals/badge-35-234x241-b6a978ca22.png",
+      "highestAvailable": false
+    },
+    {
+      "id": "badge-40",
+      "width": 700,
+      "height": 700,
+      "sha256": "188fabebc0fe5e43c2f3a1c333ea62b3c6ede1cac43b84986f80955b945c08aa",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[40]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[40]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[40]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[40]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[40]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[40]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[40]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[40]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[40]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[40]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[40]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[40]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[40]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[40]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[40]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[40]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[40]",
+        "assets/badges/originals/participation-40.webp",
+        "local-audit:medalje-40.webp"
+      ],
+      "file": "assets/medals/originals/badge-40-700x700-188fabebc0.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-45",
+      "width": 700,
+      "height": 700,
+      "sha256": "78b389950aa7bf010b9b7637853d8ce3d97102283a61cb6cde0b7b2adfbffafc",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[45]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[45]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[45]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[45]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[45]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[45]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[45]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[45]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[45]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[45]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[45]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[45]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[45]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[45]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[45]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[45]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[45]",
+        "assets/badges/originals/participation-45.webp",
+        "local-audit:medalje-45.webp"
+      ],
+      "file": "assets/medals/originals/badge-45-700x700-78b389950a.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "badge-50",
+      "width": 700,
+      "height": 700,
+      "sha256": "9fb5d174dca1042be16f3ec3c8be98a9f96dbb62705c79aaf9694c7ea7a75c6a",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[50]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[50]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[50]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[50]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[50]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[50]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[50]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[50]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[50]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[50]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[50]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[50]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[50]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[50]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[50]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[50]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[50]",
+        "assets/badges/originals/participation-50.webp",
+        "local-audit:medalje-50.webp"
+      ],
+      "file": "assets/medals/originals/badge-50-700x700-9fb5d174dc.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "record",
+      "width": 900,
+      "height": 600,
+      "sha256": "abafd159cd3d422f49465991059f4871f6a38f20819d967cee8adc2cb2fd762f",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:RECORD_BADGE_IMAGE",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:RECORD_BADGE_IMAGE",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:RECORD_BADGE_IMAGE",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:RECORD_BADGE_IMAGE",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:RECORD_BADGE_IMAGE",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:RECORD_BADGE_IMAGE",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:RECORD_BADGE_IMAGE",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:RECORD_BADGE_IMAGE",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:RECORD_BADGE_IMAGE",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:RECORD_BADGE_IMAGE",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:RECORD_BADGE_IMAGE",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:RECORD_BADGE_IMAGE",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:RECORD_BADGE_IMAGE",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:RECORD_BADGE_IMAGE",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:RECORD_BADGE_IMAGE",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:RECORD_BADGE_IMAGE",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:RECORD_BADGE_IMAGE",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:RECORD_BADGE_IMAGE",
+        "assets/badges/record.webp",
+        "local-audit:record.webp"
+      ],
+      "file": "assets/medals/originals/record-900x600-abafd159cd.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "runner",
+      "width": 494,
+      "height": 577,
+      "sha256": "d5794b1a9b23c3964f80bdc3e3a67810d1435f6ac4887b352d5fca935ed48c96",
+      "format": "WEBP",
+      "sources": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:RUNNER_IMAGE",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:RUNNER_IMAGE",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:RUNNER_IMAGE",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:RUNNER_IMAGE",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:RUNNER_IMAGE",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:RUNNER_IMAGE",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:RUNNER_IMAGE",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:RUNNER_IMAGE",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:RUNNER_IMAGE",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:RUNNER_IMAGE",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:RUNNER_IMAGE",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:RUNNER_IMAGE",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:RUNNER_IMAGE",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:RUNNER_IMAGE",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:RUNNER_IMAGE",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:RUNNER_IMAGE",
+        "working:index.html:RUNNER_IMAGE"
+      ],
+      "file": "assets/medals/originals/runner-494x577-d5794b1a9b.webp",
+      "highestAvailable": true
+    },
+    {
+      "id": "runner",
+      "width": 420,
+      "height": 360,
+      "sha256": "981a836c0eed221d6a1bed81520536fa721f3c16ac3e87e6ba78ea6925639f5a",
+      "format": "PNG",
+      "sources": [
+        "master-v2:runner_watermark_clean",
+        "master-v2:html-embedded-image"
+      ],
+      "file": "assets/medals/originals/runner-420x360-981a836c0e.png",
+      "highestAvailable": false
+    }
+  ]
+}

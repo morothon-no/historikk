@@ -1,0 +1,570 @@
+{
+  "schemaVersion": 1,
+  "motifProofReport": "assets/medals/review/cutouts/proof-quality.json",
+  "gitCommitsInspected": 45,
+  "gitImageAndHtmlBlobsInspected": 23,
+  "masterPackage": "Morothon_diplom_masterfiler_v2_til_Codex.zip",
+  "notes": [
+    "DPI gjelder originalens piksler ved contain i valgt felt. Maksimal trykkstørrelse gjelder hele bildeflaten.",
+    "RGB-kanaler under alpha=0 er ikke synlig bakgrunn. Alfakanal alene beviser ikke korrekt frilegging.",
+    "Kandidatene er aldri godkjent bare fordi de har nok piksler."
+  ],
+  "medals": [
+    {
+      "id": "badge-5",
+      "name": "Bronsemerket",
+      "source": "assets/medals/originals/badge-5-430x320-eeaabf4108.webp",
+      "sha256": "eeaabf410847d3a0c678817c5f77515e5f3599b6c239107b7ec67c746a782f8d",
+      "width": 430,
+      "height": 320,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 1496,
+      "visibleBounds": [
+        0,
+        0,
+        430,
+        320
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        36.41,
+        27.09
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 198.58,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "For liten for valgt diplomfelt ved 300 DPI. Større original trengs; oppskalering øker ikke kildekvaliteten.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[5]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[5]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[5]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[5]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[5]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[5]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[5]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[5]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[5]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[5]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[5]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[5]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[5]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[5]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[5]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[5]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[5]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[5]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[5]",
+        "assets/badges/originals/participation-5.webp",
+        "/workspace/review/diplomer/assets/medalje-5.webp"
+      ]
+    },
+    {
+      "id": "badge-10",
+      "name": "Sølvmerket",
+      "source": "assets/medals/originals/badge-10-435x320-5bd69f7feb.webp",
+      "sha256": "5bd69f7feb724aeeb058b376d6e2fd5727c158553c24ccfb144f0349ad30a196",
+      "width": 435,
+      "height": 320,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 1506,
+      "visibleBounds": [
+        0,
+        0,
+        435,
+        320
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        36.83,
+        27.09
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 200.89,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "For liten for valgt diplomfelt ved 300 DPI. Større original trengs; oppskalering øker ikke kildekvaliteten.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[10]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[10]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[10]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[10]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[10]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[10]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[10]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[10]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[10]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[10]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[10]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[10]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[10]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[10]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[10]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[10]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[10]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[10]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[10]",
+        "assets/badges/originals/participation-10.webp",
+        "/workspace/review/diplomer/assets/medalje-10.webp"
+      ]
+    },
+    {
+      "id": "badge-15",
+      "name": "Gullmerket",
+      "source": "assets/medals/originals/badge-15-445x325-dfbdfbe1dc.webp",
+      "sha256": "dfbdfbe1dc61c0bca2ae27f48bbd8a4b38c82b13f48d5f4457d41c0a94784854",
+      "width": 445,
+      "height": 325,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 1536,
+      "visibleBounds": [
+        0,
+        0,
+        445,
+        325
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        37.68,
+        27.52
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 205.51,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "For liten for valgt diplomfelt ved 300 DPI. Større original trengs; oppskalering øker ikke kildekvaliteten.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[15]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[15]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[15]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[15]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[15]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[15]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[15]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[15]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[15]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[15]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[15]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[15]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[15]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[15]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[15]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[15]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[15]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[15]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[15]",
+        "assets/badges/originals/participation-15.webp",
+        "/workspace/review/diplomer/assets/medalje-15.webp"
+      ]
+    },
+    {
+      "id": "badge-20",
+      "name": "Platinamerket",
+      "source": "assets/medals/originals/badge-20-430x345-95ccb32150.webp",
+      "sha256": "95ccb32150db0e73bebd74d08828677c4187647ae9a3eb30935e24b0160ed2d7",
+      "width": 430,
+      "height": 345,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 1546,
+      "visibleBounds": [
+        0,
+        0,
+        430,
+        345
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        36.41,
+        29.21
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 198.58,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "For liten for valgt diplomfelt ved 300 DPI. Større original trengs; oppskalering øker ikke kildekvaliteten.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[20]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[20]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[20]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[20]"
+      ]
+    },
+    {
+      "id": "badge-25",
+      "name": "Titanmerket",
+      "source": "assets/medals/originals/badge-25-435x340-79cec154be.webp",
+      "sha256": "79cec154be1ade91568adb5fc9c053a2ab434d7d6313d8f77608f25cbb3dfb9a",
+      "width": 435,
+      "height": 340,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 1546,
+      "visibleBounds": [
+        0,
+        0,
+        435,
+        340
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        36.83,
+        28.79
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 200.89,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "For liten for valgt diplomfelt ved 300 DPI. Større original trengs; oppskalering øker ikke kildekvaliteten.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[25]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[25]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[25]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[25]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[25]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[25]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[25]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[25]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[25]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[25]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[25]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[25]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[25]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[25]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[25]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[25]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[25]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[25]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[25]",
+        "assets/badges/originals/participation-25.webp",
+        "/workspace/review/diplomer/assets/medalje-25.webp"
+      ]
+    },
+    {
+      "id": "badge-30",
+      "name": "Morothon-legende",
+      "source": "assets/medals/originals/badge-30-450x375-da15977447.webp",
+      "sha256": "da15977447e71969c9386489b5e6b41e67c96ada41ffaccc767539ec3f39c5f2",
+      "width": 450,
+      "height": 375,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 1646,
+      "visibleBounds": [
+        0,
+        0,
+        450,
+        375
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        38.1,
+        31.75
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 207.82,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "For liten for valgt diplomfelt ved 300 DPI. Større original trengs; oppskalering øker ikke kildekvaliteten.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[30]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[30]",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:BADGE_IMAGES[30]",
+        "git:33730b03c344b754bd9e0506e08e83cd7bae24d5:index.html:BADGE_IMAGES[30]"
+      ]
+    },
+    {
+      "id": "badge-35",
+      "name": "Morothon-æresløper",
+      "source": "assets/medals/originals/badge-35-700x700-041fb8f38e.webp",
+      "sha256": "041fb8f38ea4a3a9f337e2475c1aefd62f384575887402de7e89d94f59c55257",
+      "width": 700,
+      "height": 700,
+      "transparent": true,
+      "fullyTransparentFraction": 0.29837,
+      "visibleEdgePixels": 0,
+      "visibleBounds": [
+        6,
+        7,
+        694,
+        697
+      ],
+      "correctCutout": true,
+      "maxPrintMm300": [
+        59.27,
+        59.27
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 323.27,
+      "printReady": true,
+      "issues": [],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[35]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[35]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[35]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[35]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[35]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[35]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[35]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[35]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[35]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[35]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[35]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[35]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[35]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[35]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[35]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[35]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[35]",
+        "assets/badges/originals/participation-35.webp",
+        "/workspace/review/diplomer/assets/medalje-35.webp"
+      ]
+    },
+    {
+      "id": "badge-40",
+      "name": "Evighetsløper",
+      "source": "assets/medals/originals/badge-40-700x700-188fabebc0.webp",
+      "sha256": "188fabebc0fe5e43c2f3a1c333ea62b3c6ede1cac43b84986f80955b945c08aa",
+      "width": 700,
+      "height": 700,
+      "transparent": true,
+      "fullyTransparentFraction": 0.28275,
+      "visibleEdgePixels": 0,
+      "visibleBounds": [
+        10,
+        8,
+        689,
+        697
+      ],
+      "correctCutout": true,
+      "maxPrintMm300": [
+        59.27,
+        59.27
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 323.27,
+      "printReady": true,
+      "issues": [],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[40]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[40]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[40]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[40]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[40]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[40]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[40]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[40]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[40]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[40]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[40]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[40]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[40]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[40]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[40]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[40]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[40]",
+        "assets/badges/originals/participation-40.webp",
+        "/workspace/review/diplomer/assets/medalje-40.webp"
+      ]
+    },
+    {
+      "id": "badge-45",
+      "name": "Storlegende",
+      "source": "assets/medals/originals/badge-45-700x700-78b389950a.webp",
+      "sha256": "78b389950aa7bf010b9b7637853d8ce3d97102283a61cb6cde0b7b2adfbffafc",
+      "width": 700,
+      "height": 700,
+      "transparent": true,
+      "fullyTransparentFraction": 0.30279,
+      "visibleEdgePixels": 0,
+      "visibleBounds": [
+        6,
+        10,
+        693,
+        693
+      ],
+      "correctCutout": true,
+      "maxPrintMm300": [
+        59.27,
+        59.27
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 323.27,
+      "printReady": true,
+      "issues": [],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[45]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[45]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[45]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[45]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[45]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[45]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[45]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[45]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[45]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[45]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[45]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[45]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[45]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[45]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[45]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[45]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[45]",
+        "assets/badges/originals/participation-45.webp",
+        "/workspace/review/diplomer/assets/medalje-45.webp"
+      ]
+    },
+    {
+      "id": "badge-50",
+      "name": "Æreslegende",
+      "source": "assets/medals/originals/badge-50-700x700-9fb5d174dc.webp",
+      "sha256": "9fb5d174dca1042be16f3ec3c8be98a9f96dbb62705c79aaf9694c7ea7a75c6a",
+      "width": 700,
+      "height": 700,
+      "transparent": true,
+      "fullyTransparentFraction": 0.28373,
+      "visibleEdgePixels": 0,
+      "visibleBounds": [
+        10,
+        6,
+        690,
+        696
+      ],
+      "correctCutout": true,
+      "maxPrintMm300": [
+        59.27,
+        59.27
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 323.27,
+      "printReady": true,
+      "issues": [],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:BADGE_IMAGES[50]",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:BADGE_IMAGES[50]",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:BADGE_IMAGES[50]",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:BADGE_IMAGES[50]",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:BADGE_IMAGES[50]",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:BADGE_IMAGES[50]",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:BADGE_IMAGES[50]",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:BADGE_IMAGES[50]",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:BADGE_IMAGES[50]",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:BADGE_IMAGES[50]",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:BADGE_IMAGES[50]",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:BADGE_IMAGES[50]",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:BADGE_IMAGES[50]",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:BADGE_IMAGES[50]",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:BADGE_IMAGES[50]",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:BADGE_IMAGES[50]",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:BADGE_IMAGES[50]",
+        "assets/badges/originals/participation-50.webp",
+        "/workspace/review/diplomer/assets/medalje-50.webp"
+      ]
+    },
+    {
+      "id": "record",
+      "name": "Regjerende rekordholder",
+      "source": "assets/medals/originals/record-900x600-abafd159cd.webp",
+      "sha256": "abafd159cd3d422f49465991059f4871f6a38f20819d967cee8adc2cb2fd762f",
+      "width": 900,
+      "height": 600,
+      "transparent": false,
+      "fullyTransparentFraction": 0.0,
+      "visibleEdgePixels": 2996,
+      "visibleBounds": [
+        0,
+        0,
+        900,
+        600
+      ],
+      "correctCutout": false,
+      "maxPrintMm300": [
+        76.2,
+        50.8
+      ],
+      "diplomaBoxMm": [
+        55,
+        55
+      ],
+      "dpiAtDiplomaSize": 415.64,
+      "printReady": false,
+      "issues": [
+        "Ugjennomsiktig bildebakgrunn; må frilegges uten endring av motiv.",
+        "Frilegging og fullstendige ytterkanter er ikke visuelt godkjent for denne filen."
+      ],
+      "provenance": [
+        "git:8a6623f10ed50b92c1ae579cd49e337396780f92:index.html:RECORD_BADGE_IMAGE",
+        "git:9874b2432b5fc2521bf56a4799d5883494e7b083:index.html:RECORD_BADGE_IMAGE",
+        "git:bc9ea70744b7fb02a5998c5050350aeee5ea1064:index.html:RECORD_BADGE_IMAGE",
+        "git:d23b24a9520bc52b10a2ed41bc936433c1f01d2e:index.html:RECORD_BADGE_IMAGE",
+        "git:dfb053065e082d925ab7e928953fd02bebfb7d5e:index.html:RECORD_BADGE_IMAGE",
+        "git:7bfbe35dce03150c69609024a8afdb35305830e1:index.html:RECORD_BADGE_IMAGE",
+        "git:ac2c4595d3338b8fa0dd302022fe9fab7b2f9125:index.html:RECORD_BADGE_IMAGE",
+        "git:ad0e357b1383a412d178d83b2f1a79760b11faad:index.html:RECORD_BADGE_IMAGE",
+        "git:220997be68326c35fcc70a9e01d79c2b3ec6c0d1:index.html:RECORD_BADGE_IMAGE",
+        "git:65ecb541c27957b060fb6c30edae03caaa48512c:index.html:RECORD_BADGE_IMAGE",
+        "git:946da48ad9a64e86390ec3f670f68c467b086f12:index.html:RECORD_BADGE_IMAGE",
+        "git:e7efa7b890f692f2eb6f29b1f31c1daded7a52b6:index.html:RECORD_BADGE_IMAGE",
+        "git:34dded62d056c9b1380cd4af109ce51918087177:index.html:RECORD_BADGE_IMAGE",
+        "git:632a92010517b9ffa146001f74735ba7c4784294:index.html:RECORD_BADGE_IMAGE",
+        "git:d9ae807b1d0d8724ee1d7e1c4345310d4b49d03a:index.html:RECORD_BADGE_IMAGE",
+        "git:8b5f5081e821eafddcc15d50b0aa71c64af50d36:index.html:RECORD_BADGE_IMAGE",
+        "git:7efe52ba03ddee9e5bf28303998eab7342ba64d5:index.html:RECORD_BADGE_IMAGE",
+        "git:27c66042d889041621075b88afe21eb86b0a3cd4:index.html:RECORD_BADGE_IMAGE",
+        "assets/badges/record.webp",
+        "/workspace/review/diplomer/assets/record.webp"
+      ]
+    }
+  ]
+}
