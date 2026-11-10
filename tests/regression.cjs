@@ -401,9 +401,10 @@ test('annual milestone rules: all ten thresholds, unique years, DNS, DNF, canoni
 test('Enny-Karin correction: one documented 1999 result, canonical alias/redirect and preserved historical data', async () => {
   const { createHash } = require('node:crypto');
   const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
-  // Preservation fingerprints from approved V28 (dd2aff6), excluding only the affected rows/profile.
-  assert.equal(hash(data.people.filter(p => !['MOR-72A949A', 'MOR-4CB0E52'].includes(p.i))), '0b2cfcbdc71789a0f1e758e166fc4b2fa16e53f13ef1b31bc9ea3e936025e896');
-  assert.equal(hash(data.results.filter(r => !(r[0] === 1999 && ['MOR-72A949A', 'MOR-4CB0E52'].includes(r[1])))), '4a9090ac739e5205087f563446fda4ba21626b37f5af4b7b580fe062195a3b17');
+  // Approved V28 fingerprints plus the documented Jon/junior correction; Enny rows remain checked separately.
+  // tests/jon-grindland.cjs also reconstructs the prior whole-file hash from only the authorized field changes.
+  assert.equal(hash(data.people.filter(p => !['MOR-72A949A', 'MOR-4CB0E52'].includes(p.i))), '7dc3daba7bfc13b6a10213de5ec522ad48323ed3a2dec7d85dc4e35485317180');
+  assert.equal(hash(data.results.filter(r => !(r[0] === 1999 && ['MOR-72A949A', 'MOR-4CB0E52'].includes(r[1])))), '89f990fbc26aacd9ca2642d4744affea57300fee12a386e34a3e1465ba56b33b');
   assert.equal(hash(data.yearStats.filter(s => s[0] !== 1999)), '81d11f1378a320c3a1cadd5018c6e137bc8ea1db6c75adee8148e97136aa7625');
   assert.equal(hash(data.teamResults), 'c04ab350260c74fcfcc566904bbb762b7fe5ac8ba07fd8977a2c05c8a92b5b93');
   assert.equal(data.people.length, 2643);
