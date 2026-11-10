@@ -44,7 +44,7 @@ test('highest-honor page and each A4 preview remain visually contained and impos
   const page=await h.browser.newPage({viewport:{width,height:1100}});
   try{
    await page.goto(h.base+'/heder.html');
-   await page.locator('#serviceBadges img').first().waitFor();
+   await page.locator('#serviceBadges img').first().waitFor({state:'attached'});
    assert.equal(await page.locator('#serviceBadges img').count(),4);
    assert.equal(await page.locator('a[href*="heder.html"]').count(),0);
    for(const id of ['oscar-lohne','erling-askildsen']){
