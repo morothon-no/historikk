@@ -45,8 +45,9 @@
       if(seen.has(entry.id)||findIn(combined,entry.id)||combined.retiredProfiles?.some(m=>m.id===entry.id))throw new Error('Duplisert person: bruk profileId for en eksisterende hedersprofil.');seen.add(entry.id);
       const sources=entry.sourceIds??list.sourceIds;
       if(!Array.isArray(sources)||!sources.length||sources.some(id=>!key(id)||!Object.hasOwn(combined.sources||{},id)))throw new Error('Dugnadspersonen mangler gyldig kilde.');
-      const member={id:entry.id,name:entry.name,status:'confirmed',reason:entry.text??'En av menneskene som bidrar til Morothon.',sourceIds:[...sources],roles:[{title:entry.role??'Dugnad',confirmed:true,sourceIds:[...sources]}],stories:structuredClone(entry.stories??[]),badgeProposal:{status:'proposed',primaryBadgeId:null,badgeIds:[],sourceIds:[...sources]},awards:[],issuedDiplomas:[]};
-      if(entry.fromYear!==undefined){member.roles[0].fromYear=entry.fromYear;member.contribution={fromYear:entry.fromYear,sourceIds:[...sources]};}
+      const member={id:entry.id,name:entry.name,status:'confirmed',listingOnly:true,reason:null,sourceIds:[...sources],roles:entry.role?[{title:entry.role,confirmed:true,sourceIds:[...sources]}]:[],stories:[],badgeProposal:{status:'proposed',primaryBadgeId:null,badgeIds:[],sourceIds:[...sources]},awards:[],issuedDiplomas:[]};
+      // Legacy text/stories are accepted for file compatibility, never promoted to a full honor profile.
+      if(entry.fromYear!==undefined){if(member.roles[0])member.roles[0].fromYear=entry.fromYear;member.contribution={fromYear:entry.fromYear,sourceIds:[...sources]};}
       if(entry.nameStatus)member.nameStatus=entry.nameStatus;if(entry.internalNotes)member.internalNotes=[...entry.internalNotes];
       group.members.push(member);
     }

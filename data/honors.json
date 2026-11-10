@@ -55,6 +55,34 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-10",
       "basis": "Arrangørens sluttjustering før V3.4-PR: Anne Lene Førland-Hansen og Laila Endresen Skjulestad startet samtidig. Startåret er ikke avklart; mulig 2016 er ikke en bekreftet dato. Tidligere 2014-opplysning for Anne Lene er trukket tilbake."
+    },
+    "organizer-v34-issue13-people": {
+      "title": "Morothon V3.4 – arrangørhistorier og Jon Fjeld",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/13#issuecomment-6777384798",
+      "basis": "Arrangørens beskrivelser av Dag Morten som tidtaker og kreativ ildsjel, Håkons løypemerking/klargjøring/løping/nedrigging og Jon med barneløp/startpistol fra 2014. Humor er personomtale, ikke nye eller endrede løpsresultater."
+    },
+    "organizer-v34-issue13-jon": {
+      "title": "Jon Fjeld – friidretten og Morothon holdes adskilt",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/13#issuecomment-6777443721",
+      "basis": "Lang tilknytning til friidretten er ikke et eldre Morothon-startår. Samarbeidet om Morothon og Jons innsats er oppgitt fra 2014. Historien om eventuell forsovelse i 2026 er ikke avklart og vises ikke."
+    },
+    "organizer-v34-issue13-christan": {
+      "title": "Christan Berthelsen – nytt dugnadsnavn",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/13#issuecomment-6777453774",
+      "basis": "Navn oppgitt av arrangøren. «Noen år» er ikke fem dokumenterte dugnadsår. Oppgave og start-/sluttår er ukjent. Stavemåten Christan beholdes."
+    },
+    "organizer-v34-issue13-minimal": {
+      "title": "Kort dugnadsliste – siste avklaring",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/13#issuecomment-6777494588",
+      "basis": "Vanlige navneoppføringer viser bare navn og kjente oppgaver/år. Ingen standardros, gjentatte historier, gjettede roller eller automatisk oppgradering til full hedersprofil. Anne Lene/Laila har ingen bekreftet startdato."
     }
   },
   "displayOrder": [
@@ -550,9 +578,10 @@
           "id": "dag-morten-frantzen",
           "name": "Dag Morten Frantzen",
           "status": "provisional",
-          "reason": "En av dem som tok stafettpinnen videre i 2014.",
+          "reason": "Tidtaker og kreativ ildsjel i kulissene.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-v34-issue13-people"
           ],
           "roles": [
             {
@@ -577,6 +606,15 @@
                 "organizer-v3"
               ],
               "confirmed": true
+            },
+            {
+              "title": "Hjernen bak klokka",
+              "text": "Dag Morten er på hjemmebane med tidtaking, kreative ideer og alt det som må fungere bak kulissene. Arrangørgjengen forteller, med et smil, at han ennå ikke har tatt hele Langmoro på 20 km i ett strekk – løypa tas visst helst stykkevis og delt. Heldigvis trenger Morothon folk som får klokka til å gå like mye som folk som løper mot den.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v34-issue13-people"
+              ],
+              "confirmed": true
             }
           ],
           "badgeProposal": {
@@ -592,16 +630,18 @@
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
-            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+            "Omtalen av Langmoro i porsjoner er arrangørens humoristiske personbeskrivelse. Den er ikke en løpsprestasjon, DNF eller endring av resultatarkivet."
           ]
         },
         {
           "id": "hakon-lohne",
           "name": "Håkon Lohne",
           "status": "provisional",
-          "reason": "En sentral del av arrangørgruppen som tok over i 2014.",
+          "reason": "Arrangørgjengens spreke alibi – full pakke før, under og etter løpet.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-v34-issue13-people"
           ],
           "roles": [
             {
@@ -622,6 +662,15 @@
               "sourceIds": [
                 "organizer-v3",
                 "organizer-v34"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Det spreke alibiet",
+              "text": "Håkon er det spreke alibiet i arrangørgjengen. Han er kanskje enda kjappere i replikken enn i løypa. Før løpet bidrar han med løypemerking og klargjøring, underveis finner han gjerne tid til å løpe selv, og etterpå er han med på nedrigging. Noen nøyer seg med å arrangere Morothon. Håkon ser ut til å ha bestilt hele pakken.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v34-issue13-people"
               ],
               "confirmed": true
             }
@@ -890,7 +939,8 @@
     "intro": [
       "Morothon blir ikke til av seg selv. Bak hver utgave står folk som stiller opp, år etter år, fordi de vil gi andre en opplevelse. Noen var med fra starten i 1992. Andre kom til underveis. Felles for dem er at de har gjort noe som betyr mer enn de kanskje selv tenker over.",
       "Her vil vi løfte fram menneskene bak løpet. Ikke bare dem som står foran mikrofonen, men også dem som stiller opp tidlig, tar den siste rydderunden og sørger for at neste års Morothon kan bli minst like moro."
-    ]
+    ],
+    "thanks": "Takk til alle som tar en vakt, bærer en kasse eller blir igjen til siste rydderunde."
   },
   "contentVersion": "3.4",
   "previewOnly": true,

@@ -19,7 +19,7 @@ test('Pages artifact contains approved runtime assets and excludes QA, source ar
    p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400&&!r.url().includes('favicon'))errors.push(r.url());});
    await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));
    await p.locator('.mobile-menu summary').click();assert.equal(await p.locator('a[href="heder.html"]').count(),0);await p.goto(h.base+'/heder.html');
-   await p.locator('[data-honoree="anne-lene-forland-hansen"]').waitFor();assert.equal(await p.locator('[data-honoree]').count(),34);assert.equal(await p.locator('[data-honoree="anne-lene-forland-hansen"]').count(),1);await p.locator('[data-honoree="oscar-lohne"] .honor-person-main').click();await p.locator('#profileName').waitFor();
+   await p.locator('[data-honoree="anne-lene-forland-hansen"]').waitFor();assert.equal(await p.locator('[data-honoree]').count(),35);assert.equal(await p.locator('[data-honoree="anne-lene-forland-hansen"]').count(),1);await p.locator('[data-honoree="oscar-lohne"] .honor-person-main').click();await p.locator('#profileName').waitFor();
    assert.equal(await p.locator('#profileName').textContent(),'Oscar Lohne');
    assert.deepEqual(errors,[]);
   }finally{await h.close();}
