@@ -10,7 +10,7 @@ test('V3.4 honor page: single compact cards, featured founders, organizer roles 
    assert.equal(await p.locator('[data-honoree]').count(),35);assert.deepEqual(await p.locator('[data-honor-group="organizers"] .honor-person-main strong').allTextContents(),['Dag Morten Frantzen','Håkon Lohne','Bent Bakke']);
    assert.deepEqual(await p.locator('[data-honor-group="founders"] .honor-person-main strong').allTextContents(),['Arnfinn Håverstad','Helge Reisvoll','Einar Danielsen']);assert.deepEqual(await p.locator('#honorFeatured .honor-person-main strong').allTextContents(),['Oscar Lohne','Erling Askildsen']);
    assert.equal(await p.locator('.honor-award-status').count(),0);
-   assert.equal(await p.locator('#serviceBadges img').count(),3);
+   assert.equal(await p.locator('#serviceBadges img').count(),4);
    assert.equal(await p.locator('#honorProfile').isVisible(),false);
    assert.equal(await p.locator('iframe').count(),0);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
