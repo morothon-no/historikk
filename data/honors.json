@@ -83,6 +83,12 @@
       "date": "2026-11-10",
       "url": "https://github.com/morothon-no/historikk/issues/13#issuecomment-6777494588",
       "basis": "Vanlige navneoppføringer viser bare navn og kjente oppgaver/år. Ingen standardros, gjentatte historier, gjettede roller eller automatisk oppgradering til full hedersprofil. Anne Lene/Laila har ingen bekreftet startdato."
+    },
+    "organizer-aeresmerke-2026": {
+      "title": "Morothons æresmerke – nytt øverste hedersnivå (utkast)",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "basis": "Arrangøren ønsker æresmerket som særskilt, ikke automatisk høyeste utmerkelse. Oscar Lohne og Erling Askildsen foreslås som de første mottakerne. Ingen formell tildeling eller diplomsignering er besluttet."
     }
   },
   "displayOrder": [
@@ -149,17 +155,19 @@
             }
           ],
           "runnerId": "MOR-5ACFAA4",
-          "diplomaTribute": "Du ga ideen som ble til Morothon. Gjennom alle 35 utgavene har du gitt tid og krefter til løpet og menneskene rundt det. Takk for at du har holdt tradisjonen levende, og gitt andre minner å ta med seg hjem.",
+          "diplomaTribute": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien.",
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": "service-hedersildsjel",
+            "primaryBadgeId": "service-aeresmerke",
             "badgeIds": [
+              "service-aeresmerke",
               "service-hedersildsjel",
               "service-grunnlegger",
               "service-dugnadshelt"
             ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-aeresmerke-2026"
             ]
           },
           "awards": [],
@@ -252,17 +260,19 @@
             }
           ],
           "runnerId": "MOR-87AA561",
-          "diplomaTribute": "Du var med på å skape Morothon. Gjennom alle 35 utgavene har du gitt tid og krefter til løpet og menneskene rundt det. Takk for at du har holdt tradisjonen levende, og gitt andre minner å ta med seg hjem.",
+          "diplomaTribute": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien.",
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": "service-hedersildsjel",
+            "primaryBadgeId": "service-aeresmerke",
             "badgeIds": [
+              "service-aeresmerke",
               "service-hedersildsjel",
               "service-grunnlegger",
               "service-dugnadshelt"
             ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-aeresmerke-2026"
             ]
           },
           "awards": [],
@@ -952,6 +962,23 @@
     "diplomaRequiresFormalAward": true,
     "sourceIds": [
       "organizer-v34"
+    ],
+    "milestones": [
+      {
+        "badgeId": "service-dugnadshelt",
+        "minimumDocumentedEditions": 5,
+        "rule": "Kandidat til vurdering etter minst fem bekreftede dugnadsutgaver; tildeling krever egen beslutning."
+      },
+      {
+        "badgeId": "service-hedersildsjel",
+        "minimumDocumentedEditions": 10,
+        "rule": "Ti bekreftede dugnadsutgaver åpner for individuell vurdering ved særlig innsats, ikke automatisk tildeling."
+      },
+      {
+        "badgeId": "service-aeresmerke",
+        "minimumDocumentedEditions": null,
+        "rule": "Morothons høyeste utmerkelse. Kun særskilt vedtak ved helt ekstraordinær eller livslang innsats. Kan ikke opptjenes automatisk."
+      }
     ]
   },
   "featuredIds": [
@@ -976,15 +1003,15 @@
     },
     {
       "id": "oscar-35",
-      "label": "Oscar Lohne – 35 utgaver",
+      "label": "Oscar Lohne – Morothons æresmerke · 35 utgaver",
       "personId": "oscar-lohne",
-      "badgeId": "service-hedersildsjel"
+      "badgeId": "service-aeresmerke"
     },
     {
       "id": "erling-35",
-      "label": "Erling Askildsen – 35 utgaver",
+      "label": "Erling Askildsen – Morothons æresmerke · 35 utgaver",
       "personId": "erling-askildsen",
-      "badgeId": "service-hedersildsjel"
+      "badgeId": "service-aeresmerke"
     }
   ],
   "volunteerList": "data/volunteers.json"
