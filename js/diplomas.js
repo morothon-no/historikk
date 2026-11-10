@@ -172,11 +172,11 @@
 
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
-    const founder=d.assetKey==='service-grunnlegger',lifelong=d.assetKey==='service-hedersildsjel'&&d.contributionCount===35;
-    const heading=founder?'GRUNNLEGGERDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
+    const founder=d.assetKey==='service-grunnlegger',highest=d.assetKey==='service-aeresmerke',lifelong=(highest||d.assetKey==='service-hedersildsjel')&&d.contributionCount===35;
+    const heading=founder?'GRUNNLEGGERDIPLOM':highest?'ÆRESDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
     const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for tid, krefter og fellesskap. Du er med på å gjøre Morothon mulig.');
     const secondary=(d.secondaryAssets||[]).filter(a=>a.key!==d.assetKey);
-    const secondaryHtml=secondary.length?`<div class="diploma-service-secondary" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
+    const secondaryHtml=secondary.length?`<div class="diploma-service-secondary${secondary.length>2?' diploma-service-secondary-three':''}" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
     const value=d.contributionCount|| (founder?'1992':'TAKK'),label=d.contributionCount?'UTGAVER MED INNSATS':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
     const period=d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?'Fem dugnadsutgaver · typeeksempel':'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
