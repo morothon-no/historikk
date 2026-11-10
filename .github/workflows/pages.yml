@@ -1,42 +1,84 @@
-name: Deploy GitHub Pages
+name: Test and deploy GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: [main, 'codex/**']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: morothon-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  verify:
+    name: Regression tests and site build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with historical asset provenance
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install -r requirements-dev.txt
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils fonts-liberation fonts-urw-base35
+          npx playwright install --with-deps chromium
+          printf 'CHROMIUM_PATH=%s\n' "$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" >> "$GITHUB_ENV"
+      - name: Run all regression tests
+        run: npm test
+      - name: Build versioned runtime package
+        run: npm run build
+      - name: Retain tested site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-site
+          path: _site/
+          if-no-files-found: error
+
   deploy:
+    name: Publish tested main only
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - name: Retrieve tested site
+        uses: actions/download-artifact@v4
+        with:
+          name: morothon-site
+          path: _site/
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - name: Build publishable site
-        run: node scripts/build-site.cjs
-
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "_site"
-
+          path: _site/
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

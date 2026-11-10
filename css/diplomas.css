@@ -35,3 +35,6 @@
 
 /* Preview-only honor composition. Approved participation templates are unchanged. */
 .diploma-service .diploma-service-main{grid-template-columns:1fr;justify-items:center}.diploma-service .diploma-service-main figure{width:70mm}.diploma-service .diploma-recipient h3{font-size:3.6mm}
+
+/* Accepted image limits remain available without dominating the print preview. */
+.diploma-quality{margin-top:6px}.diploma-quality summary{display:flex;align-items:center;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.diploma-quality summary:focus-visible{outline:2px solid #426b76;outline-offset:2px}.diploma-quality[open] summary{margin-bottom:4px}

@@ -1,5 +1,7 @@
 # Kvalitetsrapport – offisielle Morothon-medaljer
 
+> Historisk rapport før den senere brukerbekreftede frileggingen/trykkgodkjenningen. Gjeldende aktive filer og godkjenning står i [merkeregisteret](../data/badges.json) og [godkjenningsnotatet](print-approval.md). Kildemålingene nedenfor er bevart som dokumentasjon.
+
 Kilder: 45 lokale commits, 23 ulike HTML-/bildeblobs, arbeidskopien, tidligere lokale gjennomgangsfiler og master v2. Ingen større filer er lastet ned eller funnet hos en ekstern leverandør. Tilgjengelige lokale kilder er undersøkt; dette utelukker ikke større originaler hos arrangøren.
 
 For vurdering av faktisk 55 mm medaljemotiv, se [kontrollert frilegging og A4-testark](medal-cutout-review.md). Tallene nedenfor gjelder hele kildefilen, inkludert luft/fotobakgrunn, og må ikke forveksles med detaljoppløsningen i selve medaljen.

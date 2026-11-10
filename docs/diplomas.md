@@ -115,3 +115,18 @@ Fonten bygges til Canvas fra eksplisitt `fontStyle`, `fontWeight`, `fontSize`
 og `fontFamily`. `getComputedStyle(element).font` kan være tomt når
 fontvariantinnstillinger ikke kan serialiseres til én shorthand, og brukes
 ikke som målefont.
+
+## V3.2 – kort kvalitetsstatus og cache
+
+Godkjente bildefiler med dokumenterte avvik viser «Godkjent for utskrift –
+dokumenterte bildekvalitetsbegrensninger». Native oppløsning og alle faktiske
+DPI-/kildevarsler ligger under «Vis bildekvalitet». Detaljene er tilgjengelige
+med tastatur; manglende godkjenning eller reelle layoutfeil vises fortsatt
+direkte og sperrer begge utskriftshandlinger. «Lagre som PDF» åpner
+nettleserens utskriftsdialog som før.
+
+Byggeren versjonerer også stilark-URL-en inne i det isolerte diplomdokumentet.
+Lokal kildevisning bruker uversjonerte relative adresser. Dato, signatur og
+tegnmålingen fra V3.1 er bevart. Lukking avslutter den pågående gjengivelsen synkront. En forsinket close-hendelse fra en tidligere
+dialog ignoreres hvis dialogen allerede er åpnet igjen, og flytter ikke fokus
+fra en annen kontroll/dialog. Rask Escape/Enter avbryter dermed ikke en ny forhåndsvisning.

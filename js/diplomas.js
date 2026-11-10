@@ -342,17 +342,31 @@
     fitPreview(ui.dialog?.querySelector('.diploma-preview'),ui.dialog?.querySelector('iframe'));
   }
 
+  function closeDialog() {
+    if (!ui.dialog?.open) return;
+    // End the current render synchronously; the native close event may arrive later.
+    ui.sequence++; ui.current = null; ui.dialog.close();
+    ui.focus?.focus({ preventScroll: true });
+  }
+
   function ensureDialog() {
     if (ui.dialog) return;
-    const dialog = document.createElement('dialog'); dialog.id = 'diplomaDialog'; dialog.className = 'diploma-dialog';
-    dialog.innerHTML = `<div class="diploma-toolbar"><h2>Lag diplom</h2><button type="button" data-diploma-close>Tilbake</button></div><label class="diploma-choice">Velg opptjent diplom<select id="diplomaChoice"></select></label>
+    const dialog = document.createElement('dialog'); dialog.id = 'diplomaDialog'; dialog.className = 'diploma-dialog'; dialog.setAttribute('aria-labelledby','diplomaDialogTitle'); dialog.setAttribute('aria-describedby','diplomaPrintHelp');
+    dialog.innerHTML = `<div class="diploma-toolbar"><h2 id="diplomaDialogTitle">Lag diplom</h2><button type="button" data-diploma-close>Tilbake</button></div><label class="diploma-choice">Velg opptjent diplom<select id="diplomaChoice"></select></label>
       <div id="diplomaStatus" role="status" aria-live="polite"></div><div class="diploma-preview"><iframe title="Forhåndsvisning av diplom" sandbox="allow-same-origin allow-modals"></iframe></div>
       <div class="diploma-controls"><button type="button" data-diploma-print disabled>Skriv ut diplom</button><button type="button" data-diploma-pdf disabled>Lagre som PDF</button></div>
-      <p class="diploma-print-help">Liggende A4 · skala 100 % · ingen marger · bakgrunnsgrafikk på · topp- og bunntekst av. «Lagre som PDF» åpner utskriftsdialogen; velg PDF som skriver.</p>`;
+      <p class="diploma-print-help" id="diplomaPrintHelp">Liggende A4 · skala 100 % · ingen marger · bakgrunnsgrafikk på · topp- og bunntekst av. «Lagre som PDF» åpner utskriftsdialogen; velg PDF som skriver.</p>`;
     document.body.appendChild(dialog); ui.dialog = dialog;
-    dialog.querySelector('[data-diploma-close]').addEventListener('click', () => dialog.close());
-    dialog.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); dialog.close(); } });
-    dialog.addEventListener('close', () => { ui.sequence++; ui.current = null; ui.focus?.focus({ preventScroll: true }); });
+    dialog.querySelector('[data-diploma-close]').addEventListener('click', closeDialog);
+    dialog.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeDialog(); } });
+    dialog.addEventListener('cancel', event => { event.preventDefault(); closeDialog(); });
+    dialog.addEventListener('close', () => {
+      if (dialog.open) return;
+      ui.sequence++; ui.current = null;
+      const active = document.activeElement;
+      // Do not steal focus from a different control/dialog opened after this one closed.
+      if (!active || active===document.body || dialog.contains(active)) ui.focus?.focus({ preventScroll: true });
+    });
     dialog.querySelector('select').addEventListener('change', () => renderSelected());
     for (const button of dialog.querySelectorAll('[data-diploma-print],[data-diploma-pdf]')) button.addEventListener('click', () => {
       if (!ui.current?.ready) return;
@@ -370,15 +384,20 @@
       const diploma = await prepare(ui.pid, ui.dialog.querySelector('select').value);
       if (token !== ui.sequence) return;
       await new Promise(resolve => { frame.onload = () => { if (frame.contentDocument?.title === diploma.filename) resolve(); }; frame.srcdoc = documentHtml(diploma); });
-      frame.contentDocument.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); ui.dialog.close(); } });
+      frame.contentDocument.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeDialog(); } });
       const layout = await checkLayout(frame.contentDocument);
       if (token !== ui.sequence) return;
       const issues = [...diploma.asset.issues, ...layout.failures];
       ui.current = { ...diploma, layout, ready: diploma.imageReady && layout.ready };
       status.replaceChildren();
-      const heading = document.createElement('strong'); heading.textContent = issues.length ? 'Forhåndsvisning – ikke utskriftsklar' : diploma.asset.warnings?.length ? 'Trykkfil godkjent med dokumenterte begrensninger' : 'Bilde- og layoutkontroll bestått'; status.appendChild(heading);
+      const heading = document.createElement('strong'); heading.textContent = issues.length ? 'Forhåndsvisning – ikke utskriftsklar' : diploma.asset.warnings?.length ? 'Godkjent for utskrift – dokumenterte bildekvalitetsbegrensninger' : 'Bilde- og layoutkontroll bestått'; status.appendChild(heading);
       if (issues.length) { const list = document.createElement('ul'); for (const issue of issues) { const li = document.createElement('li'); li.textContent = issue; list.appendChild(li); } status.appendChild(list); }
-      else if (diploma.asset.warnings?.length) { const note = document.createElement('p'); note.textContent = 'Brukergodkjent fil. ' + diploma.asset.warnings.join(' '); status.appendChild(note); }
+      else if (diploma.asset.warnings?.length) {
+        const details = document.createElement('details'); details.className = 'diploma-quality';
+        const summary = document.createElement('summary'); summary.textContent = 'Vis bildekvalitet'; details.appendChild(summary);
+        const resolution = document.createElement('p'); resolution.textContent = `Original: ${diploma.asset.width} × ${diploma.asset.height} piksler. Godkjenningen gjelder denne bildefilen.`; details.appendChild(resolution);
+        const list = document.createElement('ul'); for (const warning of diploma.asset.warnings) { const li = document.createElement('li'); li.textContent = warning; list.appendChild(li); } details.appendChild(list); status.appendChild(details);
+      }
       else { const note = document.createElement('p'); note.textContent = 'Kontroller navn og innhold visuelt før du skriver ut eller lagrer PDF.'; status.appendChild(note); }
       for (const button of ui.dialog.querySelectorAll('[data-diploma-print],[data-diploma-pdf]')) button.disabled = !ui.current.ready;
       frame.style.visibility = 'visible';

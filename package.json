@@ -3,8 +3,14 @@
   "private": true,
   "scripts": {
     "test": "node --test tests/*.cjs",
-    "build": "node scripts/build-site.cjs"
+    "build": "node scripts/build-site.cjs",
+    "build:branding": "node scripts/build-brand-assets.cjs"
   },
-  "devDependencies": {"playwright": "1.62.1"},
-  "engines": {"node": ">=20"}
+  "devDependencies": {
+    "playwright": "1.62.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "homepage": "https://morothon-no.github.io/historikk/"
 }
