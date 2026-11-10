@@ -140,22 +140,23 @@
 
   async function serviceDraft(id = 'oscar-lohne') {
     const { member, group } = await MorothonHonorsData.find(id);
+    if (!group.badgeId) throw new Error('Ingen hedersutmerkelse er registrert for denne arrangørrollen.');
     const badges = await MorothonBadges.init(), asset = await inspectAsset(group.badgeId);
     const badge = MorothonBadges.get(group.badgeId), provisional = member.status !== 'confirmed';
     return { name: member.name, honoreeId: member.id, type: 'service', tier: 'service', title: `${badge.name} · diplomutkast`,
-      roleLabel: badge.name, provisional, asset, assetKey: group.badgeId, imageReady: false, previewOnly: true,
+      roleLabel: badge.name, tribute: member.diplomaTribute || '', provisional, asset, assetKey: group.badgeId, imageReady: false, previewOnly: true,
       color: badge.color, firstEdition: 1992, editionNumber: null,
       watermarkSrc: new URL(badges.watermark.src, document.baseURI).href,
       dateLabel: 'Dato fastsettes ved utstedelse', filename: `${member.id}-${badge.id}-diplomutkast`,
       description: provisional ? `${member.name} er foreløpig oppført som dugnadshelt. Ingen endelig tildeling er registrert.`
-        : `${member.name} er bekreftet som grunnlegger. Diplomet er et designutkast.`, citation: '' };
+        : `${member.name} er bekreftet i hederslisten som ${badge.name.toLocaleLowerCase('nb-NO')}. Diplomet er et designutkast.`, citation: '' };
   }
 
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
     const founder=d.assetKey==='service-grunnlegger';
     const heading=founder?'GRUNNLEGGERDIPLOM':'HEDERSDIPLOM';
-    const tribute=founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for frivillig innsats og engasjement for Morothon.';
+    const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for frivillig innsats og engasjement for Morothon.');
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
       <body class="diploma-document"><article class="diploma-sheet diploma-service" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
@@ -164,7 +165,7 @@
       <div class="diploma-heading" data-layout-check><p>FOR LØPSGLEDE OG FELLESSKAP</p><h1>${heading}</h1></div>
       <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
       <div class="diploma-main diploma-service-main"><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure></div>
-      <div class="diploma-citation" data-layout-check><p>${safe(tribute)}</p><strong class="diploma-description">Et varig bidrag til Morothons historie.</strong></div>
+      <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
       <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>Søgne, __________________</p></div><div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
       </article></body></html>`;
   }

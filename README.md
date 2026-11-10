@@ -69,9 +69,9 @@ Se [diplomdokumentasjonen](docs/diplomas.md) for kvalitet, utskriftsinnstillinge
 tester og generering av lokale bildeeksempler og Gunnar Kåsas A4-PDF.
 
 Felles merkefiler, terskler, titler og paletter ligger i `data/badges.json`, lastet
-av `js/badges.js`. Se [merkeregister og v2-kildestatus](docs/badges.md). Den lokale
-hederssidevisningen er `heder.html`; Oscar Lohne er kun navneeksempel, uten
-tildeling eller bekreftet rolle. Kjør alle tester med
+av `js/badges.js`. Se [merkeregister og v2-kildestatus](docs/badges.md). Den skjulte
+hederssidevisningen er `heder.html`; V3 har fem kildebelagte grunnleggere, blant
+annet Oscar Lohne, og eksplisitte koblinger til ordinære løperprofiler. Kjør alle tester med
 `node --test tests/regression.cjs tests/diplomas.cjs tests/badges.cjs`.
 
 ## Offisielt medaljebibliotek
@@ -98,7 +98,7 @@ for flere navn, foreløpig status og bekreftede begrunnelser.
 
 Brukeren har godkjent de viste trykkfilene. Gjeldende bruksstatus og hashbundne unntak ligger i fellesregisteret; tidligere utkaststatus i rapportene er historisk. Se [godkjenningsnotatet](docs/print-approval.md). De faktiske DPI-tallene er uendret. Ingen publisering er godkjent.
 
-«Menneskene bak Morothon» finnes i hovednavigasjonen og mobilmenyen. Hedersprofiler
+«Menneskene bak Morothon» er skjult fra hovednavigasjonen og mobilmenyen. Hedersprofiler
 bruker stabile lenker som `heder.html#person/oscar-lohne`, kildebelagte roller og
 bekreftede historier fra `data/honors.json`. Se [hedersdokumentasjonen](docs/honors.md).
 `tests/final-readiness.cjs` kontrollerer navigasjon, profiler, diplomutkast og 1992-rettelsen.
@@ -115,3 +115,12 @@ Den aktive løperlogoen er godkjent PNG, og ingen tidligere avviste logoer er
 inkludert i utgivelsesgrenen. Originalmotiver/proveniens er bevart i biblioteket
 for kontroll. Se [merkeregister](docs/badges.md), [diplomer](docs/diplomas.md) og
 [hedersprofiler](docs/honors.md) for gjeldende oppførsel og kilder.
+
+## Hedersside V3
+
+Se [hedersdokumentasjonen](docs/honors.md) for fem bekreftede grunnleggere,
+overtakelsen i 2014, dugnadshelter, kildegrunnlag og eksplisitte løper-ID-er.
+Løpsstatistikk beregnes fra `history.json`; frivillig innsats og medaljetildelinger
+holdes separat. `js/history-data.js` deler deltakelses- og plasseringsreglene
+med ordinære profiler. Alle eksisterende resultatdata og medaljefiler er bevart.
+Hederssiden og hedersdiplomene er fortsatt skjulte forhåndsvisninger uten offentlig utstedelse.

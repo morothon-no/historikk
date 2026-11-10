@@ -24,3 +24,8 @@ node scripts/review-approved-medals.cjs /tmp/morothon-approved-medals
 ```
 
 Generatoren endrer ikke historiske resultater, oppretter ikke tildelinger og har ingen offentlig administrasjons- eller masseutskriftsfunksjon.
+
+V3-grunnleggerprofiler kan ha en kort `diplomaTribute` fra hedersdataene. Den
+vises i det eksisterende sitatfeltet, med layoutkontroll for alle fem grunnleggere.
+Ingen utgave, medalje eller løpsstatistikk utledes fra denne teksten. Roller uten
+registrert hedersmerke har ikke et automatisk diplomvalg. Se [hedersdata](honors.md).

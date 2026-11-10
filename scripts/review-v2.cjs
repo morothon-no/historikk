@@ -25,7 +25,7 @@ const names=[['Inger Katherin Dahl Frantzen','Inger'],['Finn Gerhard Olsen','Fin
    if(width<1101)await p.locator('.mobile-menu summary').click();
    const links=await p.locator('a[href*="heder.html"]').count();assert.equal(links,0);navigation.push({width,honorLinks:links,horizontalOverflow:await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth)});
    await p.screenshot({path:path.join(out,'navigasjon-'+width+'.png')});
-   await p.goto(h.base+'/heder.html');await p.locator('#serviceBadges img').first().waitFor();await p.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));await p.screenshot({path:path.join(out,'hedersside-'+width+'.png'),fullPage:true});
+   await p.goto(h.base+'/heder.html');await p.locator('#serviceBadges img').first().waitFor({state:'attached'});await p.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));await p.screenshot({path:path.join(out,'hedersside-'+width+'.png'),fullPage:true});
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert'));await p.screenshot({path:path.join(out,'Oscar-forhandsvisning-'+width+'.png'),fullPage:true});
   }
   await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));
