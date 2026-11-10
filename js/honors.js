@@ -66,7 +66,7 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
   async function prepareDiploma(member,token){
    const diploma=await MorothonDiplomas.serviceDraft(member.id);if(token!==sequence)return;
    const frame=profile.querySelector('iframe'),viewport=profile.querySelector('.honor-diploma'),details=profile.querySelector('.diploma-example');
-   const resize=()=>{const scale=Math.min(1,viewport.clientWidth/(297*96/25.4));frame.style.transform=`scale(${scale})`;viewport.style.height=`${210*96/25.4*scale}px`;};
+   const resize=()=>MorothonDiplomas.fitPreview(viewport,frame);
    const observer=new ResizeObserver(resize);observer.observe(viewport);cleanupProfile=()=>observer.disconnect();
    async function verify(){try{if(!frame.contentDocument?.querySelector('.diploma-sheet'))return;const layout=await MorothonDiplomas.checkLayout(frame.contentDocument);if(token!==sequence)return;profile.querySelector('.honor-diploma-status').textContent=layout.ready?'A4-utkast kontrollert. Kun forhåndsvisning – ikke utstedt. Utskrift er sperret.':layout.failures.join(' ');}catch(e){if(token===sequence)showStatus(e);}}
    frame.onload=async()=>{if(frame.contentDocument?.title!==diploma.filename||token!==sequence)return;await frame.contentDocument.fonts.ready;resize();if(details.open)await verify();};frame.srcdoc=MorothonDiplomas.documentHtml(diploma);details.addEventListener('toggle',()=>{resize();if(details.open)verify();});resize();

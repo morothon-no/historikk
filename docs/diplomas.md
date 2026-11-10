@@ -29,3 +29,38 @@ V3-grunnleggerprofiler kan ha en kort `diplomaTribute` fra hedersdataene. Den
 vises i det eksisterende sitatfeltet, med layoutkontroll for alle fem grunnleggere.
 Ingen utgave, medalje eller løpsstatistikk utledes fra denne teksten. Roller uten
 registrert hedersmerke har ikke et automatisk diplomvalg. Se [hedersdata](honors.md).
+
+## Layoutkontroll og responsiv forhåndsvisning
+
+`checkLayout()` venter på fonter og bilder og kontrollerer både faktisk A4-størrelse
+(297 × 210 mm) og plasseringen av tekstfragmenter, medaljen og synlige elementer.
+Innholdet må holde seg innenfor sitt avsatte felt og arket. Klippet innhold og
+overlapping mellom navnefelt og hovedfelt avvises fortsatt. `measurements` gir
+pikselmål, overflyt per side, eventuell klipping og rå scrollavvik for feilsøking.
+
+Toleransen er **1 CSS-piksel** (ca. 0,265 mm ved 96 DPI). Målinger normaliseres til
+arkets koordinater også ved skalering. `scrollWidth`/`scrollHeight` og deres
+client-mål er heltall; de brukes derfor som diagnostikk, ikke alene som bevis på
+avkutting. Et tekst-/fontlinjefelt kan ha overheng uten at noe går utenfor det
+avsatte feltet. Usynlige, transparente linjebokser regnes ikke som synlig
+innhold; ekte tekst, bilder, rammer og faktisk klipping kontrolleres.
+
+De store 17 mm-tallene beholder størrelsen, med linjehøyde 1,3. Signaturraden får
+2 mm ekstra fra bunnmargen (18,5 mm i stedet for 16,5 mm), og den godkjente
+signaturlinjen på 5 mm beholdes. Håndskriftens navn, rolle og dato får litt mer linjehøyde. Dette gir plass
+til fontvariasjon uten å endre godkjent ramme, medalje, vannmerke eller A4-format.
+
+Vanlige diplomer og hedersutkast bruker samme `fitPreview()`. Native A4-innhold
+skaleres kun i forhåndsvisningen. Rammens kantlinjer tas med i høyden, og høyden
+avrundes opp til nettleserens 1/64-piksel-grid slik at nederkanten beholdes.
+Medaljenes faktiske DPI, kildefiler og trykkgodkjenning endres ikke av dette.
+
+`tests/diploma-layout.cjs` kontrollerer Ingers historiske sølvdiplom, alle ti
+merkenivåer (40–50 i en isolert fremtidstest), alle fire rekorddiplomer og debut,
+korte/lange navn, fontvariasjon, A4-PDF, små avrundingsavvik og ekte feil som skal
+sperre utskrift. Kildekontroll og forhåndsvisningssperren for hedersdiplomer
+beholdes. Nye lokale kontrollbilder kan lages med:
+
+```sh
+node scripts/review-diploma-layout.cjs /tmp/morothon-diploma-layout
+```
