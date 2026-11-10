@@ -57,6 +57,7 @@
 .brag-card .brag-stats em{font-size:11px;font-style:normal;color:#adc5cc;line-height:1.3}
 .brag-card .brag-stats strong{overflow-wrap:anywhere}
 .brag-card .brag-medal-row{gap:12px;min-height:0}
+.brag-card .brag-medal-row[data-count="1"] figure,.brag-card .brag-medal-row[data-count="1"] img{width:150px;height:150px}
 .brag-card .brag-medal-row figure,.brag-card .brag-medal-row img{width:clamp(85px,calc(var(--collection-edge)*.7),126px);height:clamp(85px,calc(var(--collection-edge)*.7),126px)}
 .brag-card:not(.brag-ceremonial) .brag-previous{gap:10px;margin:16px 0}
 .brag-card:not(.brag-ceremonial) .brag-next{margin:16px 0}
@@ -70,7 +71,7 @@
 .loyalty-awards span{color:#b0c7cf}
 @media(max-width:620px){
  .brag-card:not(.brag-ceremonial) .brag-identity{margin:18px 0 14px}
- .brag-card:not(.brag-ceremonial) .brag-earned{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);--medal-height:140px;padding:12px 6px;gap:8px}
+ .brag-card:not(.brag-ceremonial) .brag-earned{grid-template-columns:minmax(0,1fr) 76px;--medal-height:160px;padding:12px 6px;gap:8px}
  .brag-card:not(.brag-ceremonial) .brag-count strong{font-size:64px}
  .brag-card .brag-stats{grid-template-columns:repeat(var(--brag-mobile-stat-columns,3),minmax(0,1fr));margin:14px 0}
  .brag-card .brag-stats>div{padding:10px 4px;gap:5px}
@@ -79,8 +80,21 @@
  .brag-card.brag-inactive .brag-stats>div:last-child{grid-column:auto}
  .brag-card .brag-medal-row{gap:8px}
  .brag-card .brag-medal-row figure,.brag-card .brag-medal-row img{width:clamp(68px,calc(var(--collection-edge)*.48),88px);height:clamp(68px,calc(var(--collection-edge)*.48),88px)}
+ .brag-card .brag-medal-row[data-count="1"] figure,.brag-card .brag-medal-row[data-count="1"] img{width:128px;height:128px}
  .profile-loyalty-top{flex-wrap:wrap}
  .loyalty-status-badge{max-width:100%}
  .loyalty-controls{display:flex;flex-wrap:wrap}
  .loyalty-controls>*{min-width:0;max-width:100%}
 }
+
+/* One supplementary year view: no duplicate goals, personal bests or statistic tiles. */
+.runner-full-details>p{font-size:13px;line-height:1.65;color:#b0c7cf;margin:14px 0}
+.brag-year-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(48px,1fr));gap:8px;list-style:none;padding:0;margin:16px 0}
+.brag-year-list li{padding:9px 3px;border:1px solid #54828a;border-radius:9px;text-align:center;font-size:12px;font-variant-numeric:tabular-nums}
+.brag-year-started{background:#dce8e8;color:#123b45;font-weight:700}
+.brag-year-missed{background:transparent;color:#b0c7cf;border-style:dashed!important}
+.brag-year-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:#b0c7cf}
+.brag-year-legend span{display:flex;align-items:center;gap:6px}
+.brag-year-legend span:before{content:"";width:10px;height:10px;border:1px solid #54828a;border-radius:3px;background:#dce8e8}
+.brag-year-legend span+span:before{background:transparent;border-style:dashed}
+@media(max-width:360px){.brag-card .brag-medal-row[data-count="1"] figure,.brag-card .brag-medal-row[data-count="1"] img{width:104px;height:104px}}

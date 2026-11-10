@@ -56,3 +56,14 @@ Kort under 70 %, eller med færre enn fem mulige utgaver, fremhever konkret
 historikk uten prosent. Historisk heder kan vises med eksplisitt periode.
 Lengste rekke har start- og sluttår; ved like lange rekker velges den tidligste.
 De samme reglene gjelder PNG i både 4:5 og 1:1 og den ordinære profilen.
+
+
+## Forsidens separate nøkkeltall (V3.2.1)
+
+Forsidens «Med 100 % deltakelse siden debut» teller alle som har minst tre
+unike individuelle deltakelsesår og deltakelse i samtlige arrangerte utgaver
+fra debut til siste gjennomførte utgave i historikkfilen. Det er et nøkkeltall,
+ikke en særskilt lojalitetsutmerkelse. Forklaringen viser siste år dynamisk.
+DNS utelates, DNF teller, og kanoniske ID-er brukes. Gjeldende 2026-historikk
+gir 33; verken antall eller årstall er hardkodet. Modellens minstekrav på fem
+arrangerte utgaver og hedersnivåene 70/90/100 % er uendret.

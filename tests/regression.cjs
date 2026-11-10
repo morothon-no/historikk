@@ -478,7 +478,7 @@ test('Skrytekort V2: official earned medals, tier hierarchy, record honor and re
         if (info.previous.length) assert.equal(info.collectionHeading, 'Min medaljesamling');
         assert.equal(info.officialHighest, true);
         assert.equal(info.officialPrevious, true);
-        if (info.smallHeight) assert.ok(info.mainHeight > info.smallHeight * 1.5);
+        if (info.smallHeight) assert.ok(info.mainHeight > info.smallHeight);
         assert.equal(info.centered, true);
         assert.ok(Math.abs(info.numberCenter - info.countCenter) < 1);
         if (!info.ceremonial && info.earned.length) assert.ok(Math.abs(info.medalY - info.countY) < 1, 'Medal and number must use the same centre line');

@@ -48,6 +48,14 @@
     return `<div class="brag-support">${m.best ? `<div><span>${safe(m.best.label)}</span><strong>${safe(displayTime(m.best.row[5]))}</strong><small>${safe(m.best.row[3])} · ${m.best.row[0]}</small></div>` : ''}<div><span>Samlet registrert distanse</span><strong>${safe(formatKm(m.totals.km))}</strong><small>Fullførte, registrerte resultater</small></div></div>`;
   }
 
+  function historyHtml(m) {
+    const L=m.participation,R=MorothonLoyalty,started=new Set(L.years);
+    const editions=[...new Set(S.stats.map(s=>s[0]))].filter(y=>y>=L.first&&y<=L.last).sort((a,b)=>a-b);
+    if(editions.length<2)return '';
+    const basis=!L.current?`<p class="brag-period-basis">${L.count} av ${L.poss} arrangerte utgaver i perioden ${R.range(L)} · ${R.percent(L)} %. Dette er registrert historikk, ikke en vurdering av innsatsen din.</p>`:'';
+    return `<details class="runner-full-details" id="profileYearsDisclosure" style="--brag-metal:${m.theme.metal}"><summary>Deltakelser år for år</summary><p>Registrerte starter og opphold mellom første og siste deltakelse. Hvert år teller én gang; DNS teller ikke, DNF teller.</p><div class="brag-year-legend"><span>Registrert start</span><span>Ingen registrert start</span></div><ol class="brag-year-list">${editions.map(y=>`<li class="${started.has(y)?'brag-year-started':'brag-year-missed'}" aria-label="${y}: ${started.has(y)?'registrert start':'ingen registrert start'}">${y}</li>`).join('')}</ol>${basis}${m.ceremonial?goalHtml(m):''}</details>`;
+  }
+
   function profileHtml(pid) {
     const m = model(pid), { p } = m, stats = cardStats(m);
     const record = m.records.length ? `<div class="profile-record-strip brag-record"><img src="${RECORD_BADGE_IMAGE}" alt="Regjerende rekordholder"><div><b>Regjerende rekordholder</b>${m.records.map(r => `<small>${safe(r.event)} · ${safe(r.gender)} · ${safe(r.time)} (${r.year})</small>`).join('')}</div></div>` : '';
@@ -63,7 +71,7 @@
       ${m.honorary ? `<p class="brag-honor-text">${safe(honorText(m))}</p>` : ''}
       ${stats.length ? `<div class="profile-primary-stats brag-stats">${stats.map(([label,value,detail]) => `<div><strong>${safe(value)}</strong><small>${safe(label.toLocaleLowerCase('nb-NO'))}</small>${detail?`<em>${safe(detail)}</em>`:''}</div>`).join('')}</div>` : ''}
       ${previous}${!m.ceremonial ? goalHtml(m) : ''}${supportHtml(m)}</section>
-      <details class="runner-full-details" style="--brag-metal:${m.theme.metal}"><summary>Alle nøkkeltall og personlige mål</summary><div class="profile-primary-stats"><div><strong>${p.c}</strong><small>deltakelser</small></div>${m.active > 0 ? `<div><strong>${m.active} år</strong><small>aktiv rekke</small></div>` : ''}<div><strong>${m.longest} på rad</strong><small>lengste historiske rekke · ${MorothonLoyalty.range(m.participation.longest)}</small></div><div><strong>${MorothonLoyalty.percent(m.participation)} %</strong><small>${m.participation.count} av ${m.participation.poss} arrangerte utgaver · ${MorothonLoyalty.range(m.participation)}</small></div><div><strong>${p.f}</strong><small>debutår</small></div></div>${goalHtml(m)}${supportHtml(m)}</details>`;
+      ${historyHtml(m)}`;
   }
 
   // Wrap by words; split exceptionally long single words rather than clipping them.

@@ -42,7 +42,7 @@ async function page(width=390,fixture){const p=await h.browser.newPage({viewport
 test('V3.2 profile, card and loyalty calendar distinguish period share, historical honours and latest participants at all widths',async()=>{
  for(const width of [320,390,768,1440]){const p=await page(width);try{
   const r=await p.evaluate(()=>{openProfile('MOR-0C5F6C9');const m=MorothonCard.model('MOR-0C5F6C9');return {stats:MorothonCard.cardStats(m),card:document.querySelector('.brag-card').textContent,details:document.querySelector('.runner-full-details').textContent,L:loyalty(person(m.p.i))};});
-  assert.match(r.card,/5 på rad.*2005–2009/);assert.match(r.card,/2016/);assert.doesNotMatch(r.card,/35\s*%|50\s*%|lojalitet siden debut/i);assert.match(r.details,/50 %.*12 av 24 arrangerte utgaver · 1993–2016/);assert.equal(r.L.count,12);
+  assert.match(r.card,/5 på rad.*2005–2009/);assert.match(r.card,/2016/);assert.doesNotMatch(r.card,/35\s*%|50\s*%|lojalitet siden debut/i);assert.match(r.details,/12 av 24 arrangerte utgaver i perioden 1993–2016 · 50 %/);assert.equal(r.L.count,12);
   await p.evaluate(()=>closeProfile());await p.locator('#loyalSearch').fill('Kristen Fløgstad');assert.match(await p.locator('#loyalGrid').textContent(),/50 %.*12 av 24 arrangerte utgaver · 1993–2016/);await p.selectOption('#loyalMode','recent');assert.equal(await p.locator('.loyal-card').count(),0);await p.selectOption('#loyalMode','period');assert.equal(await p.locator('.loyal-card').count(),1);
   await p.locator('#loyalSearch').fill('');await p.selectOption('#loyalMode','honors');assert.ok(await p.locator('.loyal-card').count()>0);assert.match(await p.locator('#loyalExplanation').textContent(),/debut.*beholdes ved comeback/);
   const data=await p.locator('.loyal-card').evaluateAll(es=>es.map(e=>e.textContent));assert.ok(data.every(t=>/arrangerte utgaver · \d{4}–\d{4}/.test(t)));
@@ -98,7 +98,7 @@ test('V3.2 mobile and desktop profiles keep complete medal motifs, readable stat
    assert.equal(r.overflow,false);for(const im of r.medals){assert.ok(im.left>=r.bounds.left&&im.right<=r.bounds.right&&im.top>=r.bounds.top&&im.bottom<=r.bounds.bottom);}
    if(r.medals.length>1){const edge=im=>Math.max(im.right-im.left,im.bottom-im.top);assert.ok(edge(r.medals[0])>Math.max(...r.medals.slice(1).map(edge))*1.5,`${id}/${width} hierarchy`);}
    for(const t of r.statText){assert.equal(t.fits,true);assert.ok(t.left>=r.bounds.left&&t.right<=r.bounds.right);assert.equal(t.center,'center');}
-   if(id==='MOR-0C5F6C9'&&width<400){assert.ok(r.bounds.height<850,'less empty mobile space than the 947–980px baseline');}
+   if(id==='MOR-0C5F6C9'&&width<400){assert.ok(r.bounds.height<910,'larger medals remain within the 947–980px mobile baseline');}
    await p.evaluate(()=>closeProfile());
   }
  }finally{await p.close();}}
