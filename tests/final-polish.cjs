@@ -21,7 +21,7 @@ test('debut title occurs once; all diploma types avoid duplicate title/subtitle 
   for(const s of requests){
    await p.evaluate(s=>MorothonDiplomas.open(s.pid),s);await p.selectOption('#diplomaChoice',s.key);await p.waitForFunction(k=>MorothonDiplomas.current()?.key===k,s.key);
    const r=await p.evaluate(()=>{const d=document.querySelector('#diplomaDialog iframe').contentDocument,normalize=s=>s.toUpperCase().replace(/[^\p{L}\p{N}]/gu,''),title=d.querySelector('h1').textContent,sub=d.querySelector('.diploma-recipient h3')?.textContent||'',date=d.querySelector('.diploma-date p'),style=d.defaultView.getComputedStyle(date);return {title,sub,different:normalize(title)!==normalize(sub),layout:MorothonDiplomas.current().layout.ready,dateFits:date.scrollWidth<=date.clientWidth+1,oneLine:date.getBoundingClientRect().height<=parseFloat(style.lineHeight)+5,signature:d.querySelector('.diploma-signature').textContent};});
-   assert.equal(r.layout,true,s.key);assert.equal(r.different,true,s.key);assert.equal(r.dateFits,true,s.key);assert.equal(r.oneLine,true,s.key);assert.match(r.signature,/Håkon Lohne.*Løpsleder Søgne Morothon/);
+   assert.equal(r.layout,true,s.key);assert.equal(r.different,true,s.key);assert.equal(r.dateFits,true,s.key);assert.equal(r.oneLine,true,s.key);assert.match(r.signature,/Håkon Lohne.*Løpsleder Morothon/);
    if(s.key==='debut'){assert.equal(r.title,'MIN FØRSTE MOROTHON');assert.equal(r.sub,'Debutdiplom');}
    await p.locator('[data-diploma-close]').click();
   }
@@ -56,7 +56,7 @@ test('full profile details remain keyboard-accessible, readable and within mobil
   }
  }}finally{await p.close();}
 });
-test('all 5–50, record, debut and service diplomas share handwritten attribution and retain room for a real signature',async()=>{
+test('all 5–50, record, debut and service diplomas align matching handwriting above equal rules with a typeset role',async()=>{
  const fixture={schemaVersion:1,people:[{i:'signature-check',n:'Kontrollperson',g:'Herre',c:50}],results:[],yearStats:[]};
  for(let i=0;i<50;i++){const year=1992+i;fixture.results.push([year,'signature-check','Morothon','20 km','Fullført','2:00:00']);fixture.yearStats.push([year,1,1]);}
  const synthetic=await load(fixture),actual=await load();
@@ -75,14 +75,28 @@ test('all 5–50, record, debut and service diplomas share handwritten attributi
     const frame=document.createElement('iframe');frame.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px;border:0';
     await new Promise(resolve=>{frame.onload=resolve;frame.srcdoc=html;document.body.appendChild(frame);});
     try{
-     const doc=frame.contentDocument;await doc.fonts.ready;const name=doc.querySelector('.diploma-signature b'),role=doc.querySelector('.diploma-signature span'),line=doc.querySelector('.diploma-signature-line');
-     return {name:name.textContent,role:role.textContent,nameFont:doc.defaultView.getComputedStyle(name).fontFamily,roleFont:doc.defaultView.getComputedStyle(role).fontFamily,blankHeight:line.getBoundingClientRect().height,blankText:line.textContent,layout:await MorothonDiplomas.checkLayout(doc)};
+     const doc=frame.contentDocument;await doc.fonts.ready;const date=doc.querySelector('.diploma-date p'),name=doc.querySelector('.diploma-signature b'),role=doc.querySelector('.diploma-signature-role'),lines=[...doc.querySelectorAll('.diploma-signature-line')];
+     const style=e=>doc.defaultView.getComputedStyle(e),box=e=>e.getBoundingClientRect();
+     const baseline=e=>{const probe=doc.createElement('i');probe.style.cssText='display:inline-block;width:0;height:0;padding:0;margin:0;vertical-align:baseline';e.appendChild(probe);const y=box(probe).top;probe.remove();return y;};
+     return {name:name.textContent,role:role.textContent,nameFont:style(name).font,dateFont:style(date).font,nameColor:style(name).color,dateColor:style(date).color,roleFont:style(role).fontFamily,roleSize:parseFloat(style(role).fontSize),nameSize:parseFloat(style(name).fontSize),baselineDelta:Math.abs(baseline(date)-baseline(name)),topDelta:Math.abs(box(date).top-box(name).top),aboveLines:box(date).bottom<=box(lines[0]).top&&box(name).bottom<=box(lines[1]).top,roleBelow:box(role).top>=box(lines[1]).bottom,lineCount:lines.length,lineDelta:Math.abs(box(lines[0]).top-box(lines[1]).top),lineHeights:lines.map(e=>box(e).height),lineWidths:lines.map(e=>box(e).width),lineBorders:lines.map(e=>style(e).borderBottom),lineTexts:lines.map(e=>e.textContent),layout:await MorothonDiplomas.checkLayout(doc)};
     }finally{frame.remove();}
    },html);
-   assert.equal(result.name,'Håkon Lohne',key);assert.equal(result.role,'Løpsleder Søgne Morothon',key);
-   assert.match(result.nameFont,/Z003.*cursive/,key);assert.equal(result.roleFont,result.nameFont,key);
-   assert.ok(result.blankHeight>=5*96/25.4-.1,key);assert.equal(result.blankText,'',key);assert.equal(result.layout.ready,true,`${key}: ${result.layout.failures}`);
+   assert.equal(result.name,'Håkon Lohne',key);assert.equal(result.role,'Løpsleder Morothon',key);
+   assert.match(result.nameFont,/Z003.*cursive/,key);assert.equal(result.nameFont,result.dateFont,key);assert.equal(result.nameColor,result.dateColor,key);assert.match(result.roleFont,/Arial/,key);assert.ok(result.roleSize<result.nameSize,key);
+   assert.ok(result.baselineDelta<.1,key);assert.ok(result.topDelta<.1,key);assert.ok(result.lineDelta<.1,key);assert.equal(result.aboveLines,true,key);assert.equal(result.roleBelow,true,key);assert.equal(result.lineCount,2,key);
+   assert.ok(Math.abs(result.lineHeights[0]-result.lineHeights[1])<.1,key);assert.ok(Math.abs(result.lineWidths[0]-result.lineWidths[1])<.1,key);assert.equal(result.lineBorders[0],result.lineBorders[1],key);assert.deepEqual(result.lineTexts,['',''],key);assert.equal(result.layout.ready,true,`${key}: ${result.layout.failures}`);
   }
   assert.equal(documents.length,15);
  }finally{await synthetic.close();await actual.close();}
+});
+
+test('short/year-only and long dates with short/long names keep matching footer baselines and export one A4 PDF',async()=>{
+ const {execFileSync}=require('node:child_process'),p=await load();
+ try{for(const name of ['Ada Li','Inger Katherin Dahl Frantzen Med Et Langt Historisk Navn Som Skal Vises Uten Beskjæring'])for(const date of ['Søgne, 1996','Søgne, 9. november 2024','Søgne, 30. september 2024']){
+  // Typography-only fixtures. No event date or runner identity is changed in history.json.
+  const rendered=await p.evaluate(async({name,date})=>{const model=await MorothonDiplomas.prepare('MOR-C788866','badge:10'),html=MorothonDiplomas.documentHtml({...model,name,dateLabel:date}),frame=document.createElement('iframe');frame.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px;border:0';
+   await new Promise(resolve=>{frame.onload=resolve;frame.srcdoc=html;document.body.appendChild(frame);});try{const doc=frame.contentDocument,layout=await MorothonDiplomas.checkLayout(doc),a=doc.querySelector('.diploma-date p'),b=doc.querySelector('.diploma-signature b');return {html,layout,date:a.textContent,dateWidth:a.getBoundingClientRect().width,dateScroll:a.scrollWidth,dateClient:a.clientWidth,fontSize:doc.defaultView.getComputedStyle(a).fontSize,nameFontSize:doc.defaultView.getComputedStyle(b).fontSize,topDelta:Math.abs(a.getBoundingClientRect().top-b.getBoundingClientRect().top)};}finally{frame.remove();}
+  },{name,date});assert.equal(rendered.layout.ready,true,name+' '+date+': '+rendered.layout.failures.join('; '));assert.equal(rendered.date,date);assert.equal(rendered.fontSize,rendered.nameFontSize);assert.ok(rendered.topDelta<.1);assert.ok(rendered.dateScroll<=rendered.dateClient+1);
+  const pdfPage=await h.browser.newPage();try{await pdfPage.setContent(rendered.html);await pdfPage.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()));});const pdf=await pdfPage.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:'0',right:'0',bottom:'0',left:'0'}}),info=execFileSync('pdfinfo',['-'],{input:pdf}).toString();assert.match(info,/Pages:\s+1\b/);const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.89)<1&&Math.abs(+size[2]-595.28)<1);const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(name));assert.ok(text.includes(date));assert.match(text,/Håkon Lohne/);assert.match(text,/Løpsleder Morothon/);}finally{await pdfPage.close();}
+ }}finally{await p.close();}
 });

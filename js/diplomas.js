@@ -152,6 +152,13 @@
         : `${member.name} er bekreftet i hederslisten som ${badge.name.toLocaleLowerCase('nb-NO')}. Diplomet er et designutkast.`, citation: '' };
   }
 
+  function signoffHtml(date) {
+    return `<div class="diploma-signoff" data-layout-check>
+      <div class="diploma-date"><p class="diploma-handwritten">${safe(date)}</p><div class="diploma-signature-line" aria-hidden="true"></div></div>
+      <div class="diploma-signature"><b class="diploma-handwritten">Håkon Lohne</b><div class="diploma-signature-line" aria-label="Signaturlinje"></div><span class="diploma-signature-role">Løpsleder Morothon</span></div>
+    </div>`;
+  }
+
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
     const founder=d.assetKey==='service-grunnlegger';
@@ -166,7 +173,7 @@
       <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
       <div class="diploma-main diploma-service-main"><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure></div>
       <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
-      <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>Søgne, __________________</p></div><div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
+      ${signoffHtml('Søgne, __________________')}
       </article></body></html>`;
   }
 
@@ -203,8 +210,7 @@
       </div>
       <div class="diploma-citation" data-layout-check><p>${safe(ceremony)}</p><strong class="diploma-description">${safe(d.honorary ? d.citation : d.description)}</strong>
 </div>
-      <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>${safe(d.dateLabel)}</p><small>${d.type === 'service' ? 'Designutkast' : d.type === 'badge' ? 'Merket oppnådd' : d.type === 'record' ? 'Rekorden satt' : 'Debut'}</small></div>
-      <div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
+      ${signoffHtml(d.dateLabel)}
       </article></body></html>`;
   }
 

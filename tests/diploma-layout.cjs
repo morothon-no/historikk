@@ -44,7 +44,7 @@ test('all ten earned badge levels, four records and debut fit short/long names a
    const printPage=await h.browser.newPage();try{await printPage.setContent(html);await printPage.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()));});
     const pdf=await printPage.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:'0',right:'0',bottom:'0',left:'0'}});
     const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString();assert.match(info,/Pages:\s+1\b/);assert.match(info,/Page size:\s+841\.\d+ x 594\.\d+|Page size:\s+841\.\d+ x 595\.\d+/);
-    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(name),name);assert.match(text,/Håkon Lohne/);assert.match(text,/Løpsleder Søgne Morothon/);assert.ok(text.includes(d.date),d.date);
+    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(name),name);assert.match(text,/Håkon Lohne/);assert.match(text,/Løpsleder Morothon/);assert.ok(text.includes(d.date),d.date);
    }finally{await printPage.close();}
   }
  }finally{await p.close();}
