@@ -171,3 +171,7 @@ dermed på **13. november 2021**. Æresdiplomutkast som uttrykkelig omtaler
 oppnåelsesdato, **ikke** automatisk dato for individuell tildeling.
 Anonyme eller udokumenterte tilfeller beholder tomt datofelt.
 Hedersdiplomer er fortsatt ikke utstedt eller utskriftsgodkjent.
+
+## Morothon-navn med glimt i øyet
+
+Dugnadsmilepælene heter nå Ivrig hjelper, Dugnadshelt, Trofast ildsjel, Bærebjelke, Fredet inventar og Morothon-legende. Det illustrerende A4-diplomet får en kort humoristisk hyllest til hvert nivå, men datofeltet følger fortsatt dokumentert løpsdato for faktisk nådd milepæl. Utskrift og formell utstedelse er ikke aktivert.

@@ -975,32 +975,32 @@
       {
         "badgeId": "service-dugnad-5",
         "minimumDocumentedEditions": 5,
-        "rule": "Kandidat til Dugnadshelt 5 etter minst 5 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+        "rule": "Kandidat til «Ivrig hjelper» etter minst 5 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
       },
       {
         "badgeId": "service-dugnad-10",
         "minimumDocumentedEditions": 10,
-        "rule": "Kandidat til Dugnadshelt 10 etter minst 10 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+        "rule": "Kandidat til «Dugnadshelt» etter minst 10 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
       },
       {
         "badgeId": "service-dugnad-15",
         "minimumDocumentedEditions": 15,
-        "rule": "Kandidat til Dugnadshelt 15 etter minst 15 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+        "rule": "Kandidat til «Trofast ildsjel» etter minst 15 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
       },
       {
         "badgeId": "service-dugnad-20",
         "minimumDocumentedEditions": 20,
-        "rule": "Kandidat til Dugnadshelt 20 etter minst 20 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+        "rule": "Kandidat til «Bærebjelke» etter minst 20 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
       },
       {
         "badgeId": "service-dugnad-30",
         "minimumDocumentedEditions": 30,
-        "rule": "Kandidat til Dugnadshelt 30 etter minst 30 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+        "rule": "Kandidat til «Fredet inventar» etter minst 30 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
       },
       {
         "badgeId": "service-dugnad-40",
         "minimumDocumentedEditions": 40,
-        "rule": "Kandidat til Dugnadshelt 40 etter minst 40 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+        "rule": "Kandidat til «Morothon-legende» etter minst 40 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
       }
     ],
     "specialHonors": [
@@ -1025,12 +1025,12 @@
   "diplomaExamples": [
     {
       "id": "dugnadshelt-fem",
-      "label": "Dugnadshelt – 5 dokumenterte dugnadsutgaver (illustrasjon)",
+      "label": "Ivrig hjelper – 5 dugnadsutgaver (illustrasjon)",
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-5",
       "contributionCount": 5,
-      "tribute": "Fem utgaver med tid og krefter til andre. Takk for at du stiller opp, tar et tak og gjør løpsdagen mulig. Innsatsen din gir både løpsglede og et fellesskap å komme tilbake til."
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
     },
     {
       "id": "dugnad-10",
@@ -1039,43 +1039,43 @@
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-10",
       "contributionCount": 10,
-      "tribute": "10 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
     },
     {
       "id": "dugnad-15",
-      "label": "Dugnadshelt – 15 dugnadsutgaver (illustrasjon)",
+      "label": "Trofast ildsjel – 15 dugnadsutgaver (illustrasjon)",
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-15",
       "contributionCount": 15,
-      "tribute": "15 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+      "tribute": "Femten dugnadsutgaver! Noen kaller det dugnad. Vi begynner å kalle det en livsstil. Takk for trofast innsats og godt humør."
     },
     {
       "id": "dugnad-20",
-      "label": "Dugnadshelt – 20 dugnadsutgaver (illustrasjon)",
+      "label": "Bærebjelke – 20 dugnadsutgaver (illustrasjon)",
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-20",
       "contributionCount": 20,
-      "tribute": "20 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+      "tribute": "Tjue utgaver! Når noe må fikses, vet vi hvem vi skal ringe. Du er en av bærebjelkene som holder Morothon på beina."
     },
     {
       "id": "dugnad-30",
-      "label": "Dugnadshelt – 30 dugnadsutgaver (illustrasjon)",
+      "label": "Fredet inventar – 30 dugnadsutgaver (illustrasjon)",
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-30",
       "contributionCount": 30,
-      "tribute": "30 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+      "tribute": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats."
     },
     {
       "id": "dugnad-40",
-      "label": "Dugnadshelt – 40 dugnadsutgaver (illustrasjon)",
+      "label": "Morothon-legende – 40 dugnadsutgaver (illustrasjon)",
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-40",
       "contributionCount": 40,
-      "tribute": "40 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+      "tribute": "Førti dugnadsutgaver. Du er ikke bare en del av Morothon – Morothon er en del av deg. En ekte Morothon-legende!"
     },
     {
       "id": "grunnlegger-flere",

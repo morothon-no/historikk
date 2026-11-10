@@ -280,3 +280,18 @@ bekreftede dugnadsutgaver og `data/event-dates.json`.
   arrangementsdato og er ikke endret.
 - En senere **formell tildelingsdato** hører hjemme i `awards` og
   `issuedDiplomas`, aldri som automatisk erstatning for oppnådd milepæl.
+
+## Vedtatt navnevalg til visuell gjennomgang – Morothon-humor (forslag 3)
+
+De seks milepælene har fått unike navn (ID-er og årsgrenser beholdes):
+
+| Utgaver | Navn | Motivretning |
+| ---: | --- | --- |
+| 5 | Ivrig hjelper | Enkel bronse, minimalt ornament |
+| 10 | Dugnadshelt | Sølv og to stjerner |
+| 15 | Trofast ildsjel | Gull/grønt og en flamme |
+| 20 | Bærebjelke | Gull/burgunder og søyler |
+| 30 | Fredet inventar | Høytidelig gull, laurbær og stjerne |
+| 40 | Morothon-legende | Platina, diamant og glimt |
+
+Merkene er designutkast og krever fortsatt visuell gjennomgang. Diplomutkastene har kort humor med respekt. Hedersildsjel og Grunnlegger forblir særskilte utmerkelser. Morothons æresmerke er høyeste heder, uavhengig av dugnadsår. Ingen automatisk tildeling, utskrift eller publisering.

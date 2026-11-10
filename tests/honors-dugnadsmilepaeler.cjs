@@ -21,7 +21,8 @@ test('six documented volunteer-milestone designs coexist with three individual a
    const svg=await fs.readFile(path.join(root,b.src),'utf8');
    assert.match(svg,new RegExp('>'+b.milestoneEditions+'<\\/text>'));
    assert.match(svg,/DUGNADSUTGAVER/);
-   assert.match(svg,/DUGNADSHELT/);
+   assert.match(svg,new RegExp('>'+b.name.toLocaleUpperCase('nb-NO')+'<\\\\/text>'));
+   assert.equal(b.printReady,false);
  }
 });
 
@@ -62,7 +63,7 @@ test('six anonymous preview diplomas exist with all award issuance and print pat
    await p.locator('[data-honoree="oscar-lohne"]').waitFor();
    assert.equal(await p.locator('#serviceBadges img').count(),9);
    assert.deepEqual(await p.locator('#serviceBadges article h3').allTextContents(),
-     [...milestones.map(n=>'Dugnadshelt · '+n+' utgaver'),'Hedersildsjel','Morothons æresmerke','Grunnlegger']);
+     ['Ivrig hjelper','Dugnadshelt','Trofast ildsjel','Bærebjelke','Fredet inventar','Morothon-legende','Hedersildsjel','Morothons æresmerke','Grunnlegger']);
    const a=await p.evaluate(async()=>{
      const h=await MorothonHonorsData.load();
      return Promise.all(h.diplomaExamples.filter(x=>x.illustrative).map(async x=>{
