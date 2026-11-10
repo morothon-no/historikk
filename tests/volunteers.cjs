@@ -1,0 +1,114 @@
+const {test,before,after}=require('node:test');
+const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
+const {execFileSync}=require('node:child_process');
+const {mergeVolunteers}=require('../js/honors-data.js');
+const {createHarness}=require('../scripts/diploma-harness.cjs');
+const root=path.resolve(__dirname,'..');let h,core,list;
+before(async()=>{
+ core=JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8'));
+ list=JSON.parse(await fs.readFile(path.join(root,'data/volunteers.json'),'utf8'));
+ h=await createHarness();
+});
+after(async()=>{await h?.close();});
+
+test('V3.4 separate volunteer list preserves all 34 canonical profiles and removes both uncertain start years',()=>{
+ const combined=mergeVolunteers(core,list),members=combined.groups.flatMap(g=>g.members);
+ assert.equal(list.people.filter(p=>p.id).length,22);
+ assert.equal(list.people.filter(p=>p.profileId).length,2);
+ assert.equal(members.length,34);assert.equal(new Set(members.map(m=>m.id)).size,34);
+ assert.equal(combined.volunteerList,undefined);assert.equal(core.volunteerList,'data/volunteers.json');
+ const old=JSON.parse(execFileSync('git',['show','92b892a:data/honors.json'],{cwd:root}));
+ for(const m of old.groups.flatMap(g=>g.members)){
+  const actual=members.find(n=>n.id===m.id);assert.ok(actual,m.id);
+  if(['anne-lene-forland-hansen','laila-endresen-skjulestad'].includes(m.id)){
+   assert.equal(actual.contribution,undefined);assert.ok(actual.roles.every(r=>r.fromYear===undefined));
+   assert.doesNotMatch(actual.reason,/2014|2016/);
+   assert.ok(actual.stories.every(s=>!s.text.match(/2014|2016/)));
+   assert.deepEqual(actual.badgeProposal.badgeIds,[]);
+  }else assert.deepEqual(actual,m,m.id);
+ }
+ assert.match(combined.sources['organizer-v34-drikkestasjon-start'].basis,/Startåret er ikke avklart/);
+});
+
+test('V3.4 volunteer identities must reference existing profiles and never silently overwrite or merge them',()=>{
+ const ref=mergeVolunteers(core,{schemaVersion:1,people:[{profileId:'oscar-lohne'}]});
+ assert.equal(ref.groups.flatMap(g=>g.members).filter(m=>m.id==='oscar-lohne').length,1);
+ assert.ok(ref.groups.find(g=>g.id==='volunteers').memberRefs.includes('oscar-lohne'));
+ for(const people of [
+  [{profileId:'kalle-kimestad'},{profileId:'karl-kimestad'}],
+  [{profileId:'unknown'}],
+  [{profileId:'kalle-kimestad',name:'Do not overwrite'}],
+  [{id:'kalle-kimestad',name:'Do not overwrite'}],
+  [{id:'karl-kimestad',name:'Do not invent another identity'}],
+  [{id:'helge-andersen',name:'Do not revive a retired identity'}],
+  [{id:'new-name',name:'One'},{id:'new-name',name:'Two'}]
+ ])assert.throws(()=>mergeVolunteers(core,{...list,people}),/Duplisert|Ukjent/);
+});
+
+test('V3.4 ordinary names require sources, cannot add awards or runner IDs, and new sources cannot overwrite older ones',()=>{
+ const entry={id:'new-name',name:'Testnavn',sourceIds:['new-source']};
+ const source={title:'Kilde bare i test',publisher:'Test',basis:'Testfixture, ikke publisert.'};
+ const combined=mergeVolunteers(core,{schemaVersion:1,sources:{'new-source':source},people:[entry]});
+ const member=combined.groups.flatMap(g=>g.members).find(m=>m.id===entry.id);
+ assert.deepEqual(combined.sources['new-source'],source);assert.deepEqual(member.awards,[]);
+ assert.deepEqual(member.issuedDiplomas,[]);assert.deepEqual(member.badgeProposal.badgeIds,[]);
+ assert.equal(member.runnerId,undefined);assert.equal(member.contribution,undefined);
+ assert.equal(member.roles[0].fromYear,undefined);
+ assert.throws(()=>mergeVolunteers(core,{schemaVersion:1,people:[entry]}),/kilde/);
+ assert.throws(()=>mergeVolunteers(core,{schemaVersion:1,people:[{...entry,sourceIds:['constructor']}]}),/kilde/);
+ assert.throws(()=>mergeVolunteers(core,{schemaVersion:1,sources:{history:source},people:[]}),/finnes allerede/);
+ for(const extra of [{runnerId:'MOR-0000000'},{awards:[]},{badgeProposal:{}},{fromYear:null},{fromYear:'2016'}]){
+  assert.throws(()=>mergeVolunteers(core,{...list,people:[{...entry,sourceIds:['organizer-v34'],...extra}]}),/Ugyldig/);
+ }
+});
+
+test('V3.4 Anne Lene and Laila have one working profile each and no visible guessed start on mobile or desktop',async()=>{
+ for(const width of [390,1440]){
+  const p=await h.browser.newPage({viewport:{width,height:1000}});
+  try{
+   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="anne-lene-forland-hansen"]').waitFor();
+   assert.equal(await p.locator('[data-honoree]').count(),34);
+   for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad']){
+    const card=p.locator(`[data-honoree="${id}"]`);assert.equal(await card.count(),1);
+    assert.doesNotMatch(await card.innerText(),/2014|2016/);
+    await card.click();await p.locator('#profileName').waitFor();
+    assert.match(p.url(),new RegExp('#person/'+id+'$'));
+    assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/2014|2016/);
+    assert.match(await p.locator('#honorProfile').innerText(),/begynte samtidig/);
+    assert.equal(await p.locator('#honorProfile .honor-profile-medals img').count(),0);
+    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await p.keyboard.press('Escape');await p.locator('#honorOverview').waitFor({state:'visible'});
+   }
+  }finally{await p.close();}
+ }
+});
+
+test('V3.4 a new sourced volunteer is added through volunteers.json alone, while a founder reference stays a single featured profile',async()=>{
+ const fixture=structuredClone(list);
+ fixture.sources={'fixture-source':{title:'Kilde for testnavn',publisher:'Test',basis:'Ikke en faktisk person.'}};
+ fixture.people.push({profileId:'oscar-lohne'},{id:'fixture-name',name:'Bare test <b>navn</b>',role:'Testrolle',sourceIds:['fixture-source']});
+ const p=await h.browser.newPage({viewport:{width:390,height:1000}});
+ try{
+  await p.route('**/data/volunteers.json',r=>r.fulfill({json:fixture}));
+  await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="fixture-name"]').waitFor();
+  assert.equal(await p.locator('[data-honoree]').count(),35);
+  assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);
+  const card=p.locator('[data-honoree="fixture-name"]');
+  assert.equal(await card.locator('strong').textContent(),'Bare test <b>navn</b>');assert.equal(await card.locator('b').count(),0);
+  await card.click();await p.locator('#profileName').waitFor();assert.equal(await p.locator('#profileName').textContent(),'Bare test <b>navn</b>');
+  assert.equal(await p.locator('#honorProfile .runner-profile-link,#honorProfile iframe').count(),0);
+  const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return {total:d.groups.flatMap(g=>g.members).length,source:d.sources['fixture-source'].title,member:(await MorothonHonorsData.find('fixture-name')).member};});
+  assert.equal(result.total,35);assert.equal(result.source,'Kilde for testnavn');assert.deepEqual(result.member.badgeProposal.badgeIds,[]);
+ }finally{await p.close();}
+});
+
+test('V3.4 a failed volunteer fetch shows a clear error, never a silently incomplete honor page',async()=>{
+ const p=await h.browser.newPage();
+ try{
+  await p.route('**/data/volunteers.json',r=>r.fulfill({status:404,body:'Not found'}));
+  await p.goto(h.base+'/heder.html');await p.waitForFunction(()=>document.querySelector('#honorStatus').textContent.includes('Dugnadslisten kunne ikke lastes'));
+  assert.equal(await p.locator('[data-honoree]').count(),0);
+  await p.unroute('**/data/volunteers.json');
+  assert.equal(await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return d.groups.flatMap(g=>g.members).length;}),34);
+ }finally{await p.close();}
+});

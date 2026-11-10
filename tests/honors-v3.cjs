@@ -1,7 +1,8 @@
+const {readHonors}=require('./helpers/honors.cjs');
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {createHarness}=require('../scripts/diploma-harness.cjs');let h,honors,history;
 const links={ 'erling-askildsen':'MOR-5ACFAA4','oscar-lohne':'MOR-87AA561','arnfinn-haverstad':'MOR-A4F1F02','helge-reisvoll':'MOR-AD182FF','einar-danielsen':'MOR-D48A84B','kalle-kimestad':'MOR-C65968C','finn-lohne':'MOR-3FAED73','hakon-lohne':'MOR-AA6C983' };
-before(async()=>{h=await createHarness();honors=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));history=JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8'));});after(async()=>{await h.close();});
+before(async()=>{h=await createHarness();honors=await readHonors();history=JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8'));});after(async()=>{await h.close();});
 async function load({width=1440,id='',data,results}={}){const p=await h.browser.newPage({viewport:{width,height:1000}});if(data)await p.route('**/data/honors.json',r=>r.fulfill({json:data}));if(results)await p.route('**/data/history.json',r=>r.fulfill({json:results}));await p.goto(h.base+'/heder.html'+(id?'#person/'+id:''));await p.locator(id?'#profileName':'[data-honor-group="founders"]').waitFor();return p;}
 test('V3 five sourced founders, explicit runner IDs, confirmed volunteers and independent organizer roles',()=>{
  const founders=honors.groups.find(g=>g.id==='founders');assert.deepEqual(founders.members.map(m=>m.name),['Erling Askildsen','Oscar Lohne','Arnfinn Håverstad','Helge Reisvoll','Einar Danielsen']);assert.ok(founders.members.every(m=>m.status==='confirmed'));
@@ -10,7 +11,7 @@ test('V3 five sourced founders, explicit runner IDs, confirmed volunteers and in
  for(const id of ['kalle-kimestad','finn-lohne']){const m=all.find(m=>m.id===id);assert.equal(m.status,'confirmed');assert.equal(m.roles[0].fromYear,2014);}
  for(const id of ['dag-morten-frantzen','hakon-lohne']){const m=all.find(m=>m.id===id);assert.equal(m.status,'provisional');assert.equal(m.roles[0].confirmed,true);assert.equal(m.roles[0].fromYear,2014);}
  assert.equal(all.find(m=>m.id==='dag-morten-frantzen').runnerId,undefined);assert.equal(all.find(m=>m.id==='bent-bakke').runnerId,undefined);assert.equal(honors.groups.find(g=>g.id==='organizers').badgeId,null);
- assert.ok(all.every(m=>(m.roles||[]).every(r=>r.sourceIds.length>0)));assert.match(all.find(m=>m.id==='hakon-lohne').roles[0].note,/Svalbard.*hvilket år er ikke bekreftet/);
+ assert.ok(all.every(m=>(m.roles||[]).every(r=>r.sourceIds.length>0)));assert.match(all.find(m=>m.id==='hakon-lohne').roles[0].note,/Svalbard.*2016/);
 });
 test('V3 dynamically computes controlled participation totals and exact comparable distances from the unmodified history',async()=>{
  const p=await load();try{
@@ -31,7 +32,7 @@ test('shared rules preserve all ordinary profile years, class placements, alias 
 });
 test('V3 every linked honor card and profile works on mobile and desktop; founder distinctions are computed',async()=>{
  for(const width of [320,390,1440]){const p=await load({width});try{
-  assert.equal(await p.locator('[data-honor-group="founders"] [data-honoree]').count(),5);
+  assert.equal(await p.locator('[data-honor-group="founders"] [data-honoree]').count(),3);
   assert.match(await p.locator('[data-honoree="erling-askildsen"] .honor-distinction').textContent(),/Flest løpsdeltakelser/);assert.match(await p.locator('[data-honoree="arnfinn-haverstad"] .honor-distinction').textContent(),/Raskeste grunnlegger.*21 km/);
   for(const [id,pid]of Object.entries(links)){
    await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();assert.equal(await p.locator('#honorProfile .runner-profile-link').getAttribute('href'),'index.html#lop='+pid);assert.ok(await p.locator('#honorProfile .honor-race-metrics b').count());assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${id} at ${width}`);
@@ -41,7 +42,7 @@ test('V3 every linked honor card and profile works on mobile and desktop; founde
 });
 test('V3 missing runner identity never guesses by name; broken explicit links and retired routes remain safe',async()=>{
  const data=structuredClone(honors),vol=data.groups.find(g=>g.id==='volunteers');vol.members.push({id:'unlinked-example',name:'Erling Askildsen',status:'provisional',reason:null,stories:[]});vol.members.push({id:'broken-example',name:'Ukjent kobling',status:'provisional',runnerId:'MOR-0000000',reason:null,stories:[]});
- const p=await load({id:'unlinked-example',data});try{assert.equal(await p.locator('#honorProfile .honor-race-metrics').count(),0);assert.equal(await p.locator('#honorProfile .runner-profile-link').count(),0);assert.match(await p.locator('.honor-racing').textContent(),/Ingen sikker løper-ID/);assert.equal(await p.locator('.eyebrow').filter({hasText:'BEKREFTET HISTORISK ROLLE'}).count(),0);
+ const p=await load({id:'unlinked-example',data});try{assert.equal(await p.locator('#honorProfile .honor-race-metrics').count(),0);assert.equal(await p.locator('#honorProfile .runner-profile-link').count(),0);assert.equal(await p.locator('.honor-racing').count(),0);assert.equal(await p.locator('.eyebrow').filter({hasText:'BEKREFTET HISTORISK ROLLE'}).count(),0);
  await p.goto(h.base+'/heder.html#person/broken-example');await p.locator('#profileName').waitFor();assert.equal(await p.locator('#honorProfile .runner-profile-link').count(),0);
  await p.goto(h.base+'/heder.html#person/helge-andersen');await p.locator('#profileName').waitFor();assert.match(await p.locator('#honorProfile').textContent(),/ikke oppført som bekreftet grunnlegger/);assert.equal(await p.locator('#honorProfile img').count(),0);
  }finally{await p.close();}
@@ -54,13 +55,13 @@ test('V3 participation uses DNS/DNF, unique years and redirects; source podiums 
 });
 test('V3 stats and cohort distinctions follow newer history while role and volunteer tenure stay independent',async()=>{
  const results=structuredClone(history);results.results.push([2026,'MOR-5ACFAA4','Kortmoro','10 km','Fullført','1:40:00',99,'Herrer','','']);const p=await load({id:'erling-askildsen',results});try{assert.equal(await p.locator('.honor-race-metrics b').first().textContent(),'19');assert.match(await p.locator('.honor-race-metrics').textContent(),/1992–2026/);assert.match(await p.locator('[data-distance="10"]').textContent(),/1:40:00/);
- await p.goto(h.base+'/heder.html#person/helge-reisvoll');await p.locator('#profileName').waitFor();assert.equal(await p.locator('.honor-race-metrics b').first().textContent(),'5');assert.match(await p.locator('#honorProfile .honor-story').textContent(),/avgrenser ikke hvor lenge/);assert.doesNotMatch(await p.locator('#honorProfile .profile-role').textContent(),/5 år/);
+ await p.goto(h.base+'/heder.html#person/helge-reisvoll');await p.locator('#profileName').waitFor();assert.equal(await p.locator('.honor-race-metrics b').first().textContent(),'5');assert.match(await p.locator('#honorProfile .honor-story').textContent(),/innsatsen rundt arrangementet/);assert.doesNotMatch(await p.locator('#honorProfile .profile-role').textContent(),/5 år/);
  }finally{await p.close();}
 });
-test('V3 historical narrative preserves confirmed 128 in 1992 and leaves Svalbard year and Floke start unresolved',async()=>{
- const p=await load();try{const text=await p.locator('#honorOverview').textContent();assert.match(text,/1992–2013/);assert.match(text,/2014–2026/);assert.match(text,/Dag Morten Frantzen, Håkon Lohne og Bent Bakke/);assert.match(text,/Floke Bredland/);assert.equal(await p.locator('[data-honoree*="floke"]').count(),0);assert.match(await p.locator('#honorTimeline').textContent(),/Det første året deltok 128 personer/);assert.doesNotMatch(await p.locator('#honorTimeline').textContent(),/129/);assert.match(await p.locator('#honorSourceContent').textContent(),/128/);assert.equal(await p.locator('a[href="https://www.fvn.no/lokalsporten/i/qKlrz/soegne-morothon-for-25-gang"]').count()>0,true);
+test('V3.4 narrative preserves 128, resolves Svalbard to 2016 and keeps uncertain Floke dates out of the main story',async()=>{
+ const p=await load();try{const text=await p.locator('#honorOverview').textContent();assert.match(text,/1992–2013/);assert.match(text,/2014–2026/);assert.match(text,/Dag Morten Frantzen, Håkon Lohne og Bent Bakke/);assert.match(text,/Floke Bredland/);assert.equal(await p.locator('[data-honoree*="floke"]').count(),1);assert.match(await p.locator('#honorTimeline').textContent(),/Allerede i 1992 stilte 128 deltakere/);assert.doesNotMatch(await p.locator('#honorTimeline').textContent(),/129/);assert.match(await p.locator('#honorSourceContent').textContent(),/128/);assert.equal(await p.locator('a[href="https://www.fvn.no/lokalsporten/i/qKlrz/soegne-morothon-for-25-gang"]').count()>0,true);
  assert.ok(honors.groups.flatMap(g=>g.members).filter(m=>m.id!=='bent-bakke').every(m=>m.stories.every(s=>s.sourceIds.length&&s.confirmed)));
- assert.doesNotMatch(text,/Til minne om|hvert eneste år|dugnad i alle 35/i);
+ assert.match(text,/Til minne om/);assert.match(honors.groups.flatMap(g=>g.members).find(m=>m.id==='hakon-lohne').stories[0].text,/2016/);
  }finally{await p.close();}
 });
 test('V3 all founder diplomas have short personal tributes, native medals and safe A4 previews; organizers get no automatic award',async()=>{
@@ -68,6 +69,6 @@ test('V3 all founder diplomas have short personal tributes, native medals and sa
  const d=await p.evaluate(async id=>{const doc=document.querySelector('iframe').contentDocument,m=await MorothonDiplomas.serviceDraft(id);return {name:doc.querySelector('.diploma-recipient h2').textContent,tribute:doc.querySelector('.diploma-citation').textContent,layout:await MorothonDiplomas.checkLayout(doc),src:doc.querySelector('.diploma-medal').src,expected:m.asset.src,ready:m.imageReady,preview:m.previewOnly};},member.id);
  assert.equal(d.name,member.name);assert.equal(d.tribute,member.diplomaTribute);assert.equal(d.layout.ready,true);assert.equal(d.src,d.expected);assert.equal(d.ready,false);assert.equal(d.preview,true);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);assert.equal(await p.locator('iframe').getAttribute('sandbox'),'allow-same-origin');
  }
- await p.goto(h.base+'/heder.html#person/bent-bakke');await p.locator('#profileName').waitFor();assert.equal(await p.locator('.diploma-example').count(),0);assert.match(await p.locator('.honor-no-award').textContent(),/ikke registrert noen hedersmedalje/);
+ await p.goto(h.base+'/heder.html#person/bent-bakke');await p.locator('#profileName').waitFor();assert.equal(await p.locator('.diploma-example').count(),0);assert.equal(await p.locator('.honor-no-award').count(),0);
  }finally{await p.close();}
 });

@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "sourceIds": [
+    "organizer-v34"
+  ],
+  "people": [
+    {
+      "profileId": "kalle-kimestad"
+    },
+    {
+      "profileId": "finn-lohne"
+    },
+    {
+      "id": "jon-fjeld",
+      "name": "Jon Fjeld",
+      "role": "Barneløpet",
+      "fromYear": 2014,
+      "text": "Har ordnet barneløpet siden 2014."
+    },
+    {
+      "id": "rune-bergjord",
+      "name": "Rune Bergjord",
+      "fromYear": 2015,
+      "text": "Har bidratt på dugnad siden 2015."
+    },
+    {
+      "id": "astrid-lohne",
+      "name": "Astrid Lohne",
+      "role": "Løypemerking",
+      "text": "Har vært viktig for god merking ute i løypa."
+    },
+    {
+      "id": "per-sangvik",
+      "name": "Per Sangvik",
+      "role": "Løypemerking",
+      "fromYear": 2019,
+      "text": "Har bidratt med løypemerking siden 2019."
+    },
+    {
+      "id": "tom-lohne",
+      "name": "Tom Lohne",
+      "fromYear": 2021,
+      "text": "Har bidratt på dugnad siden 2021."
+    },
+    {
+      "id": "joar-lohne",
+      "name": "Joar Lohne",
+      "fromYear": 2025,
+      "text": "Har bidratt på dugnad siden 2025."
+    },
+    {
+      "id": "anne-lene-forland-hansen",
+      "name": "Anne Lene Førland-Hansen",
+      "role": "Drikkestasjon",
+      "text": "Har bidratt på drikkestasjon sammen med Laila Endresen Skjulestad.",
+      "sourceIds": [
+        "organizer-v34-drikkestasjon-start"
+      ],
+      "stories": [
+        {
+          "title": "Sammen på drikkestasjonen",
+          "text": "Laila Endresen Skjulestad og Anne Lene Førland-Hansen begynte samtidig på drikkestasjonen. Takk for innsatsen som gjør løpsdagen mulig.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon-start"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    {
+      "id": "birgitte-aamodt",
+      "name": "Birgitte Aamodt",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "nils-henning-pedersen",
+      "name": "Nils Henning Pedersen",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "ingvild-holmen-solvik",
+      "name": "Ingvild Holmen Solvik",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "johannes-aamodt",
+      "name": "Johannes Aamodt",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "linea-morland",
+      "name": "Linea Morland",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "mari-melsom-kristensen",
+      "name": "Mari Melsom Kristensen",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "nils-martin-otterdal-nilsen",
+      "name": "Nils Martin Otterdal Nilsen",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "jenny-aamodt",
+      "name": "Jenny Åmodt",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "ole-j-bueklev",
+      "name": "Ole J.Bueklev",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "trine-dybesland",
+      "name": "Trine Dybesland",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "aud-o",
+      "name": "Aud O",
+      "nameStatus": "partial",
+      "internalNotes": [
+        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+      ]
+    },
+    {
+      "id": "arnfinn-g",
+      "name": "Arnfinn G",
+      "nameStatus": "partial",
+      "internalNotes": [
+        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+      ]
+    },
+    {
+      "id": "magne",
+      "name": "Magne",
+      "nameStatus": "partial",
+      "internalNotes": [
+        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+      ]
+    },
+    {
+      "id": "lars-aamodt",
+      "name": "Lars Aamodt",
+      "sourceIds": [
+        "organizer-v34-lars"
+      ]
+    },
+    {
+      "id": "laila-endresen-skjulestad",
+      "name": "Laila Endresen Skjulestad",
+      "role": "Drikkestasjon",
+      "text": "Har bidratt på drikkestasjon sammen med Anne Lene Førland-Hansen.",
+      "sourceIds": [
+        "organizer-v34-drikkestasjon-start"
+      ],
+      "stories": [
+        {
+          "title": "Sammen på drikkestasjonen",
+          "text": "Laila Endresen Skjulestad og Anne Lene Førland-Hansen begynte samtidig på drikkestasjonen. Takk for innsatsen som gjør løpsdagen mulig.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon-start"
+          ],
+          "confirmed": true
+        }
+      ]
+    }
+  ]
+}

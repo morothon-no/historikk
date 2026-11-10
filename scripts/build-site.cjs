@@ -6,7 +6,7 @@ async function buildSite(destination=path.join(root,'_site')){
  const out=path.resolve(destination);
  if(out===root||root.startsWith(out+path.sep))throw Error('Unsafe output directory');
  await fs.mkdir(out,{recursive:true});if((await fs.readdir(out)).length)throw Error('Output directory must be empty');
- const files=['index.html','heder.html',...['history','badges','honors','event-dates'].map(n=>`data/${n}.json`),...BRAND_ASSETS];
+ const files=['index.html','heder.html',...['history','badges','honors','volunteers','event-dates'].map(n=>`data/${n}.json`),...BRAND_ASSETS];
  for(const [folder,extension]of [['css','.css'],['js','.js']])for(const name of await fs.readdir(path.join(root,folder)))if(name.endsWith(extension))files.push(`${folder}/${name}`);
  const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
  const assets=new Set([registry.watermark.src]);

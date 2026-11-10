@@ -38,3 +38,20 @@
 
 /* Accepted image limits remain available without dominating the print preview. */
 .diploma-quality{margin-top:6px}.diploma-quality summary{display:flex;align-items:center;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.diploma-quality summary:focus-visible{outline:2px solid #426b76;outline-offset:2px}.diploma-quality[open] summary{margin-bottom:4px}
+
+/* V3.4 service previews only. Ordinary earned/record/debut diplomas stay unchanged. */
+.diploma-service-v34{grid-template-rows:18mm 25mm 30mm 65mm 18mm 18.5mm}
+.diploma-service-v34 .diploma-heading h1{font-size:10mm;letter-spacing:.7mm}
+.diploma-service-v34 .diploma-service-main{grid-template-columns:minmax(0,1fr) 64mm minmax(0,1fr);justify-items:stretch}
+.diploma-service-v34 .diploma-service-main>figure{width:100%}
+.diploma-service-v34 .diploma-metric strong{font-size:15mm}
+.diploma-service-v34 .diploma-metric span{font-size:2.8mm;letter-spacing:.35mm}
+.diploma-service-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;align-items:center;text-align:center}
+.diploma-service-main .diploma-service-secondary figure{height:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:2mm}
+.diploma-service-secondary img{display:block;width:26mm;height:26mm;object-fit:contain;max-width:100%}
+.diploma-service-secondary figcaption{font:700 2.6mm/1.4 Arial,sans-serif;color:#526e77}
+.diploma-service-words{text-align:center;display:grid;gap:2mm}
+.diploma-service-words b{font-size:9mm;color:var(--diploma-metal)}
+.diploma-service-words span{font-size:2.8mm;letter-spacing:.3mm}
+.diploma-service-lifelong:before{border-width:.6mm}
+.diploma-service-lifelong:after{border:.25mm solid #c4a35b}
