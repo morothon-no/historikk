@@ -95,9 +95,9 @@ ny identitetskobling eller grunnleggermerke.
 
 `MorothonDiplomas.serviceDraft(personId, optionalBadgeId)` henter personens
 merkeforslag og bruker ett hovedmerke og eventuelle mindre sekundærmerker.
-`serviceExample(exampleId)` lager de fire representative modellene fra
-`diplomaExamples`: fem dugnadsår, grunnlegger med flere merker, Oscar 35 og
-Erling 35. De to siste er samme 35-utgaver-type med hver sin personlige tekst.
+`serviceExample(exampleId)` lager seks anonyme milepælsutkast, et
+grunnleggerutkast og æresutkastene for Oscar/Erling fra `diplomaExamples`.
+De anonyme utkastene bruker de seks valgte titlene og humoristiske tekstene.
 
 Femårseksemplet har ingen person-ID og er tydelig illustrativt. Det finnes ikke
 et dokumentert nøyaktig femårsgrunnlag for en navngitt mottaker i bestillingen.
@@ -106,8 +106,9 @@ Ingen virkelig person er derfor gitt fem dugnadsår ved gjetting.
 Alle service-modeller beholder `previewOnly: true` og `imageReady: false`, også
 ved en formell tildelingspost i en testfixture. Ingen utskrifts-/PDF-knapper
 finnes. Iframes har bare `allow-same-origin`, uten `allow-modals`; forhåndsvisningene
-skjules ved vanlig sideutskrift. Dato fastsettes først ved en eventuell
-utstedelse, ikke fra løpsdatoen. Håkon Lohnes navn er typografisk satt og skal
+skjules ved vanlig sideutskrift. Datofeltet bruker bekreftet løpsdato for
+oppnådd dugnadsmilepæl, eller 35. utgave for æresutkastet. Formell
+utstedelsesdato er en separat, foreløpig uregistrert beslutning. Håkon Lohnes navn er typografisk satt og skal
 ikke omtales som en ekte håndskrevet signatur.
 
 Den eksisterende liggende A4-malen, originalmedaljene, rammene, vannmerket og
@@ -219,11 +220,11 @@ medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.
 
 ## Morothons æresmerke – øverste hedersnivå (forslag)
 
-- Det nye merket `service-aeresmerke` er **fjerde hedersmerke**, over Hedersildsjel.
+- `service-aeresmerke` er **øverste særskilte heder**, over dugnadsstigen og Hedersildsjel.
   Grunnlegger er en selvstendig historisk heder, ikke en dugnadsterskel.
-- **5 dokumenterte dugnadsutgaver:** grunnlag for vurdering av Dugnadshelt.
-  **10 dokumenterte dugnadsutgaver:** grunnlag for individuell vurdering av
-  Hedersildsjel ved særlig innsats. Årsgrensene er ikke automatisk tildeling.
+- Den nummererte dugnadsstigen er **5 Ivrig hjelper, 10 Dugnadshelt, 15 Trofast
+  ildsjel, 20 Bærebjelke, 30 Fredet inventar og 40 Morothon-legende**.
+  Hedersildsjel er en særskilt utmerkelse, uten automatisk årsgrense.
 - **Morothons æresmerke** er for helt ekstraordinært eller livslangt engasjement.
   Det har **ingen automatisk årsgrense** og krever særskilt vedtak.
 - Oscar Lohne og Erling Askildsen er foreslått som de første mottakerne basert
@@ -242,7 +243,7 @@ medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.
 
 ## Dugnadsmilepæler – utvidelse av PR #16 (ikke godkjent)
 
-- **Egen ansiennitetsserie:** Dugnadshelt · **5 / 10 / 15 / 20 / 30 / 40 utgaver**.
+- **Egen dugnadsserie:** seks titler ved **5 / 10 / 15 / 20 / 30 / 40 utgaver**.
   Seks merker med felles skjoldmotiv og individuelle metalluttrykk. Alle er
   `design-draft`, `printReady:false` og ingen er formelt tildelt.
 - Beregning: `MorothonHonorsData.tenureMilestones(data, person)` teller **kun**
@@ -295,3 +296,32 @@ De seks milepælene har fått unike navn (ID-er og årsgrenser beholdes):
 | 40 | Morothon-legende | Platina, diamant og glimt |
 
 Merkene er designutkast og krever fortsatt visuell gjennomgang. Diplomutkastene har kort humor med respekt. Hedersildsjel og Grunnlegger forblir særskilte utmerkelser. Morothons æresmerke er høyeste heder, uavhengig av dugnadsår. Ingen automatisk tildeling, utskrift eller publisering.
+
+## Visuell sluttkontroll i PR #16
+
+De seks SVG-utkastene har nå separate områder for nivåsymbol, stort tall og
+tittel. Lange titler er fordelt på to linjer. 20 har søylemotiv/burgunder,
+30 har ekstra gullramme og kraftigere laurbær, og 40 har fasettert platinaramme.
+Æresmerket har en egen gullstrålende ordensstjerne og krone/løper. Hedersildsjel
+og Grunnlegger er bevart. Ingen godkjente løperoriginaler er endret.
+
+Faktiske SVG-gjengivelser, mobil-/PC-visning og ti A4-prøver ligger i
+[`review/heder-pr16/README.md`](../review/heder-pr16/README.md). Denne mappen
+inntas ikke i nettstedets runtime-bygg. Reproduser med:
+
+```sh
+node scripts/review-honor-badges.cjs review/heder-pr16
+```
+
+En valgt, historisk dugnadsmilepæl viser N bekreftede utgaver og perioden frem
+til N-te utgave, ikke dagens samlede antall. Oscar/Erling får dermed 30,
+1992–2021 og 13. november 2021 på Fredet inventar-utkastet, med den valgte
+Riksantikvaren-teksten. Senere forslag til særskilt heder tas ikke inn på dette
+historiske milepælsdiplomet. Deres æresutkast beholder 35, 1992–2026 og
+7. november 2026. Kildedata, person-ID-er, merkeforslag og tildelinger er uendret.
+
+SVG-er er skalerbare vektorer, ikke 2400px-bitmaporiginaler med en fast DPI.
+Kvalitetspanelet skiller nå SVG fra PNG. Hovedmerket er 55 mm; ved tre
+sekundærmerker er bildene økt til 23 mm med lesbare bildetekster. Bare
+hedersdiplomets lyse metalltekst har fått mørkere trykksverte; rammene og
+medaljenes farger er bevart. Alle merker er fortsatt designutkast.

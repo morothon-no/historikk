@@ -1,0 +1,2032 @@
+{
+  "baseCommit": "861cd132e24e6380b7540cec2f227ac09831a7d1",
+  "vectors": [
+    {
+      "id": "service-dugnad-5",
+      "src": "assets/medals/service/dugnad-5.svg",
+      "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 310,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "5",
+          "role": "count",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 538.76953125,
+            "right": 661.23046875,
+            "top": 514,
+            "bottom": 646
+          }
+        },
+        {
+          "text": "IVRIG HJELPER",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 68,
+          "ink": {
+            "left": 315.63671875,
+            "right": 884.36328125,
+            "top": 723,
+            "bottom": 788
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 467.14453125,
+            "right": 732.85546875,
+            "top": 900,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 475.79296875,
+            "right": 724.20703125,
+            "top": 951,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 542,
+        "top": 390,
+        "right": 658,
+        "bottom": 500
+      },
+      "count": {
+        "left": 538.76953125,
+        "right": 661.23046875,
+        "top": 514,
+        "bottom": 646
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Ivrig hjelper – 5 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-5",
+      "src": "assets/medals/service/dugnad-5.svg",
+      "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 312,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "5",
+          "role": "count",
+          "font": "Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 551.05859375,
+            "right": 648.94140625,
+            "top": 521,
+            "bottom": 645
+          }
+        },
+        {
+          "text": "IVRIG HJELPER",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 68,
+          "ink": {
+            "left": 334.6640625,
+            "right": 865.3359375,
+            "top": 726,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 480.21875,
+            "right": 719.78125,
+            "top": 902,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 485.75390625,
+            "right": 714.24609375,
+            "top": 953,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 542,
+        "top": 390,
+        "right": 658,
+        "bottom": 500
+      },
+      "count": {
+        "left": 551.05859375,
+        "right": 648.94140625,
+        "top": 521,
+        "bottom": 645
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Ivrig hjelper – 5 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-10",
+      "src": "assets/medals/service/dugnad-10.svg",
+      "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 310,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "10",
+          "role": "count",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 477.5390625,
+            "right": 722.4609375,
+            "top": 512,
+            "bottom": 646
+          }
+        },
+        {
+          "text": "DUGNADSHELT",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 69,
+          "ink": {
+            "left": 308.22265625,
+            "right": 891.77734375,
+            "top": 722,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 467.14453125,
+            "right": 732.85546875,
+            "top": 900,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 475.79296875,
+            "right": 724.20703125,
+            "top": 951,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 490,
+        "top": 395,
+        "right": 710,
+        "bottom": 481
+      },
+      "count": {
+        "left": 477.5390625,
+        "right": 722.4609375,
+        "top": 512,
+        "bottom": 646
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Dugnadshelt – 10 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-10",
+      "src": "assets/medals/service/dugnad-10.svg",
+      "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 312,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "10",
+          "role": "count",
+          "font": "Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 502.1171875,
+            "right": 697.8828125,
+            "top": 520,
+            "bottom": 645
+          }
+        },
+        {
+          "text": "DUGNADSHELT",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 69,
+          "ink": {
+            "left": 332.5625,
+            "right": 867.4375,
+            "top": 725,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 480.21875,
+            "right": 719.78125,
+            "top": 902,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 485.75390625,
+            "right": 714.24609375,
+            "top": 953,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 490,
+        "top": 395,
+        "right": 710,
+        "bottom": 481
+      },
+      "count": {
+        "left": 502.1171875,
+        "right": 697.8828125,
+        "top": 520,
+        "bottom": 645
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Dugnadshelt – 10 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-15",
+      "src": "assets/medals/service/dugnad-15.svg",
+      "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 310,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "15",
+          "role": "count",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 477.5390625,
+            "right": 722.4609375,
+            "top": 514,
+            "bottom": 646
+          }
+        },
+        {
+          "text": "TROFAST",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 44,
+          "ink": {
+            "left": 481.96875,
+            "right": 718.03125,
+            "top": 692,
+            "bottom": 726
+          }
+        },
+        {
+          "text": "ILDSJEL",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 72,
+          "ink": {
+            "left": 443.4296875,
+            "right": 756.5703125,
+            "top": 735,
+            "bottom": 804
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 467.14453125,
+            "right": 732.85546875,
+            "top": 900,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 475.79296875,
+            "right": 724.20703125,
+            "top": 951,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 537.684814453125,
+        "top": 383,
+        "right": 657.4154663085938,
+        "bottom": 501
+      },
+      "count": {
+        "left": 477.5390625,
+        "right": 722.4609375,
+        "top": 514,
+        "bottom": 646
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Trofast ildsjel – 15 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-15",
+      "src": "assets/medals/service/dugnad-15.svg",
+      "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 312,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "15",
+          "role": "count",
+          "font": "Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 502.1171875,
+            "right": 697.8828125,
+            "top": 521,
+            "bottom": 645
+          }
+        },
+        {
+          "text": "TROFAST",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 44,
+          "ink": {
+            "left": 490.3359375,
+            "right": 709.6640625,
+            "top": 694,
+            "bottom": 726
+          }
+        },
+        {
+          "text": "ILDSJEL",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 72,
+          "ink": {
+            "left": 448.47265625,
+            "right": 751.52734375,
+            "top": 738,
+            "bottom": 790
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 480.21875,
+            "right": 719.78125,
+            "top": 902,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 485.75390625,
+            "right": 714.24609375,
+            "top": 953,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 537.684814453125,
+        "top": 383,
+        "right": 657.4154663085938,
+        "bottom": 501
+      },
+      "count": {
+        "left": 502.1171875,
+        "right": 697.8828125,
+        "top": 521,
+        "bottom": 645
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Trofast ildsjel – 15 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-20",
+      "src": "assets/medals/service/dugnad-20.svg",
+      "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 310,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "20",
+          "role": "count",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 477.5390625,
+            "right": 722.4609375,
+            "top": 512,
+            "bottom": 646
+          }
+        },
+        {
+          "text": "BÆREBJELKE",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 69,
+          "ink": {
+            "left": 346.15234375,
+            "right": 853.84765625,
+            "top": 723,
+            "bottom": 788
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 467.14453125,
+            "right": 732.85546875,
+            "top": 900,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 475.79296875,
+            "right": 724.20703125,
+            "top": 951,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 474,
+        "top": 378,
+        "right": 726,
+        "bottom": 499
+      },
+      "count": {
+        "left": 477.5390625,
+        "right": 722.4609375,
+        "top": 512,
+        "bottom": 646
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Bærebjelke – 20 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-20",
+      "src": "assets/medals/service/dugnad-20.svg",
+      "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 312,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "20",
+          "role": "count",
+          "font": "Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 502.1171875,
+            "right": 697.8828125,
+            "top": 520,
+            "bottom": 645
+          }
+        },
+        {
+          "text": "BÆREBJELKE",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 69,
+          "ink": {
+            "left": 351.54296875,
+            "right": 848.45703125,
+            "top": 726,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 480.21875,
+            "right": 719.78125,
+            "top": 902,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 485.75390625,
+            "right": 714.24609375,
+            "top": 953,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 474,
+        "top": 378,
+        "right": 726,
+        "bottom": 499
+      },
+      "count": {
+        "left": 502.1171875,
+        "right": 697.8828125,
+        "top": 520,
+        "bottom": 645
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Bærebjelke – 20 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-30",
+      "src": "assets/medals/service/dugnad-30.svg",
+      "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 310,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "30",
+          "role": "count",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 477.5390625,
+            "right": 722.4609375,
+            "top": 512,
+            "bottom": 646
+          }
+        },
+        {
+          "text": "FREDET",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 44,
+          "ink": {
+            "left": 498.703125,
+            "right": 701.296875,
+            "top": 692,
+            "bottom": 725
+          }
+        },
+        {
+          "text": "INVENTAR",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 72,
+          "ink": {
+            "left": 392.55078125,
+            "right": 807.44921875,
+            "top": 736,
+            "bottom": 789
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 467.14453125,
+            "right": 732.85546875,
+            "top": 900,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 475.79296875,
+            "right": 724.20703125,
+            "top": 951,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 475,
+        "top": 384,
+        "right": 725,
+        "bottom": 492
+      },
+      "count": {
+        "left": 477.5390625,
+        "right": 722.4609375,
+        "top": 512,
+        "bottom": 646
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Fredet inventar – 30 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-30",
+      "src": "assets/medals/service/dugnad-30.svg",
+      "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 312,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "30",
+          "role": "count",
+          "font": "Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 502.1171875,
+            "right": 697.8828125,
+            "top": 520,
+            "bottom": 645
+          }
+        },
+        {
+          "text": "FREDET",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 44,
+          "ink": {
+            "left": 506,
+            "right": 694,
+            "top": 694,
+            "bottom": 725
+          }
+        },
+        {
+          "text": "INVENTAR",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 72,
+          "ink": {
+            "left": 414.6640625,
+            "right": 785.3359375,
+            "top": 739,
+            "bottom": 789
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 480.21875,
+            "right": 719.78125,
+            "top": 902,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 485.75390625,
+            "right": 714.24609375,
+            "top": 953,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 475,
+        "top": 384,
+        "right": 725,
+        "bottom": 492
+      },
+      "count": {
+        "left": 502.1171875,
+        "right": 697.8828125,
+        "top": 520,
+        "bottom": 645
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Fredet inventar – 30 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-40",
+      "src": "assets/medals/service/dugnad-40.svg",
+      "sha256": "e56602fa2d56c4fd1fca1594ca8ba6dc492561bfe67894d852703fa4d390d8ca",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 310,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "40",
+          "role": "count",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 477.5390625,
+            "right": 722.4609375,
+            "top": 512,
+            "bottom": 646
+          }
+        },
+        {
+          "text": "MOROTHON-",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 44,
+          "ink": {
+            "left": 435.09765625,
+            "right": 764.90234375,
+            "top": 692,
+            "bottom": 726
+          }
+        },
+        {
+          "text": "LEGENDE",
+          "role": "title",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 72,
+          "ink": {
+            "left": 410.22265625,
+            "right": 789.77734375,
+            "top": 735,
+            "bottom": 791
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 467.14453125,
+            "right": 732.85546875,
+            "top": 900,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 475.79296875,
+            "right": 724.20703125,
+            "top": 951,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 465,
+        "top": 383,
+        "right": 735,
+        "bottom": 498
+      },
+      "count": {
+        "left": 477.5390625,
+        "right": 722.4609375,
+        "top": 512,
+        "bottom": 646
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Morothon-legende – 40 dugnadsutgaver"
+    },
+    {
+      "id": "service-dugnad-40",
+      "src": "assets/medals/service/dugnad-40.svg",
+      "sha256": "e56602fa2d56c4fd1fca1594ca8ba6dc492561bfe67894d852703fa4d390d8ca",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 312,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "40",
+          "role": "count",
+          "font": "Arial, sans-serif",
+          "size": 176,
+          "ink": {
+            "left": 502.1171875,
+            "right": 697.8828125,
+            "top": 520,
+            "bottom": 645
+          }
+        },
+        {
+          "text": "MOROTHON-",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 44,
+          "ink": {
+            "left": 452.90625,
+            "right": 747.09375,
+            "top": 694,
+            "bottom": 726
+          }
+        },
+        {
+          "text": "LEGENDE",
+          "role": "title",
+          "font": "Arial, sans-serif",
+          "size": 72,
+          "ink": {
+            "left": 422.4765625,
+            "right": 777.5234375,
+            "top": 738,
+            "bottom": 790
+          }
+        },
+        {
+          "text": "DUGNADS",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 480.21875,
+            "right": 719.78125,
+            "top": 902,
+            "bottom": 936
+          }
+        },
+        {
+          "text": "UTGAVER",
+          "role": "caption",
+          "font": "Arial, sans-serif",
+          "size": 46,
+          "ink": {
+            "left": 485.75390625,
+            "right": 714.24609375,
+            "top": 953,
+            "bottom": 987
+          }
+        }
+      ],
+      "emblem": {
+        "left": 465,
+        "top": 383,
+        "right": 735,
+        "bottom": 498
+      },
+      "count": {
+        "left": 502.1171875,
+        "right": 697.8828125,
+        "top": 520,
+        "bottom": 645
+      },
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Morothon-legende – 40 dugnadsutgaver"
+    },
+    {
+      "id": "service-hedersildsjel",
+      "src": "assets/medals/service/hedersildsjel.svg",
+      "sha256": "a771eb29f9aca96dad794cf9b6245aa469c181e9cd4e03a2e142f244d3049161",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 52,
+          "ink": {
+            "left": 301.796875,
+            "right": 898.203125,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 27,
+          "ink": {
+            "left": 471.25,
+            "right": 728.75,
+            "top": 319,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "HEDERSILDSJEL",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 57,
+          "ink": {
+            "left": 336.8984375,
+            "right": 863.1015625,
+            "top": 731,
+            "bottom": 786
+          }
+        },
+        {
+          "text": "EKSTRAORDINÆR INNSATS",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 24,
+          "ink": {
+            "left": 386.921875,
+            "right": 813.078125,
+            "top": 964,
+            "bottom": 983
+          }
+        }
+      ],
+      "emblem": null,
+      "count": null,
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": null
+    },
+    {
+      "id": "service-hedersildsjel",
+      "src": "assets/medals/service/hedersildsjel.svg",
+      "sha256": "a771eb29f9aca96dad794cf9b6245aa469c181e9cd4e03a2e142f244d3049161",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 27,
+          "ink": {
+            "left": 484.953125,
+            "right": 715.046875,
+            "top": 321,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "HEDERSILDSJEL",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 57,
+          "ink": {
+            "left": 351.0390625,
+            "right": 848.9609375,
+            "top": 734,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "EKSTRAORDINÆR INNSATS",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 24,
+          "ink": {
+            "left": 404.71875,
+            "right": 795.28125,
+            "top": 965,
+            "bottom": 983
+          }
+        }
+      ],
+      "emblem": null,
+      "count": null,
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": null
+    },
+    {
+      "id": "service-grunnlegger",
+      "src": "assets/medals/service/grunnlegger.svg",
+      "sha256": "08b896064e1dffd56f2793d13241e387611267460bea92eb4ca32f04e6a3b895",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 52,
+          "ink": {
+            "left": 301.796875,
+            "right": 898.203125,
+            "top": 252,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 27,
+          "ink": {
+            "left": 471.25,
+            "right": 728.75,
+            "top": 319,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "1992",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 91,
+          "ink": {
+            "left": 473.359375,
+            "right": 726.640625,
+            "top": 590,
+            "bottom": 660
+          }
+        },
+        {
+          "text": "GRUNNLEGGER",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 67,
+          "ink": {
+            "left": 304.5234375,
+            "right": 895.4765625,
+            "top": 724,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\"",
+          "size": 24,
+          "ink": {
+            "left": 506.109375,
+            "right": 693.890625,
+            "top": 964,
+            "bottom": 983
+          }
+        }
+      ],
+      "emblem": null,
+      "count": null,
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": null
+    },
+    {
+      "id": "service-grunnlegger",
+      "src": "assets/medals/service/grunnlegger.svg",
+      "sha256": "08b896064e1dffd56f2793d13241e387611267460bea92eb4ca32f04e6a3b895",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 254,
+            "bottom": 294
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 27,
+          "ink": {
+            "left": 484.953125,
+            "right": 715.046875,
+            "top": 321,
+            "bottom": 341
+          }
+        },
+        {
+          "text": "1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 91,
+          "ink": {
+            "left": 498.7734375,
+            "right": 701.2265625,
+            "top": 594,
+            "bottom": 659
+          }
+        },
+        {
+          "text": "GRUNNLEGGER",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 67,
+          "ink": {
+            "left": 324.7109375,
+            "right": 875.2890625,
+            "top": 727,
+            "bottom": 775
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 24,
+          "ink": {
+            "left": 518.296875,
+            "right": 681.703125,
+            "top": 965,
+            "bottom": 983
+          }
+        }
+      ],
+      "emblem": null,
+      "count": null,
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": null
+    },
+    {
+      "id": "service-aeresmerke",
+      "src": "assets/medals/service/aeresmerke.svg",
+      "sha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+      "fontOverride": null,
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 301.80078125,
+            "right": 898.19921875,
+            "top": 248,
+            "bottom": 290
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 443.5234375,
+            "right": 756.4765625,
+            "top": 305,
+            "bottom": 336
+          }
+        },
+        {
+          "text": "MOROTHONS",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 434.16796875,
+            "right": 765.83203125,
+            "top": 698,
+            "bottom": 729
+          }
+        },
+        {
+          "text": "ÆRESMERKE",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 74,
+          "ink": {
+            "left": 321.41015625,
+            "right": 878.58984375,
+            "top": 732,
+            "bottom": 789
+          }
+        },
+        {
+          "text": "EN HELT SÆRSKILT HEDER",
+          "role": null,
+          "font": "\"DejaVu Sans\", Arial, sans-serif",
+          "size": 28,
+          "ink": {
+            "left": 379.671875,
+            "right": 820.328125,
+            "top": 972,
+            "bottom": 994
+          }
+        }
+      ],
+      "emblem": null,
+      "count": null,
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Morothons æresmerke"
+    },
+    {
+      "id": "service-aeresmerke",
+      "src": "assets/medals/service/aeresmerke.svg",
+      "sha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+      "fontOverride": "Arial, sans-serif",
+      "text": [
+        {
+          "text": "SØGNE MOROTHON",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 52,
+          "ink": {
+            "left": 330.328125,
+            "right": 869.671875,
+            "top": 250,
+            "bottom": 290
+          }
+        },
+        {
+          "text": "SIDEN 1992",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 463.828125,
+            "right": 736.171875,
+            "top": 307,
+            "bottom": 336
+          }
+        },
+        {
+          "text": "MOROTHONS",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 40,
+          "ink": {
+            "left": 449.78125,
+            "right": 750.21875,
+            "top": 700,
+            "bottom": 729
+          }
+        },
+        {
+          "text": "ÆRESMERKE",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 74,
+          "ink": {
+            "left": 339.80078125,
+            "right": 860.19921875,
+            "top": 735,
+            "bottom": 788
+          }
+        },
+        {
+          "text": "EN HELT SÆRSKILT HEDER",
+          "role": null,
+          "font": "Arial, sans-serif",
+          "size": 28,
+          "ink": {
+            "left": 396.109375,
+            "right": 803.890625,
+            "top": 973,
+            "bottom": 994
+          }
+        }
+      ],
+      "emblem": null,
+      "count": null,
+      "vector": true,
+      "viewBox": "0 0 1200 1200",
+      "title": "Morothons æresmerke"
+    }
+  ],
+  "views": [
+    {
+      "width": 390,
+      "badges": 9,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "badges": 9,
+      "overflow": false
+    }
+  ],
+  "proofs": [
+    {
+      "key": "dugnadshelt-fem",
+      "name": "En av Morothons dugnadshelter",
+      "role": "Ivrig hjelper",
+      "count": 5,
+      "date": "Søgne, __________________",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.343137 0.227451 0.123529)",
+          "ratio": 9.818606026429132
+        },
+        {
+          "text": "Ivrig hjelper",
+          "color": "color(srgb 0.343137 0.227451 0.123529)",
+          "ratio": 9.818606026429132
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.343137 0.227451 0.123529)",
+          "ratio": 9.818606026429132
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.343137 0.227451 0.123529)",
+          "ratio": 9.818606026429132
+        }
+      ],
+      "pdfInfo": "Title:           fem-dugnadsaar-service-dugnad-5-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:07 2026 UTC\nModDate:         Tue Nov 10 22:55:07 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "dugnad-10",
+      "name": "En av Morothons dugnadshelter",
+      "role": "Dugnadshelt",
+      "count": 10,
+      "date": "Søgne, __________________",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.305882 0.341176 0.372549)",
+          "ratio": 6.9884447710455095
+        },
+        {
+          "text": "Dugnadshelt",
+          "color": "color(srgb 0.305882 0.341176 0.372549)",
+          "ratio": 6.9884447710455095
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.305882 0.341176 0.372549)",
+          "ratio": 6.9884447710455095
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.305882 0.341176 0.372549)",
+          "ratio": 6.9884447710455095
+        }
+      ],
+      "pdfInfo": "Title:           fem-dugnadsaar-service-dugnad-10-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:09 2026 UTC\nModDate:         Tue Nov 10 22:55:09 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "dugnad-15",
+      "name": "En av Morothons dugnadshelter",
+      "role": "Trofast ildsjel",
+      "count": 15,
+      "date": "Søgne, __________________",
+      "tribute": "Femten dugnadsutgaver! Noen kaller det dugnad. Vi begynner å kalle det en livsstil. Takk for trofast innsats og godt humør.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.419608 0.319608 0.141176)",
+          "ratio": 6.975998291611127
+        },
+        {
+          "text": "Trofast ildsjel",
+          "color": "color(srgb 0.419608 0.319608 0.141176)",
+          "ratio": 6.975998291611127
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.419608 0.319608 0.141176)",
+          "ratio": 6.975998291611127
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.419608 0.319608 0.141176)",
+          "ratio": 6.975998291611127
+        }
+      ],
+      "pdfInfo": "Title:           fem-dugnadsaar-service-dugnad-15-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:11 2026 UTC\nModDate:         Tue Nov 10 22:55:11 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "dugnad-20",
+      "name": "En av Morothons dugnadshelter",
+      "role": "Bærebjelke",
+      "count": 20,
+      "date": "Søgne, __________________",
+      "tribute": "Tjue utgaver! Når noe må fikses, vet vi hvem vi skal ringe. Du er en av bærebjelkene som holder Morothon på beina.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.419608 0.34902 0.180392)",
+          "ratio": 6.443793598420342
+        },
+        {
+          "text": "Bærebjelke",
+          "color": "color(srgb 0.419608 0.34902 0.180392)",
+          "ratio": 6.443793598420342
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.419608 0.34902 0.180392)",
+          "ratio": 6.443793598420342
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.419608 0.34902 0.180392)",
+          "ratio": 6.443793598420342
+        }
+      ],
+      "pdfInfo": "Title:           fem-dugnadsaar-service-dugnad-20-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:12 2026 UTC\nModDate:         Tue Nov 10 22:55:12 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "dugnad-30",
+      "name": "En av Morothons dugnadshelter",
+      "role": "Fredet inventar",
+      "count": 30,
+      "date": "Søgne, __________________",
+      "tribute": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "Fredet inventar",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        }
+      ],
+      "pdfInfo": "Title:           fem-dugnadsaar-service-dugnad-30-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:13 2026 UTC\nModDate:         Tue Nov 10 22:55:13 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "dugnad-40",
+      "name": "En av Morothons dugnadshelter",
+      "role": "Morothon-legende",
+      "count": 40,
+      "date": "Søgne, __________________",
+      "tribute": "Førti dugnadsutgaver. Du er ikke bare en del av Morothon – Morothon er en del av deg. En ekte Morothon-legende!",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.403922 0.429412 0.458824)",
+          "ratio": 4.905141681293888
+        },
+        {
+          "text": "Morothon-legende",
+          "color": "color(srgb 0.403922 0.429412 0.458824)",
+          "ratio": 4.905141681293888
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.403922 0.429412 0.458824)",
+          "ratio": 4.905141681293888
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.403922 0.429412 0.458824)",
+          "ratio": 4.905141681293888
+        }
+      ],
+      "pdfInfo": "Title:           fem-dugnadsaar-service-dugnad-40-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:14 2026 UTC\nModDate:         Tue Nov 10 22:55:14 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "oscar-30",
+      "name": "Oscar Lohne",
+      "role": "Fredet inventar",
+      "count": 30,
+      "first": 1992,
+      "last": 2021,
+      "date": "Søgne, 13. november 2021",
+      "tribute": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "Fredet inventar",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        }
+      ],
+      "pdfInfo": "Title:           oscar-lohne-service-dugnad-30-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:15 2026 UTC\nModDate:         Tue Nov 10 22:55:15 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "erling-30",
+      "name": "Erling Askildsen",
+      "role": "Fredet inventar",
+      "count": 30,
+      "first": 1992,
+      "last": 2021,
+      "date": "Søgne, 13. november 2021",
+      "tribute": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "FOR LØPSGLEDE OG FELLESSKAP",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "Fredet inventar",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        },
+        {
+          "text": "TAKK",
+          "color": "color(srgb 0.464706 0.384314 0.182353)",
+          "ratio": 5.579912012418254
+        }
+      ],
+      "pdfInfo": "Title:           erling-askildsen-service-dugnad-30-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:16 2026 UTC\nModDate:         Tue Nov 10 22:55:16 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "oscar-35",
+      "name": "Oscar Lohne",
+      "role": "Morothons æresmerke",
+      "count": 35,
+      "first": 1992,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "tribute": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [
+        "service-dugnad-30",
+        "service-hedersildsjel",
+        "service-grunnlegger"
+      ],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "35 UTGAVER MED TID OG KREFTER",
+          "color": "color(srgb 0.423529 0.390196 0.284314)",
+          "ratio": 5.665444438962097
+        },
+        {
+          "text": "Morothons æresmerke",
+          "color": "color(srgb 0.423529 0.390196 0.284314)",
+          "ratio": 5.665444438962097
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.423529 0.390196 0.284314)",
+          "ratio": 5.665444438962097
+        }
+      ],
+      "pdfInfo": "Title:           oscar-lohne-service-aeresmerke-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:18 2026 UTC\nModDate:         Tue Nov 10 22:55:18 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    },
+    {
+      "key": "erling-35",
+      "name": "Erling Askildsen",
+      "role": "Morothons æresmerke",
+      "count": 35,
+      "first": 1992,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "tribute": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien.",
+      "preview": true,
+      "imageReady": false,
+      "secondary": [
+        "service-dugnad-30",
+        "service-hedersildsjel",
+        "service-grunnlegger"
+      ],
+      "layout": {
+        "ready": true,
+        "failures": []
+      },
+      "contrasts": [
+        {
+          "text": "35 UTGAVER MED TID OG KREFTER",
+          "color": "color(srgb 0.423529 0.390196 0.284314)",
+          "ratio": 5.665444438962097
+        },
+        {
+          "text": "Morothons æresmerke",
+          "color": "color(srgb 0.423529 0.390196 0.284314)",
+          "ratio": 5.665444438962097
+        },
+        {
+          "text": "UTGAVER MED INNSATS",
+          "color": "color(srgb 0.423529 0.390196 0.284314)",
+          "ratio": 5.665444438962097
+        }
+      ],
+      "pdfInfo": "Title:           erling-askildsen-service-aeresmerke-diplomutkast\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36\nProducer:        Skia/PDF m156\nCreationDate:    Tue Nov 10 22:55:19 2026 UTC\nModDate:         Tue Nov 10 22:55:19 2026 UTC\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       841.92 x 594.96 pts (A4)\nPage rot:        0\nFile size:       0 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    }
+  ],
+  "errors": []
+}

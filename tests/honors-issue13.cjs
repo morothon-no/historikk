@@ -89,14 +89,14 @@ test('issue #13 personal organizer stories stay separate from racing and all hon
  }
 });
 
-test('issue #13 quality details report real 55mm main and 17mm secondary DPI for highest honor while retaining every approval warning',async()=>{
+test('issue #13 quality details report real 55mm main and 23mm secondary DPI for highest honor while retaining every approval warning',async()=>{
  for(const width of [390,1440]){
   const p=await open(width);try{
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
    await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('A4-utkast kontrollert'));
    const lines=await p.locator('#honorProfile .honor-image-quality p').allTextContents();
-   assert.equal(lines.length,4);assert.match(lines[0],/Morothons æresmerke.*2400 × 2400 px · 1108 DPI ved 55\.0 mm/);
-   for(const line of lines.slice(1))assert.match(line,/2400 × 2400 px · 35(?:85|86|87) DPI ved 17\.0 mm/);
+   assert.equal(lines.length,4);assert.match(lines[0],/Morothons æresmerke.*SVG · ingen fast original-DPI · Skalerbar vektor ved 55\.0 mm/);assert.match(lines[1],/SVG · ingen fast original-DPI.*23\.0 mm/);
+   for(const line of lines.slice(2))assert.match(line,/2400 × 2400 px · 265(?:0|1) DPI ved 23\.0 mm/);
    for(const line of lines){assert.match(line,/ikke godkjent for tildeling/);assert.match(line,/kontrolleres og godkjennes/);}
    await p.selectOption('.honor-choice select','service-grunnlegger');
    await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('h1')?.textContent==='GRUNNLEGGERDIPLOM');

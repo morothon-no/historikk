@@ -149,7 +149,7 @@ bildekvalitet må bestå uavhengig av eventuell senere formell tildeling.
 
 `service-aeresmerke` er foreslått som det høyeste nivået, uten automatisk
 opptjening. Oscar Lohne og Erling Askildsen har æresmerket som foreslått
-hovedmerke, og Hedersildsjel/Grunnlegger/Dugnadshelt som sekundære.
+hovedmerke, og Fredet inventar/Hedersildsjel/Grunnlegger som sekundære.
 Den liggende A4-malen viser **ÆRESDIPLOM** og markerer deres 35 utgaver.
 Siden det kan bli tre sekundærmerker, bruker bare service-utkastet en tettere
 3-kolonne-rad; ordinære merkediplomer er ikke berørt.
@@ -175,3 +175,25 @@ Hedersdiplomer er fortsatt ikke utstedt eller utskriftsgodkjent.
 ## Morothon-navn med glimt i øyet
 
 Dugnadsmilepælene heter nå Ivrig hjelper, Dugnadshelt, Trofast ildsjel, Bærebjelke, Fredet inventar og Morothon-legende. Det illustrerende A4-diplomet får en kort humoristisk hyllest til hvert nivå, men datofeltet følger fortsatt dokumentert løpsdato for faktisk nådd milepæl. Utskrift og formell utstedelse er ikke aktivert.
+
+## PR #16 – kontroll av alle ni merker og dugnadsdiplomer
+
+Historiske dugnadsdiplomer fryses til valgt terskel: 30 bekreftede utgaver gir
+30 og perioden 1992–2021 for Oscar/Erling, med løpsdato 13. november 2021 og
+den samme valgte humoristiske teksten som 30-eksemplet. De viser ikke dagens
+35 eller senere forslag til personlige hedersmerker. Æresdiplomene beholder
+deres 35 utgaver, personlige tekster og 7. november 2026. Anonyme eksempler
+viser aldri en oppdiktet arrangementsdato.
+
+Service-tekst på lyst papir har fått mørkere metallfarge for lesbarhet. Tre
+sekundærmerker bruker 23 mm bilder og 2,4 mm bildetekst, innen samme A4-grid.
+Vanlig diplomimplementasjon utenfor service-funksjonene er identisk med
+utgangspunktet; ekstra CSS er avgrenset til `.diploma-service`. Dato, håndskriftstil
+og signaturfelt er bevart.
+
+Alle faktiske prøver, SVG-hasher, font-/tekstgrenser, kontrastmålinger og
+PDF-sidestørrelser finnes i `review/heder-pr16/`. SVG-medaljene er vektorer og
+har ingen fast original-DPI. PDF-kontroll viser innebygde fonter og vektormerker;
+de to eksisterende PNG-merkene beholder sine originale 2400 × 2400 piksler.
+Dette er teknisk dokumentasjon, ikke visuell godkjenning eller trykkgodkjenning.
+Ingen hedersdiplomknapper eller tildelinger er aktivert.

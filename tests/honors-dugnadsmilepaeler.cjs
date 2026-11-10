@@ -22,7 +22,7 @@ test('six documented volunteer-milestone designs coexist with three individual a
    const svg=await fs.readFile(path.join(root,b.src),'utf8');
    assert.match(svg,new RegExp('>'+b.milestoneEditions+'<\\/text>'));
    assert.match(svg,/DUGNADSUTGAVER/);
-   assert.ok(svg.includes('>'+b.name.toLocaleUpperCase('nb-NO')+'</text>'),'Badge title missing: '+b.name);
+   const texts=[...svg.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map(m=>m[1].replace(/<[^>]+>/g,''));assert.ok(texts.some(t=>t.replace(/\s+/g,'')===b.name.toLocaleUpperCase('nb-NO').replace(/\s+/g,'')),'Badge title missing: '+b.name);
    assert.equal(b.printReady,false);
  }
 });

@@ -156,10 +156,11 @@
         : null;
     const eventDate=achievementYear?register.dates[String(achievementYear)]||null:null;
     const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'Søgne, __________________';
+    const earnedYears=!illustrative&&milestone&&knownYears.length>=milestone?knownYears.slice(0,milestone):null;
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name+' · diplomutkast',
       roleLabel:badge.name,tribute:member.diplomaTribute||'',provisional:true,asset,assetKey:badgeId,
       secondaryAssets:assets.filter(a=>a.key!==badgeId).map(a=>({...a,name:MorothonBadges.get(a.key).name})),
-      contributionCount:contribution.count||null,contributionFirst:contribution.first,contributionLast:contribution.last,
+      contributionCount:earnedYears?milestone:contribution.count||null,contributionFirst:earnedYears?.[0]??contribution.first,contributionLast:earnedYears?.at(-1)??contribution.last,
       achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
       illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
       watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
@@ -169,7 +170,10 @@
     const data=await MorothonHonorsData.load(),{member,group}=await MorothonHonorsData.find(id),plan=MorothonHonorsData.badgePlan(data,member,group);
     const badgeId=requestedBadgeId||plan.primaryBadgeId;
     if(!plan.badgeIds.includes(badgeId))throw new Error('Ingen slik hedersutmerkelse er foreslått for denne profilen.');
-    return serviceContent(member,badgeId,plan.badgeIds,MorothonHonorsData.contribution(member));
+    const milestone=MorothonBadges.get(badgeId).series==='dugnad';
+    const selectedText=milestone?data.diplomaExamples.find(e=>e.illustrative&&e.badgeId===badgeId)?.tribute:null;
+    // A historical milestone is its own achievement, without later honorary proposals.
+    return serviceContent(selectedText?{...member,diplomaTribute:selectedText}:member,badgeId,milestone?[badgeId]:plan.badgeIds,MorothonHonorsData.contribution(member));
   }
   async function serviceExample(id) {
     const data=await MorothonHonorsData.load(),example=data.diplomaExamples?.find(e=>e.id===id);
