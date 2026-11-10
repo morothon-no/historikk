@@ -155,3 +155,7 @@ Siden det kan bli tre sekundærmerker, bruker bare service-utkastet en tettere
 3-kolonne-rad; ordinære merkediplomer er ikke berørt.
 Medaljen er et uferdig SVG-motiv og ikke trykkgodkjent. Service-utkast beholder
 `imageReady: false`, `previewOnly: true` og ingen utskrifts- eller PDF-knapper.
+
+## Dugnadsmilepæler 5/10/15/20/30/40 – utkast
+
+Seks anonyme, ikke-utdelte diplomforhåndsvisninger viser de seks milepælene. Oscar/Erling har æresdiplomutkast med et mindre 30-utgaversmerke. Ingen merker er tildelt eller trykkgodkjent. Heders-PDF/print forblir sperret; vanlige løperdiplomer berøres ikke.

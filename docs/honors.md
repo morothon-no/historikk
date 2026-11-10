@@ -239,3 +239,25 @@ medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.
   låst for utskrift/PDF, mens vanlige løperdiplomer er uendret.
 - Endringen skal gjennomgås visuelt og merket tegnes eventuelt videre før
   fysisk produksjon. Ingen offentlig menylenke eller endring av `noindex`.
+
+## Dugnadsmilepæler – utvidelse av PR #16 (ikke godkjent)
+
+- **Egen ansiennitetsserie:** Dugnadshelt · **5 / 10 / 15 / 20 / 30 / 40 utgaver**.
+  Seks merker med felles skjoldmotiv og individuelle metalluttrykk. Alle er
+  `design-draft`, `printReady:false` og ingen er formelt tildelt.
+- Beregning: `MorothonHonorsData.tenureMilestones(data, person)` teller **kun**
+  kildebelagte `contribution.confirmedYears`. Et startår, en løpsstart eller et
+  opphold blir ikke automatisk til dugnadsår. Beregningen viser kandidater,
+  høyeste kvalifiserende nivå og neste milepæl – aldri faktisk tildeling.
+- Oscar og Erling har 35 dokumenterte utgaver og derfor **30** som høyeste
+  dugnadsmilepæl foreløpig. **40** er ikke oppnådd. Æresmerket er fremdeles
+  deres foreslåtte primære heder; Hedersildsjel og Grunnlegger er særegne
+  utmerkelser ved siden av dugnadsstigen. Ingen formelle tildelinger.
+- Hedersildsjel krever individuell vurdering av særlig innsats; ti utgaver kan
+  være et utgangspunkt, men er ingen automatisk terskel. Grunnlegger er
+  historisk heder. Æresmerket er høyeste nivå, uten bestemt årsgrense.
+- Eldre `service-dugnadshelt` beholdes kun for kompatibilitet med gamle,
+  fortsatt ikke godkjente merkeforslag og skjules fra galleriet. Disse blir
+  ikke automatisk oppgradert til et femårsmerke uten bekreftede innsatsår.
+- Seks anonyme A4-eksempler viser hele serien. Utskrift/PDF for hedersdiplomer
+  forblir sperret. Hederssiden er fortsatt skjult i meny og `noindex`.

@@ -36,3 +36,7 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 
 /* Four proposed honor symbols; founder is a historic distinction rather than a service tier. */
 @media(min-width:960px){.badge-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Milestone gallery: six service stages followed by three individual honorary distinctions. */
+.badge-group-heading{grid-column:1/-1;margin:16px 0 0;font-size:22px;color:#103c49}
+.honor-tenure-note{font-size:13px;color:#4b686e;background:#f7f4e9;border-left:3px solid #b99b5d;padding:9px 12px;border-radius:3px}
