@@ -12,6 +12,7 @@ test('six documented volunteer-milestone designs coexist with three individual a
  const r=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
  const service=r.badges.filter(b=>b.kind==='service'),tenure=service.filter(b=>b.series==='dugnad');
  assert.deepEqual(tenure.map(b=>b.milestoneEditions),milestones);
+ assert.deepEqual(tenure.map(b=>b.name),['Ivrig hjelper','Dugnadshelt','Trofast ildsjel','Bærebjelke','Fredet inventar','Morothon-legende']);
  assert.deepEqual(tenure.map(b=>b.id),milestones.map(n=>'service-dugnad-'+n));
  assert.equal(service.filter(b=>b.displayOnHonorPage!==false).length,9);
  assert.equal(service.find(b=>b.id==='service-dugnadshelt').displayOnHonorPage,false);
@@ -21,7 +22,7 @@ test('six documented volunteer-milestone designs coexist with three individual a
    const svg=await fs.readFile(path.join(root,b.src),'utf8');
    assert.match(svg,new RegExp('>'+b.milestoneEditions+'<\\/text>'));
    assert.match(svg,/DUGNADSUTGAVER/);
-   assert.match(svg,new RegExp('>'+b.name.toLocaleUpperCase('nb-NO')+'<\\\\/text>'));
+   assert.ok(svg.includes('>'+b.name.toLocaleUpperCase('nb-NO')+'</text>'),'Badge title missing: '+b.name);
    assert.equal(b.printReady,false);
  }
 });
