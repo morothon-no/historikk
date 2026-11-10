@@ -494,6 +494,21 @@
       "displayOnHonorPage": true
     },
     {
+      "id": "service-aeresmerke",
+      "kind": "service",
+      "name": "Morothons æresmerke",
+      "src": "assets/medals/service/aeresmerke.svg",
+      "vectorSource": "assets/medals/service/aeresmerke.svg",
+      "status": "design-draft",
+      "color": "#D8C791",
+      "widthMm": 55,
+      "heightMm": 55,
+      "cropReviewed": false,
+      "reviewedSha256": null,
+      "printReady": false,
+      "displayOnHonorPage": true
+    },
+    {
       "id": "service-grunnlegger",
       "kind": "service",
       "name": "Grunnlegger",
