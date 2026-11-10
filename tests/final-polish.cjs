@@ -35,7 +35,7 @@ test('honorary cards export portrait, keep every medal and personal achievements
    const bitmap=await createImageBitmap(result.blob),size=[bitmap.width,bitmap.height];bitmap.close();URL.revokeObjectURL(result.url);
    return {size,note:card.querySelector('.brag-honor-text').textContent,count:card.querySelector('.brag-count strong').textContent,previous:card.querySelectorAll('.brag-medal-row img').length,expected:m.previous.length,stats:card.querySelectorAll('.brag-stats').length,goals:card.querySelectorAll('.brag-next').length,full:full.textContent,texts};
   },name);
-  assert.deepEqual(r.size,[1080,1350]);assert.equal(r.count,'35');assert.match(r.note,/samtlige utgaver siden 1992 · 100 % lojalitet/);assert.equal(r.previous,r.expected);assert.equal(r.stats,0);assert.equal(r.goals,0);assert.match(r.full,/lengste historiske rekke/);assert.match(r.full,/Samlet registrert distanse/);assert.ok(!r.texts.some(t=>/NESTE DELMÅL|LENGSTE HISTORISKE REKKE|LOJALITET SIDEN DEBUT/.test(t)));
+  assert.deepEqual(r.size,[1080,1350]);assert.equal(r.count,'35');assert.match(r.note,/samtlige utgaver siden 1992 · 100 % lojalitet/);assert.equal(r.previous,r.expected);assert.equal(r.stats,0);assert.equal(r.goals,0);assert.match(r.full,/Deltakelser år for år/);assert.doesNotMatch(r.full,/Samlet registrert distanse|lengste historiske rekke/);assert.ok(!r.texts.some(t=>/NESTE DELMÅL|LENGSTE HISTORISKE REKKE|LOJALITET SIDEN DEBUT/.test(t)));
  }}finally{await p.close();}
 });
 test('full profile details remain keyboard-accessible, readable and within mobile/desktop panels',async()=>{
@@ -49,10 +49,10 @@ test('full profile details remain keyboard-accessible, readable and within mobil
     const color=el=>getComputedStyle(el).color.match(/[\d.]+/g).slice(0,3).map(Number);
     const lum=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
     const bg=lum(getComputedStyle(e).backgroundColor.match(/[\d.]+/g).slice(0,3).map(Number));
-    const ratios=[...e.querySelectorAll('.brag-support strong,.brag-support span,.brag-next>strong,.brag-next>span')].map(el=>{const fg=lum(color(el));return (Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05)});
+    const ratios=[...e.querySelectorAll('.brag-next>strong,.brag-next>span,.brag-year-list li')].map(el=>{const fg=lum(color(el)),own=getComputedStyle(el).backgroundColor.match(/[\d.]+/g).map(Number),surface=own.length<4||own[3]>0?lum(own.slice(0,3)):bg;return (Math.max(surface,fg)+.05)/(Math.min(surface,fg)+.05)});
     const panel=document.querySelector('#panel');return {ratios,fit:e.scrollWidth<=e.clientWidth+1&&panel.scrollWidth<=panel.clientWidth+1,text:e.textContent};
    });
-   assert.equal(r.fit,true,`${width}px ${name}`);assert.ok(r.ratios.every(v=>v>=4.5),`readable supporting values: ${r.ratios}`);assert.match(r.text,/Samlet registrert distanse/);assert.match(r.text,/Beste/);
+   assert.equal(r.fit,true,`${width}px ${name}`);assert.ok(r.ratios.every(v=>v>=4.5),`readable supporting values: ${r.ratios}`);assert.match(r.text,/Deltakelser år for år/);assert.doesNotMatch(r.text,/Samlet registrert distanse|Beste|aktiv rekke|lengste historiske rekke/);
   }
  }}finally{await p.close();}
 });

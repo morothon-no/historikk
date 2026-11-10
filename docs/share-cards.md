@@ -32,3 +32,19 @@ node scripts/review-loyalty-v32.cjs /tmp/morothon-v32-additions 93d4ff3
 ```
 
 Skriptet viser både reelle løpere og tydelig merkede syntetiske 40–50-terskler/ekstra lange testnavn. Syntetiske personer finnes bare i nettleserminnet. Historikkfiler og medaljefiler endres ikke.
+
+
+## V3.2.1 – interaktiv profil
+
+Primærkortet viser hver nøkkelopplysning én gang. Den utvidede delen er nå én
+«Deltakelser år for år»-oversikt over faktisk arrangerte utgaver mellom første
+og siste start. Den erstatter den gamle, dupliserte statistikkboksen og den
+separate tidslinjen. Progresjon, personbeste og samlet distanse gjentas ikke.
+For seremonielle kort finnes det ene neste delmålet her, fordi det ikke vises
+på selve kortet. Bare ett registrert deltakelsesår gir ingen ekstra årsseksjon.
+Lav periodeandel vises bare som nøytralt beregningsgrunnlag inne i årsoversikten.
+
+Ett tidligere merke i webprofilen har 150 CSS-px på PC og 128 px på 390 px
+mobilbredde. Ved 320 px brukes 104 px for å holde hovedmedaljen tydelig størst.
+Flere tidligere merker følger den adaptive samlingen. Originalbildene er
+uendret, og PNG-eksportene er piksel-/byte-uendret fra V3.2 i begge formater.
