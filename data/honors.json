@@ -89,6 +89,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-10",
       "basis": "Arrangøren ønsker æresmerket som særskilt, ikke automatisk høyeste utmerkelse. Oscar Lohne og Erling Askildsen foreslås som de første mottakerne. Ingen formell tildeling eller diplomsignering er besluttet."
+    },
+    "organizer-dugnadsstige-2026": {
+      "title": "Dugnadsmilepæler: 5, 10, 15, 20, 30, 40 (forslag)",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "basis": "Arrangøren ønsker en egen serie for faktisk dokumenterte dugnadsutgaver. Merkene er foreløpige designforslag. Kvalifikasjon er ikke automatisk tildeling."
     }
   },
   "displayOrder": [
@@ -161,13 +167,14 @@
             "primaryBadgeId": "service-aeresmerke",
             "badgeIds": [
               "service-aeresmerke",
+              "service-dugnad-30",
               "service-hedersildsjel",
-              "service-grunnlegger",
-              "service-dugnadshelt"
+              "service-grunnlegger"
             ],
             "sourceIds": [
               "organizer-v34",
-              "organizer-aeresmerke-2026"
+              "organizer-aeresmerke-2026",
+              "organizer-dugnadsstige-2026"
             ]
           },
           "awards": [],
@@ -266,13 +273,14 @@
             "primaryBadgeId": "service-aeresmerke",
             "badgeIds": [
               "service-aeresmerke",
+              "service-dugnad-30",
               "service-hedersildsjel",
-              "service-grunnlegger",
-              "service-dugnadshelt"
+              "service-grunnlegger"
             ],
             "sourceIds": [
               "organizer-v34",
-              "organizer-aeresmerke-2026"
+              "organizer-aeresmerke-2026",
+              "organizer-dugnadsstige-2026"
             ]
           },
           "awards": [],
@@ -965,19 +973,48 @@
     ],
     "milestones": [
       {
-        "badgeId": "service-dugnadshelt",
+        "badgeId": "service-dugnad-5",
         "minimumDocumentedEditions": 5,
-        "rule": "Kandidat til vurdering etter minst fem bekreftede dugnadsutgaver; tildeling krever egen beslutning."
+        "rule": "Kandidat til Dugnadshelt 5 etter minst 5 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
       },
       {
-        "badgeId": "service-hedersildsjel",
+        "badgeId": "service-dugnad-10",
         "minimumDocumentedEditions": 10,
-        "rule": "Ti bekreftede dugnadsutgaver åpner for individuell vurdering ved særlig innsats, ikke automatisk tildeling."
+        "rule": "Kandidat til Dugnadshelt 10 etter minst 10 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-15",
+        "minimumDocumentedEditions": 15,
+        "rule": "Kandidat til Dugnadshelt 15 etter minst 15 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-20",
+        "minimumDocumentedEditions": 20,
+        "rule": "Kandidat til Dugnadshelt 20 etter minst 20 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-30",
+        "minimumDocumentedEditions": 30,
+        "rule": "Kandidat til Dugnadshelt 30 etter minst 30 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-40",
+        "minimumDocumentedEditions": 40,
+        "rule": "Kandidat til Dugnadshelt 40 etter minst 40 bekreftede dugnadsutgaver. Ingen automatisk tildeling."
+      }
+    ],
+    "specialHonors": [
+      {
+        "badgeId": "service-hedersildsjel",
+        "rule": "Særlig innsats; ti utgaver kan være et utgangspunkt for individuell vurdering, men er verken nødvendig eller tilstrekkelig alene. Krever særskilt vedtak."
+      },
+      {
+        "badgeId": "service-grunnlegger",
+        "rule": "Historisk heder for initiativtakere og grunnleggere. Krever rollebekreftelse."
       },
       {
         "badgeId": "service-aeresmerke",
-        "minimumDocumentedEditions": null,
-        "rule": "Morothons høyeste utmerkelse. Kun særskilt vedtak ved helt ekstraordinær eller livslang innsats. Kan ikke opptjenes automatisk."
+        "rule": "Morothons høyeste heder. Ingen årsterskel eller automatisk tildeling. Krever egen særskilt beslutning."
       }
     ]
   },
@@ -988,12 +1025,57 @@
   "diplomaExamples": [
     {
       "id": "dugnadshelt-fem",
-      "label": "Dugnadshelt – fem års innsats",
+      "label": "Dugnadshelt – 5 dokumenterte dugnadsutgaver (illustrasjon)",
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
-      "badgeId": "service-dugnadshelt",
+      "badgeId": "service-dugnad-5",
       "contributionCount": 5,
       "tribute": "Fem utgaver med tid og krefter til andre. Takk for at du stiller opp, tar et tak og gjør løpsdagen mulig. Innsatsen din gir både løpsglede og et fellesskap å komme tilbake til."
+    },
+    {
+      "id": "dugnad-10",
+      "label": "Dugnadshelt – 10 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-10",
+      "contributionCount": 10,
+      "tribute": "10 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+    },
+    {
+      "id": "dugnad-15",
+      "label": "Dugnadshelt – 15 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-15",
+      "contributionCount": 15,
+      "tribute": "15 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+    },
+    {
+      "id": "dugnad-20",
+      "label": "Dugnadshelt – 20 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-20",
+      "contributionCount": 20,
+      "tribute": "20 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+    },
+    {
+      "id": "dugnad-30",
+      "label": "Dugnadshelt – 30 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-30",
+      "contributionCount": 30,
+      "tribute": "30 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
+    },
+    {
+      "id": "dugnad-40",
+      "label": "Dugnadshelt – 40 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-40",
+      "contributionCount": 40,
+      "tribute": "40 dugnadsutgaver med tid, innsats og fellesskap rundt Morothon. Takk for at du har bidratt til å holde tradisjonen levende."
     },
     {
       "id": "grunnlegger-flere",
