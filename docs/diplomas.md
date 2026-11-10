@@ -144,3 +144,14 @@ brukes ikke som en automatisk tildelingsdato. Typografisk signaturnavn er ikke
 en ekte håndskrevet signatur. Alle service-utkast har fortsatt låst utskrift/PDF,
 uten aktive knapper og uten `allow-modals` i iframe. A4-kontroll og faktisk
 bildekvalitet må bestå uavhengig av eventuell senere formell tildeling.
+
+## Fjerde hedersmerke – Morothons æresmerke (utkast)
+
+`service-aeresmerke` er foreslått som det høyeste nivået, uten automatisk
+opptjening. Oscar Lohne og Erling Askildsen har æresmerket som foreslått
+hovedmerke, og Hedersildsjel/Grunnlegger/Dugnadshelt som sekundære.
+Den liggende A4-malen viser **ÆRESDIPLOM** og markerer deres 35 utgaver.
+Siden det kan bli tre sekundærmerker, bruker bare service-utkastet en tettere
+3-kolonne-rad; ordinære merkediplomer er ikke berørt.
+Medaljen er et uferdig SVG-motiv og ikke trykkgodkjent. Service-utkast beholder
+`imageReady: false`, `previewOnly: true` og ingen utskrifts- eller PDF-knapper.
