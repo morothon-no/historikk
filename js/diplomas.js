@@ -21,15 +21,17 @@
   function model(pid, key) {
     const p = person(pid), choice = choices(pid).find(item => item.key === key);
     if (!p || !choice) throw new Error('Dette diplomet er ikke opptjent av løperen.');
-    const years = startedYears(p), editions = [...new Set(S.stats.map(s => s[0]))];
+    const years = startedYears(p);
+    const awardedYears = choice.type === 'badge' ? years.slice(0, choice.badge.n) : years;
+    const editions = [...new Set(S.stats.map(s => s[0]))].filter(y => choice.type !== 'badge' || y <= choice.year);
     const honorary = choice.type === 'badge' && choice.badge.n >= 35;
-    const allEditions = editions.length > 0 && editions.every(y => years.includes(y));
+    const allEditions = editions.length > 0 && editions.every(y => awardedYears.includes(y));
     const orderedEditions = editions.slice().sort((a,b) => a-b);
     const tier = choice.type === 'badge' ? choice.badge.tier : choice.type;
     const title = choice.type === 'badge' ? choice.badge.name : choice.type === 'record' ? 'Regjerende rekordholder' : 'Min første Morothon';
     let achievement, description, citation;
     if (choice.type === 'badge') {
-      achievement = `${years.length} deltakelser`;
+      achievement = `${choice.badge.n} deltakelser`;
       description = `${choice.badge.name} ble oppnådd i ${choice.year}, ved den ${choice.badge.n}. deltakelsen.`;
       const praise = { bronze: 'Den første store milepælen i Morothon-historien din.', silver: 'Ti deltakelser vitner om løpsglede og trofasthet.', gold: 'Femten deltakelser – en innsats det står respekt av.', platinum: 'To tiår med deltakelser og varige minner i heiene.', titanium: 'En kraftfull milepæl, båret av vilje og utholdenhet.', legend: 'Langvarig og ekstraordinær deltakelse – en del av Morothons historie.', honorary: 'Med stor respekt for en enestående og varig innsats gjennom årene.' };
       citation = honorary && allEditions ? `Alle ${editions.length} arrangerte utgaver siden ${Math.min(...editions)} – 100 % gjennom hele historien.` : praise[tier];
@@ -44,7 +46,7 @@
       citation = 'Hver historie begynner med en første start. Takk for at du ble en del av Morothon.';
     }
     return { pid: p.i, name: p.n, key, type: choice.type, year: choice.year, title, achievement, description, citation,
-      honorary, allEditions, tier, color: MorothonBadges.get(choice.type === 'badge' ? `badge-${choice.badge.n}` : choice.type).color, count: years.length, lastYear: years.at(-1),
+      honorary, allEditions, tier, color: MorothonBadges.get(choice.type === 'badge' ? `badge-${choice.badge.n}` : choice.type).color, count: awardedYears.length, careerCount: years.length, lastYear: awardedYears.at(-1),
       firstYear: years[0], editionCount: editions.length, firstEdition: orderedEditions[0],
       editionNumber: orderedEditions.indexOf(choice.year) >= 0 ? orderedEditions.indexOf(choice.year) + 1 : null,
       threshold: choice.badge?.n || null, assetKey: choice.type === 'badge' ? `badge-${choice.badge.n}` : choice.type,
@@ -141,7 +143,7 @@
     const badges = await MorothonBadges.init(), asset = await inspectAsset(group.badgeId);
     const badge = MorothonBadges.get(group.badgeId), provisional = member.status !== 'confirmed';
     return { name: member.name, honoreeId: member.id, type: 'service', tier: 'service', title: `${badge.name} · diplomutkast`,
-      roleLabel: badge.name, provisional, asset, assetKey: group.badgeId, imageReady: asset.ready && !provisional,
+      roleLabel: badge.name, provisional, asset, assetKey: group.badgeId, imageReady: false, previewOnly: true,
       color: badge.color, firstEdition: 1992, editionNumber: null,
       watermarkSrc: new URL(badges.watermark.src, document.baseURI).href,
       dateLabel: 'Dato fastsettes ved utstedelse', filename: `${member.id}-${badge.id}-diplomutkast`,
@@ -149,10 +151,32 @@
         : `${member.name} er bekreftet som grunnlegger. Diplomet er et designutkast.`, citation: '' };
   }
 
+  function serviceDocumentHtml(d) {
+    const css=new URL('css/diplomas.css',document.baseURI).href;
+    const founder=d.assetKey==='service-grunnlegger';
+    const heading=founder?'GRUNNLEGGERDIPLOM':'HEDERSDIPLOM';
+    const tribute=founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for frivillig innsats og engasjement for Morothon.';
+    return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
+      <body class="diploma-document"><article class="diploma-sheet diploma-service" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
+      <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
+      <img class="diploma-watermark" src="${safe(d.watermarkSrc)}" alt="">
+      <div class="diploma-brand" data-layout-check><b>SØGNE MOROTHON</b><span>SIDEN ${d.firstEdition}</span></div>
+      <div class="diploma-heading" data-layout-check><p>FOR LØPSGLEDE OG FELLESSKAP</p><h1>${heading}</h1></div>
+      <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
+      <div class="diploma-main diploma-service-main"><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure></div>
+      <div class="diploma-citation" data-layout-check><p>${safe(tribute)}</p><strong class="diploma-description">Et varig bidrag til Morothons historie.</strong></div>
+      <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>Søgne, __________________</p></div><div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
+      </article></body></html>`;
+  }
+
   function documentHtml(diploma) {
+    if (diploma.type === 'service') return serviceDocumentHtml(diploma);
     const d = diploma, css = new URL('css/diplomas.css', document.baseURI).href;
     const badgeLabel = d.type === 'debut' ? 'Offisiell Morothon-logo' : d.title;
     const heading = d.type === 'service' ? (d.assetKey === 'service-grunnlegger' ? 'GRUNNLEGGERDIPLOM' : 'DUGNADSDIPLOM') : d.type === 'record' ? 'REKORDDIPLOM' : d.type === 'debut' ? 'MIN FØRSTE MOROTHON' : d.threshold >= 30 ? 'HEDERSDIPLOM' : 'MERKEDIPLOM';
+    const normalTitle = value => String(value ?? '').normalize('NFKC').toLocaleUpperCase('nb-NO').replace(/[^\p{L}\p{N}]/gu, '');
+    const subtitleCandidate = d.type === 'debut' ? 'Debutdiplom' : d.type === 'service' ? d.roleLabel : d.title;
+    const subtitle = normalTitle(subtitleCandidate) === normalTitle(heading) ? '' : subtitleCandidate;
     const eyebrow = d.type === 'service' ? 'HEDER · DESIGNUTKAST' : d.honorary ? 'EN SÆRLIG HEDER' : d.tier === 'legend' ? 'EN EKSTRAORDINÆR INNSATS' : d.type === 'record' ? 'EN REKORDPRESTASJON' : d.type === 'debut' ? 'BEGYNNELSEN PÅ EN HISTORIE' : 'EN MILEPÆL Å VÆRE STOLT AV';
     const leftValue = d.type === 'service' ? (d.provisional ? 'FORELØPIG' : 'BEKREFTET') : d.type === 'badge' ? String(d.count) : d.type === 'record' ? d.achievement : String(d.year);
     const leftLabel = d.type === 'service' ? safe(d.roleLabel) : d.type === 'badge' ? 'DELTAKELSER' : d.type === 'record' ? 'REKORDTID' : 'DEBUTÅR';
@@ -170,16 +194,16 @@
       <div class="diploma-brand" data-layout-check><b>SØGNE MOROTHON</b><span>SIDEN ${d.firstEdition}</span></div>
       <div class="diploma-edition">${d.editionNumber ? `<b>${d.editionNumber}. UTGAVE</b>` : ''}<span>${safe(d.dateLabel.replace('Søgne, ', ''))}</span></div>
       <div class="diploma-heading" data-layout-check><p>${eyebrow}</p><h1>${heading}</h1></div>
-      <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.title)}</h3></div>
+      <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2>${subtitle ? `<h3>${safe(subtitle)}</h3>` : ''}</div>
       <div class="diploma-main">
         <div class="diploma-metric diploma-left" data-layout-check><strong class="diploma-achievement">${safe(leftValue)}</strong><span>${leftLabel}</span><small>${safe(leftDetail)}</small></div>
         <figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(badgeLabel)}"></figure>
         <div class="diploma-metric diploma-right" data-layout-check><strong>${safe(rightValue)}</strong><span>${rightLabel}</span><small>${safe(rightDetail)}</small></div>
       </div>
       <div class="diploma-citation" data-layout-check><p>${safe(ceremony)}</p><strong class="diploma-description">${safe(d.honorary ? d.citation : d.description)}</strong>
-        ${d.type === 'record' ? '<small>Rekordstatus beregnes fra historikkfilen ved generering.</small>' : ''}</div>
+</div>
       <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>${safe(d.dateLabel)}</p><small>${d.type === 'service' ? 'Designutkast' : d.type === 'badge' ? 'Merket oppnådd' : d.type === 'record' ? 'Rekorden satt' : 'Debut'}</small></div>
-      <div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><span>For Søgne Morothon · signatur</span></div></div>
+      <div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
       </article></body></html>`;
   }
 

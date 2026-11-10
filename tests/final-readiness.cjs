@@ -1,13 +1,14 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {createHarness}=require('../scripts/diploma-harness.cjs');let h;
 before(async()=>{h=await createHarness();});after(async()=>{await h.close();});
-test('main navigation and keyboard-accessible mobile menu reach the honor page without horizontal overflow',async()=>{
+test('public navigation omits the honor preview while direct routes and mobile keyboard navigation work',async()=>{
  for(const width of [320,390,900,1100,1101,1280,1440]){
   const p=await h.browser.newPage({viewport:{width,height:900}});try{
    await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-   if(width<=1100){await p.locator('.mobile-menu summary').click();assert.equal(await p.locator('.mobile-menu').getAttribute('open'),'');await p.keyboard.press('Escape');assert.equal(await p.locator('.mobile-menu').getAttribute('open'),null);await p.locator('.mobile-menu summary').press('Enter');await p.locator('.mobile-menu a[href="heder.html"]').click();}
-   else await p.locator('.navlinks a[href="heder.html"]').click();
+   if(width<=1100){await p.locator('.mobile-menu summary').click();assert.equal(await p.locator('.mobile-menu').getAttribute('open'),'');await p.keyboard.press('Escape');assert.equal(await p.locator('.mobile-menu').getAttribute('open'),null);await p.locator('.mobile-menu summary').press('Enter');assert.equal(await p.locator('a[href="heder.html"]').count(),0);}
+   else assert.equal(await p.locator('a[href="heder.html"]').count(),0);
+   await p.goto(h.base+'/heder.html');
    await p.locator('[data-honoree="oscar-lohne"]').waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   }finally{await p.close();}
  }
@@ -20,15 +21,15 @@ test('honor profile routes: Oscar is a documented founder, provisional volunteer
    await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert'));
    assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Oscar Lohne');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'GRUNNLEGGERDIPLOM');
    assert.equal(await p.evaluate(async()=>MorothonDiplomas.checkLayout(document.querySelector('iframe').contentDocument).then(r=>r.ready)),true);
-   assert.equal(await p.locator('[data-honor-print]').isEnabled(),true);
-   await p.evaluate(()=>{window.__honorPrints=0;document.querySelector('iframe').contentWindow.print=()=>window.__honorPrints++;});
-   await p.locator('[data-honor-pdf]').click();assert.equal(await p.evaluate(()=>window.__honorPrints),1);
-   assert.match(await p.frameLocator('iframe').locator('.diploma-draft').textContent(),/DIPLOMUTKAST · IKKE UTSTEDT/);
+   assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
+   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
+   assert.match(await p.locator('.honor-draft-notice').textContent(),/ikke utstedt/);
+   assert.equal(await p.locator('iframe').getAttribute('sandbox'),'allow-same-origin');
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await p.goBack();await p.locator('#honorOverview').waitFor({state:'visible'});await p.locator('[data-honoree="dag-morten-frantzen"] a').click();await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Dag Morten Frantzen');
    await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet'));
-   assert.match(await p.locator('.profile-role').textContent(),/foreløpig/);assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Dag Morten Frantzen');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'DUGNADSDIPLOM');
-   assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Floke|Til minne om/);assert.equal(await p.locator('[data-honor-print]').isDisabled(),true);
+   assert.match(await p.locator('.profile-role').textContent(),/foreløpig/);assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Dag Morten Frantzen');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'HEDERSDIPLOM');
+   assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Floke|Til minne om/);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
    assert.deepEqual(errors,[]);
   }finally{await p.close();}
  }

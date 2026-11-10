@@ -62,11 +62,11 @@ ${rows}
 
 Alle løper-/rekordfiler er aktivert etter brukerens uttrykkelige godkjenning. 5–30 gir cirka 168–189 DPI ved 55 mm synlig medalje; rekordmerket cirka 298 DPI. Bildene er ikke oppskalert til en falsk detaljoppløsning. I dagens diplommal er 55 mm bildefeltet; transparent luft gjør selve medaljen mindre, og tabellen kan derfor vise høyere DPI enn 55 mm-testarket. Se ../faktisk-bildekvalitet.md for begge målinger. Ingen plassholder erstatter et godkjent løpermerke.
 
-35/40/45/50 er uendrede 700px-originaler. Den valgte grove løperlogoen er brukerens godkjente PNG, og utskrift/PDF er tilgjengelig for kontrollerte løperdiplomer. Dugnads- og grunnleggerillustrasjonene bruker samme native 2400px-filer i hedersprofil og diplom. Grunnleggerens kryssende strek er fjernet i SVG-masteren, og PNG-en er eksportert på nytt uten andre endringer i vektordesignet. Bekreftede grunnleggere kan eksportere tydelig merkede diplomutkast; foreløpige dugnadsoppføringer gir ingen utstedt utmerkelse.
+35/40/45/50 er uendrede 700px-originaler. Den valgte grove løperlogoen er brukerens godkjente PNG, og utskrift/PDF er tilgjengelig for kontrollerte løperdiplomer. Dugnads- og grunnleggerillustrasjonene bruker samme native 2400px-filer i hedersprofil og diplom. Grunnleggerens kryssende strek er fjernet i SVG-masteren, og PNG-en er eksportert på nytt uten andre endringer i vektordesignet. Hedersdiplomer vises kun som forhåndsvisninger, med utkaststatus utenfor diplomdesignet og uten offentlig utskrift/PDF. Lokale QA-PDF-er utsteder ingen utmerkelse.
 
 Oscar Lohne er bekreftet som grunnlegger. Dag Morten Frantzen og Håkon Lohne er foreløpig oppført som dugnadshelter. Ingen ubekreftet biografi eller minneseksjon er lagt til.
 
-Datoer følger opptjeningsår, rekordår eller debutår. 11. november 2018 er bevart. Signaturfeltet er tomt.
+Datoer følger opptjeningsår, rekordår eller debutår. Historiske merkediplomer bruker terskelen og perioden frem til oppnåelsesåret, ikke dagens karrieretall. 11. november 2018 er bevart. Signaturfeltet har Håkon Lohne / Løpsleder Søgne Morothon i håndskriftpreget typografi og blank plass til ekte signatur; ingen personlig signatur er etterlignet.
 `;
     const pdfImages = execFileSync('pdfimages', ['-list', path.join(out, 'Gunnar-Kaasa-A4.pdf')]).toString();
     if (!/\bimage\s+700\s+700\b/.test(pdfImages)) throw new Error('Den gjenfunne 700px-originalen mangler i utkast-PDF-en.');
@@ -84,7 +84,7 @@ Datoer følger opptjeningsår, rekordår eller debutår. 11. november 2018 er be
     await overview.screenshot({ path: path.join(out, 'oversikt.png'), fullPage: true });
     const honor = await harness.browser.newPage({ viewport: { width: 1440, height: 1000 } });
     await honor.goto(harness.base + '/heder.html');
-    await honor.waitForFunction(() => document.querySelectorAll('#serviceBadges img').length === 2);
+    await honor.waitForFunction(() => document.querySelectorAll('#serviceBadges img').length === 3);
     await honor.evaluate(() => Promise.all([...document.images].map(i => i.decode())));
     await honor.screenshot({ path: path.join(out, 'hedersside-pc.png'), fullPage: true });
     await honor.setViewportSize({ width: 390, height: 844 });

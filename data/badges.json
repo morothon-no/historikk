@@ -491,7 +491,7 @@
       "cropReviewed": false,
       "reviewedSha256": null,
       "printReady": false,
-      "displayOnHonorPage": false
+      "displayOnHonorPage": true
     },
     {
       "id": "service-grunnlegger",
