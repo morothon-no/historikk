@@ -50,7 +50,7 @@ test('V2 format selector regenerates the actual download, defaults to 4:5 and su
 test('V2 honor preview is undiscoverable from public pages, noindex/nofollow, but accessible directly',async()=>{
  for(const width of [320,390,1440]){const p=await page(width);try{
   await p.evaluate(()=>openProfile('MOR-15AF3A3'));assert.equal(await p.locator('a[href*="heder.html"]').count(),0);await p.goto(h.base+'/heder.html');await p.locator('#serviceBadges img').first().waitFor({state:'attached'});
-  assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');assert.equal(await p.locator('#serviceBadges img').count(),4);assert.match(await p.locator('.development-note').textContent(),/Denne siden er under utvikling.*Har du bilder, historier eller korrigeringer/);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');assert.equal(await p.locator('#serviceBadges img').count(),9);assert.match(await p.locator('.development-note').textContent(),/Denne siden er under utvikling.*Har du bilder, historier eller korrigeringer/);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  }finally{await p.close();}}
  const root=path.resolve(__dirname,'..');for(const name of (await fs.readdir(root)).filter(n=>/sitemap.*\.(xml|txt)$/.test(n)))assert.doesNotMatch(await fs.readFile(path.join(root,name),'utf8'),/heder\.html/);
 });

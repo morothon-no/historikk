@@ -12,8 +12,8 @@ after(async()=>{await h?.close();});
 test('aeresmerke is a separate fourth, design-only top distinction with no automatic threshold',async()=>{
  const b=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
  const service=b.badges.filter(x=>x.kind==='service');
- assert.deepEqual(service.map(x=>x.id),['service-dugnadshelt','service-hedersildsjel','service-aeresmerke','service-grunnlegger']);
- const a=service[2];
+ assert.deepEqual(service.map(x=>x.id),['service-dugnadshelt','service-dugnad-5','service-dugnad-10','service-dugnad-15','service-dugnad-20','service-dugnad-30','service-dugnad-40','service-hedersildsjel','service-aeresmerke','service-grunnlegger']);
+ const a=service.find(b=>b.id==='service-aeresmerke');
  assert.equal(a.name,'Morothons æresmerke');
  assert.equal(a.status,'design-draft');assert.equal(a.printReady,false);
  assert.equal(a.cropReviewed,false);assert.equal(a.widthMm,55);
@@ -23,15 +23,15 @@ test('aeresmerke is a separate fourth, design-only top distinction with no autom
  const p=data.awardPolicy;
  assert.equal(p.milestones[0].minimumDocumentedEditions,5);
  assert.equal(p.milestones[1].minimumDocumentedEditions,10);
- assert.equal(p.milestones[2].badgeId,'service-aeresmerke');
- assert.equal(p.milestones[2].minimumDocumentedEditions,null);
+ assert.deepEqual(p.milestones.map(m=>m.minimumDocumentedEditions),[5,10,15,20,30,40]);
+ assert.equal(p.specialHonors.find(m=>m.badgeId==='service-aeresmerke').rule.includes('Ingen årsterskel'),true);
 });
 
 test('Oscar and Erling have only proposed highest honor, never issued awards or diplomas',async()=>{
  for(const id of ['oscar-lohne','erling-askildsen']){
   const m=data.groups.flatMap(g=>g.members).find(m=>m.id===id);
   assert.ok(m);assert.equal(m.badgeProposal.primaryBadgeId,'service-aeresmerke');
-  assert.deepEqual(m.badgeProposal.badgeIds,['service-aeresmerke','service-hedersildsjel','service-grunnlegger','service-dugnadshelt']);
+  assert.deepEqual(m.badgeProposal.badgeIds,['service-aeresmerke','service-dugnad-30','service-hedersildsjel','service-grunnlegger']);
   assert.equal(m.contribution.confirmedYears.length,35);
   assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
   assert.match(m.diplomaTribute,/35 utgaver/);
@@ -45,7 +45,7 @@ test('highest-honor page and each A4 preview remain visually contained and impos
   try{
    await page.goto(h.base+'/heder.html');
    await page.locator('#serviceBadges img').first().waitFor({state:'attached'});
-   assert.equal(await page.locator('#serviceBadges img').count(),4);
+   assert.equal(await page.locator('#serviceBadges img').count(),9);
    assert.equal(await page.locator('a[href*="heder.html"]').count(),0);
    for(const id of ['oscar-lohne','erling-askildsen']){
     await page.goto(h.base+'/heder.html#person/'+id);

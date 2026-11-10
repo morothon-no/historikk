@@ -86,7 +86,7 @@ test('all 5–50, record, debut and service diplomas align matching handwriting 
    assert.ok(result.baselineDelta<.1,key);assert.ok(result.topDelta<.1,key);assert.ok(result.lineDelta<.1,key);assert.equal(result.aboveLines,true,key);assert.equal(result.roleBelow,true,key);assert.equal(result.lineCount,2,key);
    assert.ok(Math.abs(result.lineHeights[0]-result.lineHeights[1])<.1,key);assert.ok(Math.abs(result.lineWidths[0]-result.lineWidths[1])<.1,key);assert.equal(result.lineBorders[0],result.lineBorders[1],key);assert.deepEqual(result.lineTexts,['',''],key);assert.equal(result.layout.ready,true,`${key}: ${result.layout.failures}`);
   }
-  assert.equal(documents.length,16);
+  assert.equal(documents.length,22);
  }finally{await synthetic.close();await actual.close();}
 });
 
