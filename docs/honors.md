@@ -261,3 +261,22 @@ medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.
   ikke automatisk oppgradert til et femårsmerke uten bekreftede innsatsår.
 - Seks anonyme A4-eksempler viser hele serien. Utskrift/PDF for hedersdiplomer
   forblir sperret. Hederssiden er fortsatt skjult i meny og `noindex`.
+
+
+### Datofelt på dugnads- og hedersdiplomer
+
+Datofeltet viser **faktisk løpsdato da milepælen ble oppnådd**, ikke dagens
+dato eller dagen noen klikker på diplomutkastet. Dette beregnes kun fra
+bekreftede dugnadsutgaver og `data/event-dates.json`.
+
+- Oscar og Erling: `service-dugnad-30` oppnådd i 2021 → **13. november 2021**.
+- Æresdiplomutkastet deres omtaler alle **35 utgaver** og viser derfor
+  datoen for 35. utgave: **7. november 2026**. Det betyr ikke at det
+  særskilte Æresmerket allerede er formelt tildelt.
+- For personer uten tilstrekkelig bekreftede dugnadsår, eller der kilden
+  mangler historisk løpsdato, beholdes et **åpent datofelt**.
+- Anonyme typeeksempler har ikke en virkelig mottaker og får ingen
+  oppdiktet løpsdato. Ordinære deltakerdiplomer bruker allerede korrekt
+  arrangementsdato og er ikke endret.
+- En senere **formell tildelingsdato** hører hjemme i `awards` og
+  `issuedDiplomas`, aldri som automatisk erstatning for oppnådd milepæl.
