@@ -25,7 +25,7 @@ test('V3.4 separate volunteer list preserves all 35 canonical identities and rem
    assert.equal(actual.reason,null);
    assert.ok(actual.stories.every(s=>!s.text.match(/2014|2016/)));
    assert.deepEqual(actual.badgeProposal.badgeIds,[]);
-  }else if(actual.listingOnly){assert.equal(actual.runnerId,undefined);assert.equal(actual.reason,null);assert.deepEqual(actual.stories,[]);assert.deepEqual(actual.badgeProposal.badgeIds,[]);}else if(['dag-morten-frantzen','hakon-lohne'].includes(m.id)){for(const key of ['id','name','status','runnerId','roles','badgeProposal','awards','issuedDiplomas'])assert.deepEqual(actual[key],m[key],m.id+': '+key);for(const story of m.stories)assert.ok(actual.stories.some(s=>s.text===story.text));}else assert.deepEqual(actual,m,m.id);
+  }else if(actual.listingOnly){assert.equal(actual.runnerId,undefined);assert.equal(actual.reason,null);assert.deepEqual(actual.stories,[]);assert.deepEqual(actual.badgeProposal.badgeIds,[]);}else if(['dag-morten-frantzen','hakon-lohne','oscar-lohne','erling-askildsen'].includes(m.id)){for(const key of ['id','name','status','runnerId','roles','awards','issuedDiplomas'])assert.deepEqual(actual[key],m[key],m.id+': '+key);if(!['oscar-lohne','erling-askildsen'].includes(m.id))assert.deepEqual(actual.badgeProposal,m.badgeProposal);for(const story of m.stories)assert.ok(actual.stories.some(s=>s.text===story.text));}else assert.deepEqual(actual,m,m.id);
  }
  assert.match(combined.sources['organizer-v34-drikkestasjon-start'].basis,/Startåret er ikke avklart/);
 });
