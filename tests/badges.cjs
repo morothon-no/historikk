@@ -70,7 +70,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
       assert.match(result.recipient,/Floke|Til minne om/i);
       assert.match(result.body,/Grunnleggerne fra 1992/);
       assert.equal(result.sample.imageReady,false); assert.equal(result.sample.type,'service');
-      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/Diplomutkast – ikke utdelt/i); assert.match(result.sample.date,/fastsettes/);
+      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/Diplomutkast – ikke utdelt/i); assert.equal(result.sample.date,'Søgne, 7. november 2026');
       assert.equal(result.links,0); assert.deepEqual(errors,[]);
     } finally { await page.close(); }
   }
