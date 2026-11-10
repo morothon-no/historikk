@@ -1,58 +1,67 @@
-# Oppdatere hederslisten
+# Menneskene bak Morothon – V3
 
-Navnene ligger i `data/honors.json`, atskilt fra bildefilene i `data/badges.json`. Hederssiden henter filen ved lasting; flere navn krever ingen endring i JavaScript eller historikkfilen.
+Hederssiden er en skjult forhåndsvisning på `heder.html`, med `noindex, nofollow`. Den er ikke tilgangsbeskyttet: side og data kan leses av alle som kjenner adressen. Det finnes ingen inngående lenke fra hoved- eller mobilmeny og ingen offentlig administrasjon. `HONORS_NAVIGATION_ENABLED` i `js/navigation.js` skal fortsatt være `false`.
 
-## Flere dugnadshelter
+## Personer, roller og merker
 
-Legg til en post i `groups` → gruppen med `id: "volunteers"` → `members`:
+`data/honors.json` beholder schemaVersion 1 og de eksisterende `groups`/`members`-feltene. Hedersidentiteter har egne stabile nøkler og ruter, f.eks. `heder.html#person/oscar-lohne`. Nye felt er valgfrie, slik at eldre oppføringer uten historier eller løper-ID fortsatt kan vises.
 
-```json
-{"id": "nytt-unikt-navn", "name": "Fornavn Etternavn", "status": "provisional", "reason": null}
+- Grunnleggere: Erling Askildsen, Oscar Lohne, Arnfinn Håverstad, Helge Reisvoll og Einar Danielsen. Erling har rollen idéskaper og grunnlegger. Einar er særskilt bekreftet av arrangøren.
+- Bekreftede dugnadshelter: Kalle Kimestad og Finn Lohne, minst siden 2014. Et tidligere startår er ikke fastsatt. Finn er knyttet til drikkestasjonen på Freden.
+- Arrangørgruppen fra 2014: Dag Morten Frantzen, Håkon Lohne og Bent Bakke. Dag Morten og Håkon har bekreftede roller, men beholder `status: "provisional"` for det foreløpige merkeforslaget. Bent har ingen registrert hedersmedalje.
+- Helge Andersen er fjernet fra grunnleggerlisten. Den tidligere hedersruten gir en korrigeringsmelding uten grunnleggermerke eller en gjettet løperkobling. Alle hans ordinære løpsresultater er bevart.
+
+`status` beskriver hedersoppføringen/merkeforslaget. De separate `roles`-postene beskriver historiske roller med `confirmed`, `sourceIds` og eventuelt `fromYear` og en presiserende `note`. En bekreftet arrangørrolle endrer aldri medaljetildelingen automatisk.
+
+`memberRefs` lar arrangørdelen vise Dag Morten og Håkon uten å opprette dupliserte personer eller profiler. Referanser må peke til en eksisterende person. De ordinære personpostene har fortsatt én eiergruppe. Roller, historier og valgfrie diplomtekster redigeres i datafilen, ikke i JavaScript.
+
+## Eksplisitte løperkoblinger
+
+Kun følgende kontrollerte `runnerId`-koblinger brukes:
+
+| Hedersprofil | Løper-ID |
+|---|---|
+| erling-askildsen | MOR-5ACFAA4 |
+| oscar-lohne | MOR-87AA561 |
+| arnfinn-haverstad | MOR-A4F1F02 |
+| helge-reisvoll | MOR-AD182FF |
+| einar-danielsen | MOR-D48A84B |
+| kalle-kimestad | MOR-C65968C |
+| finn-lohne | MOR-3FAED73 |
+| hakon-lohne | MOR-AA6C983 |
+
+Dag Morten og Bent har ingen bekreftet løper-ID i denne bestillingen. De får hedersprofil uten løpsstatistikk. Navnelikhet brukes ikke til å etablere en kobling. Ukjent eller utilgjengelig eksplisitt ID gir heller ingen oppdiktet statistikk.
+
+`js/history-data.js` er det delte, lesende datalaget for DNS/DNF, unike deltakelsesår, godkjente ID-omdirigeringer og beregnet klasseplassering. Den ordinære siden bruker de samme reglene som før via dette laget. Hederssiden beregner registrerte starter, første/siste år og beste tidsregistrerte resultat i grupper av **konkurranse + eksakt distanse + løypeperiode før/fra 2014**. Forskjellige traseer innen en periode kan også ha variert; teksten hevder ikke at alle løp med samme distanse var identiske.
+
+Seire og pallplasser på hedersprofilen gjengis fra resultatets registrerte **kildeplassering**. De er tydelig merket som kildeopplysninger, separat fra beregnede kjønn-/aldersklasseplasseringer. Det gis ikke en ny historisk pallplass bare fordi én registrert tid er raskest i et ufullstendig datagrunnlag. Arnfinns Kortmoro-seier i 1993 er registrert med kildeplass 1 og tid 49:59.
+
+«Flest løpsdeltakelser blant grunnleggerne» og «Raskeste grunnlegger – historisk 21 km» er beregnede fakta som fremheves i tekst. De er ikke nye formelle medaljetildelinger. Deltakelsesår brukes aldri som antall frivillig-/arrangørår.
+
+## Historiske kilder og åpne spørsmål
+
+`data/honors.json` har et kilde-register og referanser på roller, fortellinger og tidslinjen. Avislenkene er Fædrelandsvennen 21. oktober 2016 (Dag Morten Frantzen) og N247 10. oktober 2014 (Nicolai Prebensen). De ble forsøkt åpnet, men nettverkspolicyen ga 403 i arbeidsmiljøet. Tekstene bruker derfor bare opplysningene i arrangørens V3-bestilling og dens gjengivelse av artiklene. Ingen supplerende artikkelinnhold er oppfunnet, og det er ikke kopiert lange tekstpassasjer.
+
+Åpne punkter er synlige i forhåndsvisningens kildeavsnitt og skal beholdes:
+
+- Oppdragets historiefortelling sier 129 deltakere i 1992; resultatarkivet har 128. Begge har 44 på Langmoro. Ingen resultatlinje er lagt til eller endret for å skjule forskjellen.
+- Håkons ene Svalbard-opphold er ikke årfestet. Det utledes ikke av manglende løpsstarter.
+- Bent Bakkes avslutningsår er ikke fastsatt.
+- Kalle og Finns innsats før 2014 er ikke bekreftet.
+- Floke Bredland omtales bare i en kildebasert banketthistorie. Ulike opplysninger om startåret er ikke avgjort. Han er ikke lagt til som grunnlegger eller mottaker av et nytt hedersmerke. Ingen minneside er laget.
+
+## Diplomer og bildefiler
+
+Fellesregisteret `data/badges.json` og alle medaljefiler er uendret. Grunnleggerens korrigerte «1992», de tre servicebildene og den godkjente løperlogoen gjenbrukes. Ingen portretter eller nye medaljer er generert.
+
+`diplomaTribute` er en kort, personlig, kildebasert tekst. Den bruker det eksisterende A4-hovedfeltet og sitatfeltet uten å endre malens rammer, vannmerke, signaturfelt eller merkediplomene. Hedersdiplomer er fortsatt kun forhåndsvisninger: `imageReady: false`, `previewOnly: true`, ingen utskrifts-/PDF-knapper og iframe uten `allow-modals`. Utkaststatus står utenfor arket. En rolle uten hedersmerke får ikke et automatisk diplomvalg.
+
+## Kontroll og lokale utkast
+
+```sh
+node --test tests/honors-v3.cjs
+npm test
+node scripts/review-honors-v3.cjs /tmp/morothon-honors-v3
 ```
 
-- `id`: unik intern nøkkel. Behold nøkkelen ved senere navneretting.
-- `name`: navnet som vises.
-- `status`: `provisional` gir «Foreløpig oppført». Endre til `confirmed` når oppføringen er endelig bekreftet.
-- `reason`: `null` når begrunnelse ikke er gitt, eller en bekreftet tekst som vises under navnet. Ikke legg til biografi eller påstander uten grunnlag.
-
-Listen vises i filens rekkefølge. Hver person skal ha en unik nøkkel. Bruk gyldig JSON med komma mellom postene. Oppføringer i hederslisten påvirker aldri løper-ID-er, resultater, deltakelsesmerker eller statistikk.
-
-## Nåværende grunnlag
-
-- Dugnadshelter, foreløpig: Dag Morten Frantzen og Håkon Lohne.
-- Bekreftede grunnleggere: Oscar Lohne, Helge Andersen, Arnfinn Håverstad og Einar Danielsen.
-- Tre merkekategorier i den skjulte forhåndsvisningen: Dugnadshelt, Hedersildsjel og Grunnlegger. V2-instruksen erstatter den tidligere avklaringen om to synlige kategorier; ingen nye mottakere er utledet.
-
-Grunnleggernes rolle er bekreftet av brukeren. Merkedesign og diplomer er fortsatt lokale utkast; listen er ikke en påstand om at et diplom er utstedt. Begrunnelser er ikke oppfunnet. Diplomeksemplet er lukket ved første visning og kan åpnes separat.
-
-Fellesregisteret og maskebeskrivelsen markerer dessuten at den røde buen på 30-merket skal beholdes. Bildepikslene er ikke endret av avklaringen.
-
-## Kontroller
-
-`node --test tests/honors.cjs tests/badges.cjs tests/diplomas.cjs`
-
-Testene dekker dagens navn/status, mobil/PC, at et nytt navn fra datafilen dukker opp uten kodeendring, HTML-escaping, dupliserte nøkler, bekreftet rød bue og eksisterende merke-/diplomfunksjoner.
-
-## Hedersprofiler og kilder
-
-Alle navn åpner en egen profil på `heder.html#person/<id>`. Oscar-eksemplet ligger på `heder.html#person/oscar-lohne`. Profilen viser rollen fra den bekreftede/foreløpige oppføringen, kildeangivelsen og riktig merkebilde fra fellesregisteret. Hedersidentiteter slås ikke sammen med løper-ID-er etter navn.
-
-`roleSource` dokumenterer grunnlaget for rolleoppføringen. Valgfrie historier legges i `stories`:
-
-```json
-{"title":"Overskrift", "text":"Dokumentert historie", "source":"Navngitt kilde eller dokument", "confirmed":true}
-```
-
-Bare historier med `confirmed: true` og en ikke-tom kilde vises. Ingen historier er oppfunnet i denne oppdateringen; dagens profiler sier at ingen dokumentert historie er lagt til ennå. En ubekreftet oppføring kan ikke legges inn som grunnlegger.
-
-Diplomvalg er personbundet: grunnleggere får grunnleggerdiplom, foreløpige dugnadshelter får foreløpig dugnadsutkast. Alle hedersdiplomer kan bare forhåndsvises. Den offentlige siden har ingen utskrifts-/PDF-knapper for hedersdiplomer, og iframe-sandkassen tillater ikke utskriftsdialog. Utkaststatus og «ikke utstedt» står utenfor selve diplomdesignet. Det seremonielle A4-utkastet har medalje og en kort hederstekst, uten store tekniske statusfelt. Dette tildeler ikke et merke eller utsteder et diplom. Individuelle, opptjente merkediplomer har fortsatt sin separate utskriftsfunksjon.
-
-Grunnleggerillustrasjonen er korrigert i den eksisterende SVG-masteren ved å fjerne den separate horisontale streken som krysset «1992». Ingen andre SVG-elementer er endret. Den samme vektorkilden er rendret til transparent 2400 × 2400 PNG for alle aktive visninger.
-
-## Skjult forhåndsvisning og senere lansering
-
-`heder.html` er tilgjengelig via direkte adresse, med `noindex, nofollow` og en utviklingsmelding. Det finnes ingen inngående lenke fra offentlig hovedmeny, mobilmeny eller løperprofiler, og siden skal ikke legges i sitemap. Dette er ikke tilgangsbeskyttelse: både side og data kan leses av alle som kjenner adressen. Ingen private historier, portretter eller roller utledes.
-
-Ved en senere godkjent lansering settes `HONORS_NAVIGATION_ENABLED` til `true` i `js/navigation.js`. Det aktiverer én lenke i hver av hoved- og mobilmenyen. Vurder også indeksering og utviklingsmelding ved lanseringen; ikke endre disse automatisk. Ingen synlig adminlenke eller administrasjonsfunksjon er lagt til.
-
-Oscar Lohnes rolle har særskilt grunnlag i arrangørens tidligere navngitte grunnleggerliste i samtalen. Rollen er ikke utledet fra løpsresultater. Ingen portrett- eller biografisk opplysning er lagt til. Grunnleggermerket med rettet «1992» er byte-uendret i V2.
+Gjennomgangsbilder, lokale QA-PDF-er og rapporter inngår ikke i nettsidepakken. Skriptet pusher, utsteder eller publiserer ingenting. En senere offentlig lansering krever uttrykkelig godkjenning; navigasjon og indeksering aktiveres ikke av denne oppdateringen.

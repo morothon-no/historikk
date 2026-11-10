@@ -1,70 +1,524 @@
 {
   "schemaVersion": 1,
-  "source": "Brukerens bekreftelser i denne samtalen. Ingen biografiske opplysninger eller løper-ID-er er utledet.",
+  "source": "Arrangørens V3-bestilling, oppgitte avisartikler og eksplisitt kontrollerte løper-ID-er. Løpsstatistikk beregnes bare fra history.json.",
+  "sources": {
+    "fvn-2016": {
+      "title": "Søgne Morothon for 25. gang",
+      "publisher": "Fædrelandsvennen",
+      "author": "Dag Morten Frantzen",
+      "date": "2016-10-21",
+      "url": "https://www.fvn.no/lokalsporten/i/qKlrz/soegne-morothon-for-25-gang",
+      "basis": "Artikkelopplysninger gjengitt i arrangørens V3-bestilling. Nettartikkelen er ikke selvstendig kontrollert i arbeidsmiljøet."
+    },
+    "n247-2014": {
+      "title": "Det er helt greit",
+      "publisher": "N247",
+      "author": "Nicolai Prebensen",
+      "date": "2014-10-10",
+      "url": "https://www.n247.no/det-er-helt-greit/208384",
+      "basis": "Artikkelopplysninger gjengitt i arrangørens V3-bestilling. Nettartikkelen er ikke selvstendig kontrollert i arbeidsmiljøet."
+    },
+    "organizer-v3": {
+      "title": "Arrangørens bekreftelser i V3-bestillingen",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "basis": "Bekreftet grunnleggerliste, arrangørroller, dugnadshelter og eksplisitte løper-ID-er."
+    },
+    "history": {
+      "title": "Morothons resultatarkiv",
+      "publisher": "Søgne Morothon",
+      "basis": "data/history.json er eneste datagrunnlag for beregnede løpsopplysninger."
+    }
+  },
+  "displayOrder": [
+    "founders",
+    "organizers",
+    "volunteers"
+  ],
+  "retiredProfiles": [
+    {
+      "id": "helge-andersen",
+      "name": "Helge Andersen",
+      "message": "Den tidligere hedersoppføringen er korrigert. Helge Andersen er ikke oppført som bekreftet grunnlegger. Hans ordinære løpsresultater er bevart.",
+      "sourceIds": [
+        "organizer-v3"
+      ]
+    }
+  ],
   "groups": [
     {
       "id": "founders",
       "badgeId": "service-grunnlegger",
-      "title": "Grunnleggere",
-      "description": "Grunnleggere bekreftet av arrangøren.",
+      "title": "Grunnleggerne fra 1992",
+      "description": "Fem bekreftede grunnleggere. Rollene bygger på kildene og arrangørens korrigerte liste.",
       "members": [
+        {
+          "id": "erling-askildsen",
+          "name": "Erling Askildsen",
+          "status": "confirmed",
+          "reason": "Idéskaperen som samlet fysisk utfordring, kameratskap og fest i ett løp.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Idéskaper og grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "fvn-2016",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "En idé det ble tradisjon av",
+              "text": "Erling fikk ideen om et terrengløp der utfordringen i heiene skulle følges av kameratskap og sosialt samvær. Ideen ble starten på Søgne Morothon i 1992.",
+              "source": "Fædrelandsvennen",
+              "sourceIds": [
+                "fvn-2016"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Tilknytning gjennom hele historien",
+              "text": "Arrangøren bekrefter Erlings tilknytning til arrangementet gjennom perioden 1992–2026. Dette er en historisk tilknytning, ikke en påstand om løpsstart eller dugnadsarbeid i hver enkelt utgave.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-5ACFAA4",
+          "diplomaTribute": "Du ga ideen som samlet løpsglede og kameratskap. Med takk for grunnlaget du var med på å skape, og for innsatsen som har holdt Morothon levende."
+        },
         {
           "id": "oscar-lohne",
           "name": "Oscar Lohne",
           "status": "confirmed",
-          "reason": null,
-          "roleSource": "Bekreftet av arrangøren i denne samtalen",
-          "stories": []
-        },
-        {
-          "id": "helge-andersen",
-          "name": "Helge Andersen",
-          "status": "confirmed",
-          "reason": null,
-          "roleSource": "Bekreftet av arrangøren i denne samtalen",
-          "stories": []
+          "reason": "En bekreftet grunnlegger med tilknytning til Morothon gjennom perioden 1992–2026.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "fvn-2016",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Mer enn resultatlistene kan fortelle",
+              "text": "Oscar var med i grunnleggergruppen. Arrangøren bekrefter hans tilknytning gjennom perioden 1992–2026. Innsatsen skal ikke måles i antall registrerte løp, og kildene gir ikke grunnlag for å påstå arbeid i hver eneste utgave.",
+              "source": "Fædrelandsvennen, Søgne Morothon",
+              "sourceIds": [
+                "fvn-2016",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Da nye krefter overtok",
+              "text": "Grunnleggergruppen fortsatte å bidra etter overtakelsen i 2014. Merking, rigging, drikkestasjoner og rydding var fortsatt del av den felles innsatsen.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-87AA561",
+          "diplomaTribute": "Du var med på å skape Morothon og har hatt tilknytning gjennom perioden 1992–2026. Med takk for en innsats som betyr mer enn antall løp i resultatlisten."
         },
         {
           "id": "arnfinn-haverstad",
           "name": "Arnfinn Håverstad",
           "status": "confirmed",
-          "reason": null,
-          "roleSource": "Bekreftet av arrangøren i denne samtalen",
-          "stories": []
+          "reason": "Grunnlegger og løypeildsjel, med både praktiske bidrag og sterke løpsresultater.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "fvn-2016",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Løypemerking i snø og mørke",
+              "text": "Under merking av løypa gjorde tett snøvær og raskt fallende mørke situasjonen så krevende at de andre nesten måtte begynne å lete etter Arnfinn. Historien sier noe om arbeidet som måtte til før løperne kunne stille til start.",
+              "source": "Fædrelandsvennen",
+              "sourceIds": [
+                "fvn-2016"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-A4F1F02",
+          "diplomaTribute": "Du var med på å legge grunnlaget for Morothon, både som grunnlegger og løypeildsjel. Med takk for engasjementet bak tradisjonen og innsatsen ute i heiene."
+        },
+        {
+          "id": "helge-reisvoll",
+          "name": "Helge Reisvoll",
+          "status": "confirmed",
+          "reason": "En del av den bekreftede grunnleggergruppen bak den lokale tradisjonen.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "fvn-2016",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Innsatsen og løpene er to ulike historier",
+              "text": "Helge er bekreftet som grunnlegger. De registrerte løpsstartene beskriver løperhistorikken hans; de avgrenser ikke hvor lenge han bidro som arrangør eller frivillig.",
+              "source": "Fædrelandsvennen, Søgne Morothon",
+              "sourceIds": [
+                "fvn-2016",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-AD182FF",
+          "diplomaTribute": "Du var med på å skape en lokal tradisjon for utfordringer, løpsglede og fellesskap. Med takk for grunnlaget du la sammen med de andre ildsjelene."
         },
         {
           "id": "einar-danielsen",
           "name": "Einar Danielsen",
           "status": "confirmed",
-          "reason": null,
-          "roleSource": "Bekreftet av arrangøren i denne samtalen",
-          "stories": []
+          "reason": "Grunnlegger, særskilt bekreftet av arrangøren.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "En bekreftet del av grunnlaget",
+              "text": "Arrangøren har bekreftet at Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-D48A84B",
+          "diplomaTribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre."
         }
       ]
     },
     {
       "id": "volunteers",
       "badgeId": "service-dugnadshelt",
-      "title": "Dugnadshelter",
-      "description": "Foreløpig navneliste. Flere navn og begrunnelser kan legges til senere.",
+      "title": "Dugnadsheltene",
+      "description": "Kalle og Finn er bekreftede dugnadshelter. Dag Morten og Håkon har bekreftede arrangørroller, mens deres merkeforslag fortsatt er foreløpige.",
       "members": [
+        {
+          "id": "kalle-kimestad",
+          "name": "Kalle Kimestad",
+          "status": "confirmed",
+          "reason": "Bekreftet dugnadshelt minst siden 2014. Tidligere innsats er ikke avklart.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Dugnadshelt",
+              "fromYear": 2014,
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true,
+              "note": "Minst siden 2014; et tidligere startår er ikke bekreftet."
+            }
+          ],
+          "stories": [
+            {
+              "title": "En av dem som stiller opp",
+              "text": "Arrangøren bekrefter Kalles dugnadsinnsats minst siden 2014. Et tidligere startår og nærmere individuelle arbeidsoppgaver er ikke dokumentert.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-C65968C",
+          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014 og for at du bidrar til å holde Morothon-tradisjonen levende."
+        },
+        {
+          "id": "finn-lohne",
+          "name": "Finn Lohne",
+          "status": "confirmed",
+          "reason": "Bekreftet dugnadshelt minst siden 2014, blant annet knyttet til drikkestasjonen på Freden.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Dugnadshelt",
+              "fromYear": 2014,
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true,
+              "note": "Minst siden 2014; et tidligere startår er ikke bekreftet."
+            }
+          ],
+          "stories": [
+            {
+              "title": "En del av hjelpen på Freden",
+              "text": "Finn har blant annet vært knyttet til drikkestasjonen på Freden. Arrangøren bekrefter dugnadsinnsats minst siden 2014, men et tidligere startår er ikke avklart.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-3FAED73",
+          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014, blant annet ved drikkestasjonen på Freden. Du er med på å holde tradisjonen levende."
+        },
         {
           "id": "dag-morten-frantzen",
           "name": "Dag Morten Frantzen",
           "status": "provisional",
-          "reason": null,
-          "roleSource": "Foreløpig oppført av arrangøren i denne samtalen",
-          "stories": []
+          "reason": "En sentral arrangør siden overtakelsen i 2014. Rollen er bekreftet; merkeforslaget er foreløpig.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Arrangør siden 2014",
+              "fromYear": 2014,
+              "sourceIds": [
+                "fvn-2016",
+                "n247-2014",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Stafettpinnen videre",
+              "text": "Dag Morten overtok arrangøransvaret sammen med Håkon Lohne og Bent Bakke i 2014. Han har vært en av de sentrale arrangørene etter overtakelsen.",
+              "source": "Fædrelandsvennen, N247, Søgne Morothon",
+              "sourceIds": [
+                "fvn-2016",
+                "n247-2014",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ]
         },
         {
           "id": "hakon-lohne",
           "name": "Håkon Lohne",
           "status": "provisional",
-          "reason": null,
-          "roleSource": "Foreløpig oppført av arrangøren i denne samtalen",
-          "stories": []
+          "reason": "En sentral arrangør siden 2014. Ett års opphold på Svalbard er bekreftet, men ikke årfestet.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Arrangør siden 2014",
+              "fromYear": 2014,
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true,
+              "note": "Ett års opphold i forbindelse med Svalbard; hvilket år er ikke bekreftet."
+            }
+          ],
+          "stories": [
+            {
+              "title": "Tradisjonen i nye løyper",
+              "text": "Håkon overtok sammen med Dag Morten Frantzen og Bent Bakke i 2014 og har vært en sentral arrangør siden. Arrangøren bekrefter ett års opphold i forbindelse med Svalbard, uten å angi hvilket år.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-AA6C983"
         }
       ]
+    },
+    {
+      "id": "organizers",
+      "badgeId": null,
+      "title": "Da stafettpinnen ble overlevert",
+      "description": "Dag Morten Frantzen, Håkon Lohne og Bent Bakke overtok arrangøransvaret i 2014. De endret løypene, samlet start og mål ved Søgne Stadion og videreutviklet distansene for ungdom, mosjonister og konkurranseløpere. Det sportslige nivået ble løftet, mens kameratskapet og moroa skulle leve videre.",
+      "memberRefs": [
+        "dag-morten-frantzen",
+        "hakon-lohne"
+      ],
+      "members": [
+        {
+          "id": "bent-bakke",
+          "name": "Bent Bakke",
+          "status": "confirmed",
+          "reason": "Overtok arrangøransvar i 2014 og bidro i noen år etterpå. Eksakt avslutningsår er ikke bekreftet.",
+          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "roles": [
+            {
+              "title": "Arrangør fra 2014",
+              "fromYear": 2014,
+              "sourceIds": [
+                "n247-2014",
+                "organizer-v3"
+              ],
+              "confirmed": true,
+              "note": "Bidro i noen år etter overtakelsen; avslutningsår er ikke bekreftet."
+            }
+          ],
+          "stories": [
+            {
+              "title": "Med i den nye arrangørgruppen",
+              "text": "Bent var med da arrangøransvaret ble overtatt i 2014. Han bidro i noen år etter overtakelsen. Kildene her fastsetter ikke et avslutningsår.",
+              "source": "N247, Søgne Morothon",
+              "sourceIds": [
+                "n247-2014",
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ]
+        }
+      ],
+      "sourceIds": [
+        "fvn-2016",
+        "n247-2014",
+        "organizer-v3"
+      ]
     }
-  ]
+  ],
+  "narrative": {
+    "title": "35 år med myr, motbakker og mennesker som aldri ga seg",
+    "lead": "Bak hver startstrek står mennesker som har funnet på, merket, rigget, servert og ryddet. Fra ideen i 1992 til nye løyper og nye generasjoner er dette historien om dem som fikk Morothon til å skje.",
+    "timeline": [
+      {
+        "year": "1992",
+        "title": "Begynnelsen",
+        "text": "Erling Askildsen fikk ideen om et terrengløp med fysisk utfordring, kameratskap og fest. Sammen med andre ildsjeler skapte han Søgne Morothon. Den historiske fortellingen omtaler 129 deltakere det første året. Langmoro hadde 44 deltakere, som ble fraktet med buss til starten ved Ytre Solås. Første del av løypa hadde innslag av orientering. Etterpå var det bankett på Heimklang med mat, musikk, premier og sosialt samvær.",
+        "sourceIds": [
+          "fvn-2016",
+          "organizer-v3"
+        ]
+      },
+      {
+        "year": "1992–2013",
+        "title": "En lokal tradisjon",
+        "text": "Krevende traseer, vekslende vær og orienteringsinnslag ga løperne historier å ta med seg hjem. Løypeanalyser, banketter og mye frivillig innsats gjorde løpet til en lokal tradisjon.",
+        "sourceIds": [
+          "fvn-2016"
+        ]
+      },
+      {
+        "year": "2014",
+        "title": "Et nytt kapittel",
+        "text": "Dag Morten Frantzen, Håkon Lohne og Bent Bakke overtok arrangøransvaret. Start og mål ble samlet ved Søgne Stadion, løypene ble endret og distansene videreutviklet. Ungdom, mosjonister og konkurranseløpere fikk flere muligheter til å være med.",
+        "sourceIds": [
+          "fvn-2016",
+          "n247-2014",
+          "organizer-v3"
+        ]
+      },
+      {
+        "year": "2014–2026",
+        "title": "Tradisjonen lever videre",
+        "text": "De opprinnelige ildsjelene fortsatte å bidra med blant annet merking, rigging, drikkestasjoner og rydding. Nye arrangører utviklet løpet videre, samtidig som den opprinnelige ideen om kameratskap og moro fikk leve.",
+        "sourceIds": [
+          "fvn-2016",
+          "organizer-v3"
+        ]
+      }
+    ],
+    "closing": "Løperne skriver resultatlistene. Ildsjelene skriver historien.",
+    "sharedStories": [
+      {
+        "title": "Orientering før målstreken",
+        "text": "I de første årene inneholdt løpet også orientering. Det var ikke alltid deltakerne havnet akkurat der de hadde tenkt. Veien til mål kunne derfor gi mer enn bare en sluttid.",
+        "source": "Fædrelandsvennen",
+        "sourceIds": [
+          "fvn-2016"
+        ],
+        "confirmed": true
+      },
+      {
+        "title": "Premietrekning med lave skap",
+        "text": "På banketten ble premietrekningen etter hvert flyttet fra bakrommet. De lavthengende skapene hadde satt sine spor i form av blåmerker. Også det praktiske arbeidet rundt festen fikk sin egen løypejustering.",
+        "source": "Fædrelandsvennen",
+        "sourceIds": [
+          "fvn-2016"
+        ],
+        "confirmed": true
+      },
+      {
+        "title": "En stemme på banketten",
+        "text": "Floke Bredland leste resultatlistene på bankettene og omtales i kildene som en sentral veteran. Kildene gir ulike opplysninger om når innsatsen hans begynte; vi fastsetter derfor ikke et startår. Dette er historisk omtale, ikke en ny grunnleggeroppføring eller hedersutmerkelse.",
+        "source": "Fædrelandsvennen, N247",
+        "sourceIds": [
+          "fvn-2016",
+          "n247-2014"
+        ],
+        "confirmed": true
+      }
+    ],
+    "uncertainties": [
+      {
+        "text": "Historiefortellingen omtaler 129 deltakere i 1992. Resultatarkivet inneholder 128 registrerte resultater. De 44 Langmoro-resultatene samsvarer; ingen resultatlinje er lagt til for å jevne ut forskjellen.",
+        "sourceIds": [
+          "organizer-v3",
+          "history"
+        ]
+      }
+    ]
+  }
 }

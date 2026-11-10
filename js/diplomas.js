@@ -140,22 +140,30 @@
 
   async function serviceDraft(id = 'oscar-lohne') {
     const { member, group } = await MorothonHonorsData.find(id);
+    if (!group.badgeId) throw new Error('Ingen hedersutmerkelse er registrert for denne arrangørrollen.');
     const badges = await MorothonBadges.init(), asset = await inspectAsset(group.badgeId);
     const badge = MorothonBadges.get(group.badgeId), provisional = member.status !== 'confirmed';
     return { name: member.name, honoreeId: member.id, type: 'service', tier: 'service', title: `${badge.name} · diplomutkast`,
-      roleLabel: badge.name, provisional, asset, assetKey: group.badgeId, imageReady: false, previewOnly: true,
+      roleLabel: badge.name, tribute: member.diplomaTribute || '', provisional, asset, assetKey: group.badgeId, imageReady: false, previewOnly: true,
       color: badge.color, firstEdition: 1992, editionNumber: null,
       watermarkSrc: new URL(badges.watermark.src, document.baseURI).href,
       dateLabel: 'Dato fastsettes ved utstedelse', filename: `${member.id}-${badge.id}-diplomutkast`,
       description: provisional ? `${member.name} er foreløpig oppført som dugnadshelt. Ingen endelig tildeling er registrert.`
-        : `${member.name} er bekreftet som grunnlegger. Diplomet er et designutkast.`, citation: '' };
+        : `${member.name} er bekreftet i hederslisten som ${badge.name.toLocaleLowerCase('nb-NO')}. Diplomet er et designutkast.`, citation: '' };
+  }
+
+  function signoffHtml(date) {
+    return `<div class="diploma-signoff" data-layout-check>
+      <div class="diploma-date"><p class="diploma-handwritten">${safe(date)}</p><div class="diploma-signature-line" aria-hidden="true"></div></div>
+      <div class="diploma-signature"><b class="diploma-handwritten">Håkon Lohne</b><div class="diploma-signature-line" aria-label="Signaturlinje"></div><span class="diploma-signature-role">Løpsleder Morothon</span></div>
+    </div>`;
   }
 
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
     const founder=d.assetKey==='service-grunnlegger';
     const heading=founder?'GRUNNLEGGERDIPLOM':'HEDERSDIPLOM';
-    const tribute=founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for frivillig innsats og engasjement for Morothon.';
+    const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for frivillig innsats og engasjement for Morothon.');
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
       <body class="diploma-document"><article class="diploma-sheet diploma-service" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
@@ -164,8 +172,8 @@
       <div class="diploma-heading" data-layout-check><p>FOR LØPSGLEDE OG FELLESSKAP</p><h1>${heading}</h1></div>
       <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
       <div class="diploma-main diploma-service-main"><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure></div>
-      <div class="diploma-citation" data-layout-check><p>${safe(tribute)}</p><strong class="diploma-description">Et varig bidrag til Morothons historie.</strong></div>
-      <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>Søgne, __________________</p></div><div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
+      <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
+      ${signoffHtml('Søgne, __________________')}
       </article></body></html>`;
   }
 
@@ -202,36 +210,97 @@
       </div>
       <div class="diploma-citation" data-layout-check><p>${safe(ceremony)}</p><strong class="diploma-description">${safe(d.honorary ? d.citation : d.description)}</strong>
 </div>
-      <div class="diploma-signoff" data-layout-check><div class="diploma-date"><p>${safe(d.dateLabel)}</p><small>${d.type === 'service' ? 'Designutkast' : d.type === 'badge' ? 'Merket oppnådd' : d.type === 'record' ? 'Rekorden satt' : 'Debut'}</small></div>
-      <div class="diploma-signature"><div class="diploma-signature-line" aria-label="Plass for fysisk signatur"></div><b>Håkon Lohne</b><span>Løpsleder Søgne Morothon</span></div></div>
+      ${signoffHtml(d.dateLabel)}
       </article></body></html>`;
   }
 
   async function checkLayout(doc) {
     await doc.fonts.ready;
     await Promise.all([...doc.images].map(image => image.decode()));
-    const sheet = doc.querySelector('.diploma-sheet'), r = sheet.getBoundingClientRect();
-    const failures = [];
-    if (Math.abs(r.width / r.height - 297 / 210) > .001) failures.push('Siden har ikke korrekt liggende A4-format.');
-    for (const element of doc.querySelectorAll('[data-layout-check],.diploma-recipient h2,.diploma-achievement,.diploma-description')) {
-      const b = element.getBoundingClientRect();
-      if (b.left < r.left - .5 || b.right > r.right + .5 || b.top < r.top - .5 || b.bottom > r.bottom + .5 || element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1) failures.push(`Innholdet passer ikke: ${element.className}`);
+    const sheet = doc.querySelector('.diploma-sheet'), page = sheet.getBoundingClientRect();
+    const win = doc.defaultView, style = win.getComputedStyle(sheet);
+    // One CSS px (0.265mm at 96dpi), only for fractional layout/font rounding.
+    // scrollWidth/clientWidth are integers and are diagnostics, not proof of clipping.
+    const tolerance = 1, width = parseFloat(style.width), height = parseFloat(style.height);
+    const scale = page.width / width || 1;
+    const rect = r => ({ left: (r.left-page.left)/scale, right: (r.right-page.left)/scale,
+      top: (r.top-page.top)/scale, bottom: (r.bottom-page.top)/scale,
+      width: r.width/scale, height: r.height/scale });
+    const bounds = element => rect(element.getBoundingClientRect());
+    const paper = rect(page), failures = [], measurements = [], cache = new WeakMap();
+    const fail = message => { if (!failures.includes(message)) failures.push(message); };
+    if (Math.abs(width-297*96/25.4)>tolerance || Math.abs(height-210*96/25.4)>tolerance ||
+        !(page.width>0 && page.height>0) || Math.abs(page.width/page.height-297/210)>.001) fail('Siden har ikke korrekt liggende A4-format.');
+    function contentBounds(element) {
+      if (cache.has(element)) return cache.get(element);
+      // Transparent layout boxes are not ink. Include replaced/decorated content,
+      // plus the browser's text fragments, so an empty line-box edge cannot fail print.
+      const boxes = [...element.querySelectorAll('*')].filter(child => {
+        const cs = win.getComputedStyle(child);
+        return /^(IMG|SVG|CANVAS|VIDEO|IFRAME)$/.test(child.tagName) ||
+          cs.backgroundColor!=='rgba(0, 0, 0, 0)' || ['Top','Right','Bottom','Left'].some(side=>parseFloat(cs[`border${side}Width`])>0);
+      }).map(bounds).filter(b => b.width>0 && b.height>0);
+      const walker = doc.createTreeWalker(element, 4), range = doc.createRange();
+      while (walker.nextNode()) {
+        if (!walker.currentNode.textContent.trim()) continue;
+        range.selectNodeContents(walker.currentNode);
+        boxes.push(...[...range.getClientRects()].filter(r => r.width>0 && r.height>0).map(rect));
+      }
+      const result = boxes.length ? { left: Math.min(...boxes.map(b=>b.left)), right: Math.max(...boxes.map(b=>b.right)),
+        top: Math.min(...boxes.map(b=>b.top)), bottom: Math.max(...boxes.map(b=>b.bottom)) } : bounds(element);
+      cache.set(element,result); return result;
     }
-    const image = doc.querySelector('.diploma-medal'), imageBox = image.getBoundingClientRect(), figureBox = image.parentElement.getBoundingClientRect();
-    if (imageBox.left < figureBox.left - 1 || imageBox.right > figureBox.right + 1 || imageBox.top < figureBox.top - 1 || imageBox.bottom > figureBox.bottom + 1) failures.push('Medaljen passer ikke i det avsatte bildefeltet.');
-    const main = doc.querySelector('.diploma-main').getBoundingClientRect(), recipient = doc.querySelector('.diploma-recipient').getBoundingClientRect();
-    if (recipient.bottom > main.top + 1) failures.push('Navnefeltet overlapper medalje- og nøkkeltallsfeltet.');
-    const parts = [...doc.querySelectorAll('.diploma-main > *')].map(el => el.getBoundingClientRect());
-    if (parts.some(b => b.top < main.top - 1 || b.bottom > main.bottom + 1)) failures.push('Medalje og nøkkeltall passer ikke i hovedfeltet.');
-    return { ready: failures.length === 0, failures, width: r.width, height: r.height };
+    const overflow = (b, area) => ({ left: Math.max(0,area.left-b.left), right: Math.max(0,b.right-area.right),
+      top: Math.max(0,area.top-b.top), bottom: Math.max(0,b.bottom-area.bottom) });
+    const outside = sides => Object.values(sides).some(value=>value>tolerance);
+    const selector = '[data-layout-check],.diploma-recipient h2,.diploma-metric strong,.diploma-description,.diploma-date p,.diploma-signature b,.diploma-signature span,.diploma-edition';
+    for (const element of doc.querySelectorAll(selector)) {
+      const box = bounds(element), content = contentBounds(element);
+      // A font's line box may overhang the text element without leaving its allocated field.
+      const field = element.closest('[data-layout-check]') || element;
+      const fieldBox = bounds(field), outsideField = overflow(content,fieldBox);
+      const outsidePage = overflow({ left: Math.min(box.left,content.left), right: Math.max(box.right,content.right),
+        top: Math.min(box.top,content.top), bottom: Math.max(box.bottom,content.bottom) },paper);
+      let clipped = false;
+      for (const child of [element,...element.querySelectorAll('*')]) {
+        const cs = win.getComputedStyle(child), spill = overflow(contentBounds(child),bounds(child));
+        if (/hidden|clip|auto|scroll/.test(cs.overflowX) && (spill.left>tolerance || spill.right>tolerance) ||
+            /hidden|clip|auto|scroll/.test(cs.overflowY) && (spill.top>tolerance || spill.bottom>tolerance)) clipped = true;
+      }
+      measurements.push({ element: element.className || element.tagName.toLowerCase(), field: field.className,
+        bounds: box, contentBounds: content, fieldBounds: fieldBox, outsideField, outsidePage, clipped,
+        scrollOverflow: { x: Math.max(0,element.scrollWidth-element.clientWidth), y: Math.max(0,element.scrollHeight-element.clientHeight) } });
+      if (outside(outsideField) || outside(outsidePage) || clipped) fail(`Innholdet passer ikke: ${element.className || element.tagName.toLowerCase()}`);
+    }
+    const image = doc.querySelector('.diploma-medal'), imageBox = bounds(image), figureBox = bounds(image.parentElement);
+    if (outside(overflow(imageBox,figureBox))) fail('Medaljen passer ikke i det avsatte bildefeltet.');
+    const main = bounds(doc.querySelector('.diploma-main')), recipient = bounds(doc.querySelector('.diploma-recipient'));
+    if (recipient.bottom>main.top+tolerance) fail('Navnefeltet overlapper medalje- og nøkkeltallsfeltet.');
+    const parts = [...doc.querySelectorAll('.diploma-main > *')].map(bounds);
+    if (parts.some(b=>outside(overflow(b,main)))) fail('Medalje og nøkkeltall passer ikke i hovedfeltet.');
+    if (parts.some((b,i)=>i>0 && parts[i-1].right>b.left+tolerance)) fail('Medalje og nøkkeltall overlapper hverandre.');
+    const fields = ['.diploma-brand','.diploma-heading','.diploma-recipient','.diploma-main','.diploma-citation','.diploma-signoff'].map(selector=>doc.querySelector(selector));
+    for (let i=1;i<fields.length;i++) if (bounds(fields[i-1]).bottom>bounds(fields[i]).top+tolerance)
+      fail(`Diplomfeltene overlapper: ${fields[i-1].className} / ${fields[i].className}`);
+    return { ready: failures.length===0, failures, width: paper.width, height: paper.height, tolerance, measurements };
+  }
+
+  function fitPreview(viewport, frame) {
+    if (!viewport || !frame) return;
+    const win = viewport.ownerDocument.defaultView, box = win.getComputedStyle(viewport), native = win.getComputedStyle(frame);
+    const px = value => parseFloat(value)||0;
+    const available = viewport.clientWidth-px(box.paddingLeft)-px(box.paddingRight);
+    const width = px(native.width), height = px(native.height);
+    if (!(available>0 && width>0 && height>0)) return;
+    const scale = available/width;
+    frame.style.transform = `scale(${scale})`;
+    // Include the preview border: its former border-box height clipped the A4 bottom edge.
+    const extra = px(box.paddingTop)+px(box.paddingBottom)+(box.boxSizing==='border-box' ? px(box.borderTopWidth)+px(box.borderBottomWidth) : 0);
+    viewport.style.height = `${Math.ceil((height*scale+extra)*64)/64}px`;
   }
 
   function resizePreview() {
-    const viewport = ui.dialog?.querySelector('.diploma-preview'), frame = ui.dialog?.querySelector('iframe');
-    if (!viewport || !frame) return;
-    const scale = Math.min(1, viewport.clientWidth / (297 * 96 / 25.4));
-    frame.style.transform = `scale(${scale})`;
-    viewport.style.height = `${210 * 96 / 25.4 * scale}px`;
+    fitPreview(ui.dialog?.querySelector('.diploma-preview'),ui.dialog?.querySelector('iframe'));
   }
 
   function ensureDialog() {
@@ -298,6 +367,6 @@
     });
   }
 
-  window.MorothonDiplomas = { choices, model, prepare, serviceDraft, documentHtml, inspectAsset, checkLayout, dateLabel, eventDates, open, init,
+  window.MorothonDiplomas = { choices, model, prepare, serviceDraft, documentHtml, inspectAsset, checkLayout, fitPreview, dateLabel, eventDates, open, init,
     isOpen: () => !!ui.dialog?.open, current: () => ui.current };
 })();

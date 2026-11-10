@@ -47,7 +47,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
     try {
       await page.goto(harness.base+'/heder.html');
       await page.waitForFunction(()=>document.querySelectorAll('#serviceBadges img').length===3);
-      await page.locator('[data-honoree="oscar-lohne"] a').click();
+      await page.locator('[data-honoree="oscar-lohne"] .honor-person-main').click();
       await page.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet'));
       await page.locator('.diploma-example summary').click();
       const result=await page.evaluate(async()=>{
@@ -67,8 +67,8 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
       assert.ok(result.quality.every(a=>a.width===2400 && a.height===2400 && a.alpha && a.edges===0 && !a.ready && a.dpi>1000));
       assert.deepEqual(result.statuses,['design-draft','design-draft','design-draft']);
       assert.match(result.recipient,/Oscar Lohne/); assert.match(result.recipient,/Dag Morten Frantzen/);
-      assert.doesNotMatch(result.body,/Floke|Til minne om/i);
-      assert.match(result.body,/Grunnleggerlisten er bekreftet/);
+      assert.doesNotMatch(result.recipient,/Floke|Til minne om/i);
+      assert.match(result.body,/Fem bekreftede grunnleggere/);
       assert.equal(result.sample.imageReady,false); assert.equal(result.sample.type,'service');
       assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/diplomutkast, ikke utstedt/i); assert.match(result.sample.date,/fastsettes/);
       assert.equal(result.links,0); assert.deepEqual(errors,[]);

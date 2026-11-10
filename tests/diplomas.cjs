@@ -121,7 +121,7 @@ test('diploma preview: A4 layout, responsive scaling, gated print/PDF and return
       assert.ok(Math.abs(result.cells[0].y-result.cells[1].y)<1 && Math.abs(result.cells[1].y-result.cells[2].y)<1);
       assert.ok(Math.abs(result.layout.width / result.layout.height - 297 / 210) < .001);
       assert.equal(result.date, 'Søgne, 7. november 2026'); assert.equal(result.contain, 'contain');
-      assert.equal(result.previewFits, true); assert.match(result.signature, /Håkon Lohne.*Løpsleder Søgne Morothon/);
+      assert.equal(result.previewFits, true); assert.match(result.signature, /Håkon Lohne.*Løpsleder Morothon/);
       await page.evaluate(() => { window.__diplomaPrintCalls = 0; document.querySelector('#diplomaDialog iframe').contentWindow.print = () => window.__diplomaPrintCalls++; });
       await page.locator('[data-diploma-print]').dispatchEvent('click'); await page.locator('[data-diploma-pdf]').dispatchEvent('click');
       assert.equal(await page.evaluate(() => window.__diplomaPrintCalls), 2);

@@ -8,7 +8,7 @@ Historiske merkediplomer fryses ved oppnåelsesåret: hovedtallet er terskelen, 
 
 Malen følger Gunnar Kåsa v2: liggende A4, lys kremflate, doble rammer, petrolhjørner og sentrert navn/medalje/nøkkeltall. Den grove godkjente PNG-løperen er vannmerke. Alle merker kommer fra `data/badges.json`; se [biblioteket](badges.md).
 
-Hovedtittel og undertittel gjentar ikke hverandre. Debutdiplomet har «MIN FØRSTE MOROTHON» som hovedtittel og «Debutdiplom» under navnet. Datoen står på én linje i håndskriftstil. Alle diplomtyper har «Håkon Lohne» og «Løpsleder Søgne Morothon» i samme håndskriftpregede skriftfamilie som datoen, med blank plass til ekte signatur. Dette er typografisk navneangivelse, ikke en etterligning av en personlig signatur. Vannmerkets godkjente styrke er uendret.
+Hovedtittel og undertittel gjentar ikke hverandre. Debutdiplomet har «MIN FØRSTE MOROTHON» som hovedtittel og «Debutdiplom» under navnet. Datoen står på én linje i håndskriftstil. Alle diplomtyper har sted/dato og «Håkon Lohne» i samme håndskriftfont, størrelse og farge, rett over to like streker på samme høyde. Under høyre strek står «Løpsleder Morothon» i mindre Arial. Dette er typografisk navneangivelse, ikke en etterligning av en personlig signatur. Vannmerkets godkjente styrke er uendret.
 
 Trykkgodkjenningen av konkrete filer er knyttet til SHA-256. Faktisk DPI beregnes og oppgis; dokumenterte, brukeraksepterte avvik gjør ikke en lavoppløselig kilde til en ny 300 DPI-original. Manglende godkjenning, endrede filbytes eller layoutfeil sperrer fortsatt utskrift. Hedersprofiler bruker samme dokumentbygger og merkeregister, men foreløpige dugnadsoppføringer kan ikke utstede diplomer. Hedersdiplomer er kun forhåndsvisninger, med utkaststatus utenfor det seremonielle diplomdesignet og uten utskrift/PDF på nettsiden; se [hedersprofiler](honors.md).
 
@@ -24,3 +24,52 @@ node scripts/review-approved-medals.cjs /tmp/morothon-approved-medals
 ```
 
 Generatoren endrer ikke historiske resultater, oppretter ikke tildelinger og har ingen offentlig administrasjons- eller masseutskriftsfunksjon.
+
+V3-grunnleggerprofiler kan ha en kort `diplomaTribute` fra hedersdataene. Den
+vises i det eksisterende sitatfeltet, med layoutkontroll for alle fem grunnleggere.
+Ingen utgave, medalje eller løpsstatistikk utledes fra denne teksten. Roller uten
+registrert hedersmerke har ikke et automatisk diplomvalg. Se [hedersdata](honors.md).
+
+## Layoutkontroll og responsiv forhåndsvisning
+
+`checkLayout()` venter på fonter og bilder og kontrollerer både faktisk A4-størrelse
+(297 × 210 mm) og plasseringen av tekstfragmenter, medaljen og synlige elementer.
+Innholdet må holde seg innenfor sitt avsatte felt og arket. Klippet innhold og
+overlapping mellom navnefelt og hovedfelt avvises fortsatt. `measurements` gir
+pikselmål, overflyt per side, eventuell klipping og rå scrollavvik for feilsøking.
+
+Toleransen er **1 CSS-piksel** (ca. 0,265 mm ved 96 DPI). Målinger normaliseres til
+arkets koordinater også ved skalering. `scrollWidth`/`scrollHeight` og deres
+client-mål er heltall; de brukes derfor som diagnostikk, ikke alene som bevis på
+avkutting. Et tekst-/fontlinjefelt kan ha overheng uten at noe går utenfor det
+avsatte feltet. Usynlige, transparente linjebokser regnes ikke som synlig
+innhold; ekte tekst, bilder, rammer og faktisk klipping kontrolleres.
+
+De store 17 mm-tallene beholder størrelsen, med linjehøyde 1,3. Signaturraden er
+18,5 mm og beholder plassen fra forrige layoutrettelse. Ett felles HTML-oppsett
+brukes i ordinære diplomer og hedersutkast. To like brede CSS Grid-kolonner har
+identiske rader for håndskrift, strek og rolle. Dato og navn er 6 mm, med
+linjehøyde 1,4 og samme håndskriftfont/farge. Begge strekene er 0,2 mm.
+«Løpsleder Morothon» står under høyre strek i diskret 2,7 mm Arial. Venstre
+kolonne reserverer samme plass under streken, slik at grunnlinjene er like uten
+manuelle forskyvninger. Ingen ramme, medalje, vannmerke eller øvrig A4-felt endres.
+
+Vanlige diplomer og hedersutkast bruker samme `fitPreview()`. Native A4-innhold
+skaleres kun i forhåndsvisningen. Rammens kantlinjer tas med i høyden, og høyden
+avrundes opp til nettleserens 1/64-piksel-grid slik at nederkanten beholdes.
+Medaljenes faktiske DPI, kildefiler og trykkgodkjenning endres ikke av dette.
+
+`tests/diploma-layout.cjs` kontrollerer Ingers historiske sølvdiplom, alle ti
+merkenivåer (40–50 i en isolert fremtidstest), alle fire rekorddiplomer og debut,
+korte/lange navn, fontvariasjon, A4-PDF, små avrundingsavvik og ekte feil som skal
+sperre utskrift. Kildekontroll og forhåndsvisningssperren for hedersdiplomer
+beholdes. Nye lokale kontrollbilder kan lages med:
+
+```sh
+node scripts/review-diploma-layout.cjs /tmp/morothon-diploma-layout
+```
+
+`tests/final-polish.cjs` måler også like håndskriftfonter, grunnlinjer, strekhøyder,
+strektykkelser og plassering av maskinskrevet rolle på alle 15 diplomvariantene.
+Seks egne PDF-kontroller kombinerer korte/lange navn med årstall, ordinær dato
+og en lang datotekst som kun brukes som typografisk testdata.

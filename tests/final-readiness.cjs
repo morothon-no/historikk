@@ -16,8 +16,8 @@ test('public navigation omits the honor preview while direct routes and mobile k
 test('honor profile routes: Oscar is a documented founder, provisional volunteers get their own draft and history works',async()=>{
  for(const width of [320,390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:900}}),errors=[];p.on('pageerror',e=>errors.push(e.message));try{
-   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"] a').click();await p.locator('#profileName').waitFor();
-   assert.equal(await p.locator('#profileName').textContent(),'Oscar Lohne');assert.match(await p.locator('.profile-role').textContent(),/Grunnlegger/);assert.match(await p.locator('#honorProfile').textContent(),/Ingen dokumentert historie/);
+   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"] .honor-person-main').click();await p.locator('#profileName').waitFor();
+   assert.equal(await p.locator('#profileName').textContent(),'Oscar Lohne');assert.match(await p.locator('.profile-role').textContent(),/Grunnlegger/);assert.match(await p.locator('#honorProfile').textContent(),/1992–2026/);
    await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert'));
    assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Oscar Lohne');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'GRUNNLEGGERDIPLOM');
    assert.equal(await p.evaluate(async()=>MorothonDiplomas.checkLayout(document.querySelector('iframe').contentDocument).then(r=>r.ready)),true);
@@ -26,18 +26,18 @@ test('honor profile routes: Oscar is a documented founder, provisional volunteer
    assert.match(await p.locator('.honor-draft-notice').textContent(),/ikke utstedt/);
    assert.equal(await p.locator('iframe').getAttribute('sandbox'),'allow-same-origin');
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-   await p.goBack();await p.locator('#honorOverview').waitFor({state:'visible'});await p.locator('[data-honoree="dag-morten-frantzen"] a').click();await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Dag Morten Frantzen');
+   await p.goBack();await p.locator('#honorOverview').waitFor({state:'visible'});await p.locator('[data-honoree="dag-morten-frantzen"] .honor-person-main').first().click();await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Dag Morten Frantzen');
    await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet'));
-   assert.match(await p.locator('.profile-role').textContent(),/foreløpig/);assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Dag Morten Frantzen');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'HEDERSDIPLOM');
+   assert.match(await p.locator('.profile-role').textContent(),/Arrangør siden 2014/);assert.match(await p.locator('#honorProfile .honor-award-status').textContent(),/ikke endelig tildelt/);assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Dag Morten Frantzen');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'HEDERSDIPLOM');
    assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Floke|Til minne om/);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
    assert.deepEqual(errors,[]);
   }finally{await p.close();}
  }
 });
 test('profiles display only confirmed sourced stories; individual identities and unknown honor IDs are not guessed',async()=>{
- const data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));data.groups[0].members[0].stories=[{title:'Kontrollert testhistorie',text:'Kun testdata.',source:'Testkilde',confirmed:true},{title:'Ubekreftet',text:'Skal ikke vises.',source:'',confirmed:false}];
+ const data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));data.groups[0].members.find(m=>m.id==='oscar-lohne').stories=[{title:'Kontrollert testhistorie',text:'Kun testdata.',source:'Testkilde',confirmed:true},{title:'Ubekreftet',text:'Skal ikke vises.',source:'',confirmed:false}];
  const p=await h.browser.newPage();try{
-  await p.route('**/data/honors.json',r=>r.fulfill({json:data}));await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();assert.match(await p.locator('.honor-story').textContent(),/Kun testdata/);assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Skal ikke vises/);
+  await p.route('**/data/honors.json',r=>r.fulfill({json:data}));await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();assert.match(await p.locator('#honorProfile .honor-story').textContent(),/Kun testdata/);assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Skal ikke vises/);
   await p.evaluate(()=>location.hash='#person/unknown');await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Hedersprofilen finnes ikke');
  }finally{await p.close();}
 });
