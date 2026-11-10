@@ -82,3 +82,35 @@ test('six anonymous preview diplomas exist with all award issuance and print pat
   }finally{await p.close()}
  }
 });
+
+test('date field uses the race when the volunteer actually reached each milestone',async()=>{
+ const page=await h.browser.newPage();
+ try{
+  await page.goto(h.base+'/heder.html');
+  await page.locator('[data-honoree="oscar-lohne"]').waitFor();
+  const result=await page.evaluate(async()=>{
+   const [thirty,honor,erling,anonymous,notDocumented]=await Promise.all([
+     MorothonDiplomas.serviceDraft('oscar-lohne','service-dugnad-30'),
+     MorothonDiplomas.serviceDraft('oscar-lohne','service-aeresmerke'),
+     MorothonDiplomas.serviceDraft('erling-askildsen','service-aeresmerke'),
+     MorothonDiplomas.serviceExample('dugnad-30'),
+     MorothonDiplomas.serviceDraft('kalle-kimestad','service-dugnadshelt')
+   ]);
+   return [thirty,honor,erling,anonymous,notDocumented].map(d=>({
+     year:d.achievementYear||null,eventDate:d.eventDate||null,label:d.dateLabel,
+     basis:d.dateBasis,preview:d.previewOnly,ready:d.imageReady,
+     htmlDate:new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html').querySelector('.diploma-date p').textContent
+   }));
+  });
+  const [thirty,honor,erling,anonymous,unknown]=result;
+  assert.deepEqual([thirty.year,thirty.eventDate,thirty.label],[2021,'2021-11-13','Søgne, 13. november 2021']);
+  for(const entry of [honor,erling])assert.deepEqual([entry.year,entry.eventDate,entry.label],[2026,'2026-11-07','Søgne, 7. november 2026']);
+  for(const entry of [anonymous,unknown])assert.deepEqual([entry.year,entry.eventDate,entry.label],[null,null,'Søgne, __________________']);
+  for(const entry of result){
+    assert.equal(entry.htmlDate.trim(),entry.label);
+    assert.equal(entry.preview,true);assert.equal(entry.ready,false);
+    assert.equal(entry.basis,entry.eventDate?'documented-race-date':'not-established');
+    assert.doesNotMatch(entry.label,/utstedt|utskriftsdato|10\. november 2026/i);
+  }
+ }finally{await page.close()}
+});
