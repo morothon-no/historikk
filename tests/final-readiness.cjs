@@ -19,7 +19,7 @@ test('honor profile routes: Oscar is a documented founder, provisional volunteer
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"] .honor-person-main').click();await p.locator('#profileName').waitFor();
    assert.equal(await p.locator('#profileName').textContent(),'Oscar Lohne');assert.match(await p.locator('.profile-role').textContent(),/Grunnlegger/);assert.match(await p.locator('#honorProfile').textContent(),/1992–2026/);
    await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert'));
-   assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Oscar Lohne');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'HEDERSDIPLOM');
+   assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Oscar Lohne');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'ÆRESDIPLOM');
    assert.equal(await p.evaluate(async()=>MorothonDiplomas.checkLayout(document.querySelector('iframe').contentDocument).then(r=>r.ready)),true);
    assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
    assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
@@ -45,7 +45,7 @@ test('1992 fix changes only the conflicting stroke in the native SVG; canonical 
  const svg=await fs.readFile(path.join(__dirname,'../assets/medals/service/grunnlegger.svg'),'utf8');assert.doesNotMatch(svg,/M-180 105 H180/);assert.match(svg,/>1992<\/text>/);
  const p=await h.browser.newPage();try{
   await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
-  const r=await p.evaluate(async()=>{const a=await MorothonDiplomas.inspectAsset('service-grunnlegger');const d=await MorothonDiplomas.serviceDraft('oscar-lohne');return {w:a.width,h:a.height,alpha:a.transparent,edge:a.edgeContact,src:a.src,same:document.querySelector('.profile-medal').src===d.asset.src};});
+  const r=await p.evaluate(async()=>{const a=await MorothonDiplomas.inspectAsset('service-grunnlegger');const d=await MorothonDiplomas.serviceDraft('oscar-lohne','service-grunnlegger');return {w:a.width,h:a.height,alpha:a.transparent,edge:a.edgeContact,src:a.src,same:[...document.querySelectorAll('.honor-secondary-badges img')].some(im=>im.src===d.asset.src)};});
   assert.equal(r.w,2400);assert.equal(r.h,2400);assert.equal(r.alpha,true);assert.equal(r.edge,0);assert.equal(r.same,true);
  }finally{await p.close();}
 });
