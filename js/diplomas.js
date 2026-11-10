@@ -231,23 +231,59 @@
     const fail = message => { if (!failures.includes(message)) failures.push(message); };
     if (Math.abs(width-297*96/25.4)>tolerance || Math.abs(height-210*96/25.4)>tolerance ||
         !(page.width>0 && page.height>0) || Math.abs(page.width/page.height-297/210)>.001) fail('Siden har ikke korrekt liggende A4-format.');
+    const rawCache = new WeakMap(), textCache = new WeakMap(), fragments = new WeakMap();
+    const inkContext = doc.createElement('canvas').getContext('2d');
+    function numericInk(node, raw) {
+      const element = node.parentElement, cs = win.getComputedStyle(element);
+      // Range rectangles enclose the font's ascent/descent, including unused space.
+      // Only the plain, single-line numeric fields have a known shaping contract.
+      if (!inkContext || !element.matches('.diploma-metric strong') || element.childNodes.length!==1 || raw.length!==1 ||
+          !/^[\d\s:.,%]+$/.test(node.textContent) || cs.transform!=='none' || cs.fontStyle!=='normal' ||
+          cs.textShadow!=='none' || parseFloat(cs.webkitTextStrokeWidth)>0 ||
+          (cs.fontSizeAdjust && cs.fontSizeAdjust!=='none') || cs.fontFeatureSettings!=='normal' || cs.fontVariationSettings!=='normal')
+        return { boxes: raw, method: 'range' };
+      const before = bounds(element), marker = doc.createElement('i');
+      marker.setAttribute('aria-hidden','true');
+      marker.style.cssText='display:inline-block!important;width:0!important;height:0!important;margin:0!important;padding:0!important;border:0!important;vertical-align:baseline!important;position:static!important;transform:none!important';
+      let baseline, during;
+      try { element.appendChild(marker); baseline = (marker.getBoundingClientRect().top-page.top)/scale; during = bounds(element); }
+      finally { marker.remove(); }
+      const after = bounds(element);
+      if (['left','right','top','bottom'].some(side=>Math.abs(before[side]-during[side])>.01 || Math.abs(before[side]-after[side])>.01)) return { boxes: raw, method: 'range' };
+      inkContext.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      inkContext.fontKerning = cs.fontKerning;
+      const ink = inkContext.measureText(node.textContent), ascent = ink.actualBoundingBoxAscent, descent = ink.actualBoundingBoxDescent;
+      if (![baseline,ascent,descent].every(Number.isFinite) || ascent+descent<=0) return { boxes: raw, method: 'range' };
+      // Keep Range's conservative horizontal extent. Correct only the unused vertical font space.
+      const visible = { ...raw[0], top: baseline-ascent, bottom: baseline+descent, height: ascent+descent };
+      return { boxes: [visible], method: 'numeric-ink', font: inkContext.font, baseline, ascent, descent };
+    }
+    function union(boxes, fallback) {
+      return boxes.length ? { left: Math.min(...boxes.map(b=>b.left)), right: Math.max(...boxes.map(b=>b.right)),
+        top: Math.min(...boxes.map(b=>b.top)), bottom: Math.max(...boxes.map(b=>b.bottom)) } : fallback;
+    }
     function contentBounds(element) {
       if (cache.has(element)) return cache.get(element);
-      // Transparent layout boxes are not ink. Include replaced/decorated content,
-      // plus the browser's text fragments, so an empty line-box edge cannot fail print.
       const boxes = [...element.querySelectorAll('*')].filter(child => {
         const cs = win.getComputedStyle(child);
         return /^(IMG|SVG|CANVAS|VIDEO|IFRAME)$/.test(child.tagName) ||
           cs.backgroundColor!=='rgba(0, 0, 0, 0)' || ['Top','Right','Bottom','Left'].some(side=>parseFloat(cs[`border${side}Width`])>0);
       }).map(bounds).filter(b => b.width>0 && b.height>0);
-      const walker = doc.createTreeWalker(element, 4), range = doc.createRange();
+      const rawBoxes = boxes.slice(), textFragments = [], walker = doc.createTreeWalker(element, 4), range = doc.createRange();
       while (walker.nextNode()) {
-        if (!walker.currentNode.textContent.trim()) continue;
-        range.selectNodeContents(walker.currentNode);
-        boxes.push(...[...range.getClientRects()].filter(r => r.width>0 && r.height>0).map(rect));
+        const node = walker.currentNode;
+        if (!node.textContent.trim()) continue;
+        if (!textCache.has(node)) {
+          range.selectNodeContents(node);
+          const raw = [...range.getClientRects()].filter(r=>r.width>0 && r.height>0).map(rect);
+          textCache.set(node,{ raw, ...numericInk(node,raw) });
+        }
+        const measured = textCache.get(node);
+        boxes.push(...measured.boxes); rawBoxes.push(...measured.raw);
+        textFragments.push({ text: node.textContent, ...measured });
       }
-      const result = boxes.length ? { left: Math.min(...boxes.map(b=>b.left)), right: Math.max(...boxes.map(b=>b.right)),
-        top: Math.min(...boxes.map(b=>b.top)), bottom: Math.max(...boxes.map(b=>b.bottom)) } : bounds(element);
+      const fallback = bounds(element), result = union(boxes,fallback);
+      rawCache.set(element,union(rawBoxes,fallback)); fragments.set(element,textFragments);
       cache.set(element,result); return result;
     }
     const overflow = (b, area) => ({ left: Math.max(0,area.left-b.left), right: Math.max(0,b.right-area.right),
@@ -268,7 +304,10 @@
             /hidden|clip|auto|scroll/.test(cs.overflowY) && (spill.top>tolerance || spill.bottom>tolerance)) clipped = true;
       }
       measurements.push({ element: element.className || element.tagName.toLowerCase(), field: field.className,
-        bounds: box, contentBounds: content, fieldBounds: fieldBox, outsideField, outsidePage, clipped,
+        bounds: box, contentBounds: content, rawContentBounds: rawCache.get(element), fieldBounds: fieldBox,
+        outsideField, rawOutsideField: overflow(rawCache.get(element),fieldBox), outsidePage, clipped,
+        failedChecks: [outside(outsideField)&&'outsideField',outside(outsidePage)&&'outsidePage',clipped&&'clipped'].filter(Boolean),
+        textFragments: fragments.get(element),
         scrollOverflow: { x: Math.max(0,element.scrollWidth-element.clientWidth), y: Math.max(0,element.scrollHeight-element.clientHeight) } });
       if (outside(outsideField) || outside(outsidePage) || clipped) fail(`Innholdet passer ikke: ${element.className || element.tagName.toLowerCase()}`);
     }

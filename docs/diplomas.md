@@ -73,3 +73,45 @@ node scripts/review-diploma-layout.cjs /tmp/morothon-diploma-layout
 strektykkelser og plassering av maskinskrevet rolle på alle 15 diplomvariantene.
 Seks egne PDF-kontroller kombinerer korte/lange navn med årstall, ordinær dato
 og en lang datotekst som kun brukes som typografisk testdata.
+
+## V3.1 – Windows-feilen i tallfeltene
+
+Arrangørens målinger fra Chrome 157 på Windows, DPR 1, viser fire identiske
+feil: `diploma-metric diploma-left`, `diploma-achievement`,
+`diploma-metric diploma-right` og `strong`. Alle har
+`outsideField.top = 4.000015589983434`, `outsidePage = 0` og `clipped = false`.
+Tallboksen er 83,52 px høy, mens `Range.getClientRects()` gir en 91 px høy
+fontboks. En ekstra måling i samme Windows-nettleser viser at de synlige tallene
+har topp 466,8125 px i et felt som begynner på 446,8125 px: 20 px klaring.
+
+Range-tekstbokser inkluderer ubrukte ascender-/descenderområder i fonten; de er
+ikke pikselgrenser for de malte tegnene. `checkLayout()` måler derfor nå det
+**vertikale tegnavtrykket til enkle, enlinjede numeriske nøkkeltall** med Canvas
+`actualBoundingBoxAscent`/`Descent` ved tekstens faktiske DOM-grunnlinje. En
+nullbredde-markør måler grunnlinjen og fjernes umiddelbart. Kontrollen bekrefter
+at markøren ikke endret elementets geometri. Range-bredden beholdes konservativt.
+
+Denne metoden gjelder bare vanlige tall, tid og prosent i `.diploma-metric
+strong`, uten transformasjon, skygge, tekststrek eller andre ukjente
+fontinnstillinger. Ved flere tekstfragmenter, manglende tegnmålinger eller
+endret geometri brukes den tidligere Range-kontrollen. Øvrige tekstfelt,
+bilder, feltgrenser, sidegrenser, overlapp og faktisk klipping kontrolleres som
+før. Toleransen er fortsatt 1 CSS-piksel. Ingen CSS, diplomdata, bildefil eller
+signaturutforming er endret i V3.1.
+
+Målerapporten gir nå også `rawContentBounds`, `rawOutsideField`, `failedChecks`
+og `textFragments` med rå Range-boks, synlig tegnboks, grunnlinje og fontmåling.
+Dermed kan et eventuelt nytt avvik spores til konkret betingelse og mål.
+
+`tests/diploma-windows.cjs` bruker en OFL-lisensiert Noto Sans-testfont med
+ascender-/descenderinnstillinger som gjenskaper Windows-målingens fire avvik.
+Den gjengir faktiske tegn i nettleseren uten å mocke DOM-rektangler. Testfonten
+og Windows-observasjonen ligger i `tests/fixtures/diploma-font/` og inngår ikke i
+nettsidepakken. Dette er et tilsvarende målt fontmiljø, ikke en Windows-VM.
+Testene kontrollerer også faktiske rasterpiksler, piksel-/DOM-uendret måling,
+A4-PDF, begge utskriftsknapper, ulike bredder/DPR og negative kontrolltilfeller.
+
+Fonten bygges til Canvas fra eksplisitt `fontStyle`, `fontWeight`, `fontSize`
+og `fontFamily`. `getComputedStyle(element).font` kan være tomt når
+fontvariantinnstillinger ikke kan serialiseres til én shorthand, og brukes
+ikke som målefont.
