@@ -22,7 +22,7 @@
       "title": "Arrangørens bekreftelser i V3-bestillingen",
       "publisher": "Søgne Morothon",
       "date": "2026-11-10",
-      "basis": "Bekreftet grunnleggerliste, arrangørroller, dugnadshelter og eksplisitte løper-ID-er."
+      "basis": "Bekreftet grunnleggerliste, arrangørroller, dugnadshelter og eksplisitte løper-ID-er. Arrangøren bekreftet 10. november 2026 at riktig deltakertall i 1992 er 128."
     },
     "history": {
       "title": "Morothons resultatarkiv",
@@ -446,10 +446,11 @@
       {
         "year": "1992",
         "title": "Begynnelsen",
-        "text": "Erling Askildsen fikk ideen om et terrengløp med fysisk utfordring, kameratskap og fest. Sammen med andre ildsjeler skapte han Søgne Morothon. Den historiske fortellingen omtaler 129 deltakere det første året. Langmoro hadde 44 deltakere, som ble fraktet med buss til starten ved Ytre Solås. Første del av løypa hadde innslag av orientering. Etterpå var det bankett på Heimklang med mat, musikk, premier og sosialt samvær.",
+        "text": "Erling Askildsen fikk ideen om et terrengløp med fysisk utfordring, kameratskap og fest. Sammen med andre ildsjeler skapte han Søgne Morothon. Det første året deltok 128 personer, slik arrangøren har bekreftet og resultatarkivet viser. Langmoro hadde 44 deltakere, som ble fraktet med buss til starten ved Ytre Solås. Første del av løypa hadde innslag av orientering. Etterpå var det bankett på Heimklang med mat, musikk, premier og sosialt samvær.",
         "sourceIds": [
           "fvn-2016",
-          "organizer-v3"
+          "organizer-v3",
+          "history"
         ]
       },
       {
@@ -511,14 +512,6 @@
         "confirmed": true
       }
     ],
-    "uncertainties": [
-      {
-        "text": "Historiefortellingen omtaler 129 deltakere i 1992. Resultatarkivet inneholder 128 registrerte resultater. De 44 Langmoro-resultatene samsvarer; ingen resultatlinje er lagt til for å jevne ut forskjellen.",
-        "sourceIds": [
-          "organizer-v3",
-          "history"
-        ]
-      }
-    ]
+    "uncertainties": []
   }
 }
