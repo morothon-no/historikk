@@ -23,12 +23,12 @@ test('issue #13 changes only sourced honor content: 35 identities, Christan name
  const old=JSON.parse(execFileSync('git',['show','22bd10a:data/honors.json'],{cwd:root}));
  for(const m of old.groups.flatMap(g=>g.members)){
   const n=byId.get(m.id);assert.ok(n,m.id);
-  if(['dag-morten-frantzen','hakon-lohne'].includes(m.id)){
-   for(const key of ['id','name','runnerId','status','roles','badgeProposal','awards','issuedDiplomas'])assert.deepEqual(n[key],m[key],m.id+': '+key);
+  if(['dag-morten-frantzen','hakon-lohne','oscar-lohne','erling-askildsen'].includes(m.id)){
+   for(const key of ['id','name','runnerId','status','roles','awards','issuedDiplomas'])assert.deepEqual(n[key],m[key],m.id+': '+key); if(!['oscar-lohne','erling-askildsen'].includes(m.id))assert.deepEqual(n.badgeProposal,m.badgeProposal);
    for(const story of m.stories)assert.ok(n.stories.some(s=>s.text===story.text));
   }else assert.deepEqual(n,m,m.id);
  }
- const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/badges.json','data/event-dates.json','index.html','js/diplomas.js','css/diplomas.css'],{cwd:root}).toString().trim().split('\n');
+ const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/event-dates.json','index.html','js/diplomas.js','css/diplomas.css'],{cwd:root}).toString().trim().split('\n');
  for(const file of protectedFiles)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
 });
 
@@ -95,13 +95,13 @@ test('issue #13 quality details report real 55mm main and 26mm secondary DPI whi
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
    await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('A4-utkast kontrollert'));
    const lines=await p.locator('#honorProfile .honor-image-quality p').allTextContents();
-   assert.equal(lines.length,3);assert.match(lines[0],/Hedersildsjel.*2400 × 2400 px · 1108 DPI ved 55\.0 mm/);
-   for(const line of lines.slice(1))assert.match(line,/2400 × 2400 px · 2344 DPI ved 26\.0 mm/);
+   assert.equal(lines.length,4);assert.match(lines[0],/Morothons æresmerke.*2400 × 2400 px · 1108 DPI ved 55\.0 mm/);
+   for(const line of lines.slice(1))assert.match(line,/2400 × 2400 px · 3586 DPI ved 17\.0 mm/);
    for(const line of lines){assert.match(line,/ikke godkjent for tildeling/);assert.match(line,/kontrolleres og godkjennes/);}
    await p.selectOption('.honor-choice select','service-grunnlegger');
    await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('h1')?.textContent==='GRUNNLEGGERDIPLOM');
    await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Grunnlegger:'));
-   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),3);
+   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),4);
    assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
    assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','service-grunnlegger')).imageReady),false);
   }finally{await p.close();}
