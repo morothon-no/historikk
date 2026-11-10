@@ -71,8 +71,8 @@ koblingen mellom tildeling og utstedt diplom. Fem dokumenterte dugnadsutgaver
 kan gi et kvalifikasjonsgrunnlag; det oppretter aldri tildeling/diplom automatisk.
 En særskilt beslutning kan gi unntak, men må ha egen bekreftelse og kilde.
 
-De fem grunnleggerne har forslag om Grunnlegger og Dugnadshelt. Oscar/Erling har
-Hedersildsjel som foreslått hovedmerke og de to andre som sekundære merker.
+De fem grunnleggerne har forslag om Grunnlegger og Dugnadshelt. Oscar/Erling har **Morothons æresmerke** som foreslått hovedmerke, med
+Hedersildsjel, Grunnlegger og Dugnadshelt som mindre sekundære merker.
 Kalle, Finn, Dag Morten og Håkon beholder tidligere merkeforslag. De nyere
 navnene og Bent får ingen automatisk utmerkelse fra medlemskap eller startår.
 Alle nevnes og takkes uavhengig av antall dugnadsår.
@@ -216,3 +216,26 @@ QA-generatoren tar faktiske før/etter-bilder fra en eksplisitt Git-referanse,
 inkludert den daværende dugnadsfilen. A4-PNG-prøvene rendres ved 300 DPI, og
 PDF-prøvene forblir lokale og merket «IKKE-UTDELT». Ingen kvalitetsflagg,
 medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.
+
+## Morothons æresmerke – øverste hedersnivå (forslag)
+
+- Det nye merket `service-aeresmerke` er **fjerde hedersmerke**, over Hedersildsjel.
+  Grunnlegger er en selvstendig historisk heder, ikke en dugnadsterskel.
+- **5 dokumenterte dugnadsutgaver:** grunnlag for vurdering av Dugnadshelt.
+  **10 dokumenterte dugnadsutgaver:** grunnlag for individuell vurdering av
+  Hedersildsjel ved særlig innsats. Årsgrensene er ikke automatisk tildeling.
+- **Morothons æresmerke** er for helt ekstraordinært eller livslangt engasjement.
+  Det har **ingen automatisk årsgrense** og krever særskilt vedtak.
+- Oscar Lohne og Erling Askildsen er foreslått som de første mottakerne basert
+  på deres oppgitte dugnadsinnsats gjennom alle 35 utgaver 1992–2026. Dette er
+  fortsatt bare forslag i `badgeProposal`; deres `awards` og `issuedDiplomas` er tomme.
+- Motivet `assets/medals/service/aeresmerke.svg` er et egenlaget, skalerbart
+  **designutkast**, med platina- og gulltoner, laurbær, løper og tolinjet
+  «MOROTHONS ÆRESMERKE». Tallet 35 står **ikke** på selve medaljen.
+  Status i registeret er `design-draft`, `printReady: false`, og ingen trykk-
+  eller tildelingsgodkjenning er gitt.
+- Den skjulte forhåndsvisningen har særskilt æresdiplom for Oscar/Erling med
+  ett stort hovedmerke og tre små sekundærmerker. Hedersdiplomer er fortsatt
+  låst for utskrift/PDF, mens vanlige løperdiplomer er uendret.
+- Endringen skal gjennomgås visuelt og merket tegnes eventuelt videre før
+  fysisk produksjon. Ingen offentlig menylenke eller endring av `noindex`.
