@@ -31,7 +31,9 @@ diskret «Til minne om»-omtale.
   vanlige presentasjonen og forklares under «Bakgrunn og kilder».
 - Lars Aamodt er en egen person uten oppgitt startår/oppgave. Laila Endresen
   Skjulestad har bidratt på drikkestasjon sammen med Anne Lene Førland-Hansen.
-  Laila har ingen oppgitt startdato; Annes 2014-år overføres ikke til henne.
+  Begge har ukjent startår etter arrangørens siste avklaring. De begynte samtidig,
+  men mulig 2016 er ikke bekreftet og brukes ikke som startår. Den tidligere
+  2014-opplysningen for Anne Lene er trukket tilbake.
   De to nye oppføringene har ingen automatisk medalje eller diplom.
 - Håkons Svalbard-opphold er årfestet til 2016. Det utledes ikke konkrete
   oppgaver eller fravær fra løpet dette året.
@@ -44,7 +46,9 @@ diskret «Til minne om»-omtale.
 ## Bakoverkompatibel modell og merkeforslag
 
 `schemaVersion: 1`, `groups`, `members`, `memberRefs` og eksisterende profil-ID-er
-beholdes. `contentVersion: "3.4"` aktiverer eksplisitte planer i stedet for å
+beholdes. `volunteerList: "data/volunteers.json"` viser til den separate, enkle
+dugnadslisten. Ved innlasting utvides den samme personmodellen fra begge filene.
+`contentVersion: "3.4"` aktiverer eksplisitte planer i stedet for å
 arve gruppens dekorasjon som et personlig merkeforslag. Eldre navnelister uten
 `contentVersion` kan fortsatt forhåndsvises fra `group.badgeId`.
 
@@ -115,10 +119,54 @@ trykkgodkjenning av service-merkene, som fortsatt har registerstatus `design-dra
 
 ## Vedlikehold og kontroll
 
-Nye navn legges til én gang i `groups[].members`, med stabil ID og kilde.
-Bruk `memberRefs` ved flere roller, og bare eksplisitte `aliases`/`aliasIds`
-ved bekreftet identitet. La `badgeProposal.badgeIds` være tom ved ukjent
-merkefordeling. Utelat ukjente år/oppgaver; ikke bruk løpsresultater som bevis.
+Vanlige dugnadsnavn vedlikeholdes i **`data/volunteers.json`**, uten at arrangøren
+må redigere roller, tildelinger og diplommodeller i den omfattende hedersfilen.
+Listen har 22 enkle personposter og to referanser til Kalle/Finns eksisterende
+profiler. Grunnleggere, arrangører, minneprofiler og personer med egne
+merkeforslag/historikk blir liggende i `honors.json`.
+
+En vanlig post trenger bare `id` og `name`, i tillegg til en dekkende kilde.
+Valgfrie felt er `role`, `fromYear`, `text`, `sourceIds`, `stories`, `nameStatus`
+og `internalNotes`. Utelat `fromYear` når året er ukjent. En registrert start er
+aldri en automatisk beregning av antall dugnadsår.
+
+```json
+{"id":"ny-dugnadsperson","name":"Fornavn Etternavn","sourceIds":["navneliste-2027"]}
+```
+
+Nye kilder kan legges i `volunteers.json` under en valgfri `sources`-nøkkel, med
+samme format som hedersfilen. Eksempel (erstatt med faktisk kildegrunnlag):
+
+```json
+"sources": {
+  "navneliste-2027": {
+    "title":"Arrangørens navneliste for 2027",
+    "publisher":"Søgne Morothon",
+    "basis":"Oppgi hvem som har kontrollert navnet og innsatsen."
+  }
+}
+```
+
+Filens `sourceIds` er standard bare for navn som faktisk omfattes av den kilden;
+nye navn må få riktig kilde. En ny kilde kan ikke overskrive en eksisterende.
+Ved referanse til en person som allerede har en hedersprofil, bruk **bare**:
+
+```json
+{"profileId":"kalle-kimestad"}
+```
+
+Dette gjenbruker profilen og viser personen bare én gang. Ikke kopier navn,
+roller eller merker inn på nytt. Kollisjoner i ID-er og aliaser eller gjentatte
+listeoppføringer avvises, uten stille sammenslåing av personer. Løse navnelikheter
+brukes aldri til å avgjøre identitet.
+
+Ved senere oppgradering til en mer omfattende hedersprofil flyttes personposten
+til `honors.json`, **med samme ID**, og listeposten erstattes av `profileId`.
+Dermed bevares direkte lenker. Dugnadslisteposter kan ikke tildele merker,
+opprette løperkoblinger eller utstede diplomer. Bruk den eksisterende, separate
+modellen for eksplisitt godkjente merkeforslag og tildelinger. Bruk `memberRefs`
+ved flere roller, og bare eksplisitte `aliases`/`aliasIds` ved bekreftet identitet.
+Utelat ukjente år/oppgaver; ikke bruk løpsresultater som bevis.
 
 ```sh
 node --test tests/honors-v34.cjs

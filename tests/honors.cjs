@@ -1,6 +1,7 @@
+const {readHonors}=require('./helpers/honors.cjs');
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {createHarness}=require('../scripts/diploma-harness.cjs');let h,data;
-before(async()=>{h=await createHarness();data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));});
+before(async()=>{h=await createHarness();data=await readHonors();});
 after(async()=>{await h.close();});
 test('V3.4 honor page: single compact cards, featured founders, organizer roles and memorials on mobile and desktop',async()=>{
  for(const width of [320,390,1440]){

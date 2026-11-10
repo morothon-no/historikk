@@ -1,7 +1,8 @@
+const {readHonors}=require('./helpers/honors.cjs');
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {createHarness}=require('../scripts/diploma-harness.cjs');let h,honors,history;
 const links={ 'erling-askildsen':'MOR-5ACFAA4','oscar-lohne':'MOR-87AA561','arnfinn-haverstad':'MOR-A4F1F02','helge-reisvoll':'MOR-AD182FF','einar-danielsen':'MOR-D48A84B','kalle-kimestad':'MOR-C65968C','finn-lohne':'MOR-3FAED73','hakon-lohne':'MOR-AA6C983' };
-before(async()=>{h=await createHarness();honors=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));history=JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8'));});after(async()=>{await h.close();});
+before(async()=>{h=await createHarness();honors=await readHonors();history=JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8'));});after(async()=>{await h.close();});
 async function load({width=1440,id='',data,results}={}){const p=await h.browser.newPage({viewport:{width,height:1000}});if(data)await p.route('**/data/honors.json',r=>r.fulfill({json:data}));if(results)await p.route('**/data/history.json',r=>r.fulfill({json:results}));await p.goto(h.base+'/heder.html'+(id?'#person/'+id:''));await p.locator(id?'#profileName':'[data-honor-group="founders"]').waitFor();return p;}
 test('V3 five sourced founders, explicit runner IDs, confirmed volunteers and independent organizer roles',()=>{
  const founders=honors.groups.find(g=>g.id==='founders');assert.deepEqual(founders.members.map(m=>m.name),['Erling Askildsen','Oscar Lohne','Arnfinn Håverstad','Helge Reisvoll','Einar Danielsen']);assert.ok(founders.members.every(m=>m.status==='confirmed'));
