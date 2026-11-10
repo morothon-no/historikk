@@ -1,7 +1,7 @@
 /* Reference-led, landscape A4 award certificate. No personal signature is fabricated. */
 .diploma-document{margin:0;width:297mm;height:210mm;background:#fff;color:#082e3b;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .diploma-document *{box-sizing:border-box}
-.diploma-sheet{position:relative;isolation:isolate;width:297mm;height:210mm;padding:19mm 32mm 18.5mm;display:grid;grid-template-rows:18mm 31mm 35mm 60mm 15mm 13.5mm;gap:0;background:#fbf9f2;color:#082e3b}
+.diploma-sheet{position:relative;isolation:isolate;width:297mm;height:210mm;padding:19mm 32mm 18.5mm;display:grid;grid-template-rows:18mm 31mm 35mm 60mm 12mm 16.5mm;gap:0;background:#fbf9f2;color:#082e3b}
 .diploma-sheet:before{content:'';position:absolute;inset:7mm;border:.35mm solid var(--diploma-metal);pointer-events:none;z-index:-1}.diploma-sheet:after{content:'';position:absolute;inset:9.9mm;border:.15mm solid #dbd1ba;pointer-events:none;z-index:-1}
 .diploma-corner{position:absolute;width:12mm;height:12mm;border-color:#0c3945;border-style:solid;border-width:0;pointer-events:none}.corner-tl{left:11mm;top:11mm;border-top-width:.9mm;border-left-width:.9mm}.corner-tr{right:11mm;top:11mm;border-top-width:.9mm;border-right-width:.9mm}.corner-bl{left:11mm;bottom:11mm;border-bottom-width:.9mm;border-left-width:.9mm}.corner-br{right:11mm;bottom:11mm;border-bottom-width:.9mm;border-right-width:.9mm}
 .diploma-honorary:before{border-width:.55mm}.diploma-honorary:after{border:.25mm solid #c4a35b}.diploma-legend:before,.diploma-record:before{border-width:.65mm}.diploma-titanium:before{border-width:.6mm}.diploma-titanium .diploma-corner{border-color:#354b5b}.diploma-platinum{background:radial-gradient(ellipse at 50% 45%,#ffffff,#eef5f6)}.diploma-platinum:after{border-color:#bfd5dd}
@@ -14,7 +14,7 @@
 .diploma-main{display:grid;grid-template-columns:minmax(0,1fr) 64mm minmax(0,1fr);gap:8mm;align-items:center;min-height:0;border-top:.25mm solid var(--diploma-metal);padding-top:4.5mm}.diploma-main figure{display:grid;place-items:center;margin:0;height:100%;min-height:0}.diploma-medal{display:block;width:var(--diploma-image-width);height:var(--diploma-image-height);max-width:100%;object-fit:contain;object-position:center;clip-path:none;border:0;border-radius:0}
 .diploma-metric{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;text-align:center;min-width:0}.diploma-metric strong{font-size:17mm;font-weight:800;line-height:1.2;letter-spacing:0;font-variant-numeric:tabular-nums}.diploma-metric span{font-size:3.2mm;font-weight:700;line-height:1.3;letter-spacing:.75mm;color:var(--diploma-metal)}.diploma-metric small{font-size:2.8mm;line-height:1.45;color:#526e77;max-width:100%}.diploma-record .diploma-left strong{font-size:11mm}.diploma-debut .diploma-left strong{font-size:14mm}
 .diploma-citation{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1mm;max-width:235mm;margin:0 auto}.diploma-citation p{margin:0;font-size:3.3mm;line-height:1.4}.diploma-citation strong{font-size:3.3mm;line-height:1.4;font-weight:700}.diploma-citation small{font-size:2.5mm;line-height:1.3;color:#526e77}
-.diploma-signoff{display:grid;grid-template-columns:1fr 1fr;gap:75mm;align-items:end;text-align:center}.diploma-date p{margin:0;padding-bottom:1mm;border-bottom:.2mm solid #b8b9b3;color:#233d69;font:400 6.6mm/1.25 'Z003','URW Chancery L','Segoe Print',cursive}.diploma-date small{font-size:2.2mm;line-height:1.3;color:#6a797a;display:block;margin-top:1mm}.diploma-signature{padding:0 1mm}.diploma-signature-line{height:3mm;border-bottom:.2mm solid #b8b9b3;margin-bottom:1.3mm}.diploma-signature b{display:block;font:500 3.6mm/1.2 Georgia,serif}.diploma-signature span{display:block;font-size:2.7mm;line-height:1.4;margin-top:.6mm}
+.diploma-signoff{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:50mm;align-items:end;text-align:center}.diploma-date p{margin:0;padding-bottom:1mm;border-bottom:.2mm solid #b8b9b3;color:#233d69;font:400 6.6mm/1.25 'Z003','URW Chancery L','Segoe Print',cursive}.diploma-date small{font-size:2.2mm;line-height:1.3;color:#6a797a;display:block;margin-top:1mm}.diploma-signature{padding:0 1mm}.diploma-signature-line{height:3mm;border-bottom:.2mm solid #b8b9b3;margin-bottom:1.3mm}.diploma-signature b{display:block;font:500 3.6mm/1.2 Georgia,serif}.diploma-signature span{display:block;font-size:2.7mm;line-height:1.4;margin-top:.6mm}
 .diploma-draft{position:absolute;bottom:8mm;left:35mm;right:35mm;margin:0;text-align:center;font-size:2.2mm;line-height:1;letter-spacing:.25mm;color:#8a5f2b}
 @media print{.diploma-document{width:297mm;height:210mm}.diploma-sheet{break-inside:avoid;break-after:avoid}html{margin:0;padding:0}}
 /* Website preview controls; the document itself lives in an isolated iframe. */
@@ -25,3 +25,11 @@
 @media(max-width:620px){.diploma-dialog{padding:14px}.diploma-toolbar h2{font-size:21px}.diploma-controls button{flex:1}}
 
 .diploma-honorary .diploma-right strong{font-size:15.2mm}.diploma-service .diploma-metric strong{font-size:9mm}.diploma-service .diploma-metric span{font-size:2.8mm}.diploma-service .diploma-recipient h3{font-size:3mm}
+
+.diploma-date p{white-space:nowrap;font-size:6mm}.diploma-signature-line{height:5mm}.diploma-date small{display:none}
+
+/* Handwritten-style attribution; the blank line remains available for a real signature. */
+.diploma-signature b{font:400 5.5mm/1 'Z003','URW Chancery L','Segoe Print',cursive;color:#233d69}.diploma-signature span{font:400 3.2mm/1.1 'Z003','URW Chancery L','Segoe Print',cursive;color:#233d69}
+
+/* Preview-only honor composition. Approved participation templates are unchanged. */
+.diploma-service .diploma-service-main{grid-template-columns:1fr;justify-items:center}.diploma-service .diploma-service-main figure{width:70mm}.diploma-service .diploma-recipient h3{font-size:3.6mm}

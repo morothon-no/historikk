@@ -2,14 +2,14 @@ const {test,before,after}=require('node:test'),assert=require('node:assert/stric
 const {createHarness}=require('../scripts/diploma-harness.cjs');let h,data;
 before(async()=>{h=await createHarness();data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));});
 after(async()=>{await h.close();});
-test('honor page: confirmed founders, provisional volunteers and two categories on mobile and desktop',async()=>{
+test('honor page: confirmed founders, provisional volunteers and three categories on mobile and desktop',async()=>{
  for(const width of [320,390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:900}});try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="hakon-lohne"]').waitFor();
    assert.deepEqual(await p.locator('[data-honor-group="volunteers"] strong').allTextContents(),['Dag Morten Frantzen','Håkon Lohne']);
    assert.deepEqual(await p.locator('[data-honor-group="founders"] strong').allTextContents(),['Oscar Lohne','Helge Andersen','Arnfinn Håverstad','Einar Danielsen']);
    assert.equal(await p.locator('[data-honor-group="volunteers"] small').filter({hasText:'Foreløpig oppført'}).count(),2);
-   assert.equal(await p.locator('#serviceBadges img').count(),2);
+   assert.equal(await p.locator('#serviceBadges img').count(),3);
    assert.equal(await p.locator('#honorProfile').isVisible(),false);
    assert.equal(await p.locator('iframe').count(),0);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

@@ -6,7 +6,7 @@
 
 - `assets/medals/approved/`: godkjente 5–50-merker og rekordmerket.
 - `assets/medals/watermarks/morothon-runner-approved.png`: brukerens godkjente grove løperlogo. Ingen ny glatting.
-- `assets/medals/service/`: felles dugnads-/grunnleggerbilder og SVG-kilder. To kategorier vises: Dugnadshelt og Grunnlegger. Hedersildsjel er lagt til side. Grunnleggerens kryssende strek ved 1992 er fjernet fra vektorkilden, og PNG-en er rendret i 2400 × 2400.
+- `assets/medals/service/`: felles dugnads-/grunnleggerbilder og SVG-kilder. Tre kategorier vises i hedersforhåndsvisningen etter V2-instruksen: Dugnadshelt, Hedersildsjel og Grunnlegger. Grunnleggerens kryssende strek ved 1992 er fjernet fra vektorkilden, og PNG-en er rendret i 2400 × 2400.
 - `assets/medals/originals/` og `source-inventory.json`: originale, offentlige motivkilder og proveniens. Disse er bevaringsgrunnlag, ikke alternative aktive merker.
 - `assets/medals/review/cutouts/`: permanente maskebeskrivelser, RGB-verifiserte kopier av de godkjente frileggingene og native kvalitetsmålinger. Genererte alfakontrollbilder er ikke versjonert.
 
@@ -28,6 +28,9 @@ For lokale bilder/PDF-er:
 node scripts/review-diplomas.cjs /tmp/morothon-diplomas
 node scripts/review-medal-cutouts.cjs /tmp/morothon-medals
 node scripts/review-release.cjs /tmp/morothon-review
+node scripts/review-approved-medals.cjs /tmp/morothon-approved-medals
 ```
+
+`review-approved-medals.cjs` viser dagens aktive filer, kildebundet brukergodkjenning og faktisk DPI i ett frittstående lys/mørk-galleri og ett A4-ark. Den eldre `review-medal-cutouts.cjs` gjenskaper maskekontrollen før brukergodkjenningen; dens utkaststatus er historisk og erstatter ikke dagens register.
 
 Verktøyene bruker den eksisterende kilden; de pusher eller publiserer ikke noe. GitHub Pages-workflowen kjører bare på main eller eksplisitt workflow-dispatch, ikke ved push til arbeidsgrenen.

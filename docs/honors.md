@@ -21,7 +21,7 @@ Listen vises i filens rekkefølge. Hver person skal ha en unik nøkkel. Bruk gyl
 
 - Dugnadshelter, foreløpig: Dag Morten Frantzen og Håkon Lohne.
 - Bekreftede grunnleggere: Oscar Lohne, Helge Andersen, Arnfinn Håverstad og Einar Danielsen.
-- To aktive merkekategorier: Dugnadshelt og Grunnlegger. Hedersildsjel-filen bevares i arkivet, men vises ikke i katalogen.
+- Tre merkekategorier i den skjulte forhåndsvisningen: Dugnadshelt, Hedersildsjel og Grunnlegger. V2-instruksen erstatter den tidligere avklaringen om to synlige kategorier; ingen nye mottakere er utledet.
 
 Grunnleggernes rolle er bekreftet av brukeren. Merkedesign og diplomer er fortsatt lokale utkast; listen er ikke en påstand om at et diplom er utstedt. Begrunnelser er ikke oppfunnet. Diplomeksemplet er lukket ved første visning og kan åpnes separat.
 
@@ -45,6 +45,14 @@ Alle navn åpner en egen profil på `heder.html#person/<id>`. Oscar-eksemplet li
 
 Bare historier med `confirmed: true` og en ikke-tom kilde vises. Ingen historier er oppfunnet i denne oppdateringen; dagens profiler sier at ingen dokumentert historie er lagt til ennå. En ubekreftet oppføring kan ikke legges inn som grunnlegger.
 
-Diplomvalg er personbundet: grunnleggere får grunnleggerdiplom, foreløpige dugnadshelter får foreløpig dugnadsutkast. Bekreftede grunnleggere kan eksportere et kontrollert A4-utkast med tydelig «ikke utstedt»-merking. Foreløpige dugnadsoppføringer kan bare forhåndsvises, og filenes oppløsning og layout kontrolleres. Dette tildeler ikke automatisk et merke eller utsteder et offisielt diplom.
+Diplomvalg er personbundet: grunnleggere får grunnleggerdiplom, foreløpige dugnadshelter får foreløpig dugnadsutkast. Alle hedersdiplomer kan bare forhåndsvises. Den offentlige siden har ingen utskrifts-/PDF-knapper for hedersdiplomer, og iframe-sandkassen tillater ikke utskriftsdialog. Utkaststatus og «ikke utstedt» står utenfor selve diplomdesignet. Det seremonielle A4-utkastet har medalje og en kort hederstekst, uten store tekniske statusfelt. Dette tildeler ikke et merke eller utsteder et diplom. Individuelle, opptjente merkediplomer har fortsatt sin separate utskriftsfunksjon.
 
 Grunnleggerillustrasjonen er korrigert i den eksisterende SVG-masteren ved å fjerne den separate horisontale streken som krysset «1992». Ingen andre SVG-elementer er endret. Den samme vektorkilden er rendret til transparent 2400 × 2400 PNG for alle aktive visninger.
+
+## Skjult forhåndsvisning og senere lansering
+
+`heder.html` er tilgjengelig via direkte adresse, med `noindex, nofollow` og en utviklingsmelding. Det finnes ingen inngående lenke fra offentlig hovedmeny, mobilmeny eller løperprofiler, og siden skal ikke legges i sitemap. Dette er ikke tilgangsbeskyttelse: både side og data kan leses av alle som kjenner adressen. Ingen private historier, portretter eller roller utledes.
+
+Ved en senere godkjent lansering settes `HONORS_NAVIGATION_ENABLED` til `true` i `js/navigation.js`. Det aktiverer én lenke i hver av hoved- og mobilmenyen. Vurder også indeksering og utviklingsmelding ved lanseringen; ikke endre disse automatisk. Ingen synlig adminlenke eller administrasjonsfunksjon er lagt til.
+
+Oscar Lohnes rolle har særskilt grunnlag i arrangørens tidligere navngitte grunnleggerliste i samtalen. Rollen er ikke utledet fra løpsresultater. Ingen portrett- eller biografisk opplysning er lagt til. Grunnleggermerket med rettet «1992» er byte-uendret i V2.

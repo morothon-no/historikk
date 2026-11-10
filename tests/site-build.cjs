@@ -18,7 +18,7 @@ test('Pages artifact contains approved runtime assets and excludes QA, source ar
    const p=await h.browser.newPage({viewport:{width:390,height:844}}),errors=[];
    p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400&&!r.url().includes('favicon'))errors.push(r.url());});
    await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));
-   await p.locator('.mobile-menu summary').click();await p.locator('.mobile-menu a[href="heder.html"]').click();
+   await p.locator('.mobile-menu summary').click();assert.equal(await p.locator('a[href="heder.html"]').count(),0);await p.goto(h.base+'/heder.html');
    await p.locator('[data-honoree="oscar-lohne"] a').click();await p.locator('#profileName').waitFor();
    assert.equal(await p.locator('#profileName').textContent(),'Oscar Lohne');
    assert.deepEqual(errors,[]);

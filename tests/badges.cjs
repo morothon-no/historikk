@@ -46,7 +46,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
     const errors=[]; page.on('pageerror',e=>errors.push(e.message));
     try {
       await page.goto(harness.base+'/heder.html');
-      await page.waitForFunction(()=>document.querySelectorAll('#serviceBadges img').length===2);
+      await page.waitForFunction(()=>document.querySelectorAll('#serviceBadges img').length===3);
       await page.locator('[data-honoree="oscar-lohne"] a').click();
       await page.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet'));
       await page.locator('.diploma-example summary').click();
@@ -70,7 +70,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
       assert.doesNotMatch(result.body,/Floke|Til minne om/i);
       assert.match(result.body,/Grunnleggerlisten er bekreftet/);
       assert.equal(result.sample.imageReady,false); assert.equal(result.sample.type,'service');
-      assert.match(result.text,/ikke et utstedt diplom/i); assert.match(result.sample.date,/fastsettes/);
+      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/diplomutkast, ikke utstedt/i); assert.match(result.sample.date,/fastsettes/);
       assert.equal(result.links,0); assert.deepEqual(errors,[]);
     } finally { await page.close(); }
   }

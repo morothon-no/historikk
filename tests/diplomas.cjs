@@ -46,8 +46,8 @@ test('diploma content: actual profiles, earned milestones, record qualification 
         enny: enny.map(o => [o.key, o.year]), debut: MorothonDiplomas.model(debut.i, 'debut') };
     });
     assert.deepEqual(actual.models.map(m => [m.name, m.year, m.count]), [
-      ['Gunnar Kåsa', 2026, 35], ['Morten Borø', 2026, 35], ['Finn Gerhard Olsen', 2025, 31],
-      ['Solbjørg Tronstad Hausvik', 2026, 25], ['Inger Katherin Dahl Frantzen', 2024, 12], ['Lars Aasheim Svaland', 2026, 4]
+      ['Gunnar Kåsa', 2026, 35], ['Morten Borø', 2026, 35], ['Finn Gerhard Olsen', 2025, 30],
+      ['Solbjørg Tronstad Hausvik', 2026, 25], ['Inger Katherin Dahl Frantzen', 2024, 10], ['Lars Aasheim Svaland', 2026, 4]
     ]);
     assert.equal(actual.models[0].date, 'Søgne, 7. november 2026');
     assert.equal(actual.models[2].date, 'Søgne, 8. november 2025');
@@ -121,7 +121,7 @@ test('diploma preview: A4 layout, responsive scaling, gated print/PDF and return
       assert.ok(Math.abs(result.cells[0].y-result.cells[1].y)<1 && Math.abs(result.cells[1].y-result.cells[2].y)<1);
       assert.ok(Math.abs(result.layout.width / result.layout.height - 297 / 210) < .001);
       assert.equal(result.date, 'Søgne, 7. november 2026'); assert.equal(result.contain, 'contain');
-      assert.equal(result.previewFits, true); assert.match(result.signature, /For Søgne Morothon · signatur/);
+      assert.equal(result.previewFits, true); assert.match(result.signature, /Håkon Lohne.*Løpsleder Søgne Morothon/);
       await page.evaluate(() => { window.__diplomaPrintCalls = 0; document.querySelector('#diplomaDialog iframe').contentWindow.print = () => window.__diplomaPrintCalls++; });
       await page.locator('[data-diploma-print]').dispatchEvent('click'); await page.locator('[data-diploma-pdf]').dispatchEvent('click');
       assert.equal(await page.evaluate(() => window.__diplomaPrintCalls), 2);
@@ -165,7 +165,7 @@ test('all seven diploma variants plus record and debut: content fits A4; Gunnar 
     const size = info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);
     assert.ok(size && Math.abs(Number(size[1]) - 841.89) < 1 && Math.abs(Number(size[2]) - 595.28) < 1);
     const text = execFileSync('pdftotext', ['-', '-'], { input: pdf }).toString().replace(/\s+/g, ' ');
-    for (const value of ['Gunnar Kåsa', '35', 'For Søgne Morothon', '7. november 2026', '100 % gjennom hele historien']) assert.ok(text.toLocaleLowerCase('nb-NO').includes(value.toLocaleLowerCase('nb-NO')), value);
+    for (const value of ['Gunnar Kåsa', '35', 'Håkon Lohne', '7. november 2026', '100 % gjennom hele historien']) assert.ok(text.toLocaleLowerCase('nb-NO').includes(value.toLocaleLowerCase('nb-NO')), value);
     assert.equal(text.replace(/\s+/g, '').includes('FORHÅNDSVISNING'), false);
     assert.ok(text.replace(/\s+/g, '').toLowerCase().includes('deltakelser'));
     const imageList = execFileSync('pdfimages', ['-list', '-'], { input: pdf }).toString();
@@ -190,9 +190,9 @@ test('future editions, DNS/DNF, duplicate starts, merged identities and historic
         const e = MorothonDiplomas.model('MOR-4CB0E52', 'debut');
         return { count: m.count, year: m.year, all: m.allEditions, citation: m.citation, enny: [e.pid, e.count, e.year], futureDate: MorothonDiplomas.dateLabel(2027, { dates: {} }) };
       });
-      assert.equal(info.count, participates ? 36 : 35); assert.equal(info.year, 2026); assert.equal(info.all, participates);
-      assert.equal(info.citation.includes('100 %'), participates);
-      assert.equal(info.citation.includes('Alle 35'), false);
+      assert.equal(info.count, 35); assert.equal(info.year, 2026); assert.equal(info.all, true);
+      assert.equal(info.citation.includes('100 %'), true);
+      assert.equal(info.citation.includes('Alle 35'), true);
       assert.deepEqual(info.enny, ['MOR-72A949A', 23, 1999]); assert.equal(info.futureDate, 'Søgne, 2027');
       assert.deepEqual(errors, []);
     } finally { await context.close(); }
