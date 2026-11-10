@@ -6,6 +6,13 @@
   }
   const menu = document.querySelector('.mobile-menu');
   if (!menu) return;
-  menu.addEventListener('click', event => { if (event.target.closest('a')) menu.open = false; });
+  menu.addEventListener('click', event => {
+    const link=event.target.closest('a');if(!link)return;menu.open=false;
+    const url=new URL(link.href,location.href);
+    if(url.origin===location.origin&&url.pathname===location.pathname&&url.hash){
+      const target=document.getElementById(decodeURIComponent(url.hash.slice(1)));
+      if(target){if(!target.hasAttribute('tabindex'))target.tabIndex=-1;target.focus({preventScroll:true});}
+    }
+  });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary').focus(); } });
 })();

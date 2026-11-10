@@ -1,126 +1,121 @@
-# historikk
-Adelskalender for terrengløpet Søgne Morothon 
+# Morothon Historikk
 
-## Lokal utvikling og tester
+Adelskalender, resultatarkiv, skrytekort og diplomer for Søgne Morothon.
+Offentlig adresse: https://morothon-no.github.io/historikk/.
 
-Start nettsiden fra prosjektmappen med `python3 -m http.server 8000`.
-Ingen bygging eller pakkeinstallasjon kreves for selve nettsiden.
+## Lokal utvikling
 
-Kjør regresjonstestene med `node --test tests/regression.cjs`. Testene krever
-Playwright for Node.js og Chromium (`/usr/bin/chromium`, eller angi
-`CHROMIUM_PATH`). De starter og stopper sin egen lokale testserver og kontrollerer
-mobilgraf, PC-graf, resultatarkiv og at stafettlag ikke påvirker individuell statistikk.
+Nettsiden kan kjøres direkte fra kildefilene:
 
-Individuelle historiske data ligger i `people`, `results` og `yearStats` i
-`data/history.json`. Lagresultater ligger separat i `teamResults` og skal aldri
-legges inn som personer eller individuelle resultatlinjer. `place` og `time` er
-`null` ved DNS. `legs` angir antall etapper, ikke en lik distanse per etappe.
+```sh
+python3 -m http.server 8000
+```
 
-Forsidens løyperekorder beregnes ved innlasting fra fullførte individuelle
-resultater fra og med 2014, separat for damer og herrer i nøyaktig
-`Morothon` / `20 km` og `Kortmoro` / `10 km`. Forsiden, profilens rekordfelt,
-rekordmerker og delingskort bruker samme beregnede liste med løper-ID som nøkkel.
-Ved delt rekord vises alle rekordholderne; ved gjentatt rekordtid for samme løper
-brukes det første året tiden ble satt. Ingen tider eller rekordholdere er hardkodet.
+Åpne `http://localhost:8000`. Lokal utvikling krever ikke en publiseringsbygging.
+Hederssiden er fortsatt en skjult forhåndsvisning på `heder.html`, med
+`noindex, nofollow` og uten lenker fra offentlig navigasjon.
 
-«Årets milepæler» beregnes fra unike deltakelsesår per kanonisk person-ID.
-Godkjente ID-omdirigeringer samler eldre resultat-ID-er før opptelling; navnealiaser
-brukes til søk, og personer slås ikke sammen bare fordi navnene ligner.
-DNS utelates, DNF teller, og separate lagresultater inngår ikke. Årets merke vises
-når årets deltakelse når en av tersklene i `PARTICIPATION_BADGES` (5–50, steg 5).
-Historiske år beregnes uten å ta med senere deltakelser. Forsiden bruker siste
-arrangerte år i historikkfilen; resultatarkivet viser milepælene for valgt år.
-Regresjonstestene dekker også kontrolltallene for 2026, alle merketerskler,
-sammenslåtte ID-er, DNS/DNF og fremtidige årganger.
+## Installer og test
 
-## Skrytekort V2
+Bruk Node.js 24 (minimum 20), Python 3.12 med Pillow, Chromium og Poppler.
+På Ubuntu trenger testene også Liberation- og URW Base35-fontene.
 
-`js/brag-card.js` gir profil og bildeeksport én felles presentasjonsmodell basert
-på de eksisterende deltakelsesmerkene, personens deltakelsesstatistikk og den
-beregnede rekordlisten. Høyeste oppnådde offisielle medalje vises størst, tidligere
-merker i stigende rekkefølge og neste delmål som en mindre fremdriftslinje.
-Nivåene har egne metallfarger; minst 35 deltakelser gir en egen æresløperutgave.
-Teksten om samtlige utgaver krever deltakelse i hvert faktisk arrangementsår og
-er ikke knyttet til et fast antall utgaver. Eksporten er PNG i 1080 × 1350 piksler.
-Høydemeter inngår ikke i hovedkortet; aktiv og lengste historiske rekke holdes adskilt.
+```sh
+npm ci
+python -m pip install -r requirements-dev.txt
+sudo apt-get install poppler-utils fonts-liberation fonts-urw-base35
+npx playwright install --with-deps chromium
+export CHROMIUM_PATH="$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')"
+npm test
+```
 
-Enny Dvergsnes er slått sammen med Enny-Karin Vindheim (`MOR-72A949A`). Det
-manuelle 1999-resultatet er erstattet av den dokumenterte raden (1:22:22,
-20. plass i kildelisten); `MOR-4CB0E52` videresendes til hovedprofilen. Kildelistens
-plassering vises eksplisitt ved siden av den separat beregnede kjønnsklasseplasseringen.
-Dette gir 2 643 profiler og 6 914 individuelle resultatrader, med uendret 23
-individuelle deltakelsesår for Enny. 1999-statistikken er oppdatert til 204
-registreringer/unike deltakere, 57 Morothon og 147 Kortmoro. Øvrige historiske
-resultater, profiler, årsstatistikker og stafettlag er kontrollert mot godkjent V28.
+Alternativt kan `CHROMIUM_PATH` peke på installert Chromium, f.eks.
+`/usr/bin/chromium`. Testene starter egne lokale servere. Poppler-verktøyene
+`pdfinfo`, `pdftotext` og `pdfimages` og Python med Pillow må finnes på PATH.
+Noen tester kontrollerer historiske originalfiler i Git; bruk en checkout med
+full historikk. Hvis npm-cachen ikke er skrivbar, angi en egen mappe med
+`npm ci --cache /tmp/morothon-npm-cache`.
 
-Kjør fortsatt `node --test tests/regression.cjs`. Testene omfatter også
-navnesammenslåingen, bevaring av øvrige historiske data, medaljenivåer på mobil og
-PC, eksport, lange navn og dynamisk æresløpertekst.
+## Bygging, cache og trygg publisering
 
-## Diplomer
+```sh
+npm run build
+```
 
-Profilknappen **Lag diplom** gir forhåndsvisning av oppnådde merkediplomer,
-gjeldende rekorddiplom og debutantdiplom. Datoer fra arrangørens bekreftede
-EQ Timing-liste ligger i `data/event-dates.json`; år uten dato vises med årstall.
-Utskrift/PDF krever bestått bilde- og layoutkontroll. Master v2 krever bedre
-frilagte løperoriginaler for 5–30 og rekordmerket, samt visuell godkjenning av SVG-vannmerket før utskrift kan godkjennes.
+Dette lager `_site/` fra en eksplisitt liste over runtime-filer. Utmappen må være
+tom; fjern tidligere generert `_site/` før et nytt lokalt bygg, eller bruk
+`node scripts/build-site.cjs /tmp/morothon-site` med en ny mappe.
+Tester, vedlegg, kildearkiver og gjennomgangsbilder publiseres ikke.
 
-Se [diplomdokumentasjonen](docs/diplomas.md) for kvalitet, utskriftsinnstillinger,
-tester og generering av lokale bildeeksempler og Gunnar Kåsas A4-PDF.
+Byggeren beregner én deterministisk innholdshash for hele utgaven. Alle lokale
+CSS-/JS-URL-er i begge sider og diplomets isolerte iframe får `?v=<hash>`.
+`morothon-version` og `build-info.json` viser samme versjon. Det finnes ingen
+manuell versjonsstreng som må oppdateres. `homepage` i `package.json` er kilden
+for absolutte delings-/canonical-URL-er i bygget.
 
-Felles merkefiler, terskler, titler og paletter ligger i `data/badges.json`, lastet
-av `js/badges.js`. Se [merkeregister og v2-kildestatus](docs/badges.md). Den skjulte
-hederssidevisningen er `heder.html`; V3 har fem kildebelagte grunnleggere, blant
-annet Oscar Lohne, og eksplisitte koblinger til ordinære løperprofiler. Kjør alle tester med
-`node --test tests/regression.cjs tests/diplomas.cjs tests/badges.cjs`.
+Den eneste workflowen er `.github/workflows/pages.yml`. Push til `codex/**`,
+pull requests mot `main` og oppdateringer av `main` kjører installasjon,
+alle regresjonstester og bygg. Bare grønn verifisering på `main` kan sende det
+**samme testede artifaktet** til GitHub Pages. PR-er og arbeidsgrener deployes
+ikke. En merge til `main` kan dermed publisere etter kontrollen; ikke merge uten
+arrangørens uttrykkelige godkjenning.
 
-## Offisielt medaljebibliotek
+Se [utgivelseskontrollen](docs/release-quality.md) for kildeklargjøring,
+cache-testing, visuell gjennomgang og senere publisering.
 
-`assets/medals/` samler originaler, godkjente trykkfiler og gjennomgangsvisning.
-35/40/45/50 er kontrollerte, uendrede 700px-originaler for 55 mm trykk. Se
-[kvalitetsrapporten](docs/medal-quality.md), [fellesregisteret](data/badges.json)
-og [lys/mørk-galleriet](assets/medals/review.html).
-Kjør også `node --test tests/medals.cjs`. Ingen AI-genererte medaljer er aktivert.
+## Historikk og identitet
 
-## Kontrollert frilegging og A4-testark
+`data/history.json` er eneste datagrunnlag for individuelle resultater.
+`teamResults` inneholder stafettlag separat. DNS teller ikke; DNF teller.
+Hvert deltakelsesår teller én gang per kanonisk person-ID. Godkjente
+ID-omdirigeringer samler eldre ID-er; navnelikhet gir ingen automatisk
+sammenslåing. Interne historiske kategorier beholdes; `Morothon` vises som
+**Langmoro**.
 
-Sju native frileggingsutkast er lagt under `assets/medals/review/cutouts/`.
-[Oppdatert kvalitetsvurdering](docs/medal-cutout-review.md) skiller godkjente
-originaler fra utkast og regner DPI på faktisk motiv ved 55 mm.
-Kjør `node scripts/review-medal-cutouts.cjs /tmp/morothon-cutouts` for galleri,
-A4-PDF og rapport. `node --test tests/medal-cutouts.cjs` kontrollerer RGB-bevaring,
-DPI og fysisk PDF-størrelse. Utkast er ikke aktivert som godkjente merker.
+Løyperekorder beregnes fra fullførte individuelle resultater fra og med 2014,
+med eksakt konkurranse, kjønn og distanse. Forside, profiler, merker og
+skrytekort bruker samme rekordliste. Årets milepæler beregnes fra unike år og
+alle merketerskler 5–50. Stafettlag påvirker ikke individuell statistikk.
 
-Hederslisten oppdateres i `data/honors.json`. Se [veiledningen](docs/honors.md)
-for flere navn, foreløpig status og bekreftede begrunnelser.
+Tidligere navnesammenslåinger, Enny-Karin Vindheims dokumenterte 1999-resultat
+og Jon Grindlands korrigerte kjønn/klasse/plassering er bevart. Se
+[resultatkorrigeringene](docs/result-corrections.md). Arrangøren har bekreftet
+128 deltakere i 1992, søndag 11. november 2018 og stavemåten
+«Inger Katherin Dahl Frantzen». De første V3.2-korrigeringene videreføres.
 
-## Senere trykkgodkjenning
+## Diplomer, merker og deling
 
-Brukeren har godkjent de viste trykkfilene. Gjeldende bruksstatus og hashbundne unntak ligger i fellesregisteret; tidligere utkaststatus i rapportene er historisk. Se [godkjenningsnotatet](docs/print-approval.md). De faktiske DPI-tallene er uendret. Ingen publisering er godkjent.
+`data/badges.json` kobler terskler, titler, farger og godkjente bildefiler for
+profiler, skrytekort og diplomer. Skrytekort bruker 1080 × 1350 som hovedformat,
+med 1080 × 1080 som alternativ. Historiske merkediplomer viser opptjeningstidspunktet,
+ikke dagens samlede statistikk. Datoer hentes fra `data/event-dates.json`;
+ukjente datoer erstattes med årstall.
 
-«Menneskene bak Morothon» er skjult fra hovednavigasjonen og mobilmenyen. Hedersprofiler
-bruker stabile lenker som `heder.html#person/oscar-lohne`, kildebelagte roller og
-bekreftede historier fra `data/honors.json`. Se [hedersdokumentasjonen](docs/honors.md).
-`tests/final-readiness.cjs` kontrollerer navigasjon, profiler, diplomutkast og 1992-rettelsen.
+De konkrete trykkfilene er godkjent med SHA-256-bundne unntak. 5–30 gir omtrent
+168–189 DPI ved 55 mm synlig motiv; godkjenningen gjør dem ikke til 300 DPI.
+Diplomdialogen viser kort status og lar brukeren åpne **Vis bildekvalitet**.
+Endret kilde, manglende godkjenning eller faktisk layoutfeil sperrer fortsatt
+utskrift. **Lagre som PDF** åpner nettleserens utskriftsdialog.
 
-## Kjøring og kontroll av utgivelsen
+Se [diplomer](docs/diplomas.md), [merkeregister](docs/badges.md) og
+[gjeldende trykkgodkjenning](docs/print-approval.md). De eldre
+[kildekontrollene](docs/medal-quality.md) og [frileggingsrapportene](docs/medal-cutout-review.md)
+er historiske rapporter før senere godkjenning; de erstatter ikke dagens register.
+Ingen godkjente medaljemotiver er omtegnet eller oppskalert.
 
-Installer utviklingsavhengigheter med `npm ci`. Testene krever Chromium
-(`/usr/bin/chromium`, eller `CHROMIUM_PATH`), Python med Pillow og Poppler-verktøyene
-`pdfinfo`, `pdftotext` og `pdfimages`. `npm test` kjører alle regresjonstester.
-`npm run build` lager en ren `_site/` med kun runtime-filer; tester, kildearkiver
-og gjennomgangsmateriale følger ikke med til GitHub Pages.
+Open Graph-bildet og favicon-filene ligger i `assets/social/` og `assets/icons/`.
+De er komponert fra den eksisterende godkjente løperlogoen, uten eksterne bilder.
+`npm run build:branding` gjenskaper dem; dette endrer ikke noen originalfil.
 
-Den aktive løperlogoen er godkjent PNG, og ingen tidligere avviste logoer er
-inkludert i utgivelsesgrenen. Originalmotiver/proveniens er bevart i biblioteket
-for kontroll. Se [merkeregister](docs/badges.md), [diplomer](docs/diplomas.md) og
-[hedersprofiler](docs/honors.md) for gjeldende oppførsel og kilder.
+Hedershistoriene og eksplisitte løperkoblinger vedlikeholdes i
+`data/honors.json`; se [hedersdokumentasjonen](docs/honors.md). Roller og
+formelle utmerkelser holdes adskilt. Hedersdiplomer er fortsatt bare utkast
+uten offentlig utstedelse.
 
-## Hedersside V3
+En eventuell senere modulær opprydding av den store `index.html` er en egen
+oppgave. V3.2 begrenser endringene til bygging, stabilitet, tilgjengelighet og deling.
 
-Se [hedersdokumentasjonen](docs/honors.md) for fem bekreftede grunnleggere,
-overtakelsen i 2014, dugnadshelter, kildegrunnlag og eksplisitte løper-ID-er.
-Løpsstatistikk beregnes fra `history.json`; frivillig innsats og medaljetildelinger
-holdes separat. `js/history-data.js` deler deltakelses- og plasseringsreglene
-med ordinære profiler. Alle eksisterende resultatdata og medaljefiler er bevart.
-Hederssiden og hedersdiplomene er fortsatt skjulte forhåndsvisninger uten offentlig utstedelse.
+
+Lojalitetsberegningen følger [felles regler for periodeandel og historisk heder](docs/loyalty.md).
+Profil, skrytekort og «De trofaste» bruker samme modell. [Skrytekortdokumentasjonen](docs/share-cards.md)
+beskriver de adaptive medaljestørrelsene og lokal før/etter-kontroll.

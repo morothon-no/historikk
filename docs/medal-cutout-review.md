@@ -1,5 +1,7 @@
 # Morothon – kontrollert frilegging og 55 mm prøvetrykk
 
+> Historisk rapport før den senere brukerbekreftede frileggingen/trykkgodkjenningen. Gjeldende aktive filer og godkjenning står i [merkeregisteret](../data/badges.json) og [godkjenningsnotatet](print-approval.md). Kildemålingene nedenfor er bevart som dokumentasjon.
+
 GitHub main er hentet lesende uten push eller endringer i arbeidsfilene. 45 tilgjengelige commits og 23 unike HTML-/bildeblobs er undersøkt på nytt. Ingen større løperoriginaler ble funnet. Masterpakke, innebygde bilder og tidligere lokale kilder er også kontrollert.
 
 Alle sju frileggingsutkast beholder hver eneste RGB-piksel i den dekodede originalen, også under transparent bakgrunn. Bare alfa er endret med eksplisitte manuelle masker. Ingen skalering, skarphetsfilter, oppfunne detaljer eller generativt motiv er brukt. Maskenes nøyaktighet er likevel en separat kontroll: RGB-bevaring beviser ikke at en maske følger ytterkanten perfekt.

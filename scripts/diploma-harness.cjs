@@ -12,7 +12,7 @@ async function createHarness({ rootDir = defaultRoot } = {}) {
     if (!file.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
     try {
       const content = await fs.readFile(file), extension = path.extname(file);
-      const types = { '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml' };
+      const types = { '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
       res.setHeader('Content-Type', types[extension] || 'text/html'); res.end(content);
     } catch { res.writeHead(404).end(); }
   });

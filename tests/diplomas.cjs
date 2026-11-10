@@ -129,7 +129,7 @@ test('diploma preview: A4 layout, responsive scaling, gated print/PDF and return
       await page.waitForFunction(() => MorothonDiplomas.current()?.key === 'badge:5');
       assert.equal(await page.locator('[data-diploma-print]').isEnabled(), true);
       assert.equal(await page.locator('[data-diploma-pdf]').isEnabled(), true);
-      assert.match(await page.locator('#diplomaStatus').textContent(), /godkjent med dokumenterte begrensninger/);
+      assert.match(await page.locator('#diplomaStatus').textContent(), /Godkjent for utskrift – dokumenterte bildekvalitetsbegrensninger/);
       assert.equal(await page.frameLocator('#diplomaDialog iframe').locator('.diploma-date p').textContent(), 'Søgne, 1996');
       assert.equal(await page.frameLocator('#diplomaDialog iframe').locator('.diploma-draft').count(), 0);
       await page.keyboard.press('Escape');

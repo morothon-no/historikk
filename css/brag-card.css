@@ -52,3 +52,35 @@
 .runner-full-details{margin:16px 0 24px;padding:16px;border:1px solid #3b5a64;border-radius:14px;background:#082732;color:#fff}.runner-full-details>summary{cursor:pointer;font-weight:700}.runner-full-details .brag-support{color:#fff;border-color:#365560}.runner-full-details .brag-support span,.runner-full-details .brag-support small,.runner-full-details .brag-next{color:#b0c7cf}.runner-full-details .brag-next>strong{color:#fff}.runner-full-details .brag-next>div{background:#365560}
 @media(max-width:620px){.brag-card{padding:20px 14px}.brag-card.brag-ceremonial .brag-earned{--medal-height:245px}.brag-card.brag-honorary .brag-earned{--medal-height:275px}.brag-card .brag-honor-title{font-size:20px}.brag-medal-row{gap:10px}.brag-medal-row img,.brag-medal-row figure{width:68px}.brag-medal-row img{height:64px}.brag-card .brag-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.brag-card .brag-stats>div{padding:12px 5px}}
 .share-format{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px;font-size:14px;color:#173b47}.share-format select{font:inherit;max-width:70%;padding:8px;border:1px solid #a7b8bd;border-radius:8px;background:#fff;color:#173b47}
+
+/* V3.2: proportionate collections and less empty space, without reducing the main medal. */
+.brag-card .brag-stats em{font-size:11px;font-style:normal;color:#adc5cc;line-height:1.3}
+.brag-card .brag-stats strong{overflow-wrap:anywhere}
+.brag-card .brag-medal-row{gap:12px;min-height:0}
+.brag-card .brag-medal-row figure,.brag-card .brag-medal-row img{width:clamp(85px,calc(var(--collection-edge)*.7),126px);height:clamp(85px,calc(var(--collection-edge)*.7),126px)}
+.brag-card:not(.brag-ceremonial) .brag-previous{gap:10px;margin:16px 0}
+.brag-card:not(.brag-ceremonial) .brag-next{margin:16px 0}
+.brag-card:not(.brag-ceremonial) .brag-support{margin-top:16px;padding-top:14px}
+.loyal-explanation{font-size:13px;line-height:1.6;color:var(--muted,#9db8c0);margin:12px 0 18px}
+.loyal-card small{display:block;line-height:1.5;margin-top:4px}
+.loyalty-status-badge small{display:block;font-size:10px;line-height:1.5;margin-top:5px}
+.loyalty-awards{list-style:none;padding:0;margin:14px 0}
+.loyalty-awards li{padding:10px 0;border-bottom:1px solid #ffffff18}
+.loyalty-awards strong,.loyalty-awards span{display:block;font-size:12px;line-height:1.6}
+.loyalty-awards span{color:#b0c7cf}
+@media(max-width:620px){
+ .brag-card:not(.brag-ceremonial) .brag-identity{margin:18px 0 14px}
+ .brag-card:not(.brag-ceremonial) .brag-earned{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);--medal-height:140px;padding:12px 6px;gap:8px}
+ .brag-card:not(.brag-ceremonial) .brag-count strong{font-size:64px}
+ .brag-card .brag-stats{grid-template-columns:repeat(var(--brag-mobile-stat-columns,3),minmax(0,1fr));margin:14px 0}
+ .brag-card .brag-stats>div{padding:10px 4px;gap:5px}
+ .brag-card .brag-stats strong{font-size:17px;line-height:1.25}
+ .brag-card .brag-stats em{font-size:10px}
+ .brag-card.brag-inactive .brag-stats>div:last-child{grid-column:auto}
+ .brag-card .brag-medal-row{gap:8px}
+ .brag-card .brag-medal-row figure,.brag-card .brag-medal-row img{width:clamp(68px,calc(var(--collection-edge)*.48),88px);height:clamp(68px,calc(var(--collection-edge)*.48),88px)}
+ .profile-loyalty-top{flex-wrap:wrap}
+ .loyalty-status-badge{max-width:100%}
+ .loyalty-controls{display:flex;flex-wrap:wrap}
+ .loyalty-controls>*{min-width:0;max-width:100%}
+}

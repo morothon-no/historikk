@@ -33,4 +33,4 @@ node scripts/review-approved-medals.cjs /tmp/morothon-approved-medals
 
 `review-approved-medals.cjs` viser dagens aktive filer, kildebundet brukergodkjenning og faktisk DPI i ett frittstående lys/mørk-galleri og ett A4-ark. Den eldre `review-medal-cutouts.cjs` gjenskaper maskekontrollen før brukergodkjenningen; dens utkaststatus er historisk og erstatter ikke dagens register.
 
-Verktøyene bruker den eksisterende kilden; de pusher eller publiserer ikke noe. GitHub Pages-workflowen kjører bare på main eller eksplisitt workflow-dispatch, ikke ved push til arbeidsgrenen.
+Verktøyene bruker den eksisterende kilden; de pusher eller publiserer ikke noe. Workflowen tester også arbeidsgrener og PR-er. Bare verifisert main kan deployes; arbeidsgrener publiseres ikke. Se [utgivelseskontrollen](release-quality.md).

@@ -42,9 +42,9 @@ Seire og pallplasser på hedersprofilen gjengis fra resultatets registrerte **ki
 
 `data/honors.json` har et kilde-register og referanser på roller, fortellinger og tidslinjen. Avislenkene er Fædrelandsvennen 21. oktober 2016 (Dag Morten Frantzen) og N247 10. oktober 2014 (Nicolai Prebensen). De ble forsøkt åpnet, men nettverkspolicyen ga 403 i arbeidsmiljøet. Tekstene bruker derfor bare opplysningene i arrangørens V3-bestilling og dens gjengivelse av artiklene. Ingen supplerende artikkelinnhold er oppfunnet, og det er ikke kopiert lange tekstpassasjer.
 
-Åpne punkter er synlige i forhåndsvisningens kildeavsnitt og skal beholdes:
+Arrangøren bekreftet 10. november 2026 at riktig deltakertall i 1992 er **128**, slik resultatarkivet viser. Fædrelandsvennens historiske artikkel fra 2016 oppga 129; forskjellen er bevart her som kildeopplysning, men tallet er ikke lenger uavklart. Ingen resultatrader er endret. Den dokumenterte arrangementsdatoen for 2018 er **søndag 11. november** (`data/event-dates.json`). Navnet «Inger Katherin Dahl Frantzen» er bekreftet korrekt og skal ikke rettes.
 
-- Oppdragets historiefortelling sier 129 deltakere i 1992; resultatarkivet har 128. Begge har 44 på Langmoro. Ingen resultatlinje er lagt til eller endret for å skjule forskjellen.
+Følgende punkter står fortsatt åpne:
 - Håkons ene Svalbard-opphold er ikke årfestet. Det utledes ikke av manglende løpsstarter.
 - Bent Bakkes avslutningsår er ikke fastsatt.
 - Kalle og Finns innsats før 2014 er ikke bekreftet.
