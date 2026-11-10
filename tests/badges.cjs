@@ -59,7 +59,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
           same:[...document.querySelectorAll('#serviceBadges img')].some(i=>i.src===d.asset.src) && doc.querySelector('.diploma-medal').src===d.asset.src,
           statuses:MorothonBadges.list('service').map(b=>b.status),
           fits:document.documentElement.scrollWidth<=innerWidth, layout,
-          recipient:document.querySelector('#honorPeople').textContent,
+          recipient:document.querySelector('#honorOverview').textContent,
           body:document.body.textContent, sample:{ name:d.name,type:d.type,imageReady:d.imageReady,date:d.dateLabel },
           text:doc.body.textContent, links:document.querySelectorAll('[data-diploma-person]').length };
       });
@@ -67,10 +67,10 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
       assert.ok(result.quality.every(a=>a.width===2400 && a.height===2400 && a.alpha && a.edges===0 && !a.ready && a.dpi>1000));
       assert.deepEqual(result.statuses,['design-draft','design-draft','design-draft']);
       assert.match(result.recipient,/Oscar Lohne/); assert.match(result.recipient,/Dag Morten Frantzen/);
-      assert.doesNotMatch(result.recipient,/Floke|Til minne om/i);
-      assert.match(result.body,/Fem bekreftede grunnleggere/);
+      assert.match(result.recipient,/Floke|Til minne om/i);
+      assert.match(result.body,/Grunnleggerne fra 1992/);
       assert.equal(result.sample.imageReady,false); assert.equal(result.sample.type,'service');
-      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/diplomutkast, ikke utstedt/i); assert.match(result.sample.date,/fastsettes/);
+      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/Diplomutkast – ikke utdelt/i); assert.match(result.sample.date,/fastsettes/);
       assert.equal(result.links,0); assert.deepEqual(errors,[]);
     } finally { await page.close(); }
   }

@@ -130,3 +130,17 @@ Lokal kildevisning bruker uversjonerte relative adresser. Dato, signatur og
 tegnmålingen fra V3.1 er bevart. Lukking avslutter den pågående gjengivelsen synkront. En forsinket close-hendelse fra en tidligere
 dialog ignoreres hvis dialogen allerede er åpnet igjen, og flytter ikke fokus
 fra en annen kontroll/dialog. Rask Escape/Enter avbryter dermed ikke en ny forhåndsvisning.
+
+## V3.4 – hedersutkast med flere merker
+
+Service-malen bruker nå én primærmedalje og mindre sekundærmerker fra samme
+fellesregister. Bare service-komposisjonen er justert; vanlige opptjente
+merke-/rekord-/debutdiplomer er uendret. Se [hedersmodellen](honors.md) for
+forskjellen mellom roller, dugnadsår, merkeforslag, tildeling og utstedelse.
+
+Oscar og Erling har et kildebelagt 35-utgavergrunnlag. Femårsutkastet er et
+anonymt typeeksempel, ikke en påstand om en virkelig person. Arrangementsdato
+brukes ikke som en automatisk tildelingsdato. Typografisk signaturnavn er ikke
+en ekte håndskrevet signatur. Alle service-utkast har fortsatt låst utskrift/PDF,
+uten aktive knapper og uten `allow-modals` i iframe. A4-kontroll og faktisk
+bildekvalitet må bestå uavhengig av eventuell senere formell tildeling.

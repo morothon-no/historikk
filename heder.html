@@ -14,16 +14,17 @@
 <body><main>
  <p class="development-note">Denne siden er under utvikling. Har du bilder, historier eller korrigeringer? Vi setter pris på innspill.</p>
  <a class="back" href="index.html">← Morothon-historikken</a>
- <header class="honor-intro"><p class="eyebrow">SØGNE MOROTHON · MENNESKENE BAK HISTORIEN</p><h1 id="honorHeading">35 år med myr, motbakker og mennesker som aldri ga seg</h1><p id="honorLead"></p><div class="honor-era"><span>1992 · Begynnelsen</span><span>2014 · Nye krefter</span><span>2026 · Tradisjonen lever</span></div></header>
- <div class="notice">Forhåndsvisning: Historiske roller og hedersoppføringer har egne kildegrunnlag. Foreløpige merkeforslag er merket særskilt. Ingen hedersdiplomer er utstedt.</div>
+ <header class="honor-intro" id="honorIntro"><p class="eyebrow">SØGNE MOROTHON · MENNESKENE BAK HISTORIEN</p><h1 id="honorHeading">De som gjør Morothon mulig ❤️</h1><p id="honorLead"></p><details class="honor-intro-more"><summary>Mer om menneskene bak løpet</summary><div id="honorIntroText"></div></details></header>
+ <p class="notice">Forhåndsvisning · merkene og diplomene er utkast til gjennomgang.</p>
  <div id="honorOverview">
-  <section id="honorTimeline" class="honor-timeline" aria-label="Morothons historie"></section>
-  <section aria-labelledby="honoreeTitle"><h2 id="honoreeTitle">Menneskene bak Morothon</h2><div id="honorPeople"></div></section>
-  <section id="honorSharedStories" aria-label="Historier fra løpet"></section>
+  <section id="honorFeatured" aria-label="Med gjennom alle 35 utgavene"></section>
+  <section aria-labelledby="honoreeTitle"><h2 id="honoreeTitle">Menneskene bak Morothon</h2><label class="honor-search">Finn et navn<input id="honorSearch" type="search" autocomplete="off" placeholder="Søk blant menneskene bak løpet"></label><p id="honorSearchStatus" role="status"></p><div id="honorPeople"></div></section>
+  <details class="honor-history"><summary>Historier og minner fra heia</summary><section id="honorTimeline" class="honor-timeline" aria-label="Morothons historie"></section><div id="honorSharedStories" class="honor-story-grid"></div></details>
   <blockquote id="honorClosing"></blockquote>
-  <details class="honor-library"><summary>Hedersmerkene</summary><p>Samme merkebilder brukes på hedersprofiler og i diplomutkast. En dokumentert arrangørrolle er ikke en automatisk medaljetildeling.</p><div class="badge-grid" id="serviceBadges"></div></details>
+  <details class="honor-library"><summary>Hedersmerkene</summary><p>Tre merker, mange måter å bidra på. Her viser vi utkastene som vurderes.</p><div class="badge-grid" id="serviceBadges"></div></details>
+  <details class="honor-diploma-examples"><summary>En takk på papir · diplomutkast</summary><p>Forhåndsvisninger til gjennomgang – ikke utdelte diplomer.</p><div id="honorExamples"></div></details>
  </div>
  <section id="honorProfile" hidden tabindex="-1" aria-labelledby="profileName"></section>
- <details id="honorSources" class="honor-sources"><summary>Kilder og avklaringer</summary><div id="honorSourceContent"></div></details>
+ <details id="honorSources" class="honor-sources"><summary>Bakgrunn og kilder</summary><div id="honorSourceContent"></div></details>
  <p id="honorStatus" role="status"></p>
 </main></body></html>

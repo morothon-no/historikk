@@ -1,67 +1,131 @@
-# Menneskene bak Morothon – V3
+# Menneskene bak Morothon – V3.4
 
-Hederssiden er en skjult forhåndsvisning på `heder.html`, med `noindex, nofollow`. Den er ikke tilgangsbeskyttet: side og data kan leses av alle som kjenner adressen. Det finnes ingen inngående lenke fra hoved- eller mobilmeny og ingen offentlig administrasjon. `HONORS_NAVIGATION_ENABLED` i `js/navigation.js` skal fortsatt være `false`.
+`heder.html` er fortsatt en skjult, direkte tilgjengelig forhåndsvisning med
+`noindex, nofollow`. Det er ikke tilgangsbeskyttelse. Ingen lenke er lagt til i
+hovednavigasjon, mobilmeny eller ordinære løperprofiler. Kampanjeideen i issue #7
+inngår ikke. Offentlig lansering og aktivering av diplomer krever egen godkjenning.
 
-## Personer, roller og merker
+## Kilder og personer
 
-`data/honors.json` beholder schemaVersion 1 og de eksisterende `groups`/`members`-feltene. Hedersidentiteter har egne stabile nøkler og ruter, f.eks. `heder.html#person/oscar-lohne`. Nye felt er valgfrie, slik at eldre oppføringer uten historier eller løper-ID fortsatt kan vises.
+Hele GitHub issue #11 og alle seks kommentarer er lest sammen med arrangørens
+V3.4-bestilling. `organizer-v34` i `data/honors.json` viser til dette grunnlaget.
+Artikkelopplysninger fra Fædrelandsvennen og N247 beholder sine opprinnelige
+kildehenvisninger og forbehold; ingen nye artikkelopplysninger er lagt til.
 
-- Grunnleggere: Erling Askildsen, Oscar Lohne, Arnfinn Håverstad, Helge Reisvoll og Einar Danielsen. Erling har rollen idéskaper og grunnlegger. Einar er særskilt bekreftet av arrangøren.
-- Bekreftede dugnadshelter: Kalle Kimestad og Finn Lohne, minst siden 2014. Et tidligere startår er ikke fastsatt. Finn er knyttet til drikkestasjonen på Freden.
-- Arrangørgruppen fra 2014: Dag Morten Frantzen, Håkon Lohne og Bent Bakke. Dag Morten og Håkon har bekreftede roller, men beholder `status: "provisional"` for det foreløpige merkeforslaget. Bent har ingen registrert hedersmedalje.
-- Helge Andersen er fjernet fra grunnleggerlisten. Den tidligere hedersruten gir en korrigeringsmelding uten grunnleggermerke eller en gjettet løperkobling. Alle hans ordinære løpsresultater er bevart.
+34 kanoniske hederspersoner vises én gang hver i oversikten. Oscar Lohne og
+Erling Askildsen har de to fremhevede kortene, og gjentas ikke som egne kort i
+grunnleggergruppen. Den gruppen viser Arnfinn Håverstad, Helge Reisvoll og Einar
+Danielsen; alle fem inngår fortsatt i grunnleggerkohorten og dens løpsberegninger.
+Dag Morten Frantzen, Håkon Lohne og Bent Bakke vises under arrangørhistorien.
+Øvrige dugnadsnavn vises kompakt, og Erling Danielsen/Floke Bredland har en egen,
+diskret «Til minne om»-omtale.
 
-`status` beskriver hedersoppføringen/merkeforslaget. De separate `roles`-postene beskriver historiske roller med `confirmed`, `sourceIds` og eventuelt `fromYear` og en presiserende `note`. En bekreftet arrangørrolle endrer aldri medaljetildelingen automatisk.
+- Karl Kimestad er et eksplisitt navnealias for Kalle Kimestad. Én oppføring,
+  ett søketreff og én kanonisk profil. `#person/karl-kimestad` peker videre til
+  den stabile profilen `#person/kalle-kimestad`. Løpernavn/-ID-er er ikke endret.
+- Nils Henning Pedersen og Nils Martin Otterdal Nilsen er separate personer.
+  Jenny Åmodt og Johannes Aamodt er separate oppføringer. Arnfinn G er ikke
+  koblet til grunnlegger Arnfinn Håverstad.
+- Aud O, Arnfinn G og Magne beholdes som ufullstendige navn. Ole J.Bueklev
+  beholdes slik navnet er oppgitt. Ukjente år og oppgaver utelates i den
+  vanlige presentasjonen og forklares under «Bakgrunn og kilder».
+- Lars Aamodt er en egen person uten oppgitt startår/oppgave. Laila Endresen
+  Skjulestad har bidratt på drikkestasjon sammen med Anne Lene Førland-Hansen.
+  Laila har ingen oppgitt startdato; Annes 2014-år overføres ikke til henne.
+  De to nye oppføringene har ingen automatisk medalje eller diplom.
+- Håkons Svalbard-opphold er årfestet til 2016. Det utledes ikke konkrete
+  oppgaver eller fravær fra løpet dette året.
+- Erling Danielsen bidro fra 1992 til han gikk bort; dødsåret er ikke oppgitt.
+  Floke gikk bort i 2024. Mulig sluttår 2017 og sprikende opplysninger om
+  startåret beholdes som kildeforbehold, ikke som sikre offentlige datoer.
+- 128 deltakere i 1992, datoen 11. november 2018 og alle historiske
+  navnekorrigeringer er bevart. Ingen endring i `data/history.json`.
 
-`memberRefs` lar arrangørdelen vise Dag Morten og Håkon uten å opprette dupliserte personer eller profiler. Referanser må peke til en eksisterende person. De ordinære personpostene har fortsatt én eiergruppe. Roller, historier og valgfrie diplomtekster redigeres i datafilen, ikke i JavaScript.
+## Bakoverkompatibel modell og merkeforslag
 
-## Eksplisitte løperkoblinger
+`schemaVersion: 1`, `groups`, `members`, `memberRefs` og eksisterende profil-ID-er
+beholdes. `contentVersion: "3.4"` aktiverer eksplisitte planer i stedet for å
+arve gruppens dekorasjon som et personlig merkeforslag. Eldre navnelister uten
+`contentVersion` kan fortsatt forhåndsvises fra `group.badgeId`.
 
-Kun følgende kontrollerte `runnerId`-koblinger brukes:
+Personpostene holder følgende opplysninger adskilt:
 
-| Hedersprofil | Løper-ID |
-|---|---|
-| erling-askildsen | MOR-5ACFAA4 |
-| oscar-lohne | MOR-87AA561 |
-| arnfinn-haverstad | MOR-A4F1F02 |
-| helge-reisvoll | MOR-AD182FF |
-| einar-danielsen | MOR-D48A84B |
-| kalle-kimestad | MOR-C65968C |
-| finn-lohne | MOR-3FAED73 |
-| hakon-lohne | MOR-AA6C983 |
+1. `roles` og `stories`: kildebelagte historiske opplysninger, med `confirmed`
+   og `sourceIds`. `status` beholdes som legacy-status for oppføringen, ikke
+   som bevis på at en formell medalje er utdelt.
+2. `contribution`: bare eksplisitte, dokumenterte dugnadsår i `confirmedYears`.
+   Et `fromYear` er ikke bevis på alle mellomliggende år. Oscar og Erling har
+   eksplisitt innsats i de 35 utgavene 1992–2026; deres løpsstarter er et annet mål.
+3. `badgeProposal`: `status: "proposed"`, liste over `badgeIds`, ett
+   `primaryBadgeId` og kilder. Et tomt forslag gir verken medalje eller diplom.
+4. `awards`: separate, formelle beslutninger med dato, kilde og godkjenning.
+5. `issuedDiplomas`: egen utstedelsespost knyttet til en formell tildeling.
 
-Dag Morten og Bent har ingen bekreftet løper-ID i denne bestillingen. De får hedersprofil uten løpsstatistikk. Navnelikhet brukes ikke til å etablere en kobling. Ukjent eller utilgjengelig eksplisitt ID gir heller ingen oppdiktet statistikk.
+Alle `awards` og `issuedDiplomas` er tomme i denne leveransen. Ingen nye formelle
+utmerkelser er tildelt. Modellen validerer kilder, aliaser, unike person-ID-er og
+koblingen mellom tildeling og utstedt diplom. Fem dokumenterte dugnadsutgaver
+kan gi et kvalifikasjonsgrunnlag; det oppretter aldri tildeling/diplom automatisk.
+En særskilt beslutning kan gi unntak, men må ha egen bekreftelse og kilde.
 
-`js/history-data.js` er det delte, lesende datalaget for DNS/DNF, unike deltakelsesår, godkjente ID-omdirigeringer og beregnet klasseplassering. Den ordinære siden bruker de samme reglene som før via dette laget. Hederssiden beregner registrerte starter, første/siste år og beste tidsregistrerte resultat i grupper av **konkurranse + eksakt distanse + løypeperiode før/fra 2014**. Forskjellige traseer innen en periode kan også ha variert; teksten hevder ikke at alle løp med samme distanse var identiske.
+De fem grunnleggerne har forslag om Grunnlegger og Dugnadshelt. Oscar/Erling har
+Hedersildsjel som foreslått hovedmerke og de to andre som sekundære merker.
+Kalle, Finn, Dag Morten og Håkon beholder tidligere merkeforslag. De nyere
+navnene og Bent får ingen automatisk utmerkelse fra medlemskap eller startår.
+Alle nevnes og takkes uavhengig av antall dugnadsår.
 
-Seire og pallplasser på hedersprofilen gjengis fra resultatets registrerte **kildeplassering**. De er tydelig merket som kildeopplysninger, separat fra beregnede kjønn-/aldersklasseplasseringer. Det gis ikke en ny historisk pallplass bare fordi én registrert tid er raskest i et ufullstendig datagrunnlag. Arnfinns Kortmoro-seier i 1993 er registrert med kildeplass 1 og tid 49:59.
+## Løpshistorikk og stabile lenker
 
-«Flest løpsdeltakelser blant grunnleggerne» og «Raskeste grunnlegger – historisk 21 km» er beregnede fakta som fremheves i tekst. De er ikke nye formelle medaljetildelinger. Deltakelsesår brukes aldri som antall frivillig-/arrangørår.
+Eksisterende eksplisitte `runnerId`-koblinger er uendret. Ingen nye koblinger
+utledes fra navn, slekt eller liknende stavemåte. Uten sikker kobling skjules
+hele løpsseksjonen. Bekreftede koblinger bruker samme lesende modell som før:
+DNS/DNF, unike år, godkjente ID-omdirigeringer og separate grupper for
+konkurranse, eksakt distanse og løypeperiode. Kildeplasseringer skilles fra
+beregnede kjønn-/aldersklasseplasseringer. Løpsstarter er aldri dugnadsår.
 
-## Historiske kilder og åpne spørsmål
+De eksisterende åtte koblingene er Erling, Oscar, Arnfinn Håverstad, Helge
+Reisvoll, Einar Danielsen, Kalle Kimestad, Finn Lohne og Håkon Lohne. Den gamle
+ruten `helge-andersen` gir fortsatt en korrigeringsforklaring, uten automatisk
+ny identitetskobling eller grunnleggermerke.
 
-`data/honors.json` har et kilde-register og referanser på roller, fortellinger og tidslinjen. Avislenkene er Fædrelandsvennen 21. oktober 2016 (Dag Morten Frantzen) og N247 10. oktober 2014 (Nicolai Prebensen). De ble forsøkt åpnet, men nettverkspolicyen ga 403 i arbeidsmiljøet. Tekstene bruker derfor bare opplysningene i arrangørens V3-bestilling og dens gjengivelse av artiklene. Ingen supplerende artikkelinnhold er oppfunnet, og det er ikke kopiert lange tekstpassasjer.
+## Diplomutkast og trykksperre
 
-Arrangøren bekreftet 10. november 2026 at riktig deltakertall i 1992 er **128**, slik resultatarkivet viser. Fædrelandsvennens historiske artikkel fra 2016 oppga 129; forskjellen er bevart her som kildeopplysning, men tallet er ikke lenger uavklart. Ingen resultatrader er endret. Den dokumenterte arrangementsdatoen for 2018 er **søndag 11. november** (`data/event-dates.json`). Navnet «Inger Katherin Dahl Frantzen» er bekreftet korrekt og skal ikke rettes.
+`MorothonDiplomas.serviceDraft(personId, optionalBadgeId)` henter personens
+merkeforslag og bruker ett hovedmerke og eventuelle mindre sekundærmerker.
+`serviceExample(exampleId)` lager de fire representative modellene fra
+`diplomaExamples`: fem dugnadsår, grunnlegger med flere merker, Oscar 35 og
+Erling 35. De to siste er samme 35-utgaver-type med hver sin personlige tekst.
 
-Følgende punkter står fortsatt åpne:
-- Håkons ene Svalbard-opphold er ikke årfestet. Det utledes ikke av manglende løpsstarter.
-- Bent Bakkes avslutningsår er ikke fastsatt.
-- Kalle og Finns innsats før 2014 er ikke bekreftet.
-- Floke Bredland omtales bare i en kildebasert banketthistorie. Ulike opplysninger om startåret er ikke avgjort. Han er ikke lagt til som grunnlegger eller mottaker av et nytt hedersmerke. Ingen minneside er laget.
+Femårseksemplet har ingen person-ID og er tydelig illustrativt. Det finnes ikke
+et dokumentert nøyaktig femårsgrunnlag for en navngitt mottaker i bestillingen.
+Ingen virkelig person er derfor gitt fem dugnadsår ved gjetting.
 
-## Diplomer og bildefiler
+Alle service-modeller beholder `previewOnly: true` og `imageReady: false`, også
+ved en formell tildelingspost i en testfixture. Ingen utskrifts-/PDF-knapper
+finnes. Iframes har bare `allow-same-origin`, uten `allow-modals`; forhåndsvisningene
+skjules ved vanlig sideutskrift. Dato fastsettes først ved en eventuell
+utstedelse, ikke fra løpsdatoen. Håkon Lohnes navn er typografisk satt og skal
+ikke omtales som en ekte håndskrevet signatur.
 
-Fellesregisteret `data/badges.json` og alle medaljefiler er uendret. Grunnleggerens korrigerte «1992», de tre servicebildene og den godkjente løperlogoen gjenbrukes. Ingen portretter eller nye medaljer er generert.
+Den eksisterende liggende A4-malen, originalmedaljene, rammene, vannmerket og
+signaturprinsippet beholdes. Bare service-malen får tilpassede rader og mindre
+sekundærmerker. Vanlige merke-, rekord- og debutdiplomer er uendret, kontrollert
+med eksisterende regresjonstester og identisk raster av Ingers sølvdiplom.
+Layout- og kilde-/DPI-kontroller er beholdt; bestått A4-layout er ikke en
+trykkgodkjenning av service-merkene, som fortsatt har registerstatus `design-draft`.
 
-`diplomaTribute` er en kort, personlig, kildebasert tekst. Den bruker det eksisterende A4-hovedfeltet og sitatfeltet uten å endre malens rammer, vannmerke, signaturfelt eller merkediplomene. Hedersdiplomer er fortsatt kun forhåndsvisninger: `imageReady: false`, `previewOnly: true`, ingen utskrifts-/PDF-knapper og iframe uten `allow-modals`. Utkaststatus står utenfor arket. En rolle uten hedersmerke får ikke et automatisk diplomvalg.
+## Vedlikehold og kontroll
 
-## Kontroll og lokale utkast
+Nye navn legges til én gang i `groups[].members`, med stabil ID og kilde.
+Bruk `memberRefs` ved flere roller, og bare eksplisitte `aliases`/`aliasIds`
+ved bekreftet identitet. La `badgeProposal.badgeIds` være tom ved ukjent
+merkefordeling. Utelat ukjente år/oppgaver; ikke bruk løpsresultater som bevis.
 
 ```sh
-node --test tests/honors-v3.cjs
+node --test tests/honors-v34.cjs
 npm test
-node scripts/review-honors-v3.cjs /tmp/morothon-honors-v3
+node scripts/review-honors-v34.cjs /tmp/morothon-v34 a7d03f7
 ```
 
-Gjennomgangsbilder, lokale QA-PDF-er og rapporter inngår ikke i nettsidepakken. Skriptet pusher, utsteder eller publiserer ingenting. En senere offentlig lansering krever uttrykkelig godkjenning; navigasjon og indeksering aktiveres ikke av denne oppdateringen.
+QA-bilder og PDF-er er lokale, merket som ikke utdelt, og ligger utenfor den
+publiserbare runtime-pakken. Reelle tildelinger, mottaker for femårsutkastet,
+navneavklaringer og eventuelle senere utstedelsesdatoer må godkjennes særskilt.

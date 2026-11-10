@@ -28,12 +28,34 @@
       "title": "Morothons resultatarkiv",
       "publisher": "Søgne Morothon",
       "basis": "data/history.json er eneste datagrunnlag for beregnede løpsopplysninger."
+    },
+    "organizer-v34": {
+      "title": "Morothon V3.4 – opplysninger og avklaringer",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/11",
+      "basis": "Hele issue #11 og alle seks kommentarer, sammenholdt med arrangørens uttrykkelige V3.4-bestilling. Karl/Kalle er avklart som samme person. Kontaktskjermbildenes «Lagt til av»-felt er ikke importert."
+    },
+    "organizer-v34-lars": {
+      "title": "Lars Aamodt – tilleggsopplysning",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/11#issuecomment-6775761276",
+      "basis": "Lars Aamodt skal nevnes som egen person. Oppgave og startår er ikke oppgitt; ingen identitet eller medalje utledes."
+    },
+    "organizer-v34-drikkestasjon": {
+      "title": "Laila Endresen Skjulestad – drikkestasjon",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-10",
+      "url": "https://github.com/morothon-no/historikk/issues/11#issuecomment-6775865208",
+      "basis": "Laila har bidratt på drikkestasjon sammen med Anne Lene Førland-Hansen. Ingen startår er oppgitt for Laila."
     }
   },
   "displayOrder": [
     "founders",
     "organizers",
-    "volunteers"
+    "volunteers",
+    "memorial"
   ],
   "retiredProfiles": [
     {
@@ -50,16 +72,16 @@
       "id": "founders",
       "badgeId": "service-grunnlegger",
       "title": "Grunnleggerne fra 1992",
-      "description": "Fem bekreftede grunnleggere. Rollene bygger på kildene og arrangørens korrigerte liste.",
+      "description": "Fem mennesker var med på å starte Morothon i 1992. Oscar og Erling møter du øverst; her er de tre andre i grunnleggergruppen.",
       "members": [
         {
           "id": "erling-askildsen",
           "name": "Erling Askildsen",
           "status": "confirmed",
-          "reason": "Idéskaperen som samlet fysisk utfordring, kameratskap og fest i ett løp.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-v34"
           ],
           "roles": [
             {
@@ -83,26 +105,86 @@
               "confirmed": true
             },
             {
-              "title": "Tilknytning gjennom hele historien",
-              "text": "Arrangøren bekrefter Erlings tilknytning til arrangementet gjennom perioden 1992–2026. Dette er en historisk tilknytning, ikke en påstand om løpsstart eller dugnadsarbeid i hver enkelt utgave.",
+              "title": "35 utgaver med Morothon",
+              "text": "Erling har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
               "source": "Søgne Morothon",
               "sourceIds": [
-                "organizer-v3"
+                "organizer-v34"
               ],
               "confirmed": true
             }
           ],
           "runnerId": "MOR-5ACFAA4",
-          "diplomaTribute": "Du ga ideen som samlet løpsglede og kameratskap. Med takk for grunnlaget du var med på å skape, og for innsatsen som har holdt Morothon levende."
+          "diplomaTribute": "Du ga ideen som ble til Morothon. Gjennom alle 35 utgavene har du gitt tid og krefter til løpet og menneskene rundt det. Takk for at du har holdt tradisjonen levende, og gitt andre minner å ta med seg hjem.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-hedersildsjel",
+            "badgeIds": [
+              "service-hedersildsjel",
+              "service-grunnlegger",
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ],
+          "contribution": {
+            "confirmedYears": [
+              1992,
+              1993,
+              1994,
+              1995,
+              1996,
+              1997,
+              1998,
+              1999,
+              2000,
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006,
+              2007,
+              2008,
+              2009,
+              2010,
+              2011,
+              2012,
+              2013,
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "allEditions": true,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
         },
         {
           "id": "oscar-lohne",
           "name": "Oscar Lohne",
           "status": "confirmed",
-          "reason": "En bekreftet grunnlegger med tilknytning til Morothon gjennom perioden 1992–2026.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-v34"
           ],
           "roles": [
             {
@@ -117,16 +199,6 @@
           ],
           "stories": [
             {
-              "title": "Mer enn resultatlistene kan fortelle",
-              "text": "Oscar var med i grunnleggergruppen. Arrangøren bekrefter hans tilknytning gjennom perioden 1992–2026. Innsatsen skal ikke måles i antall registrerte løp, og kildene gir ikke grunnlag for å påstå arbeid i hver eneste utgave.",
-              "source": "Fædrelandsvennen, Søgne Morothon",
-              "sourceIds": [
-                "fvn-2016",
-                "organizer-v3"
-              ],
-              "confirmed": true
-            },
-            {
               "title": "Da nye krefter overtok",
               "text": "Grunnleggergruppen fortsatte å bidra etter overtakelsen i 2014. Merking, rigging, drikkestasjoner og rydding var fortsatt del av den felles innsatsen.",
               "source": "Søgne Morothon",
@@ -134,17 +206,85 @@
                 "organizer-v3"
               ],
               "confirmed": true
+            },
+            {
+              "title": "35 utgaver med Morothon",
+              "text": "Oscar har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "confirmed": true
             }
           ],
           "runnerId": "MOR-87AA561",
-          "diplomaTribute": "Du var med på å skape Morothon og har hatt tilknytning gjennom perioden 1992–2026. Med takk for en innsats som betyr mer enn antall løp i resultatlisten."
+          "diplomaTribute": "Du var med på å skape Morothon. Gjennom alle 35 utgavene har du gitt tid og krefter til løpet og menneskene rundt det. Takk for at du har holdt tradisjonen levende, og gitt andre minner å ta med seg hjem.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-hedersildsjel",
+            "badgeIds": [
+              "service-hedersildsjel",
+              "service-grunnlegger",
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ],
+          "contribution": {
+            "confirmedYears": [
+              1992,
+              1993,
+              1994,
+              1995,
+              1996,
+              1997,
+              1998,
+              1999,
+              2000,
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006,
+              2007,
+              2008,
+              2009,
+              2010,
+              2011,
+              2012,
+              2013,
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "allEditions": true,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
         },
         {
           "id": "arnfinn-haverstad",
           "name": "Arnfinn Håverstad",
           "status": "confirmed",
           "reason": "Grunnlegger og løypeildsjel, med både praktiske bidrag og sterke løpsresultater.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -171,14 +311,29 @@
             }
           ],
           "runnerId": "MOR-A4F1F02",
-          "diplomaTribute": "Du var med på å legge grunnlaget for Morothon, både som grunnlegger og løypeildsjel. Med takk for engasjementet bak tradisjonen og innsatsen ute i heiene."
+          "diplomaTribute": "Du var med på å legge grunnlaget for Morothon, både som grunnlegger og løypeildsjel. Med takk for engasjementet bak tradisjonen og innsatsen ute i heiene.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-grunnlegger",
+            "badgeIds": [
+              "service-grunnlegger",
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ]
         },
         {
           "id": "helge-reisvoll",
           "name": "Helge Reisvoll",
           "status": "confirmed",
-          "reason": "En del av den bekreftede grunnleggergruppen bak den lokale tradisjonen.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "En av de fem som var med på å starte Morothon.",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -195,8 +350,8 @@
           ],
           "stories": [
             {
-              "title": "Innsatsen og løpene er to ulike historier",
-              "text": "Helge er bekreftet som grunnlegger. De registrerte løpsstartene beskriver løperhistorikken hans; de avgrenser ikke hvor lenge han bidro som arrangør eller frivillig.",
+              "title": "En del av grunnlaget",
+              "text": "Helge var med i grunnleggergruppen som skapte Morothon. Løpene hans forteller én del av historien; innsatsen rundt arrangementet er en annen.",
               "source": "Fædrelandsvennen, Søgne Morothon",
               "sourceIds": [
                 "fvn-2016",
@@ -206,14 +361,29 @@
             }
           ],
           "runnerId": "MOR-AD182FF",
-          "diplomaTribute": "Du var med på å skape en lokal tradisjon for utfordringer, løpsglede og fellesskap. Med takk for grunnlaget du la sammen med de andre ildsjelene."
+          "diplomaTribute": "Du var med på å skape en lokal tradisjon for utfordringer, løpsglede og fellesskap. Med takk for grunnlaget du la sammen med de andre ildsjelene.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-grunnlegger",
+            "badgeIds": [
+              "service-grunnlegger",
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ]
         },
         {
           "id": "einar-danielsen",
           "name": "Einar Danielsen",
           "status": "confirmed",
-          "reason": "Grunnlegger, særskilt bekreftet av arrangøren.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "En av de fem som la grunnlaget for Morothon i 1992.",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -229,8 +399,8 @@
           ],
           "stories": [
             {
-              "title": "En bekreftet del av grunnlaget",
-              "text": "Arrangøren har bekreftet at Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+              "title": "Med fra starten",
+              "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
               "source": "Søgne Morothon",
               "sourceIds": [
                 "organizer-v3"
@@ -239,7 +409,23 @@
             }
           ],
           "runnerId": "MOR-D48A84B",
-          "diplomaTribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre."
+          "diplomaTribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-grunnlegger",
+            "badgeIds": [
+              "service-grunnlegger",
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ]
         }
       ]
     },
@@ -247,16 +433,16 @@
       "id": "volunteers",
       "badgeId": "service-dugnadshelt",
       "title": "Dugnadsheltene",
-      "description": "Kalle og Finn er bekreftede dugnadshelter. Dag Morten og Håkon har bekreftede arrangørroller, mens deres merkeforslag fortsatt er foreløpige.",
+      "description": "Noen har vært med lenge. Andre har kommet til underveis. Hver eneste hånd gjør en forskjell.",
       "members": [
         {
           "id": "kalle-kimestad",
           "name": "Kalle Kimestad",
           "status": "confirmed",
-          "reason": "Bekreftet dugnadshelt minst siden 2014. Tidligere innsats er ikke avklart.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "En av de trofaste dugnadsheltene, med innsats siden minst 2014.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-v34"
           ],
           "roles": [
             {
@@ -272,7 +458,7 @@
           "stories": [
             {
               "title": "En av dem som stiller opp",
-              "text": "Arrangøren bekrefter Kalles dugnadsinnsats minst siden 2014. Et tidligere startår og nærmere individuelle arbeidsoppgaver er ikke dokumentert.",
+              "text": "Kalle er en av dem som har stilt opp på dugnad siden minst 2014. Innsatsen hans er en del av fellesskapet som bærer løpet videre.",
               "source": "Søgne Morothon",
               "sourceIds": [
                 "organizer-v3"
@@ -281,14 +467,35 @@
             }
           ],
           "runnerId": "MOR-C65968C",
-          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014 og for at du bidrar til å holde Morothon-tradisjonen levende."
+          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014 og for at du bidrar til å holde Morothon-tradisjonen levende.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-dugnadshelt",
+            "badgeIds": [
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+            "Minst siden 2014; et tidligere startår er ikke bekreftet."
+          ],
+          "aliases": [
+            "Karl Kimestad"
+          ],
+          "aliasIds": [
+            "karl-kimestad"
+          ]
         },
         {
           "id": "finn-lohne",
           "name": "Finn Lohne",
           "status": "confirmed",
-          "reason": "Bekreftet dugnadshelt minst siden 2014, blant annet knyttet til drikkestasjonen på Freden.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "Har bidratt på dugnad siden minst 2014, blant annet på drikkestasjonen på Freden.",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -306,7 +513,7 @@
           "stories": [
             {
               "title": "En del av hjelpen på Freden",
-              "text": "Finn har blant annet vært knyttet til drikkestasjonen på Freden. Arrangøren bekrefter dugnadsinnsats minst siden 2014, men et tidligere startår er ikke avklart.",
+              "text": "Finn har blant annet vært med på drikkestasjonen på Freden. Siden minst 2014 har han vært en av de trofaste hjelperne rundt løpet.",
               "source": "Søgne Morothon",
               "sourceIds": [
                 "organizer-v3"
@@ -315,14 +522,29 @@
             }
           ],
           "runnerId": "MOR-3FAED73",
-          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014, blant annet ved drikkestasjonen på Freden. Du er med på å holde tradisjonen levende."
+          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014, blant annet ved drikkestasjonen på Freden. Du er med på å holde tradisjonen levende.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-dugnadshelt",
+            "badgeIds": [
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+            "Minst siden 2014; et tidligere startår er ikke bekreftet."
+          ]
         },
         {
           "id": "dag-morten-frantzen",
           "name": "Dag Morten Frantzen",
           "status": "provisional",
-          "reason": "En sentral arrangør siden overtakelsen i 2014. Rollen er bekreftet; merkeforslaget er foreløpig.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "En av dem som tok stafettpinnen videre i 2014.",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -350,14 +572,28 @@
               ],
               "confirmed": true
             }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-dugnadshelt",
+            "badgeIds": [
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
           ]
         },
         {
           "id": "hakon-lohne",
           "name": "Håkon Lohne",
           "status": "provisional",
-          "reason": "En sentral arrangør siden 2014. Ett års opphold på Svalbard er bekreftet, men ikke årfestet.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "En sentral del av arrangørgruppen som tok over i 2014.",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -369,28 +605,766 @@
                 "organizer-v3"
               ],
               "confirmed": true,
-              "note": "Ett års opphold i forbindelse med Svalbard; hvilket år er ikke bekreftet."
+              "note": "Oppholdet på Svalbard var i 2016. Konkrete oppgaver eller fravær dette året er ikke utledet."
             }
           ],
           "stories": [
             {
               "title": "Tradisjonen i nye løyper",
-              "text": "Håkon overtok sammen med Dag Morten Frantzen og Bent Bakke i 2014 og har vært en sentral arrangør siden. Arrangøren bekrefter ett års opphold i forbindelse med Svalbard, uten å angi hvilket år.",
+              "text": "Håkon tok over arrangøransvaret sammen med Dag Morten Frantzen og Bent Bakke i 2014. I 2016 var han på Svalbard. Videreføringen av Morothon er en laginnsats, med både gamle og nye krefter.",
               "source": "Søgne Morothon",
               "sourceIds": [
-                "organizer-v3"
+                "organizer-v3",
+                "organizer-v34"
               ],
               "confirmed": true
             }
           ],
-          "runnerId": "MOR-AA6C983"
+          "runnerId": "MOR-AA6C983",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-dugnadshelt",
+            "badgeIds": [
+              "service-dugnadshelt"
+            ],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Svalbard-opphold i 2016, avklart i issue #11. Ingen oppgaver eller manglende løpsstarter utledes av dette."
+          ]
+        },
+        {
+          "id": "jon-fjeld",
+          "name": "Jon Fjeld",
+          "status": "confirmed",
+          "reason": "Har ordnet barneløpet siden 2014.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Barneløpet",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 2014
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
+        },
+        {
+          "id": "rune-bergjord",
+          "name": "Rune Bergjord",
+          "status": "confirmed",
+          "reason": "Har bidratt på dugnad siden 2015.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 2015
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 2015,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
+        },
+        {
+          "id": "astrid-lohne",
+          "name": "Astrid Lohne",
+          "status": "confirmed",
+          "reason": "Har vært viktig for god merking ute i løypa.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Løypemerking",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": []
+        },
+        {
+          "id": "per-sangvik",
+          "name": "Per Sangvik",
+          "status": "confirmed",
+          "reason": "Har bidratt med løypemerking siden 2019.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Løypemerking",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 2019
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 2019,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
+        },
+        {
+          "id": "tom-lohne",
+          "name": "Tom Lohne",
+          "status": "confirmed",
+          "reason": "Har bidratt på dugnad siden 2021.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 2021
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 2021,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
+        },
+        {
+          "id": "joar-lohne",
+          "name": "Joar Lohne",
+          "status": "confirmed",
+          "reason": "Har bidratt på dugnad siden 2025.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 2025
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 2025,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
+        },
+        {
+          "id": "anne-lene-forland-hansen",
+          "name": "Anne Lene Førland-Hansen",
+          "status": "confirmed",
+          "reason": "Har bidratt på drikkestasjon siden 2014.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Drikkestasjon",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 2014
+            }
+          ],
+          "stories": [
+            {
+              "title": "Sammen på drikkestasjonen",
+              "text": "Laila Endresen Skjulestad og Anne Lene Førland-Hansen har bidratt sammen på drikkestasjon. Takk for innsatsen som gjør løpsdagen mulig.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v34-drikkestasjon"
+              ],
+              "confirmed": true
+            }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          }
+        },
+        {
+          "id": "birgitte-aamodt",
+          "name": "Birgitte Aamodt",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "nils-henning-pedersen",
+          "name": "Nils Henning Pedersen",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "ingvild-holmen-solvik",
+          "name": "Ingvild Holmen Solvik",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "johannes-aamodt",
+          "name": "Johannes Aamodt",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "linea-morland",
+          "name": "Linea Morland",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "mari-melsom-kristensen",
+          "name": "Mari Melsom Kristensen",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "nils-martin-otterdal-nilsen",
+          "name": "Nils Martin Otterdal Nilsen",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "jenny-aamodt",
+          "name": "Jenny Åmodt",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "ole-j-bueklev",
+          "name": "Ole J.Bueklev",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "trine-dybesland",
+          "name": "Trine Dybesland",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "as-provided"
+        },
+        {
+          "id": "aud-o",
+          "name": "Aud O",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "partial",
+          "internalNotes": [
+            "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+          ]
+        },
+        {
+          "id": "arnfinn-g",
+          "name": "Arnfinn G",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "partial",
+          "internalNotes": [
+            "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+          ]
+        },
+        {
+          "id": "magne",
+          "name": "Magne",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "nameStatus": "partial",
+          "internalNotes": [
+            "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+          ]
+        },
+        {
+          "id": "lars-aamodt",
+          "name": "Lars Aamodt",
+          "status": "confirmed",
+          "reason": "En av menneskene som bidrar til Morothon.",
+          "sourceIds": [
+            "organizer-v34-lars"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34-lars"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34-lars"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": []
+        },
+        {
+          "id": "laila-endresen-skjulestad",
+          "name": "Laila Endresen Skjulestad",
+          "status": "confirmed",
+          "reason": "Har bidratt på drikkestasjon sammen med Anne Lene Førland-Hansen.",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon"
+          ],
+          "roles": [
+            {
+              "title": "Drikkestasjon",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34-drikkestasjon"
+              ]
+            }
+          ],
+          "stories": [
+            {
+              "title": "Sammen på drikkestasjonen",
+              "text": "Laila Endresen Skjulestad og Anne Lene Førland-Hansen har bidratt sammen på drikkestasjon. Takk for innsatsen som gjør løpsdagen mulig.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v34-drikkestasjon"
+              ],
+              "confirmed": true
+            }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34-drikkestasjon"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": []
         }
       ]
     },
     {
       "id": "organizers",
       "badgeId": null,
-      "title": "Da stafettpinnen ble overlevert",
+      "title": "De tok stafettpinnen videre",
       "description": "Dag Morten Frantzen, Håkon Lohne og Bent Bakke overtok arrangøransvaret i 2014. De endret løypene, samlet start og mål ved Søgne Stadion og videreutviklet distansene for ungdom, mosjonister og konkurranseløpere. Det sportslige nivået ble løftet, mens kameratskapet og moroa skulle leve videre.",
       "memberRefs": [
         "dag-morten-frantzen",
@@ -401,8 +1375,7 @@
           "id": "bent-bakke",
           "name": "Bent Bakke",
           "status": "confirmed",
-          "reason": "Overtok arrangøransvar i 2014 og bidro i noen år etterpå. Eksakt avslutningsår er ikke bekreftet.",
-          "roleSource": "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+          "reason": "Med da nye krefter tok over i 2014, og med innsats i noen år etterpå.",
           "sourceIds": [
             "organizer-v3"
           ],
@@ -421,7 +1394,7 @@
           "stories": [
             {
               "title": "Med i den nye arrangørgruppen",
-              "text": "Bent var med da arrangøransvaret ble overtatt i 2014. Han bidro i noen år etter overtakelsen. Kildene her fastsetter ikke et avslutningsår.",
+              "text": "Bent var med da arrangøransvaret ble overtatt i 2014, og bidro i noen år etterpå.",
               "source": "N247, Søgne Morothon",
               "sourceIds": [
                 "n247-2014",
@@ -429,6 +1402,20 @@
               ],
               "confirmed": true
             }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "internalNotes": [
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+            "Bidro i noen år etter overtakelsen; avslutningsår er ikke bekreftet."
           ]
         }
       ],
@@ -437,16 +1424,110 @@
         "n247-2014",
         "organizer-v3"
       ]
+    },
+    {
+      "id": "memorial",
+      "badgeId": null,
+      "title": "Til minne om",
+      "description": "Vi minnes dem som ga av tiden sin, og som fortsatt er en del av Morothon-historien.",
+      "members": [
+        {
+          "id": "erling-danielsen",
+          "name": "Erling Danielsen",
+          "status": "confirmed",
+          "reason": "Bidro fra 1992 og fram til han gikk bort. Vi minnes innsatsen med takknemlighet.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 1992
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 1992,
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "deceased": true,
+          "internalNotes": [
+            "Dødsår er ikke oppgitt. Erling Danielsen er ikke Einar Danielsen."
+          ]
+        },
+        {
+          "id": "floke-bredland",
+          "name": "Floke Bredland",
+          "status": "confirmed",
+          "reason": "Vi minnes en sentral veteran og stemmen som leste resultatlistene på banketten.",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "roles": [
+            {
+              "title": "Banketten og fellesskapet",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "stories": [
+            {
+              "title": "En stemme mange husker",
+              "text": "Floke leste resultatlistene på bankettene. Også menneskene og samværet etter løpet er en del av det vi tar med oss videre.",
+              "source": "Fædrelandsvennen, N247 og Søgne Morothon",
+              "sourceIds": [
+                "fvn-2016",
+                "n247-2014",
+                "organizer-v34"
+              ],
+              "confirmed": true
+            }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v34"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "deceased": true,
+          "deathYear": 2024,
+          "internalNotes": [
+            "Oppgitt start i 1993; eldre kilder gir ulike startår. Mulig sluttår 2017 er usikkert og vises ikke som fakta."
+          ]
+        }
+      ]
     }
   ],
   "narrative": {
-    "title": "35 år med myr, motbakker og mennesker som aldri ga seg",
-    "lead": "Bak hver startstrek står mennesker som har funnet på, merket, rigget, servert og ryddet. Fra ideen i 1992 til nye løyper og nye generasjoner er dette historien om dem som fikk Morothon til å skje.",
+    "title": "De som gjør Morothon mulig ❤️",
+    "lead": "Før løperne får startnummer, har noen allerede vært ute i heia. De har merket stier, båret ut drikke, rigget start og mål, ordnet barneløp, hentet premier og ryddet etterpå. Ofte i regn, mørke og kulde – og uten at navnet havner på resultatlista.",
     "timeline": [
       {
         "year": "1992",
         "title": "Begynnelsen",
-        "text": "Erling Askildsen fikk ideen om et terrengløp med fysisk utfordring, kameratskap og fest. Sammen med andre ildsjeler skapte han Søgne Morothon. Det første året deltok 128 personer, slik arrangøren har bekreftet og resultatarkivet viser. Langmoro hadde 44 deltakere, som ble fraktet med buss til starten ved Ytre Solås. Første del av løypa hadde innslag av orientering. Etterpå var det bankett på Heimklang med mat, musikk, premier og sosialt samvær.",
+        "text": "Erling Askildsen fikk ideen om et terrengløp med fysisk utfordring, kameratskap og fest. Sammen med andre ildsjeler skapte han Søgne Morothon. Allerede i 1992 stilte 128 deltakere til start. Langmoro hadde 44 deltakere, som ble fraktet med buss til starten ved Ytre Solås. Første del av løypa hadde innslag av orientering. Etterpå var det bankett på Heimklang med mat, musikk, premier og sosialt samvær.",
         "sourceIds": [
           "fvn-2016",
           "organizer-v3",
@@ -481,7 +1562,7 @@
         ]
       }
     ],
-    "closing": "Løperne skriver resultatlistene. Ildsjelene skriver historien.",
+    "closing": "Løperne får tiden sin. Dugnadsfolket gir oss løpet.",
     "sharedStories": [
       {
         "title": "Orientering før målstreken",
@@ -500,18 +1581,76 @@
           "fvn-2016"
         ],
         "confirmed": true
-      },
-      {
-        "title": "En stemme på banketten",
-        "text": "Floke Bredland leste resultatlistene på bankettene og omtales i kildene som en sentral veteran. Kildene gir ulike opplysninger om når innsatsen hans begynte; vi fastsetter derfor ikke et startår. Dette er historisk omtale, ikke en ny grunnleggeroppføring eller hedersutmerkelse.",
-        "source": "Fædrelandsvennen, N247",
-        "sourceIds": [
-          "fvn-2016",
-          "n247-2014"
-        ],
-        "confirmed": true
       }
     ],
-    "uncertainties": []
-  }
+    "uncertainties": [
+      {
+        "text": "Bent Bakkes avslutningsår, Kalle og Finns innsats før 2014 og oppstartsår/oppgaver for de nyere navneoppføringene er ikke fastsatt. Startår alene dokumenterer ikke innsats i alle mellomliggende utgaver.",
+        "sourceIds": [
+          "organizer-v34"
+        ]
+      },
+      {
+        "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Erling Danielsens dødsår er ikke oppgitt. De to minneoppføringene gir ingen automatisk medaljetildeling.",
+        "sourceIds": [
+          "organizer-v34"
+        ]
+      },
+      {
+        "text": "Aud O, Arnfinn G og Magne er ufullstendige navn. Ole J.Bueklev og øvrige nyere navn beholdes slik de er oppgitt, uten gjettede personkoblinger.",
+        "sourceIds": [
+          "organizer-v34"
+        ]
+      }
+    ],
+    "intro": [
+      "Morothon blir ikke til av seg selv. Bak hver utgave står folk som stiller opp, år etter år, fordi de vil gi andre en opplevelse. Noen var med fra starten i 1992. Andre kom til underveis. Felles for dem er at de har gjort noe som betyr mer enn de kanskje selv tenker over.",
+      "Her vil vi løfte fram menneskene bak løpet. Ikke bare dem som står foran mikrofonen, men også dem som stiller opp tidlig, tar den siste rydderunden og sørger for at neste års Morothon kan bli minst like moro."
+    ]
+  },
+  "contentVersion": "3.4",
+  "previewOnly": true,
+  "awardPolicy": {
+    "status": "proposed",
+    "minimumDocumentedEditions": 5,
+    "explicitExceptionPossible": true,
+    "roleDoesNotAward": true,
+    "diplomaRequiresFormalAward": true,
+    "sourceIds": [
+      "organizer-v34"
+    ]
+  },
+  "featuredIds": [
+    "oscar-lohne",
+    "erling-askildsen"
+  ],
+  "diplomaExamples": [
+    {
+      "id": "dugnadshelt-fem",
+      "label": "Dugnadshelt – fem års innsats",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnadshelt",
+      "contributionCount": 5,
+      "tribute": "Fem utgaver med tid og krefter til andre. Takk for at du stiller opp, tar et tak og gjør løpsdagen mulig. Innsatsen din gir både løpsglede og et fellesskap å komme tilbake til."
+    },
+    {
+      "id": "grunnlegger-flere",
+      "label": "Grunnlegger – med flere merker",
+      "personId": "arnfinn-haverstad",
+      "badgeId": "service-grunnlegger"
+    },
+    {
+      "id": "oscar-35",
+      "label": "Oscar Lohne – 35 utgaver",
+      "personId": "oscar-lohne",
+      "badgeId": "service-hedersildsjel"
+    },
+    {
+      "id": "erling-35",
+      "label": "Erling Askildsen – 35 utgaver",
+      "personId": "erling-askildsen",
+      "badgeId": "service-hedersildsjel"
+    }
+  ]
 }

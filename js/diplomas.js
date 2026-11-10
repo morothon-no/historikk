@@ -138,18 +138,29 @@
     return { ...content, asset: checked, watermarkSrc: watermark.src, watermarkDpi, dateLabel: dateLabel(content.year, register), eventDate: register.dates[String(content.year)] || null, imageReady: asset.ready && !watermarkIssue };
   }
 
-  async function serviceDraft(id = 'oscar-lohne') {
-    const { member, group } = await MorothonHonorsData.find(id);
-    if (!group.badgeId) throw new Error('Ingen hedersutmerkelse er registrert for denne arrangørrollen.');
-    const badges = await MorothonBadges.init(), asset = await inspectAsset(group.badgeId);
-    const badge = MorothonBadges.get(group.badgeId), provisional = member.status !== 'confirmed';
-    return { name: member.name, honoreeId: member.id, type: 'service', tier: 'service', title: `${badge.name} · diplomutkast`,
-      roleLabel: badge.name, tribute: member.diplomaTribute || '', provisional, asset, assetKey: group.badgeId, imageReady: false, previewOnly: true,
-      color: badge.color, firstEdition: 1992, editionNumber: null,
-      watermarkSrc: new URL(badges.watermark.src, document.baseURI).href,
-      dateLabel: 'Dato fastsettes ved utstedelse', filename: `${member.id}-${badge.id}-diplomutkast`,
-      description: provisional ? `${member.name} er foreløpig oppført som dugnadshelt. Ingen endelig tildeling er registrert.`
-        : `${member.name} er bekreftet i hederslisten som ${badge.name.toLocaleLowerCase('nb-NO')}. Diplomet er et designutkast.`, citation: '' };
+  async function serviceContent(member, badgeId, ids, contribution, illustrative=false) {
+    const badges=await MorothonBadges.init(),assets=await Promise.all(ids.map(inspectAsset));
+    const badge=MorothonBadges.get(badgeId),asset=assets.find(a=>a.key===badgeId);
+    if(!asset)throw new Error('Diplomutkastet mangler et foreslått hovedmerke.');
+    return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name+' · diplomutkast',
+      roleLabel:badge.name,tribute:member.diplomaTribute||'',provisional:true,asset,assetKey:badgeId,
+      secondaryAssets:assets.filter(a=>a.key!==badgeId).map(a=>({...a,name:MorothonBadges.get(a.key).name})),
+      contributionCount:contribution.count||null,contributionFirst:contribution.first,contributionLast:contribution.last,
+      illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
+      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:'Dato fastsettes ved utstedelse',
+      filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-diplomutkast`,description:'Diplomutkast – ikke utdelt.',citation:''};
+  }
+  async function serviceDraft(id = 'oscar-lohne', requestedBadgeId) {
+    const data=await MorothonHonorsData.load(),{member,group}=await MorothonHonorsData.find(id),plan=MorothonHonorsData.badgePlan(data,member,group);
+    const badgeId=requestedBadgeId||plan.primaryBadgeId;
+    if(!plan.badgeIds.includes(badgeId))throw new Error('Ingen slik hedersutmerkelse er foreslått for denne profilen.');
+    return serviceContent(member,badgeId,plan.badgeIds,MorothonHonorsData.contribution(member));
+  }
+  async function serviceExample(id) {
+    const data=await MorothonHonorsData.load(),example=data.diplomaExamples?.find(e=>e.id===id);
+    if(!example)throw new Error('Diplomutkastet finnes ikke.');
+    if(example.personId)return serviceDraft(example.personId,example.badgeId);
+    return serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId],{count:example.contributionCount},true);
   }
 
   function signoffHtml(date) {
@@ -161,19 +172,23 @@
 
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
-    const founder=d.assetKey==='service-grunnlegger';
-    const heading=founder?'GRUNNLEGGERDIPLOM':'HEDERSDIPLOM';
-    const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for frivillig innsats og engasjement for Morothon.');
+    const founder=d.assetKey==='service-grunnlegger',lifelong=d.assetKey==='service-hedersildsjel'&&d.contributionCount===35;
+    const heading=founder?'GRUNNLEGGERDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
+    const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for tid, krefter og fellesskap. Du er med på å gjøre Morothon mulig.');
+    const secondary=(d.secondaryAssets||[]).filter(a=>a.key!==d.assetKey);
+    const secondaryHtml=secondary.length?`<div class="diploma-service-secondary" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
+    const value=d.contributionCount|| (founder?'1992':'TAKK'),label=d.contributionCount?'UTGAVER MED INNSATS':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
+    const period=d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?'Fem dugnadsutgaver · typeeksempel':'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
-      <body class="diploma-document"><article class="diploma-sheet diploma-service" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
+      <body class="diploma-document"><article class="diploma-sheet diploma-service diploma-service-v34${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
       <img class="diploma-watermark" src="${safe(d.watermarkSrc)}" alt="">
       <div class="diploma-brand" data-layout-check><b>SØGNE MOROTHON</b><span>SIDEN ${d.firstEdition}</span></div>
-      <div class="diploma-heading" data-layout-check><p>FOR LØPSGLEDE OG FELLESSKAP</p><h1>${heading}</h1></div>
+      <div class="diploma-heading" data-layout-check><p>${lifelong?'35 UTGAVER MED TID OG KREFTER':'FOR LØPSGLEDE OG FELLESSKAP'}</p><h1>${heading}</h1></div>
       <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
-      <div class="diploma-main diploma-service-main"><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure></div>
+      <div class="diploma-main diploma-service-main"><div class="diploma-metric" data-layout-check><strong>${safe(value)}</strong><span>${label}</span><small>${safe(period)}</small></div><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure>${secondaryHtml}</div>
       <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
-      ${signoffHtml('Søgne, __________________')}
+      ${signoffHtml(d.dateLabel?.startsWith('Søgne,')?d.dateLabel:'Søgne, __________________')}
       </article></body></html>`;
   }
 
@@ -425,6 +440,6 @@
     });
   }
 
-  window.MorothonDiplomas = { choices, model, prepare, serviceDraft, documentHtml, inspectAsset, checkLayout, fitPreview, dateLabel, eventDates, open, init,
+  window.MorothonDiplomas = { choices, model, prepare, serviceDraft, serviceExample, documentHtml, inspectAsset, checkLayout, fitPreview, dateLabel, eventDates, open, init,
     isOpen: () => !!ui.dialog?.open, current: () => ui.current };
 })();
