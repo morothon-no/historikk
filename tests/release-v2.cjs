@@ -31,9 +31,9 @@ test('V2 Inger shares current personal statistics and progress; her silver diplo
   assert.deepEqual([r.c,r.highest,r.previous,r.next],[12,10,[5],15]);assert.deepEqual(r.bar,['12','15']);assert.match(r.card,/12 \/ 15/);assert.ok(r.card.includes(r.best)&&r.card.includes(r.km));assert.ok(!r.stats.some(s=>s[0]==='LENGSTE HISTORISKE REKKE'));assert.deepEqual(r.d,[10,2015,2024,'Søgne, 9. november 2024']);
  }finally{await p.close();}
 });
-test('V2 previous medal motifs are 85–105px, source-complete and smaller than the main medal at all thresholds',async()=>{
+test('V3.2 previous medal motifs adapt to collection size, retain the complete source and remain below the main medal',async()=>{
  const p=await page();try{const rows=await p.evaluate(async()=>{const p=person('MOR-15AF3A3'),old=p.c,rows=[];try{for(const n of [5,10,15,20,25,30,35,40,45,50]){p.c=n;const m=MorothonCard.model(p.i);for(const b of m.previous){const im=await loadCanvasImage(BADGE_IMAGES[b.n]),box=MorothonCard.visibleBounds(im);rows.push({n,count:m.previous.length,edge:MorothonCard.collectionSize(m.previous.length),box,w:im.naturalWidth,h:im.naturalHeight,main:MorothonCard.heroLayout(m).medal.height});}}}finally{p.c=old;}return rows;});
-  for(const r of rows){assert.ok(r.edge>=85&&r.edge<=105);assert.ok(r.main>=r.edge*2.8);assert.ok(r.box.x>=0&&r.box.y>=0&&r.box.x+r.box.width<=r.w&&r.box.y+r.box.height<=r.h);}
+  for(const r of rows){assert.ok(r.edge>=85&&r.edge<=180);assert.equal(r.edge,r.count===1?180:r.count===2?150:r.count<=4?125:Math.min(105,(964-(r.count-1)*16)/r.count));assert.ok(r.main>=r.edge*1.6);assert.ok(r.box.x>=0&&r.box.y>=0&&r.box.x+r.box.width<=r.w&&r.box.y+r.box.height<=r.h);}
  }finally{await p.close();}
 });
 test('V2 format selector regenerates the actual download, defaults to 4:5 and survives rapid changes',async()=>{

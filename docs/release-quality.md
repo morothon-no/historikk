@@ -81,3 +81,18 @@ Hederssiden er fortsatt skjult fra offentlig navigasjon og har
 offentlig diplomutsteder innføres.
 
 Stor modularisering av `index.html` utsettes til en separat, avgrenset oppgave.
+
+
+## De siste V3.2-tilleggene
+
+Deltakelsesgrad, 70/90/100-heder, rekker og comeback følger [lojalitetsmodellen](loyalty.md).
+Modellen er felles for profil, begge delingsformater og kalenderen. Historisk
+heder beregnes fra debut, med lukkede perioder ved opphold/nivåendring; den kan
+ikke forsvinne ved comeback. Testene dekker også manglende arrangementsår,
+DNS/DNF, alias/ID-sammenslåinger, faktisk Kristen-historikk og 2027-import.
+
+Medaljesamlingen er gjort adaptiv med 180 px synlig motivkant ved ett tidligere
+merke. Kontroll av faktisk bilde-/tekstgeometri dekker 0–9 tidligere merker,
+rekordholdere, høye nivåer og lange navn. PNG er fortsatt 1080×1350 / 1080×1080.
+Lokale før/etter-artefakter lages med `scripts/review-loyalty-v32.cjs` og inngår
+ikke i runtime-pakken. Godkjente medaljekilder og alle trykkgrenser er uendret.

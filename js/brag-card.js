@@ -15,9 +15,9 @@
     const years = new Set(startedYears(p));
     const editions = [...new Set(S.stats.map(s => s[0]))];
     const allEditions = editions.length > 0 && editions.every(year => years.has(year));
-    const loyaltyPct = Math.round(loyalty(p).pct * 100);
+    const participation = loyalty(p);
     return { p, earned, highest, previous: earned.slice(0, -1), honorary, ceremonial, tier, theme: highest?.shareTheme || firstStartTheme,
-      records: recordMatchesFor(p), active: p.l === S.lastYear ? p.a : 0, longest: p.s, loyaltyPct,
+      records: recordMatchesFor(p), active: participation.active, longest: participation.longest.count, participation,
       allEditions, editionCount: editions.length, firstEdition: Math.min(...editions),
       next: nextMilestoneInfo(p), best: bestShareTime(p.i), totals: runnerTotals(p.i) };
   }
@@ -30,10 +30,12 @@
 
   function cardStats(m) {
     if (m.ceremonial && m.allEditions) return [];
-    const stats = [];
-    if (m.active > 0) stats.push(['AKTIV REKKE', `${m.active} år`]);
-    if (!m.active || m.longest !== m.active) stats.push(['LENGSTE HISTORISKE REKKE', `${m.longest} år`]);
-    stats.push(['LOJALITET SIDEN DEBUT', `${m.loyaltyPct} %`]);
+    const stats = [],L=m.participation,R=MorothonLoyalty;
+    if (m.active > 0) stats.push(['AKTIV REKKE', `${m.active} på rad`, R.range(L.ending)]);
+    if (!m.active || m.longest !== m.active) stats.push(['LENGSTE HISTORISKE REKKE', `${m.longest} på rad`, R.range(L.longest)]);
+    if (L.current) stats.push([L.current.name.toLocaleUpperCase('nb-NO'), `${R.percent(L)} %`, R.range(L)]);
+    else if (L.recognition) stats.push(['HISTORISK HEDER', L.recognition.name, R.range(L.recognition)]);
+    else if (!m.active) stats.push(['SISTE REGISTRERTE LØP', String(L.last)]);
     if (!m.ceremonial) stats.push(['DEBUTÅR', String(m.p.f)]);
     return stats;
   }
@@ -52,16 +54,16 @@
     const medal = m.highest
       ? `<img class="brag-main-medal" src="${BADGE_IMAGES[String(m.highest.n)]}" alt="${safe(m.highest.name)}">${m.ceremonial ? '' : `<h3>${safe(m.highest.name)}</h3>`}`
       : `<img class="brag-first-runner" src="${RUNNER_IMAGE}" alt=""><h3>På vei mot Bronsemerket</h3><p>Første merke ved 5 deltakelser</p>`;
-    const previous = m.previous.length ? `<div class="brag-previous"><h4>Min medaljesamling</h4><div class="brag-medal-row">${m.previous.map(b => `<figure><img src="${BADGE_IMAGES[String(b.n)]}" alt="${safe(b.name)}" title="${safe(b.name)}"></figure>`).join('')}</div></div>` : '';
-    return `<section class="brag-card brag-${m.tier}${m.ceremonial ? ' brag-ceremonial' : ''}${!m.active ? ' brag-inactive' : ''}${m.records.length ? ' brag-recordholder' : ''}" style="--brag-metal:${m.theme.metal};--brag-background:${m.theme.background};--brag-stat-columns:${stats.length}" aria-label="${safe(p.n)} sitt skrytekort">
+    const previous = m.previous.length ? `<div class="brag-previous"><h4>Min medaljesamling</h4><div class="brag-medal-row" data-count="${m.previous.length}" style="--collection-edge:${collectionSize(m.previous.length)}px">${m.previous.map(b => `<figure><img src="${BADGE_IMAGES[String(b.n)]}" alt="${safe(b.name)}" title="${safe(b.name)}"></figure>`).join('')}</div></div>` : '';
+    return `<section class="brag-card brag-${m.tier}${m.ceremonial ? ' brag-ceremonial' : ''}${!m.active ? ' brag-inactive' : ''}${m.records.length ? ' brag-recordholder' : ''}" style="--brag-metal:${m.theme.metal};--brag-background:${m.theme.background};--brag-stat-columns:${stats.length};--brag-mobile-stat-columns:${stats.length===4?2:stats.length}" aria-label="${safe(p.n)} sitt skrytekort">
       <img class="brag-watermark" src="${RUNNER_IMAGE}" alt=""><div class="brag-brand"><img src="${SHARE_LOGO_IMAGE}" alt="Søgne Morothon"><span>SØGNE MOROTHON<small>Min Morothon-historie</small></span></div>
       <div class="brag-identity"><h2>${safe(p.n)}</h2><p>${safe(p.g || 'Løper')} · ${p.f}–${p.l}</p></div>${record}
       ${m.ceremonial ? `<p class="brag-honor-title">${safe(m.highest.name.toLocaleUpperCase('nb-NO'))}</p>` : ''}
       <div class="brag-earned"><div class="brag-medal">${medal}</div><div class="brag-count"><strong>${p.c}</strong><span>deltakelser</span></div></div>
       ${m.honorary ? `<p class="brag-honor-text">${safe(honorText(m))}</p>` : ''}
-      ${stats.length ? `<div class="profile-primary-stats brag-stats">${stats.map(([label,value]) => `<div><strong>${safe(value)}</strong><small>${safe(label.toLocaleLowerCase('nb-NO'))}</small></div>`).join('')}</div>` : ''}
+      ${stats.length ? `<div class="profile-primary-stats brag-stats">${stats.map(([label,value,detail]) => `<div><strong>${safe(value)}</strong><small>${safe(label.toLocaleLowerCase('nb-NO'))}</small>${detail?`<em>${safe(detail)}</em>`:''}</div>`).join('')}</div>` : ''}
       ${previous}${!m.ceremonial ? goalHtml(m) : ''}${supportHtml(m)}</section>
-      <details class="runner-full-details" style="--brag-metal:${m.theme.metal}"><summary>Alle nøkkeltall og personlige mål</summary><div class="profile-primary-stats"><div><strong>${p.c}</strong><small>deltakelser</small></div>${m.active > 0 ? `<div><strong>${m.active} år</strong><small>aktiv rekke</small></div>` : ''}<div><strong>${m.longest} år</strong><small>lengste historiske rekke</small></div><div><strong>${m.loyaltyPct} %</strong><small>lojalitet siden debut</small></div><div><strong>${p.f}</strong><small>debutår</small></div></div>${goalHtml(m)}${supportHtml(m)}</details>`;
+      <details class="runner-full-details" style="--brag-metal:${m.theme.metal}"><summary>Alle nøkkeltall og personlige mål</summary><div class="profile-primary-stats"><div><strong>${p.c}</strong><small>deltakelser</small></div>${m.active > 0 ? `<div><strong>${m.active} år</strong><small>aktiv rekke</small></div>` : ''}<div><strong>${m.longest} på rad</strong><small>lengste historiske rekke · ${MorothonLoyalty.range(m.participation.longest)}</small></div><div><strong>${MorothonLoyalty.percent(m.participation)} %</strong><small>${m.participation.count} av ${m.participation.poss} arrangerte utgaver · ${MorothonLoyalty.range(m.participation)}</small></div><div><strong>${p.f}</strong><small>debutår</small></div></div>${goalHtml(m)}${supportHtml(m)}</details>`;
   }
 
   // Wrap by words; split exceptionally long single words rather than clipping them.
@@ -117,7 +119,10 @@
     const b=visibleBounds(image),scale=edge/Math.max(b.width,b.height);
     ctx.drawImage(image,x+(edge-b.width*scale)/2-b.x*scale,y+(edge-b.height*scale)/2-b.y*scale,image.naturalWidth*scale,image.naturalHeight*scale);
   }
-  function collectionSize(count) { return Math.min(105,(964-Math.max(0,count-1)*16)/Math.max(1,count)); }
+  function collectionSize(count) {
+    const preferred=count===1?180:count===2?150:count<=4?125:105;
+    return Math.min(preferred,(964-Math.max(0,count-1)*16)/Math.max(1,count));
+  }
 
   async function build(pid, options = {}) {
     const format=typeof options==='string'?options:options.format||'portrait';
@@ -150,12 +155,12 @@
     const hero=heroLayout(m,format),heroHeight=hero.height;
     const stats=cardStats(m),goal=!m.ceremonial&&m.next;
     const recordHeight=m.records.length?78+m.records.length*30:0;
-    const sections=[...(recordHeight?[['record',recordHeight]]:[]),['hero',heroHeight],...(stats.length?[['stats',square?72:94]]:[]),...(m.previous.length?[['collection',square?145:155]]:[]),...(goal?[['goal',square?70:100]]:[]),['support',square?90:120]];
+    const sections=[...(recordHeight?[['record',recordHeight]]:[]),['hero',heroHeight],...(stats.length?[['stats',square?90:110]]:[]),...(m.previous.length?[['collection',collectionSize(m.previous.length)+52]]:[]),...(goal?[['goal',square?70:84]]:[]),['support',square?90:112]];
     const footerTop=c.height-100,available=footerTop-y,content=sections.reduce((sum,s)=>sum+s[1],0),gap=(available-content)/(sections.length);
     // Exceptionally long names/record combinations still keep fixed output dimensions.
     // Scale the content uniformly only if its minimum rows cannot fit; never stretch a medal.
     const scale=Math.min(1,available/content),spacing=Math.max(0,gap);
-    const contentStart=y;
+    const contentStart=y,boxes=[];
     ctx.save();if(scale<1){ctx.translate(540,contentStart);ctx.scale(scale,scale);ctx.translate(-540,-contentStart);}
     const inBox=(value,box,size=box.fontSize,fill='#fff')=>{
       ctx.font=`700 ${size}px Arial, sans-serif`;const fitted=fitText(ctx,String(value),box.width,size,12);ctx.font=`700 ${fitted}px Arial, sans-serif`;ctx.textAlign='center';ctx.textBaseline='alphabetic';
@@ -163,6 +168,7 @@
       ctx.fillText(String(value),58+box.x+box.width/2+(metrics.actualBoundingBoxLeft-metrics.actualBoundingBoxRight)/2,y+box.y+box.height/2+(metrics.actualBoundingBoxAscent-metrics.actualBoundingBoxDescent)/2);
     };
     for(const [section,height]of sections){
+      boxes.push({section,top:contentStart+(y-contentStart)*scale,bottom:contentStart+(y+height-contentStart)*scale});
       if(section==='record'){
         panel(58,y,964,height,'rgba(241,206,131,.11)');drawContain(ctx,await loadCanvasImage(RECORD_BADGE_IMAGE),70,y+9,94,height-18);text('REGJERENDE REKORDHOLDER',185,y+32,23,'#f1ce83',810,'left');m.records.forEach((r,i)=>text(`${r.event} · ${r.gender} · ${r.time} (${r.year})`,185,y+65+i*30,22,'#fff',810,'left'));
       }else if(section==='hero'){
@@ -175,7 +181,7 @@
         if(hero.note){ctx.font='700 22px Arial';const lines=linesFor(ctx,hero.note.text,hero.note.width),lineHeight=26;lines.forEach((line,i)=>inBox(line,{...hero.note,y:hero.note.y+(hero.note.height-lines.length*lineHeight)/2+i*lineHeight,height:lineHeight},22,'#e4d6b3'));}
       }else if(section==='stats'){
         const w=(964-12*(stats.length-1))/stats.length;
-        stats.forEach(([label,value],i)=>{const x=58+i*(w+12);panel(x,y,w,height);text(label,x+w/2,y+(square?24:31),square?17:20,'#adc5cc',w-20);text(value,x+w/2,y+(square?57:73),square?30:38,'#fff',w-20);});
+        stats.forEach(([label,value,detail],i)=>{const x=58+i*(w+12);panel(x,y,w,height);text(label,x+w/2,y+(square?23:29),square?17:20,'#adc5cc',w-20);text(value,x+w/2,y+(square?53:68),square?30:38,'#fff',w-20);if(detail)text(detail,x+w/2,y+height-13,square?17:20,'#adc5cc',w-20);});
       }else if(section==='collection'){
         text('MIN MEDALJESAMLING',540,y+23,square?18:21,color);const edge=collectionSize(m.previous.length),rowWidth=m.previous.length*edge+(m.previous.length-1)*16;
         for(const [i,b]of m.previous.entries())drawCollectionMedal(ctx,await loadCanvasImage(BADGE_IMAGES[String(b.n)]),540-rowWidth/2+i*(edge+16),y+34,edge);
@@ -189,7 +195,7 @@
       y+=height+spacing;
     }
     ctx.restore();text('Finn din egen Morothon-historie',540,footerTop+20,square?23:27);text('morothon.no · Resultater, merker og minner',540,footerTop+49,18,color);
-    return new Promise((resolve,reject)=>c.toBlob(blob=>{if(!blob)return reject(new Error('Kunne ikke eksportere skrytekortet.'));resolve({blob,url:URL.createObjectURL(blob),format,width:c.width,height:c.height});},'image/png'));
+    return new Promise((resolve,reject)=>c.toBlob(blob=>{if(!blob)return reject(new Error('Kunne ikke eksportere skrytekortet.'));resolve({blob,url:URL.createObjectURL(blob),format,width:c.width,height:c.height,layout:{scale,spacing,sections:boxes,collectionEdge:collectionSize(m.previous.length)*scale}});},'image/png'));
   }
 
   window.MorothonCard = { model, profileHtml, build, honorText, linesFor, heroLayout, cardStats, collectionSize, visibleBounds, FORMATS };

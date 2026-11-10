@@ -114,3 +114,8 @@ uten offentlig utstedelse.
 
 En eventuell senere modulær opprydding av den store `index.html` er en egen
 oppgave. V3.2 begrenser endringene til bygging, stabilitet, tilgjengelighet og deling.
+
+
+Lojalitetsberegningen følger [felles regler for periodeandel og historisk heder](docs/loyalty.md).
+Profil, skrytekort og «De trofaste» bruker samme modell. [Skrytekortdokumentasjonen](docs/share-cards.md)
+beskriver de adaptive medaljestørrelsene og lokal før/etter-kontroll.
