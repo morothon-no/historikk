@@ -139,15 +139,30 @@
   }
 
   async function serviceContent(member, badgeId, ids, contribution, illustrative=false) {
-    const badges=await MorothonBadges.init(),assets=await Promise.all(ids.map(inspectAsset));
+    const [badges,register]=await Promise.all([MorothonBadges.init(),eventDates()]);
+    const assets=await Promise.all(ids.map(inspectAsset));
     const badge=MorothonBadges.get(badgeId),asset=assets.find(a=>a.key===badgeId);
     if(!asset)throw new Error('Diplomutkastet mangler et foreslått hovedmerke.');
+    // Only documented volunteer editions count. For a numbered milestone the event
+    // date belongs to the Nth confirmed edition, not to printing or awarding the diploma.
+    // A special 35-edition tribute uses the last confirmed event, but no undated
+    // honorary distinction receives an invented award date.
+    const milestone=badge.series==='dugnad'?badge.milestoneEditions:null;
+    const knownYears=contribution.years||[];
+    const achievementYear=!illustrative&&milestone&&knownYears.length>=milestone
+      ? knownYears[milestone-1]
+      : !illustrative&&!milestone&&contribution.count===35&&knownYears.length===35
+        ? knownYears.at(-1)
+        : null;
+    const eventDate=achievementYear?register.dates[String(achievementYear)]||null:null;
+    const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'Søgne, __________________';
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name+' · diplomutkast',
       roleLabel:badge.name,tribute:member.diplomaTribute||'',provisional:true,asset,assetKey:badgeId,
       secondaryAssets:assets.filter(a=>a.key!==badgeId).map(a=>({...a,name:MorothonBadges.get(a.key).name})),
       contributionCount:contribution.count||null,contributionFirst:contribution.first,contributionLast:contribution.last,
+      achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
       illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
-      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:'Dato fastsettes ved utstedelse',
+      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
       filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-diplomutkast`,description:'Diplomutkast – ikke utdelt.',citation:''};
   }
   async function serviceDraft(id = 'oscar-lohne', requestedBadgeId) {
@@ -178,7 +193,7 @@
     const secondary=(d.secondaryAssets||[]).filter(a=>a.key!==d.assetKey);
     const secondaryHtml=secondary.length?`<div class="diploma-service-secondary${secondary.length>2?' diploma-service-secondary-three':''}" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
     const value=d.contributionCount|| (founder?'1992':'TAKK'),label=d.contributionCount?'UTGAVER MED INNSATS':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
-    const period=d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?'Fem dugnadsutgaver · typeeksempel':'';
+    const period=d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
       <body class="diploma-document"><article class="diploma-sheet diploma-service diploma-service-v34${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
