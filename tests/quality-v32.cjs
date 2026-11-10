@@ -46,7 +46,13 @@ test('V3.2 controls have accessible names and keyboard profile/dialog/menu focus
 });
 test('V3.2 CI tests branches/PRs and deploys only verified main; existing historical corrections and registered files are preserved',async()=>{
  assert.deepEqual((await fs.readdir(path.join(root,'.github/workflows'))).sort(),['pages.yml']);const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');assert.match(workflow,/pull_request:[\s\S]*branches: \[main\]/);assert.match(workflow,/branches: \[main, 'codex\/\*\*'\]/);assert.match(workflow,/needs: verify/);assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);for(const s of ['npm ci','npm test','npm run build','playwright install --with-deps chromium','poppler-utils','requirements-dev.txt','fetch-depth: 0'])assert.ok(workflow.includes(s),s);assert.doesNotMatch(workflow,/continue-on-error|if: always\(\)/);
- const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));const protectedFiles=['data/history.json','data/badges.json','data/event-dates.json',registry.watermark.src,...registry.badges.flatMap(b=>[b.src,...(b.vectorSource?[b.vectorSource]:[])])];for(const f of new Set(protectedFiles))assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show','bb22ec8:'+f],{cwd:root}),f);
+  const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
+  const originalRegistry=JSON.parse(execFileSync('git',['show','bb22ec8:data/badges.json'],{cwd:root}));
+  assert.equal(registry.badges.length,originalRegistry.badges.length+1,'Only the proposed top honor may extend the registry');
+  assert.deepEqual(registry.watermark,originalRegistry.watermark,'Approved watermark must remain unchanged');
+  for(const original of originalRegistry.badges)assert.deepEqual(registry.badges.find(b=>b.id===original.id),original,'Existing badge data must remain unchanged: '+original.id);
+  const protectedFiles=['data/history.json','data/event-dates.json',originalRegistry.watermark.src,...originalRegistry.badges.flatMap(b=>[b.src,...(b.vectorSource?[b.vectorSource]:[])])];
+  for(const f of new Set(protectedFiles))assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show','bb22ec8:'+f],{cwd:root}),f);
  const dates=JSON.parse(await fs.readFile(path.join(root,'data/event-dates.json'),'utf8'));assert.equal(dates.dates['2018'],'2018-11-11');const h=JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8'));assert.match(h.narrative.timeline[0].text,/128 deltakere/);assert.ok(!h.narrative.uncertainties.some(x=>x.text.includes('1992')));
 });
 
