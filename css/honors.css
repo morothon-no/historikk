@@ -33,3 +33,6 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 
 .honor-profile-header.honor-profile-text-only{grid-template-columns:1fr}.honor-profile-text-only .honor-profile-medals{display:none}.honor-example-preview{margin:15px 0}
 .honor-volunteer-card{align-self:start}.honor-volunteer-card .honor-person-main{min-height:60px;padding:12px 14px}.honor-volunteer-card .honor-person-main:hover{background:transparent}.honor-volunteer-card:focus{outline:2px solid #9c7933;outline-offset:3px}.honor-volunteer-detail{max-width:720px;margin:25px auto}.honor-volunteer-detail h2{font-size:clamp(26px,4vw,36px)}.honor-intro>.honor-thanks{font:italic 17px/1.6 Georgia,serif;color:#876225}
+
+/* Four proposed honor symbols; founder is a historic distinction rather than a service tier. */
+@media(min-width:960px){.badge-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
