@@ -159,3 +159,15 @@ Medaljen er et uferdig SVG-motiv og ikke trykkgodkjent. Service-utkast beholder
 ## Dugnadsmilepæler 5/10/15/20/30/40 – utkast
 
 Seks anonyme, ikke-utdelte diplomforhåndsvisninger viser de seks milepælene. Oscar/Erling har æresdiplomutkast med et mindre 30-utgaversmerke. Ingen merker er tildelt eller trykkgodkjent. Heders-PDF/print forblir sperret; vanlige løperdiplomer berøres ikke.
+
+
+### Datofelt: oppnådd milepæl, ikke utskriftsdato
+
+Ved dugnadsmilepæler 5/10/15/20/30/40 viser datofeltet arrangementsdatoen
+for personens N-te **bekreftede dugnadsutgave**, hentet fra
+`data/event-dates.json`. Et 30-utgaversmerke for Oscar og Erling peker
+dermed på **13. november 2021**. Æresdiplomutkast som uttrykkelig omtaler
+35 dokumenterte utgaver viser **7. november 2026**. Dette er
+oppnåelsesdato, **ikke** automatisk dato for individuell tildeling.
+Anonyme eller udokumenterte tilfeller beholder tomt datofelt.
+Hedersdiplomer er fortsatt ikke utstedt eller utskriftsgodkjent.
