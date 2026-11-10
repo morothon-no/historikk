@@ -12,7 +12,7 @@ V3.4-bestilling. `organizer-v34` i `data/honors.json` viser til dette grunnlaget
 Artikkelopplysninger fra Fædrelandsvennen og N247 beholder sine opprinnelige
 kildehenvisninger og forbehold; ingen nye artikkelopplysninger er lagt til.
 
-34 kanoniske hederspersoner vises én gang hver i oversikten. Oscar Lohne og
+35 kanoniske personer vises én gang hver i oversikten. Oscar Lohne og
 Erling Askildsen har de to fremhevede kortene, og gjentas ikke som egne kort i
 grunnleggergruppen. Den gruppen viser Arnfinn Håverstad, Helge Reisvoll og Einar
 Danielsen; alle fem inngår fortsatt i grunnleggerkohorten og dens løpsberegninger.
@@ -121,13 +121,13 @@ trykkgodkjenning av service-merkene, som fortsatt har registerstatus `design-dra
 
 Vanlige dugnadsnavn vedlikeholdes i **`data/volunteers.json`**, uten at arrangøren
 må redigere roller, tildelinger og diplommodeller i den omfattende hedersfilen.
-Listen har 22 enkle personposter og to referanser til Kalle/Finns eksisterende
+Listen har 23 enkle personposter og to referanser til Kalle/Finns eksisterende
 profiler. Grunnleggere, arrangører, minneprofiler og personer med egne
 merkeforslag/historikk blir liggende i `honors.json`.
 
 En vanlig post trenger bare `id` og `name`, i tillegg til en dekkende kilde.
-Valgfrie felt er `role`, `fromYear`, `text`, `sourceIds`, `stories`, `nameStatus`
-og `internalNotes`. Utelat `fromYear` når året er ukjent. En registrert start er
+Valgfrie visningsfelt er `role` og `fromYear`. `sourceIds`, `nameStatus` og
+`internalNotes` gir kilde-/vedlikeholdsopplysninger. Utelat `fromYear` når året er ukjent. En registrert start er
 aldri en automatisk beregning av antall dugnadsår.
 
 ```json
@@ -177,3 +177,42 @@ node scripts/review-honors-v34.cjs /tmp/morothon-v34 a7d03f7
 QA-bilder og PDF-er er lokale, merket som ikke utdelt, og ligger utenfor den
 publiserbare runtime-pakken. Reelle tildelinger, mottaker for femårsutkastet,
 navneavklaringer og eventuelle senere utstedelsesdatoer må godkjennes særskilt.
+
+## Issue #13 – kort dugnadsliste og personlige arrangørprofiler
+
+Hele issue #13 og alle fire kommentarer er lest. Siste presisering om minimal
+navneliste går foran tidligere forslag til lange historier for Jon og andre
+vanlige dugnadsnavn. Christan Berthelsen er lagt til med oppgitt stavemåte, uten
+oppgave, år, løperkobling eller merkeforslag. Oversikten har nå 35 unike personer.
+
+Vanlige `people`-poster fra `volunteers.json` blir `listingOnly` ved innlasting.
+Bare navn og eksplisitt kjent oppgave/startår vises; ingen «Dugnad»-rolle eller
+standardros fylles inn. Kjente startår er bevart, men brukes ikke til å beregne
+dugnadsår eller utmerkelser. Ved helt ukjente detaljer vises bare navnet.
+Eldre `text`/`stories`-felt aksepteres av hensyn til filkompatibilitet, men gir
+ingen synlig historie og bør ikke brukes for vanlige dugnadsnavn.
+
+De kompakte navneoppføringene har ingen lenke til en automatisk full
+hedersprofil. Eksisterende direkte `#person/<id>`-lenker fungerer fortsatt, med
+kun navn og kjente detaljer i en kort visning. Tilbake/Escape returnerer fokus
+til navneoppføringen. `profileId`-referanser til Kalle/Finn eller andre egne
+hederprofiler beholder den rike profilen og vises fortsatt bare én gang.
+
+Jon vises som «Barneløp og startpistol · fra 2014». 2014 gjelder Morothon,
+ikke hans langt eldre engasjement i friidretten. Forsovelseshistorien brukes
+ikke. Anne Lene/Laila har «Drikkestasjon» uten år og uten gjentatt historie.
+Kildegrunnlaget om samtidig start er bevart under «Bakgrunn og kilder».
+
+Dag Mortens og Håkons personlige arrangørhistorier har eksplisitte kilder fra
+issue #13. Dag Morten omtales som tidtaker og kreativ ildsjel; Langmoro i
+porsjoner står uttrykkelig som arrangørgjengens humor, ikke som et registrert
+resultat. Håkons løypemerking, klargjøring, løping og nedrigging omtales varmt;
+Svalbard forblir 2016 uten slutninger om dette årets løpsstarter.
+
+En kort felles takk er synlig før navnelisten. Den gir plass til frivilligheten
+som helhet uten å tilskrive usikre prestasjoner til enkeltpersoner.
+
+QA-generatoren tar faktiske før/etter-bilder fra en eksplisitt Git-referanse,
+inkludert den daværende dugnadsfilen. A4-PNG-prøvene rendres ved 300 DPI, og
+PDF-prøvene forblir lokale og merket «IKKE-UTDELT». Ingen kvalitetsflagg,
+medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.

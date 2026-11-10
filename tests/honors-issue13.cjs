@@ -1,0 +1,109 @@
+const {test,before,after}=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs/promises'),path=require('node:path'),{execFileSync}=require('node:child_process');
+const {readHonors}=require('./helpers/honors.cjs'),{createHarness}=require('../scripts/diploma-harness.cjs');
+const root=path.resolve(__dirname,'..');let h,data,list;
+before(async()=>{h=await createHarness();data=await readHonors();list=JSON.parse(await fs.readFile(path.join(root,'data/volunteers.json'),'utf8'));});
+after(async()=>{await h?.close();});
+async function open(width=390){const p=await h.browser.newPage({viewport:{width,height:1000}});await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="christan-berthelsen"]').waitFor();return p;}
+
+test('issue #13 changes only sourced honor content: 35 identities, Christan name-only, no invented roles or participation',async()=>{
+ const people=data.groups.flatMap(g=>g.members),byId=new Map(people.map(m=>[m.id,m]));
+ assert.equal(people.length,35);assert.equal(byId.size,35);
+ assert.equal(people.filter(m=>m.listingOnly).length,23);
+ for(const m of people.filter(m=>m.listingOnly)){
+  const entry=list.people.find(p=>p.id===m.id);assert.ok(entry);
+  assert.equal(m.reason,null);assert.deepEqual(m.stories,[]);assert.equal(m.runnerId,undefined);
+  assert.deepEqual(m.roles.map(r=>r.title),entry.role?[entry.role]:[]);
+  assert.equal(m.contribution?.fromYear,entry.fromYear);
+  assert.deepEqual(m.badgeProposal.badgeIds,[]);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
+ }
+ const christan=byId.get('christan-berthelsen');assert.equal(christan.name,'Christan Berthelsen');assert.deepEqual(christan.roles,[]);assert.equal(christan.contribution,undefined);
+ assert.equal(byId.get('jon-fjeld').roles[0].title,'Barneløp og startpistol');assert.equal(byId.get('jon-fjeld').contribution.fromYear,2014);
+ for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad'])assert.equal(byId.get(id).contribution,undefined);
+ const old=JSON.parse(execFileSync('git',['show','22bd10a:data/honors.json'],{cwd:root}));
+ for(const m of old.groups.flatMap(g=>g.members)){
+  const n=byId.get(m.id);assert.ok(n,m.id);
+  if(['dag-morten-frantzen','hakon-lohne'].includes(m.id)){
+   for(const key of ['id','name','runnerId','status','roles','badgeProposal','awards','issuedDiplomas'])assert.deepEqual(n[key],m[key],m.id+': '+key);
+   for(const story of m.stories)assert.ok(n.stories.some(s=>s.text===story.text));
+  }else assert.deepEqual(n,m,m.id);
+ }
+ const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/badges.json','data/event-dates.json','index.html','js/diplomas.js','css/diplomas.css'],{cwd:root}).toString().trim().split('\n');
+ for(const file of protectedFiles)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
+});
+
+test('issue #13 renders short non-duplicated volunteer rows with only supplied details at every required width',async()=>{
+ for(const width of [320,390,768,1440]){
+  const p=await open(width);try{
+   assert.equal(await p.locator('[data-honoree]').count(),35);assert.equal(await p.locator('.honor-volunteer-card').count(),23);
+   assert.equal(await p.locator('.honor-volunteer-card a,.honor-volunteer-card img,.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary,.honor-volunteer-card .honor-open').count(),0);
+   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:e.innerText.replace(/\s+/g,' ').trim(),height:e.getBoundingClientRect().height})));
+   assert.equal(new Set(rows.map(r=>r.id)).size,23);assert.ok(rows.every(r=>r.height<=110),JSON.stringify(rows));
+   const row=id=>rows.find(r=>r.id===id).text;
+   assert.equal(row('christan-berthelsen'),'Christan Berthelsen');assert.equal(row('lars-aamodt'),'Lars Aamodt');
+   assert.equal(row('jon-fjeld'),'Jon Fjeld Barneløp og startpistol · fra 2014');
+   assert.equal(row('per-sangvik'),'Per Sangvik Løypemerking · fra 2019');
+   assert.equal(row('anne-lene-forland-hansen'),'Anne Lene Førland-Hansen Drikkestasjon');
+   assert.equal(row('laila-endresen-skjulestad'),'Laila Endresen Skjulestad Drikkestasjon');
+   assert.ok(await p.locator('#honorThanks').isVisible());assert.match(await p.locator('#honorThanks').innerText(),/Takk/);
+   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   await p.locator('#honorSearch').fill('startpistol');assert.equal(await p.locator('[data-honoree]:visible').getAttribute('data-honoree'),'jon-fjeld');
+   await p.locator('#honorSearch').fill('Christan');assert.equal(await p.locator('[data-honoree]:visible').getAttribute('data-honoree'),'christan-berthelsen');
+   await p.locator('#honorSearch').fill('Karl Kimestad');assert.equal(await p.locator('[data-honoree]:visible').getAttribute('data-honoree'),'kalle-kimestad');
+  }finally{await p.close();}
+ }
+});
+
+test('issue #13 old volunteer URLs remain minimal, return focus and never grow a story, runner profile or diploma automatically',async()=>{
+ const p=await open();try{
+  for(const entry of list.people.filter(e=>e.id)){
+   await p.goto(h.base+'/heder.html#person/'+entry.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,entry.name);
+   assert.equal(await p.locator('#honorProfile .honor-story,#honorProfile .honor-racing,#honorProfile img,#honorProfile iframe,#honorProfile .eyebrow').count(),0);
+   assert.ok(await p.locator('#honorProfile').evaluate(e=>e.getBoundingClientRect().height<350));
+   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   await p.keyboard.press('Escape');await p.locator('#honorOverview').waitFor({state:'visible'});
+   assert.equal(await p.evaluate(()=>document.activeElement.dataset.honoree),entry.id);
+  }
+  const rejected=await p.evaluate(async()=>{try{await MorothonDiplomas.serviceDraft('christan-berthelsen');return false;}catch{return true;}});assert.equal(rejected,true);
+  // Legacy long fields must not silently upgrade a name-list entry to a full profile.
+  const r=await p.evaluate(async()=>{const d=await MorothonHonorsData.load(),core=structuredClone(d);core.groups.forEach(g=>g.members=g.members.filter(m=>!m.listingOnly));const merged=MorothonHonorsData.mergeVolunteers(core,{schemaVersion:1,sourceIds:['organizer-v34'],people:[{id:'fixture-only',name:'Bare test',text:'Automatisk skryt skal ikke vises',stories:[{text:'En lang testhistorie',source:'Test',confirmed:true}]}]});return merged.groups.flatMap(g=>g.members).find(m=>m.id==='fixture-only');});
+  assert.equal(r.listingOnly,true);assert.equal(r.reason,null);assert.deepEqual(r.stories,[]);assert.deepEqual(r.roles,[]);assert.deepEqual(r.badgeProposal.badgeIds,[]);
+ }finally{await p.close();}
+});
+
+test('issue #13 personal organizer stories stay separate from racing and all honor previews remain hidden and locked',async()=>{
+ for(const width of [390,1440]){
+  const p=await open(width);try{
+   await p.goto(h.base+'/heder.html#person/dag-morten-frantzen');await p.locator('#profileName').waitFor();
+   const dag=await p.locator('#honorProfile').innerText();assert.match(dag,/Hjernen bak klokka/);assert.match(dag,/tidtaking/);assert.match(dag,/med et smil/);assert.match(dag,/20 km/);assert.match(dag,/stykkevis og delt/);
+   assert.equal(await p.locator('.honor-racing').count(),0);
+   await p.goto(h.base+'/heder.html#person/hakon-lohne');await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Håkon Lohne');
+   const hakon=await p.locator('#honorProfile').innerText();for(const word of ['Det spreke alibiet','replikken','løypemerking','klargjøring','nedrigging','2016'])assert.ok(hakon.includes(word));
+   assert.equal(await p.locator('.honor-racing').count(),1);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
+   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="christan-berthelsen"]').waitFor();
+   assert.equal(await p.locator('#honorFeatured [data-honoree]').count(),2);assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);assert.equal(await p.locator('[data-honoree="erling-askildsen"]').count(),1);
+   for(const key of ['dugnadshelt-fem','grunnlegger-flere','oscar-35','erling-35']){const d=await p.evaluate(async key=>{const m=await MorothonDiplomas.serviceExample(key);return {preview:m.previewOnly,ready:m.imageReady};},key);assert.deepEqual(d,{preview:true,ready:false});}
+   assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
+   await p.goto(h.base+'/index.html');assert.equal(await p.locator('a[href*="heder.html"]').count(),0);
+  }finally{await p.close();}
+ }
+});
+
+test('issue #13 quality details report real 55mm main and 26mm secondary DPI while retaining every approval warning',async()=>{
+ for(const width of [390,1440]){
+  const p=await open(width);try{
+   await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
+   await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('A4-utkast kontrollert'));
+   const lines=await p.locator('#honorProfile .honor-image-quality p').allTextContents();
+   assert.equal(lines.length,3);assert.match(lines[0],/Hedersildsjel.*2400 × 2400 px · 1108 DPI ved 55\.0 mm/);
+   for(const line of lines.slice(1))assert.match(line,/2400 × 2400 px · 2344 DPI ved 26\.0 mm/);
+   for(const line of lines){assert.match(line,/ikke godkjent for tildeling/);assert.match(line,/kontrolleres og godkjennes/);}
+   await p.selectOption('.honor-choice select','service-grunnlegger');
+   await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('h1')?.textContent==='GRUNNLEGGERDIPLOM');
+   await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Grunnlegger:'));
+   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),3);
+   assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
+   assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','service-grunnlegger')).imageReady),false);
+  }finally{await p.close();}
+ }
+});
