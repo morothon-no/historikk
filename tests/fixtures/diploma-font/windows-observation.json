@@ -1,0 +1,46 @@
+{
+  "source": "Organizer supplied console diagnostics from published V3, 2026-11-10",
+  "browser": "Chrome/157.0.0.0 on Windows NT 10.0 Win64 x64",
+  "dpr": 1,
+  "failedElements": [
+    "diploma-metric diploma-left",
+    "diploma-achievement",
+    "diploma-metric diploma-right",
+    "strong"
+  ],
+  "outsideField": {
+    "left": 0,
+    "right": 0,
+    "top": 4.000015589983434,
+    "bottom": 0
+  },
+  "outsidePage": {
+    "left": 0,
+    "right": 0,
+    "top": 0,
+    "bottom": 0
+  },
+  "clipped": false,
+  "fieldTop": 446.8142414498684,
+  "fieldBottom": 576.4709967845658,
+  "numberBoxHeight": 83.51595050180259,
+  "rangeTop": 442.81422585988497,
+  "rangeBottom": 533.8145805320081,
+  "paintedNumbers": [
+    {
+      "text": "10",
+      "baseline": 513.8125,
+      "inkTop": 466.8125,
+      "inkBottom": 514.8125
+    },
+    {
+      "text": "2024",
+      "baseline": 513.8125,
+      "inkTop": 466.8125,
+      "inkBottom": 514.8125
+    }
+  ],
+  "paintedFieldTop": 446.8125,
+  "paintedFieldBottom": 576.46875,
+  "note": "The original computed font shorthand was empty. The glyph measurement used explicit fontStyle, fontWeight, fontSize and fontFamily; no font family is inferred from this observation."
+}

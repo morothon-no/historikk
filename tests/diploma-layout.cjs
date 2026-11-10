@@ -56,8 +56,8 @@ test('font fallback and fractional zoom remain measurable; line-box overhang is 
   }
   const lineBox=await p.evaluate(async()=>{const doc=document.querySelector('#diplomaDialog iframe').contentDocument;doc.documentElement.style.zoom=1;const metric=doc.querySelector('.diploma-left');metric.style.padding='3mm 0';metric.querySelector('strong').style.lineHeight='.95';return MorothonDiplomas.checkLayout(doc);});
   assert.equal(lineBox.ready,true,lineBox.failures.join('; '));const text=lineBox.measurements.find(m=>m.element==='diploma-achievement');assert.ok(text.scrollOverflow.y>1);assert.ok(Object.values(text.outsideField).every(v=>v<=1));
-  // The same overhang must be rejected if an element actually clips it.
-  const clipped=await p.evaluate(async()=>{const doc=document.querySelector('#diplomaDialog iframe').contentDocument;doc.querySelector('.diploma-achievement').style.overflow='hidden';return MorothonDiplomas.checkLayout(doc);});assert.equal(clipped.ready,false);assert.ok(clipped.measurements.find(m=>m.element==='diploma-achievement').clipped);
+  // Clipping actual glyph ink must fail; clipping only unused font space is harmless.
+  const clipped=await p.evaluate(async()=>{const doc=document.querySelector('#diplomaDialog iframe').contentDocument;doc.querySelector('.diploma-achievement').style.cssText+=';height:2mm;overflow:hidden';return MorothonDiplomas.checkLayout(doc);});assert.equal(clipped.ready,false);assert.ok(clipped.measurements.find(m=>m.element==='diploma-achievement').clipped);
  }finally{await p.close();}
 });
 test('one-pixel geometry tolerance accepts subpixel rounding and rejects real footer overflow with exact diagnostics',async()=>{
