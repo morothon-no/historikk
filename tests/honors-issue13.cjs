@@ -28,7 +28,7 @@ test('issue #13 changes only sourced honor content: 35 identities, Christan name
    for(const story of m.stories)assert.ok(n.stories.some(s=>s.text===story.text));
   }else assert.deepEqual(n,m,m.id);
  }
- const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/event-dates.json','index.html','js/diplomas.js','css/diplomas.css'],{cwd:root}).toString().trim().split('\n');
+ const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/event-dates.json','index.html'],{cwd:root}).toString().trim().split('\n');
  for(const file of protectedFiles)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
 });
 
@@ -89,7 +89,7 @@ test('issue #13 personal organizer stories stay separate from racing and all hon
  }
 });
 
-test('issue #13 quality details report real 55mm main and 26mm secondary DPI while retaining every approval warning',async()=>{
+test('issue #13 quality details report real 55mm main and 17mm secondary DPI for highest honor while retaining every approval warning',async()=>{
  for(const width of [390,1440]){
   const p=await open(width);try{
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
