@@ -35,7 +35,9 @@ teller én gang. `confirmedYears` fylles ikke ut fra et startår.
 
 Rekkefølgen er grunnleggere, arrangører, dugnadshelter og til slutt minneomtalen.
 Erling Danielsen, Floke Bredland og Leif Wiig har like store kort og samme
-minnemerke. Erlings anslag på om lag 33 dugnadsutgaver er bevart som anslag.
+minnemerke. Erling var med på dugnad fra 1992 og bidro gjennom mange år, uten
+fastsatt antall utgaver. Einar Danielsen har 33 år med solid tjeneste i en rekke ulike roller.
+Dette er ikke en eksakt årsrekke og gir ingen automatisk merketildeling.
 Leif har dødsår 2023. Ukjente perioder og dødsår fylles ikke inn.
 
 Dugnadslisten sorteres etter startår, ellers tidligste dokumenterte år, og

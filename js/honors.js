@@ -31,8 +31,8 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
   const optionsFor=m=>MorothonHonorsData.diplomaChoices(data,m,editionYears);
   function mainCaption(member,main){
    if(!main.badgeId||main.badgeId==='service-grunnlegger')return '';
-   if(main.badgeId==='service-memorial')return main.qualifier==='at-least'?`Minst ${main.count} års innsats`:`Om lag ${main.count} dugnadsutgaver`;
-   if(main.badgeId==='service-aeresmerke')return main.count?`${main.count} dugnadsutgaver · ${main.fromYear}–${main.toYear}`:'Morothons æresmerke · heder planlagt i '+(member.plannedHonors?.find(h=>h.badgeId===main.badgeId)?.year||'');
+   if(main.badgeId==='service-memorial')return main.count===null?'':main.qualifier==='at-least'?`Minst ${main.count} års innsats`:`Om lag ${main.count} dugnadsutgaver`;
+   if(main.badgeId==='service-aeresmerke')return main.count?`${main.count} dugnadsutgaver · ${main.fromYear}–${main.toYear}`:(member.serviceEstimate?.qualifier==='approximately'&&member.serviceEstimate.unit==='years'?`${member.serviceEstimate.editions} år med solid tjeneste i en rekke ulike roller`:'Morothons æresmerke')+' · heder planlagt i '+(member.plannedHonors?.find(h=>h.badgeId===main.badgeId)?.year||'');
    if(main.basis==='documented')return `${main.count} dugnadsutgaver · siden ${main.fromYear}`;
    if(member.id==='bent-bakke')return 'Med da nye krefter overtok i 2014';
    if(['finn-lohne','kalle-kimestad'].includes(member.id))return 'Med på dugnad siden minst '+main.fromYear;

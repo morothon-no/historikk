@@ -14,7 +14,7 @@ function historicalMember(member){
  if(['dag-morten-frantzen','hakon-lohne','finn-lohne','kalle-kimestad','bent-bakke'].includes(copy.id))delete copy.contribution;
  copy.roles=copy.roles.filter(r=>!(r.countsForTenure===false&&r.sourceIds?.includes('organizer-pr18-confirmed-years')));
  if(copy.id==='hakon-lohne'){copy.roles=copy.roles.filter(r=>r.title!=='Løpsleder Morothon').map(r=>r.historicalNotes?structuredClone(old.roles.find(o=>o.title===r.title)):r);copy.internalNotes=old.internalNotes;delete copy.historicalNotes;}
- if(copy.id==='einar-danielsen')delete copy.plannedHonors;
+ if(copy.id==='einar-danielsen'){delete copy.plannedHonors;delete copy.serviceEstimate;copy.sourceIds=old.sourceIds;}
  if(copy.memorialRecognition){for(const key of ['reason','sourceIds','diplomaTribute']){if(old[key]===undefined)delete copy[key];else copy[key]=old[key];}delete copy.memorialRecognition;delete copy.serviceEstimate;}
  return copy;
 }

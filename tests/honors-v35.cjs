@@ -8,7 +8,7 @@ const byId=id=>H.findIn(data,id).member;
 const expected={
  'oscar-lohne':['service-aeresmerke',35],'erling-askildsen':['service-aeresmerke',35],
  'arnfinn-haverstad':['service-grunnlegger',null],'helge-reisvoll':['service-grunnlegger',null],'einar-danielsen':['service-aeresmerke',null],
- 'erling-danielsen':['service-memorial',33],'floke-bredland':['service-memorial',25],'leif-wiig':['service-memorial',25],
+ 'erling-danielsen':['service-memorial',null],'floke-bredland':['service-memorial',25],'leif-wiig':['service-memorial',25],
  'dag-morten-frantzen':['service-dugnad-10',13],'hakon-lohne':['service-dugnad-10',12],'finn-lohne':['service-dugnad-10',13],'kalle-kimestad':['service-dugnad-10',13],
  'bent-bakke':['service-dugnad-5',6],'jon-fjeld':['service-dugnad-10',13],'rune-bergjord':['service-dugnad-10',12],
  'per-sangvik':['service-dugnad-5',8],'tom-lohne':['service-dugnad-5',6],'birgitte-aamodt':['service-dugnad-5',5],'johannes-aamodt':['service-dugnad-5',6],'atle-aamodt':['service-dugnad-5',5]
@@ -56,7 +56,7 @@ test('V3.5 every card and profile has at most one main badge at mobile/desktop w
     if(key)assert.ok((await card.locator('img').getAttribute('src')).endsWith(registry.badges.find(b=>b.id===key).src),m.id);
    }
    assert.match(await p.locator('[data-honoree="bent-bakke"]').innerText(),/Med da nye krefter overtok i 2014/);
-   assert.match(await p.locator('[data-honoree="erling-danielsen"]').innerText(),/33/);
+   assert.doesNotMatch(await p.locator('[data-honoree="erling-danielsen"]').innerText(),/33|null/);
    const lead=await p.locator('[data-honoree="erling-danielsen"] img').boundingBox(),other=await p.locator('[data-honoree="leif-wiig"] img').boundingBox();assert.equal(lead.width,other.width,'All three memorials have the same medal size');
    await p.locator('.honor-library>summary').click();assert.equal(await p.locator('#serviceBadges img').count(),9);assert.doesNotMatch(await p.locator('#serviceBadges').innerText(),/Hedersildsjel/);
    for(const m of data.groups.flatMap(g=>g.members)){
