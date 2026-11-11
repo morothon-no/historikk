@@ -83,7 +83,7 @@ Hederssiden er fortsatt skjult fra offentlig navigasjon og har `noindex, nofollo
 ## Gjenstående usikkerheter
 
 - Bent-Inges sluttår 2019 er foreløpig.
-- Erling Danielsens om lag 33 utgaver og Floke/Leifs minst 25 år er arrangøranslag, uten konstruerte årsrekker. Erling Danielsens dødsår/sluttår og Floke/Leifs eksakte startår er ikke fylt inn.
+- Einar Danielsen har 33 år med solid tjeneste i en rekke ulike roller. Floke/Leifs minst 25 år er arrangøranslag, uten konstruerte årsrekker. Erling Danielsen har ikke noe fastsatt antall dugnadsutgaver. Erling Danielsens dødsår/sluttår og Floke/Leifs eksakte startår er ikke fylt inn.
 - Windows-fiksen er kontrollert med regresjonsfonten som gjenskaper brukerens målte Windows-avvik; en ny fysisk Windows-maskin er ikke brukt i denne økten. Fysisk prøvetrykk på aktuell skriver gjenstår.
 - Ukjente startår og opphold beholdes ukjente; et beregnet intervall bekrefter ikke innsats hvert år.
 - Minnemerket og den nye takkediplomvisningen trenger visuell godkjenning. Ingen nye hedersmerker er formelt tildelt eller godkjent for fysisk trykk gjennom denne leveransen.
