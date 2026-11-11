@@ -32,7 +32,7 @@ test('shared rules preserve all ordinary profile years, class placements, alias 
 });
 test('V3 every linked honor card and profile works on mobile and desktop; founder distinctions are computed',async()=>{
  for(const width of [320,390,1440]){const p=await load({width});try{
-  assert.equal(await p.locator('[data-honor-group="founders"] [data-honoree]').count(),3);
+  assert.equal(await p.locator('[data-honor-group="founders"] [data-honoree]').count(),5);
   assert.match(await p.locator('[data-honoree="erling-askildsen"] .honor-distinction').textContent(),/Flest løpsdeltakelser/);assert.match(await p.locator('[data-honoree="arnfinn-haverstad"] .honor-distinction').textContent(),/Raskeste grunnlegger.*21 km/);
   for(const [id,pid]of Object.entries(links)){
    await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();assert.equal(await p.locator('#honorProfile .runner-profile-link').getAttribute('href'),'index.html#lop='+pid);assert.ok(await p.locator('#honorProfile .honor-race-metrics b').count());assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${id} at ${width}`);
@@ -59,7 +59,7 @@ test('V3 stats and cohort distinctions follow newer history while role and volun
  }finally{await p.close();}
 });
 test('V3.4 narrative preserves 128, resolves Svalbard to 2016 and keeps uncertain Floke dates out of the main story',async()=>{
- const p=await load();try{const text=await p.locator('#honorOverview').textContent();assert.match(text,/1992–2013/);assert.match(text,/2014–2026/);assert.match(text,/Dag Morten Frantzen, Håkon Lohne og Bent Bakke/);assert.match(text,/Floke Bredland/);assert.equal(await p.locator('[data-honoree*="floke"]').count(),1);assert.match(await p.locator('#honorTimeline').textContent(),/Allerede i 1992 stilte 128 deltakere/);assert.doesNotMatch(await p.locator('#honorTimeline').textContent(),/129/);assert.match(await p.locator('#honorSourceContent').textContent(),/128/);assert.equal(await p.locator('a[href="https://www.fvn.no/lokalsporten/i/qKlrz/soegne-morothon-for-25-gang"]').count()>0,true);
+ const p=await load();try{const text=await p.locator('#honorOverview').textContent();assert.match(text,/1992–2013/);assert.match(text,/2014–2026/);assert.match(text,/Dag Morten Frantzen, Håkon Lohne og Bent-Inge Bakke/);assert.match(text,/Floke Bredland/);assert.equal(await p.locator('[data-honoree*="floke"]').count(),1);assert.match(await p.locator('#honorTimeline').textContent(),/Allerede i 1992 stilte 128 deltakere/);assert.doesNotMatch(await p.locator('#honorTimeline').textContent(),/129/);assert.match(await p.locator('#honorSourceContent').textContent(),/128/);assert.equal(await p.locator('a[href="https://www.fvn.no/lokalsporten/i/qKlrz/soegne-morothon-for-25-gang"]').count()>0,true);
  assert.ok(honors.groups.flatMap(g=>g.members).filter(m=>m.id!=='bent-bakke').every(m=>m.stories.every(s=>s.sourceIds.length&&s.confirmed)));
  assert.match(text,/Til minne om/);assert.match(honors.groups.flatMap(g=>g.members).find(m=>m.id==='hakon-lohne').stories[0].text,/2016/);
  }finally{await p.close();}

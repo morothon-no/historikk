@@ -46,7 +46,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
     const errors=[]; page.on('pageerror',e=>errors.push(e.message));
     try {
       await page.goto(harness.base+'/heder.html');
-      await page.waitForFunction(()=>document.querySelectorAll('#serviceBadges img').length===3);
+      await page.waitForFunction(()=>document.querySelectorAll('#serviceBadges img').length===9);
       await page.locator('[data-honoree="oscar-lohne"] .honor-person-main').click();
       await page.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet'));
       await page.locator('.diploma-example summary').click();
@@ -65,12 +65,12 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
       });
       assert.equal(result.same,true); assert.equal(result.fits,true); assert.equal(result.layout.ready,true);
       assert.ok(result.quality.every(a=>a.width===2400 && a.height===2400 && a.alpha && a.edges===0 && !a.ready && a.dpi>1000));
-      assert.deepEqual(result.statuses,['design-draft','design-draft','design-draft']);
+      assert.deepEqual(result.statuses,Array(10).fill('design-draft'));
       assert.match(result.recipient,/Oscar Lohne/); assert.match(result.recipient,/Dag Morten Frantzen/);
       assert.match(result.recipient,/Floke|Til minne om/i);
-      assert.match(result.body,/Grunnleggerne fra 1992/);
+      assert.match(result.body,/Grunnleggerne – de som startet det hele/);
       assert.equal(result.sample.imageReady,false); assert.equal(result.sample.type,'service');
-      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/Diplomutkast – ikke utdelt/i); assert.match(result.sample.date,/fastsettes/);
+      assert.doesNotMatch(result.text,/BEKREFTET|UTKAST|ikke et utstedt diplom/i);assert.match(result.body,/Diplomutkast – ikke utdelt/i); assert.equal(result.sample.date,'Søgne, 7. november 2026');
       assert.equal(result.links,0); assert.deepEqual(errors,[]);
     } finally { await page.close(); }
   }

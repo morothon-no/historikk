@@ -18,6 +18,15 @@
       eligible:years.length>=5||c.exception?.confirmed===true&&!!c.exception.sourceIds?.length,
       basis:years.length>=5?'documented-editions':c.exception?.confirmed===true?'explicit-decision':'not-established'};
   }
+  function tenureMilestones(data,member){
+    const documented=contribution(member),policy=data.awardPolicy?.milestones||[];
+    const qualified=policy.filter(m=>documented.count>=m.minimumDocumentedEditions)
+      .map(m=>({badgeId:m.badgeId,editions:m.minimumDocumentedEditions}));
+    const next=policy.find(m=>documented.count<m.minimumDocumentedEditions);
+    return {documentedEditions:documented.count,qualified,highestQualified:qualified.at(-1)||null,
+      next:next?{badgeId:next.badgeId,editions:next.minimumDocumentedEditions,remaining:next.minimumDocumentedEditions-documented.count}:null,
+      automaticallyAwarded:false};
+  }
   // A small, source-backed name list extends the same canonical profiles. It cannot award badges.
   function mergeVolunteers(data,list){
     if(list?.schemaVersion!==1||!Array.isArray(list.people))throw new Error('Ugyldig dugnadsliste.');
@@ -57,6 +66,10 @@
     const ids=new Set(),groups=new Set();if(data.schemaVersion!==1||!Array.isArray(data.groups))throw new Error('Ugyldig navneliste.');
     const refs=ids=>{if(ids!==undefined&&(!Array.isArray(ids)||ids.some(id=>!data.sources?.[id])))throw new Error('Ukjent historiekilde.');};
     for(const [id,source]of Object.entries(data.sources||{})){if(!key(id)||!source.title)throw new Error('Ugyldig kilde.');if(source.url){let url;try{url=new URL(source.url);}catch{throw new Error('Ugyldig kildelenke.');}if(url.protocol!=='https:')throw new Error('Ugyldig kildelenke.');}}
+    const milestones=data.awardPolicy?.milestones||[];
+    if(!Array.isArray(milestones)||!milestones.length||milestones.some((m,i)=>!Number.isInteger(m.minimumDocumentedEditions)||m.minimumDocumentedEditions<=0||i>0&&m.minimumDocumentedEditions<=milestones[i-1].minimumDocumentedEditions||MorothonBadges.get(m.badgeId).kind!=='service'))throw new Error('Ugyldig dugnadsmilepæl.');
+    const special=data.awardPolicy?.specialHonors||[];
+    if(!Array.isArray(special)||special.some(m=>MorothonBadges.get(m.badgeId).kind!=='service'||!m.rule))throw new Error('Ugyldig særskilt heder.');
     for(const group of data.groups){
       if(!key(group.id)||groups.has(group.id)||!group.title||!Array.isArray(group.members)||(group.badgeId!=null&&MorothonBadges.get(group.badgeId).kind!=='service'))throw new Error('Ugyldig hederskategori.');groups.add(group.id);refs(group.sourceIds);
       for(const member of group.members){
@@ -90,6 +103,6 @@
   }
   async function load(){if(!pending)pending=(async()=>{await MorothonBadges.init();const r=await fetch('data/honors.json',{cache:'no-cache'});if(!r.ok)throw new Error('Navnelisten kunne ikke lastes.');let data=await r.json();if(data.volunteerList!==undefined){if(data.volunteerList!=='data/volunteers.json')throw new Error('Ugyldig dugnadslistefil.');const v=await fetch(data.volunteerList,{cache:'no-cache'});if(!v.ok)throw new Error('Dugnadslisten kunne ikke lastes.');data=mergeVolunteers(data,await v.json());}return validate(data);})().catch(e=>{pending=null;throw e;});return pending;}
   async function find(id){const data=await load(),record=findIn(data,id);if(!record)throw new Error('Hedersprofilen finnes ikke.');return {...record,stories:(record.member.stories||[]).filter(s=>s.confirmed&&hasSource(data,s)),roles:(record.member.roles||[]).filter(r=>r.confirmed&&hasSource(data,r))};}
-  const api={load,find,findIn,membersFor,validate,badgePlan,contribution,mergeVolunteers};
+  const api={load,find,findIn,membersFor,validate,badgePlan,contribution,tenureMilestones,mergeVolunteers};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else window.MorothonHonorsData=api;
 })();

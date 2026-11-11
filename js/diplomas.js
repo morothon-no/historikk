@@ -139,22 +139,41 @@
   }
 
   async function serviceContent(member, badgeId, ids, contribution, illustrative=false) {
-    const badges=await MorothonBadges.init(),assets=await Promise.all(ids.map(inspectAsset));
+    const [badges,register]=await Promise.all([MorothonBadges.init(),eventDates()]);
+    const assets=await Promise.all(ids.map(inspectAsset));
     const badge=MorothonBadges.get(badgeId),asset=assets.find(a=>a.key===badgeId);
     if(!asset)throw new Error('Diplomutkastet mangler et foreslått hovedmerke.');
+    // Only documented volunteer editions count. For a numbered milestone the event
+    // date belongs to the Nth confirmed edition, not to printing or awarding the diploma.
+    // A special 35-edition tribute uses the last confirmed event, but no undated
+    // honorary distinction receives an invented award date.
+    const milestone=badge.series==='dugnad'?badge.milestoneEditions:null;
+    const knownYears=contribution.years||[];
+    const achievementYear=!illustrative&&milestone&&knownYears.length>=milestone
+      ? knownYears[milestone-1]
+      : !illustrative&&!milestone&&contribution.count===35&&knownYears.length===35
+        ? knownYears.at(-1)
+        : null;
+    const eventDate=achievementYear?register.dates[String(achievementYear)]||null:null;
+    const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'';
+    const earnedYears=!illustrative&&milestone&&knownYears.length>=milestone?knownYears.slice(0,milestone):null;
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name+' · diplomutkast',
       roleLabel:badge.name,tribute:member.diplomaTribute||'',provisional:true,asset,assetKey:badgeId,
       secondaryAssets:assets.filter(a=>a.key!==badgeId).map(a=>({...a,name:MorothonBadges.get(a.key).name})),
-      contributionCount:contribution.count||null,contributionFirst:contribution.first,contributionLast:contribution.last,
+      contributionCount:earnedYears?milestone:contribution.count||null,contributionFirst:earnedYears?.[0]??contribution.first,contributionLast:earnedYears?.at(-1)??contribution.last,
+      achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
       illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
-      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:'Dato fastsettes ved utstedelse',
+      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
       filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-diplomutkast`,description:'Diplomutkast – ikke utdelt.',citation:''};
   }
   async function serviceDraft(id = 'oscar-lohne', requestedBadgeId) {
     const data=await MorothonHonorsData.load(),{member,group}=await MorothonHonorsData.find(id),plan=MorothonHonorsData.badgePlan(data,member,group);
     const badgeId=requestedBadgeId||plan.primaryBadgeId;
     if(!plan.badgeIds.includes(badgeId))throw new Error('Ingen slik hedersutmerkelse er foreslått for denne profilen.');
-    return serviceContent(member,badgeId,plan.badgeIds,MorothonHonorsData.contribution(member));
+    const milestone=MorothonBadges.get(badgeId).series==='dugnad';
+    const selectedText=milestone?data.diplomaExamples.find(e=>e.illustrative&&e.badgeId===badgeId)?.tribute:null;
+    // A historical milestone is its own achievement, without later honorary proposals.
+    return serviceContent(selectedText?{...member,diplomaTribute:selectedText}:member,badgeId,milestone?[badgeId]:plan.badgeIds,MorothonHonorsData.contribution(member));
   }
   async function serviceExample(id) {
     const data=await MorothonHonorsData.load(),example=data.diplomaExamples?.find(e=>e.id===id);
@@ -170,15 +189,29 @@
     </div>`;
   }
 
+  // Volunteer diplomas show the documented milestone YEAR only. The exact race
+  // date stays in the model for provenance, and there is no invented award date.
+  // Anonymous examples have neither a year placeholder nor a date underline.
+  function serviceSignoffHtml(d) {
+    const label=d.achievementYear
+      ? d.assetKey.startsWith('service-dugnad-')
+        ? 'MILEPÆL OPPNÅDD I '+d.achievementYear
+        : d.contributionCount===35 ? '35 DUGNADSUTGAVER I '+d.achievementYear : ''
+      : '';
+    return signoffHtml(label)
+      .replace('class="diploma-signoff"', 'class="diploma-signoff diploma-service-signoff"')
+      .replace('<div class="diploma-signature-line" aria-hidden="true"></div>', '');
+  }
+
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
-    const founder=d.assetKey==='service-grunnlegger',lifelong=d.assetKey==='service-hedersildsjel'&&d.contributionCount===35;
-    const heading=founder?'GRUNNLEGGERDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
+    const founder=d.assetKey==='service-grunnlegger',highest=d.assetKey==='service-aeresmerke',lifelong=(highest||d.assetKey==='service-hedersildsjel')&&d.contributionCount===35;
+    const heading=founder?'GRUNNLEGGERDIPLOM':highest?'ÆRESDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
     const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for tid, krefter og fellesskap. Du er med på å gjøre Morothon mulig.');
     const secondary=(d.secondaryAssets||[]).filter(a=>a.key!==d.assetKey);
-    const secondaryHtml=secondary.length?`<div class="diploma-service-secondary" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
+    const secondaryHtml=secondary.length?`<div class="diploma-service-secondary${secondary.length>2?' diploma-service-secondary-three':''}" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
     const value=d.contributionCount|| (founder?'1992':'TAKK'),label=d.contributionCount?'UTGAVER MED INNSATS':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
-    const period=d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?'Fem dugnadsutgaver · typeeksempel':'';
+    const period=d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
       <body class="diploma-document"><article class="diploma-sheet diploma-service diploma-service-v34${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
@@ -188,7 +221,7 @@
       <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
       <div class="diploma-main diploma-service-main"><div class="diploma-metric" data-layout-check><strong>${safe(value)}</strong><span>${label}</span><small>${safe(period)}</small></div><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure>${secondaryHtml}</div>
       <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
-      ${signoffHtml(d.dateLabel?.startsWith('Søgne,')?d.dateLabel:'Søgne, __________________')}
+      ${serviceSignoffHtml(d)}
       </article></body></html>`;
   }
 

@@ -56,7 +56,12 @@
     {
       "id": "birgitte-aamodt",
       "name": "Birgitte Aamodt",
-      "nameStatus": "as-provided"
+      "nameStatus": "as-provided",
+      "fromYear": 2022,
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-volunteer-years-2026-11-11"
+      ]
     },
     {
       "id": "nils-henning-pedersen",
@@ -71,7 +76,12 @@
     {
       "id": "johannes-aamodt",
       "name": "Johannes Aamodt",
-      "nameStatus": "as-provided"
+      "nameStatus": "as-provided",
+      "fromYear": 2021,
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-volunteer-years-2026-11-11"
+      ]
     },
     {
       "id": "linea-morland",
@@ -105,33 +115,46 @@
     },
     {
       "id": "aud-o",
-      "name": "Aud O",
-      "nameStatus": "partial",
+      "name": "Aud Ovesen",
+      "nameStatus": "as-provided",
       "internalNotes": [
-        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+        "Navnet er komplettert fra «Aud O» etter arrangørens opplysning 11. november 2026. Ingen årstall, oppgave eller løper-ID er utledet."
+      ],
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-aud-atle-2026-11-11"
       ]
     },
     {
       "id": "arnfinn-g",
-      "name": "Arnfinn G",
-      "nameStatus": "partial",
+      "name": "Arnfinn Grimestad",
+      "nameStatus": "as-provided",
       "internalNotes": [
-        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+        "Fullt navn opplyst av arrangøren 11. november 2026. Ikke legg til ubekreftede dugnadsår eller løper-ID."
+      ],
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-honor-names-2026-11-11"
       ]
     },
     {
       "id": "magne",
-      "name": "Magne",
-      "nameStatus": "partial",
+      "name": "Magne Lia",
+      "nameStatus": "as-provided",
       "internalNotes": [
-        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+        "Fullt navn opplyst av arrangøren 11. november 2026. Ikke legg til ubekreftede dugnadsår eller løper-ID."
+      ],
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-honor-names-2026-11-11"
       ]
     },
     {
       "id": "lars-aamodt",
-      "name": "Lars Aamodt",
+      "name": "Lars Vassbotn Aamodt",
       "sourceIds": [
-        "organizer-v34-lars"
+        "organizer-v34-lars",
+        "organizer-honor-names-2026-11-11"
       ]
     },
     {
@@ -148,6 +171,90 @@
       "sourceIds": [
         "organizer-v34-issue13-christan"
       ]
+    },
+    {
+      "id": "georg-engenes",
+      "name": "Georg Engenes",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ],
+      "internalNotes": [
+        "Bidro fra Morothons tidlige år; eksakt første og siste dugnadsår er ikke oppgitt."
+      ]
+    },
+    {
+      "id": "trine-danielsen",
+      "name": "Trine Danielsen",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ],
+      "internalNotes": [
+        "Bidro i noen utgaver etter 2014; ikke registrert som frivillig fra 2014 uten dokumentasjon."
+      ]
+    },
+    {
+      "id": "lene-holmen-berg",
+      "name": "Lene Holmen Berg",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ],
+      "internalNotes": [
+        "Bidro i noen utgaver etter 2014; ingen eksakte opptjeningsår er bekreftet."
+      ]
+    },
+    {
+      "id": "arvid-boro",
+      "name": "Arvid Borø",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "margrete-tofte",
+      "name": "Margrete Tofte",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "joran-eriksen",
+      "name": "Jøran Eriksen",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "preben-s-dahl",
+      "name": "Preben S. Dahl",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "atle-aamodt",
+      "name": "Atle Aamodt",
+      "sourceIds": [
+        "organizer-aud-atle-2026-11-11",
+        "organizer-volunteer-years-2026-11-11"
+      ],
+      "fromYear": 2021,
+      "internalNotes": [
+        "Arrangøren bekrefter at Atle ikke bidro på dugnad i 2026. Ingen sammenhengende årsrekke eller 5-årsmerke skal utledes fra startåret 2021."
+      ]
     }
-  ]
+  ],
+  "sources": {
+    "organizer-aud-atle-2026-11-11": {
+      "title": "Arrangørens navnrettelser – Aud Ovesen og Atle Aamodt",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Arrangøren har bekreftet at den ufullstendige oppføringen «Aud O» gjelder Aud Ovesen. Atle Aamodt oppgis som frivillig uten nærmere oppgave eller årstall. Ingen dugnadsutgaver eller merkekvalifikasjon utledes."
+    },
+    "organizer-volunteer-years-2026-11-11": {
+      "title": "Arrangøropplysninger – Birgitte, Johannes og Atle",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Birgitte Aamodt bidro fra 2022, Johannes Aamodt fra 2021 og Atle Aamodt fra 2021, men Atle deltok ikke på dugnad i 2026. Startår fastslår ikke alle mellomliggende dugnadsutgaver."
+    }
+  }
 }
