@@ -138,15 +138,17 @@ Hedersdiplomer bruker `MorothonHonorsData.serviceTenure()` for alle
 registrerte summer, merkevalg og milepælsår. Se [beregningsreglene](honors.md).
 
 Personens samlede registrerte utgaver vises sammen med høyeste merke og
-alle tidligere opptjente nivåer. Valgt dugnadsmerkes opptjeningsår er separat
+alle tidligere opptjente nivåer. Hovedmerkets opptjeningsår er separat
 fra totalen. Godkjente samlede antall gir aldri oppdiktede enkeltår eller datoer.
-Uten tilstrekkelig grunnlag brukes «Takk for innsatsen» uten antall eller dato.
+Minneprofiler uten sluttår får ikke et automatisk antall eller beregnede årsmerker.
+Personer uten særskilt heder eller kjent fartstid får «Takk for innsatsen»
+uten antall eller dato. Minneprofiler beholder minnemerket.
 
 De tre æresdiplomene viser 55 mm hovedmerke, 24 mm grunnleggermarkør og fem
 20,5 mm dugnadsmerker. Alle bilder kommer fra det eksisterende asset-registeret.
 Ingen originalfiler eller godkjenningsflagg er endret.
 
-`presentationPrintSet` omfatter 73 kontrollerte valg for 44 personer. Navn,
+`presentationPrintSet` omfatter 88 kontrollerte valg for 44 personer. Navn,
 innhold, hovedbilde, samtlige sekundærbilder, vannmerke og CSS er SHA-256-bundet.
 Bare samsvarende, teknisk kontrollerte presentasjonskopier får rene utskrifter.
 Anonyme eksempler har «EKSEMPEL» på skjerm/PDF. Andre ikke-godkjente kopier
@@ -170,3 +172,13 @@ node scripts/review-honors-v352.cjs /tmp/morothon-v352
 PR-kontrollen lagrer faktiske mobil-/PC-bilder, A4-PDF/PNG og målinger i
 artefaktet `morothon-v352-forhaandsvisning`. Store kontrollfiler er ikke del av
 produksjonsgrenen. [Personregister](v352-personregister.md).
+
+### To visninger, samme hovedutmerkelse
+
+«Alle merker» (standard) og «Kun siste merke» er to kontrollerte varianter.
+På ordinære dugnadsdiplomer forblir høyeste opptjente nivå hovedmedalje, også
+når samlingen skjules. Æresmerket og grunnleggermarkøren beholdes i begge
+varianter for æresprofilene. Hvert personlig oppsett har egen kontrollsum;
+variantens navn inngår i dokument-ID og den kontrollerte HTML-en.
+Det er ikke lenger mulig å velge et lavere nivå som personlig hovedmerke.
+Anonyme typeeksempler beholder sitt eget illustrerte merkenivå.

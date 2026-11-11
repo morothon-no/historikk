@@ -35,10 +35,11 @@ teller én gang. `confirmedYears` fylles ikke ut fra et startår.
 
 Rekkefølgen er grunnleggere, arrangører, dugnadshelter og til slutt minneomtalen.
 Erling Danielsen, Floke Bredland og Leif Wiig har like store kort og samme
-minnemerke. Erling var med på dugnad fra 1992 og bidro gjennom mange år, uten feilaktig omtale av 33 utgaver. Etter registrert startår 1992 og manglende
-sluttår gir den gjeldende perioderegelen 35 beregnede utgaver for Erling.
-Dette er ikke ny dokumentasjon av hvert enkelt år; et avklart sluttår må
-registreres ved personrevisjonen. Einar Danielsen har 33 arrangørgodkjente
+minnemerke. Erling var med på dugnad fra 1992 og bidro gjennom mange år, uten
+et oppgitt totalantall. Minneprofiler uten kjent sluttår telles ikke
+frem til siste arrangement. Registrert startår bevares, men et sluttår blir
+aldri gjettet. Dokumenterte enkeltår eller arrangørgodkjent samlet antall kan
+fortsatt brukes. Einar Danielsen har 33 arrangørgodkjente
 dugnadsutgaver, uten konstruerte enkeltår eller milepælsdatoer.
 Leif har dødsår 2023. Ukjente perioder og dødsår fylles ikke inn.
 
@@ -57,6 +58,7 @@ PDF-er, rapport og beregnede merkeår. Prioritet:
    arrangørgodkjent samlet antall, uten syntetiske enkeltår.
 3. Registrert `contribution.fromYear`–`toYear`, eller siste arrangerte år fra
    løpshistorikken. Bare arrangerte utgaver telles; `excludedYears` trekkes fra.
+   Minneprofiler uten sluttår unntas fra automatisk periodeopptelling.
 4. Uten tilstrekkelig grunnlag vises ingen dugnadssum eller årsmerker.
 
 Startår i en ekstern rolle gir ikke dugnadsutgaver. Kildehistorikk og tidligere
@@ -76,7 +78,7 @@ Alle 44 har et personlig diplom med «Vis diplom», «Skriv ut diplom» og
 «Lagre som PDF». Det er ingen fri tekstboks for å lage nye mottakere.
 Standarddiplomet bruker personens samlede registrerte dugnadsutgaver. Dag har
 13, Håkon 12; begge får Dugnadshelt som hovedmerke og Ivrig hjelper som mindre
-merke. Valgt merkes opptjeningsår beregnes separat: 2023 for Dag og 2024 for
+merke. Hovedmerkets opptjeningsår beregnes separat: 2023 for Dag og 2024 for
 Håkon. Det er ikke en kopi av reglene for historiske løperdiplomer, som er uendret.
 
 Oscar og Erling Askildsen har 35 utgaver og Einar 33. Deres diplomer kombinerer
@@ -87,7 +89,7 @@ uten oppfunnet dugnadsantall. Personer uten kjent fartstid får «Takk for innsa
 
 `presentationPrintSet` er et samlet, kildebelagt utskriftssett til V3.5.2-
 gjennomgang. Det er **ikke** et tildelingsregister eller en godkjenning av
-medaljene som formelt utstedte utmerkelser. Hvert av de 73 kontrollerte
+medaljene som formelt utstedte utmerkelser. Hvert av de 88 kontrollerte
 person-/diplomvalgene er bundet til navn, innhold, faktiske bildefiler, vannmerke
 og CSS med SHA-256. Disse presentasjonskopiene skrives ut uten «UTKAST».
 Anonyme eksempler merkes «EKSEMPEL». Uten samsvarende kontrollsum brukes
@@ -128,3 +130,16 @@ ikke i produksjonsgrenen. Ordinære løperdiplomer, løpshistorikk og de godkjen
 medaljeoriginalene er uendret. Se også [diplomteknikk](diplomas.md).
 
 Gjeldende revisjonsgrunnlag: [alle 44 personer](v352-personregister.md).
+
+## Diplomets medaljevisning
+
+Personlige diplomer bruker alltid profilens høyeste hovedutmerkelse. Et lavere
+merke kan ikke velges som hovedmotiv. «Alle merker» viser tidligere opptjente
+dugnadsmerker i mindre størrelse; «Kun siste merke» skjuler denne rekken.
+Æresmerket forblir størst, med separat grunnleggermarkør i begge varianter.
+Profilens fulle merkesamling påvirkes ikke av diplomvalget.
+
+De 88 kontrollerte oppsettene er 44 personer × to visninger. `medalDisplay`
+er `all` eller `latest`, inngår i den kontrollerte HTML-en og har egen
+kontrollsum og registeroppføring. Variantbytte kontrolleres på nytt før begge
+utskriftsknappene aktiveres. Lavere personlige hovedmerker avvises også av API-et.

@@ -138,7 +138,8 @@
     return { ...content, asset: checked, watermarkSrc: watermark.src, watermarkDpi, dateLabel: dateLabel(content.year, register), eventDate: register.dates[String(content.year)] || null, imageReady: asset.ready && !watermarkIssue };
   }
 
-  async function serviceContent(member, badgeId, ids, contribution, illustrative=false) {
+  async function serviceContent(member, badgeId, ids, contribution, illustrative=false, medalDisplay='all') {
+    if(!['all','latest'].includes(medalDisplay))throw new Error('Ukjent medaljevisning.');
     const [badges,register]=await Promise.all([MorothonBadges.init(),eventDates()]);
     const assets=await Promise.all(ids.map(inspectAsset));
     const gratitude=badgeId==='thanks';
@@ -162,11 +163,12 @@
       secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&MorothonBadges.get(a.key).series==='dugnad'),memorial:badgeId==='service-memorial',
       contributionCount:contribution.count||null,contributionFirst:contribution.first??null,contributionLast:contribution.last??null,
       achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
-      illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
+      illustrative,medalDisplay,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
       watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
-      filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-${illustrative?'eksempel':'diplom'}`,description:'Et personlig diplom fra Morothon.',citation:''};
+      filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-${illustrative?'eksempel':'diplom'}-${medalDisplay}`,description:'Et personlig diplom fra Morothon.',citation:''};
   }
-  async function serviceDraft(id = 'oscar-lohne', requestedBadgeId) {
+  async function serviceDraft(id = 'oscar-lohne', requestedBadgeId, medalDisplay='all') {
+    if(['all','latest'].includes(requestedBadgeId)){medalDisplay=requestedBadgeId;requestedBadgeId=undefined;}
     const data=await MorothonHonorsData.load(),{member}=await MorothonHonorsData.find(id);
     let years=data.editionYears||[];try{years=MorothonHonorsData.arrangedYears((await MorothonHistoryData.load()).data.results);}catch{}
     const profile=MorothonHonorsData.honorProfile(data,member,years),options=MorothonHonorsData.diplomaChoices(data,member,years);
@@ -174,20 +176,20 @@
     if(!options.includes(badgeId)||!MorothonHonorsData.isActiveBadge(data,badgeId))throw new Error('Ingen slik aktiv hedersutmerkelse har beregningsgrunnlag for denne profilen.');
     const badge=badgeId==='thanks'?null:MorothonBadges.get(badgeId),milestone=badge?.series==='dugnad'?badge.milestoneEditions:null;
     const selectedText=milestone?data.diplomaExamples.find(e=>e.illustrative&&e.badgeId===badgeId)?.tribute:null;
-    const collection=badgeId==='thanks'?[]:profile.earnedBadgeIds.filter(id=>id!==badgeId);
+    const collection=badgeId==='thanks'||medalDisplay==='latest'?[]:profile.earnedBadgeIds.filter(id=>id!==badgeId);
     const founder=badgeId!=='thanks'&&badgeId!=='service-grunnlegger'&&MorothonHonorsData.isFounder(data,member)?['service-grunnlegger']:[];
     const contribution=profile.tenure;
     // Aggregate totals have no invented annual rows or milestone date.
     const draft=await serviceContent(selectedText?{...member,diplomaTribute:selectedText}:member,badgeId,
-      [badgeId==='thanks'?'debut':badgeId,...founder,...collection],contribution);
+      [badgeId==='thanks'?'debut':badgeId,...founder,...collection],contribution,false,medalDisplay);
     return withServiceApproval(data,draft);
   }
-  async function serviceExample(id) {
+  async function serviceExample(id, medalDisplay='all') {
     const data=await MorothonHonorsData.load(),example=data.diplomaExamples?.find(e=>e.id===id);
     if(!example)throw new Error('Diplomet finnes ikke.');
-    if(example.personId)return serviceDraft(example.personId,example.badgeId);
-    const collection=example.badgeId==='thanks'?[]:data.awardPolicy.milestones.filter(m=>m.minimumDocumentedEditions<=example.contributionCount&&m.badgeId!==example.badgeId).map(m=>m.badgeId);
-    return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId,...collection],{count:example.contributionCount},true));
+    if(example.personId)return serviceDraft(example.personId,example.badgeId,medalDisplay);
+    const collection=example.badgeId==='thanks'||medalDisplay==='latest'?[]:data.awardPolicy.milestones.filter(m=>m.minimumDocumentedEditions<=example.contributionCount&&m.badgeId!==example.badgeId).map(m=>m.badgeId);
+    return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId,...collection],{count:example.contributionCount},true,medalDisplay));
   }
 
   // A review fingerprint covers the final composition, graphics and CSS.
@@ -221,7 +223,7 @@
     const member=MorothonHonorsData.findIn(data,d.honoreeId)?.member;
     if(d.illustrative||!member||!MorothonHonorsData.canPresent(data,member,d.gratitude?'thanks':d.assetKey))return null;
     return data.presentationPrintSet?.scope==='presentation-only'
-      ? data.presentationPrintSet.entries.find(e=>e.personId===d.honoreeId&&e.badgeId===(d.gratitude?'thanks':d.assetKey)&&['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>e[k]===proof[k]))||null
+      ? data.presentationPrintSet.entries.find(e=>e.personId===d.honoreeId&&e.badgeId===(d.gratitude?'thanks':d.assetKey)&&(e.medalDisplay??'all')===d.medalDisplay&&['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>e[k]===proof[k]))||null
       : null;
   }
   async function withServiceApproval(data,diploma){
@@ -244,7 +246,10 @@
     const failures=[],warnings=[];
     let layout=null;
     if(draft?.type!=='service'||draft.previewOnly!==true||!['draft','final','presentation'].includes(draft.printMode))failures.push('Ugyldig utskriftsmodus for hedersdiplomet.');
+    if(!['all','latest'].includes(draft?.medalDisplay))failures.push('Ugyldig medaljevisning.');
     try {
+      if(!draft.illustrative){const data=await MorothonHonorsData.load(),m=MorothonHonorsData.findIn(data,draft.honoreeId)?.member;
+        if(!m||!MorothonHonorsData.canPresent(data,m,draft.gratitude?'thanks':draft.assetKey))failures.push('Diplomet må bruke profilens høyeste hovedutmerkelse.');}
       layout=await checkLayout(doc);failures.push(...layout.failures);
       const registry=await MorothonBadges.init(),asset=await inspectAsset(draft.assetKey),settings=MorothonBadges.get(draft.assetKey);
       const medal=doc.querySelector('.diploma-medal'),watermark=doc.querySelector('.diploma-watermark');
@@ -342,7 +347,7 @@
     const value=gratitude&&!d.contributionCount?'TAKK':memorial?'MINNE':d.contributionCount||(founder?'1992':'TAKK'),label=gratitude&&!d.contributionCount?'FOR DITT BIDRAG':memorial?'MED TAKKNEMLIGHET':d.contributionCount?'DUGNADSUTGAVER':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
     const period=gratitude&&!d.contributionCount?'':d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
-      <body class="diploma-document"><article class="diploma-sheet diploma-service diploma-service-v34 diploma-service-v352${collection.length?'':' diploma-service-no-collection'}${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>65?6.7:d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
+      <body class="diploma-document"><article data-medal-display="${d.medalDisplay}" class="diploma-sheet diploma-service diploma-service-v34 diploma-service-v352${collection.length?'':' diploma-service-no-collection'}${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>65?6.7:d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
       <img class="diploma-watermark" src="${safe(d.watermarkSrc)}" alt="">
       <div class="diploma-brand" data-layout-check><b>SØGNE MOROTHON</b><span>SIDEN ${d.firstEdition}</span></div>${founderMark}

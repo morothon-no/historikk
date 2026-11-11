@@ -28,10 +28,10 @@ test('PR16 registered totals retain historical badge years, with no invented dat
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
   for(const id of ['oscar-lohne','erling-askildsen'])for(const [count,year]of [[5,1996],[10,2001],[15,2006],[20,2011],[30,2021]]){
    const actual=await p.evaluate(async({id,count})=>{
-    const d=await MorothonDiplomas.serviceDraft(id,'service-dugnad-'+count),doc=new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html');
-    return {count:d.contributionCount,year:d.achievementYear,first:d.contributionFirst,last:d.contributionLast,date:doc.querySelector('.diploma-date').textContent.trim(),lines:doc.querySelectorAll('.diploma-date .diploma-signature-line').length,preview:d.previewOnly,ready:d.imageReady,awards:(await MorothonHonorsData.find(id)).member.awards};
+    const d=await MorothonDiplomas.serviceDraft(id),history=MorothonHonorsData.serviceTenure(await MorothonHonorsData.load(),(await MorothonHonorsData.find(id)).member),doc=new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html');
+    return {count:d.contributionCount,year:history.milestoneYears[count],first:d.contributionFirst,last:d.contributionLast,date:doc.querySelector('.diploma-date').textContent.trim(),lines:doc.querySelectorAll('.diploma-date .diploma-signature-line').length,preview:d.previewOnly,ready:d.imageReady,awards:(await MorothonHonorsData.find(id)).member.awards};
    },{id,count});
-   assert.deepEqual(actual,{count:35,year,first:1992,last:2026,date:'MERKET OPPNÅDD I '+year,lines:0,preview:true,ready:false,awards:[]});
+   assert.deepEqual(actual,{count:35,year,first:1992,last:2026,date:'35 DUGNADSUTGAVER I 2026',lines:0,preview:true,ready:false,awards:[]});
   }
   await p.close();
  }finally{await h.close();}

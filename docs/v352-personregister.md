@@ -45,6 +45,6 @@ Registrerte perioder og arrangørgodkjente totaler følger samme beregning. Star
 | Preben S. Dahl | Ikke oppgitt | Ikke oppgitt | – | Ikke fastsatt | Ingen | – | Nei | Takk for innsatsen |
 | Atle Aamodt | 2021 | Ikke oppgitt | 2026 | 5 | Ivrig hjelper | Ivrig hjelper | Nei | Ivrig hjelper |
 | Bent-Inge Bakke | 2014 | 2019 | – | 6 | Ivrig hjelper | Ivrig hjelper | Nei | Ivrig hjelper |
-| Erling Danielsen | 1992 | Ikke oppgitt | – | 35 | For alltid en del av Morothon | Ivrig hjelper, Dugnadshelt, Trofast ildsjel, Bærebjelke, Fredet inventar | Nei | For alltid en del av Morothon |
+| Erling Danielsen | 1992 | Ikke oppgitt | – | Ikke fastsatt | For alltid en del av Morothon | – | Nei | For alltid en del av Morothon |
 | Floke Bredland | Ikke oppgitt | Ikke oppgitt | – | Ikke fastsatt | For alltid en del av Morothon | – | Nei | For alltid en del av Morothon |
 | Leif Wiig | Ikke oppgitt | Ikke oppgitt | – | Ikke fastsatt | For alltid en del av Morothon | – | Nei | For alltid en del av Morothon |

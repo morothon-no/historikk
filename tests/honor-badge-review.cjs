@@ -30,11 +30,11 @@ test('PR16 milestone diplomas retain current registered totals, cumulative honor
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
   for(const id of ['oscar-lohne','erling-askildsen']){
    const result=await p.evaluate(async id=>{
-    const thirty=await MorothonDiplomas.serviceDraft(id,'service-dugnad-30'),honor=await MorothonDiplomas.serviceDraft(id);
+    const thirty=await MorothonDiplomas.serviceDraft(id,'latest'),honor=await MorothonDiplomas.serviceDraft(id);
     return {thirty:{count:thirty.contributionCount,first:thirty.contributionFirst,last:thirty.contributionLast,date:thirty.dateLabel,year:thirty.achievementYear,tribute:thirty.tribute,secondary:thirty.secondaryAssets.length,ready:thirty.imageReady,preview:thirty.previewOnly},honor:{count:honor.contributionCount,first:honor.contributionFirst,last:honor.contributionLast,date:honor.dateLabel,ready:honor.imageReady,preview:honor.previewOnly},source:(await MorothonHonorsData.find(id)).member.contribution.confirmedYears.length};
    },id);
-   assert.deepEqual([result.thirty.count,result.thirty.first,result.thirty.last,result.thirty.year,result.thirty.date],[35,1992,2026,2021,'Søgne, 13. november 2021']);
-   assert.equal(result.thirty.tribute,honors.diplomaExamples.find(e=>e.id==='dugnad-30').tribute);assert.match(result.thirty.tribute,/Riksantikvaren/);assert.equal(result.thirty.secondary,5);
+   assert.deepEqual([result.thirty.count,result.thirty.first,result.thirty.last,result.thirty.year,result.thirty.date],[35,1992,2026,2026,'Søgne, 7. november 2026']);
+   assert.equal(result.thirty.tribute,honors.groups.flatMap(g=>g.members).find(m=>m.id===id).diplomaTribute);assert.equal(result.thirty.secondary,1);
    assert.deepEqual([result.honor.count,result.honor.first,result.honor.last,result.honor.date],[35,1992,2026,'Søgne, 7. november 2026']);
    assert.equal(result.source,35);for(const d of [result.thirty,result.honor]){assert.equal(d.ready,false);assert.equal(d.preview,true);}
   }

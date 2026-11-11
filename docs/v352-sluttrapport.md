@@ -6,6 +6,10 @@ Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, basert på `main`
 
 ## Leveranse
 
+- Diplomvalgene er «Alle merker» og «Kun siste merke». Høyeste hovedutmerkelse
+  er alltid størst. Kun samlingen av mindre dugnadsmerker endres. Æresmerke
+  og separat grunnleggermarkør beholdes i begge varianter. Profilsamlingen
+  endres aldri av diplomvalget. Begge oppsettene har egen kontrollsum.
 - Én registrert dugnadsberegning for kort, profiler, valg, diplomer, PDF og
   personrapport. Eksplisitte enkeltår går foran godkjent total, som går foran
   registrert periode. Kjente fravær trekkes fra; bare arrangerte utgaver teller.
@@ -17,7 +21,7 @@ Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, basert på `main`
 - Liggende A4 med dominerende 55 mm hovedmerke, 24 mm grunnleggermarkør med
   luft til innholdet og en nedre rekke 20,5 mm dugnadsmerker. Minnediplomer
   henvender seg ikke til en nålevende mottaker og får ingen utledet milepælsdato.
-- Regenerert, kontrollsumbundet presentasjonssett: 44 personer og 73 valg.
+- Regenerert, kontrollsumbundet presentasjonssett: 44 personer og 88 valg.
   Alle sekundærbilder er med i innholdskontrollen. Ingen formelle tildelinger,
   utstedelser, grafikkgodkjenninger eller `printReady`-flagg er endret.
 - [Full oversikt over alle 44](v352-personregister.md), inkludert ukjente
@@ -30,7 +34,7 @@ Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, basert på `main`
 - Mobil 390 px og PC 1440 px: oversikt, grunnleggerseksjon, like store minnekort
   og de sju prioriterte personprofilene. 44 unike personer, ingen horisontal
   siderulling og ingen konsoll- eller JavaScript-feil.
-- 18 faktiske A4-PDF/PNG, inkludert Oscar, Erling Askildsen, Einar, Dag, Håkon,
+- 36 faktiske A4-PDF/PNG, inkludert Oscar, Erling Askildsen, Einar, Dag, Håkon,
   Finn og Bent-Inge, samt øvrige grunnleggereksempler, minne- og takkekopi og
   de anonyme nivåeksemplene. Alle én liggende A4-side, ingen layoutfeil.
 - Samlet sammenligningsbilde `tre-aeresdiplomer.png`, HTML-galleri,
@@ -57,11 +61,12 @@ resultater, løpermerker, skrytekort og ordinære løperdiplomer er bevart.
 Ordinær diplomkode og CSS kontrolleres mot tidligere versjoner. Hederssiden
 har fortsatt `noindex, nofollow` og er ikke lenket fra offentlig navigasjon.
 
-Erling Danielsen har registrert startår 1992 og mangler sluttår. Den nye,
-bestilte perioderegelen gir derfor 35 beregnede utgaver og merkene 5–30.
-Dette er ikke en ny bekreftelse av aktivitet i 2026. Et faktisk sluttår må
-avklares ved neste personrevisjon; det er ikke gjettet her. Han har fortsatt
-minnemerke, ikke grunnlegger eller æresmerke, og ingen feilaktig 33-omtale.
+Erling Danielsen beholder registrert startår 1992 og minnemerket. Han mangler
+sluttår og unntas derfor fra automatisk opptelling til siste arrangement.
+Intet totalantall, ingen avledede dugnadsmerker og intet sluttår konstrueres.
+Dette gjelder alle minneprofiler uten kjent sluttår. Dokumenterte enkeltår
+eller godkjente samlede antall brukes fortsatt når de finnes. Einar beholder
+33 arrangørgodkjente utgaver, æresmerket og grunnleggermerket.
 Floke og Leifs gamle kildeanslag om år er bevart, men blir ikke automatisk
 omgjort til registrerte dugnadsutgaver eller nye årsmerker.
 
@@ -72,12 +77,12 @@ levering; lokale tester alene er ikke et bevis på grønn GitHub-kjøring.
 
 ## Kontroller
 
-- `npm test`: **176 av 176 bestått**, 0 feil, 0 hoppet over.
-- Målrettet kontroll etter oppdaterte medaljesamlingsasserts: 14 av 14 bestått.
-- `npm run build -- /workspace/review/morothon-v352-build-final`: bestått,
-  56 produksjonsfiler, versjon `13132141e66f01c2`.
-- `npm run diplomer:kontroll`: bestått, 44 personer / 73 valg, ingen skriving.
-- Gjengivelseskontroll: 18 ensidige A4-PDF-er, 0 konsoll-/layoutfeil;
+- `npm test`: **181 av 181 bestått**, 0 feil, 0 hoppet over.
+- Nye varianttester: 3 av 3 bestått. Berørte regresjonstester: 38 av 38 bestått.
+- `npm run build -- /workspace/review/morothon-v352-variants-build`: bestått,
+  56 produksjonsfiler, versjon `ade35b2b9848313a`.
+- `npm run diplomer:kontroll`: bestått, 44 personer / 88 valg, ingen skriving.
+- Gjengivelseskontroll: 36 ensidige A4-PDF-er, 0 konsoll-/layoutfeil;
   de tre æresdiplomene, mobilprofiler og minnekort er også visuelt kontrollert.
 - `actionlint .github/workflows/pages.yml` og `git diff --check`: bestått.
 
@@ -86,7 +91,7 @@ Ingen merge eller publisering er utført.
 
 ## Endrede filer
 
-31 filer relativt til main, inkludert den innhentede hotfixen:
+32 filer relativt til main, inkludert den innhentede hotfixen:
 
 - `.github/workflows/pages.yml`
 - `css/diplomas.css`
@@ -119,3 +124,5 @@ Ingen merge eller publisering er utført.
 - `tests/pr16-final.cjs`
 - `tests/pr18-confirmed-years.cjs`
 - `tests/volunteer-tenure.cjs`
+
+- `tests/honor-diploma-variants.cjs`

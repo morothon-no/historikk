@@ -48,6 +48,9 @@
   function serviceTenure(data,member,editionYears){
     const editions=[...new Set((editionYears??data.editionYears??data.presentationPrintSet?.editionYears??[]).filter(validYear))].sort((a,b)=>a-b);
     const c=member.contribution||{},asOfYear=editions.at(-1)??null;
+    // An unknown memorial end year never implies ongoing service. Explicit
+    // documented years and approved totals remain authoritative.
+    const memorial=member.deceased===true||member.memorialRecognition?.badgeId==='service-memorial'||data.groups?.find(g=>g.id==='memorial')?.members.some(m=>m.id===member.id);
     const result={basis:'not-established',count:null,years:[],asOfYear,fromYear:c.fromYear??null,toYear:c.toYear??null,
       excludedYears:[...(c.excludedYears||[])],highest:null,automaticallyAwarded:false};
     if(Array.isArray(c.confirmedYears)&&c.sourceIds?.length){
@@ -55,7 +58,7 @@
     }else if(c.approvedTotal?.approved===true&&c.approvedTotal.sourceIds?.length){
       if(asOfYear!==null&&c.approvedTotal.asOfYear>asOfYear)return result;
       result.basis='approved-total';result.count=c.approvedTotal.editions;
-    }else if(c.fromYear!==undefined&&asOfYear!==null){
+    }else if(c.fromYear!==undefined&&asOfYear!==null&&(!memorial||c.toYear!==undefined)){
       result.basis='registered-period';result.years=editions.filter(y=>y>=c.fromYear&&y<=Math.min(c.toYear??asOfYear,asOfYear)&&!result.excludedYears.includes(y));result.count=result.years.length;
     }
     result.first=result.years[0]??null;result.last=result.years.at(-1)??null;
@@ -91,10 +94,9 @@
   }
   function diplomaChoices(data,member,editionYears){
     const profile=honorProfile(data,member,editionYears);
-    return [...new Set([profile.main.badgeId||'thanks',...profile.secondaryHonorIds,...profile.earnedBadgeIds])].filter(id=>isActiveBadge(data,id));
+    return [profile.main.badgeId||'thanks'];
   }
   function canPresent(data,member,badgeId,editionYears){
-    if(badgeId==='thanks')return true;
     return diplomaChoices(data,member,editionYears).includes(badgeId);
   }
   // A small, source-backed name list extends the same canonical profiles. It cannot award badges.
@@ -196,8 +198,8 @@
       const set=data.presentationPrintSet,pairs=new Set();refs(set.sourceIds);
       if(!key(set.id)||set.scope!=='presentation-only'||!set.sourceIds?.length||!Array.isArray(set.entries))throw new Error('Ugyldig presentasjonssett.');
       for(const entry of set.entries){
-        const m=findIn(data,entry.personId)?.member,pair=entry.personId+':'+entry.badgeId;
-        if(!m||pairs.has(pair)||!canPresent(data,m,entry.badgeId)||!['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>/^[a-f0-9]{64}$/.test(entry[k]||'')))throw new Error('Presentasjonsdiplomet mangler grunnlag eller kontrollert innhold.');
+        const m=findIn(data,entry.personId)?.member,display=entry.medalDisplay??'all',pair=entry.personId+':'+entry.badgeId+':'+display;
+        if(!m||!['all','latest'].includes(display)||pairs.has(pair)||!canPresent(data,m,entry.badgeId)||!['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>/^[a-f0-9]{64}$/.test(entry[k]||'')))throw new Error('Presentasjonsdiplomet mangler grunnlag eller kontrollert innhold.');
         pairs.add(pair);
       }
     }

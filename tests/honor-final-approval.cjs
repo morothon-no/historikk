@@ -104,7 +104,7 @@ test('approved final printing preserves estimated volunteer years and never chan
   Object.assign(badge,{status:'fixture-approved',printReady:true,cropReviewed:true,reviewedSha256:digest,printApproval:{sha256:digest}});
   await p.route('**/data/badges.json',r=>r.fulfill({json:registry}));
   const {id}=await approvalFixture(p,h.base,{badgeId:badge.id,estimated:true});await open(p);
-  await p.selectOption('.honor-choice select',badge.id);await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled&&document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-metric span')?.textContent==='DUGNADSUTGAVER');
+  await p.selectOption('.honor-choice select','all');await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled&&document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-metric span')?.textContent==='DUGNADSUTGAVER');
   const d=await p.evaluate(({id,badgeId})=>MorothonDiplomas.serviceDraft(id,badgeId),{id,badgeId:badge.id});
   assert.equal(d.printMode,'final');assert.equal(d.estimated,undefined);assert.equal(d.contributionCount,13);assert.equal(d.achievementYear,2023);
   assert.match(await p.frameLocator('iframe').locator('body').innerText(),/DUGNADSUTGAVER/);

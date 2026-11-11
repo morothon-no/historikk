@@ -15,17 +15,22 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
    await p.setViewportSize({width,height:1000});await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    for(const [name,selector]of [['oversikt','main'],['grunnleggerne','#honorFeatured'],['minne','#memorial']])await p.locator(selector).screenshot({path:path.join(out,`${name}-${width}.png`)});
-   for(const id of required){await p.goto(h.base+'/heder.html#person/'+id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,rows.find(r=>r.id===id).name);await p.locator('#honorProfile').screenshot({path:path.join(out,`${id}-${width}.png`)});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+   for(const id of required){await p.goto(h.base+'/heder.html#person/'+id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,rows.find(r=>r.id===id).name);await p.locator('#honorProfile').screenshot({path:path.join(out,`${id}-${width}.png`)});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    if(['dag-morten-frantzen','oscar-lohne','einar-danielsen'].includes(id)){
+     await p.locator('.diploma-example>summary').click();
+     for(const display of ['all','latest']){await p.selectOption('[data-medal-display]',display);await p.waitForFunction(display=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet')?.dataset.medalDisplay===display&&!document.querySelector('[data-honor-print]')?.disabled,display);await p.locator('.honor-person-diploma').screenshot({path:path.join(out,`${id}-diplom-${display}-${width}.png`)});}
+    }
+   }
    checks.push({width,people:44,horizontalOverflow:false});
   }
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
   const requests=[...required,...['arnfinn-haverstad','helge-reisvoll','christan-berthelsen','erling-danielsen']].map(id=>({id,key:id}));
   requests.push(...data.diplomaExamples.filter(e=>e.illustrative).map(e=>({example:e.id,key:e.id})));
-  for(const r of requests){
+  for(const r of requests.flatMap(r=>['all','latest'].map(display=>({...r,display,key:r.key+(display==='latest'?'-latest':'')})))){
    const model=await p.evaluate(async r=>{
-    const d=r.example?await MorothonDiplomas.serviceExample(r.example):await MorothonDiplomas.serviceDraft(r.id),f=document.createElement('iframe');f.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px';
+    const d=r.example?await MorothonDiplomas.serviceExample(r.example,r.display):await MorothonDiplomas.serviceDraft(r.id,r.display),f=document.createElement('iframe');f.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px';
     await new Promise(resolve=>{f.onload=resolve;f.srcdoc=MorothonDiplomas.documentHtml(d);document.body.appendChild(f)});
-    try{const check=await MorothonDiplomas.checkServiceDraft(d,f.contentDocument);return {html:MorothonDiplomas.documentHtml(d),name:d.name,count:d.contributionCount,mode:d.printMode,main:d.assetKey,extras:d.secondaryAssets.map(a=>a.key),check};}finally{f.remove();}
+    try{const check=await MorothonDiplomas.checkServiceDraft(d,f.contentDocument);return {html:MorothonDiplomas.documentHtml(d),name:d.name,count:d.contributionCount,mode:d.printMode,medalDisplay:d.medalDisplay,main:d.assetKey,extras:d.secondaryAssets.map(a=>a.key),check};}finally{f.remove();}
    },r);
    assert.equal(model.check.ready,true,r.key+': '+model.check.failures);if(r.id)assert.equal(model.mode,'presentation',r.id);
    const q=await h.browser.newPage({viewport:{width:1123,height:794},deviceScaleFactor:300/96});try{
@@ -39,7 +44,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
     const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString(),text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');
     assert.match(info,/Pages:\s+1\b/);const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.89)<.5&&Math.abs(+size[2]-595.28)<.5);
     assert.ok(text.includes(model.name));assert.doesNotMatch(text,/UTKAST|FORHÅNDSVISNING|MULIGE DUGNADSUTGAVER/);if(r.example)assert.match(text,/EKSEMPEL/);else assert.doesNotMatch(text,/EKSEMPEL/);
-    proofs.push({key:r.key,name:model.name,count:model.count,mode:model.mode,main:model.main,extras:model.extras,images,layoutReady:true,pdfInfo:info,fonts:execFileSync('pdffonts',['-'],{input:pdf}).toString(),pdfImages:execFileSync('pdfimages',['-list','-'],{input:pdf}).toString()});
+    proofs.push({key:r.key,name:model.name,count:model.count,mode:model.mode,medalDisplay:model.medalDisplay,main:model.main,extras:model.extras,images,layoutReady:true,pdfInfo:info,fonts:execFileSync('pdffonts',['-'],{input:pdf}).toString(),pdfImages:execFileSync('pdfimages',['-list','-'],{input:pdf}).toString()});
    }finally{await q.close();}
   }
   assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'kontroll.json'),JSON.stringify({rows,checks,proofs,errors},null,2)+'\n');
@@ -48,7 +53,8 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
   let html='<h1>Morothon V3.5.2 · heder gjennom årene</h1><p>Kontroll av gjeldende kode. Ingen formell utdeling registreres ved utskrift.</p><p><a href="personregister.md">Alle 44 personer</a> · <a href="kontroll.json">Kontrollmålinger</a></p><h2>De tre æresdiplomene</h2><p><a href="tre-aeresdiplomer.png">Åpne samlet sammenligningsbilde</a></p><div class="three">';
   for(const id of required.slice(0,3))html+=picture(id+'-A4.png',rows.find(r=>r.id===id).name);html+='</div>';
   for(const name of ['oversikt','grunnleggerne','minne',...required])html+=`<h2>${name}</h2><div class="two">${picture(name+'-1440.png','PC · 1440 px')}${picture(name+'-390.png','Mobil · 390 px')}</div>`;
-  for(const d of proofs)html+=`<h2>${d.name}</h2>${picture(d.key+'-A4.png','Liggende A4 · '+(d.mode==='presentation'?'ren presentasjonskopi':'eksempel'))}<p><a href="${d.key}-A4.pdf">Åpne faktisk A4-PDF</a></p>`;
+  for(const id of ['dag-morten-frantzen','oscar-lohne','einar-danielsen'])for(const width of [390,1440])html+=`<h2>${rows.find(r=>r.id===id).name} · ${width} px</h2><div class="two">${picture(id+'-diplom-all-'+width+'.png','Alle merker')}${picture(id+'-diplom-latest-'+width+'.png','Kun siste merke')}</div>`;
+  for(const d of proofs)html+=`<h2>${d.name}</h2>${picture(d.key+'-A4.png','Liggende A4 · '+(d.medalDisplay==='latest'?'Kun siste merke · ':'Alle merker · ')+(d.mode==='presentation'?'ren presentasjonskopi':'eksempel'))}<p><a href="${d.key}-A4.pdf">Åpne faktisk A4-PDF</a></p>`;
   await fs.writeFile(path.join(out,'index.html'),'<!doctype html><html lang="nb"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Morothon V3.5.2</title><style>body{font:16px/1.6 Arial;background:#f6f3e9;color:#12343e;max-width:1700px;margin:25px auto;padding:0 20px}h1,h2,p,figcaption{text-align:center}.two,.three{display:grid;gap:20px;grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}figure{margin:12px 0}img{display:block;max-width:100%;height:auto;margin:auto}a{color:inherit}@media(max-width:700px){.two,.three{grid-template-columns:1fr}}</style>'+html+'</html>');
   console.log(JSON.stringify({out,people:rows.length,proofs:proofs.length,errors}));
  }finally{await h.close();}

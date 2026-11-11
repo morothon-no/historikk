@@ -8,7 +8,7 @@ const byId=id=>H.findIn(data,id).member;
 const expected={
  'oscar-lohne':['service-aeresmerke',35],'erling-askildsen':['service-aeresmerke',35],
  'arnfinn-haverstad':['service-grunnlegger',null],'helge-reisvoll':['service-grunnlegger',null],'einar-danielsen':['service-aeresmerke',33],
- 'erling-danielsen':['service-memorial',35],'floke-bredland':['service-memorial',null],'leif-wiig':['service-memorial',null],
+ 'erling-danielsen':['service-memorial',null],'floke-bredland':['service-memorial',null],'leif-wiig':['service-memorial',null],
  'dag-morten-frantzen':['service-dugnad-10',13],'hakon-lohne':['service-dugnad-10',12],'finn-lohne':['service-dugnad-10',13],'kalle-kimestad':['service-dugnad-10',13],
  'bent-bakke':['service-dugnad-5',6],'jon-fjeld':['service-dugnad-10',13],'rune-bergjord':['service-dugnad-10',12],
  'per-sangvik':['service-dugnad-5',8],'tom-lohne':['service-dugnad-5',6],'birgitte-aamodt':['service-dugnad-5',5],'johannes-aamodt':['service-dugnad-5',6],'atle-aamodt':['service-dugnad-5',5]

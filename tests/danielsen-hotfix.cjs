@@ -9,14 +9,14 @@ test('Danielsen hotfix moves only the sourced estimate and removes its incorrect
  assert.deepEqual(einar.serviceEstimate,{editions:33,qualifier:'approximately',sourceIds:[source],unit:'years'});assert.equal(erling.serviceEstimate,undefined);
  assert.equal(H.contribution(einar).count,0);assert.equal(H.provisionalMilestone(data,einar,years).count,33);
  assert.equal(H.mainBadge(data,einar,years).badgeId,'service-aeresmerke');assert.equal(H.mainBadge(data,einar,years).count,33);
- assert.equal(H.mainBadge(data,erling,years).badgeId,'service-memorial');assert.equal(H.mainBadge(data,erling,years).count,35);
+ assert.equal(H.mainBadge(data,erling,years).badgeId,'service-memorial');assert.equal(H.mainBadge(data,erling,years).count,null);
  for(const previous of old){
   const expected=structuredClone(previous);
   if(previous.id==='einar-danielsen'){expected.serviceEstimate=einar.serviceEstimate;expected.sourceIds.push(source,'organizer-v352');expected.contribution=einar.contribution;}
   if(previous.id==='erling-danielsen'){delete expected.serviceEstimate;expected.sourceIds.push(source);expected.reason='Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.';}
   assert.deepEqual(H.findIn(data,previous.id).member,expected,previous.id);
  }
- assert.equal(data.presentationPrintSet.entries.length,73);assert.deepEqual(data.diplomaApprovals,baseline.diplomaApprovals);
+ assert.equal(data.presentationPrintSet.entries.length,88);assert.deepEqual(data.diplomaApprovals,baseline.diplomaApprovals);
  for(const file of ['data/history.json','data/volunteers.json','data/badges.json'])assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show','52ead66:'+file],{cwd:root}),file);
  for(const file of ['honors.md','v35-personregister.md','v35-sluttrapport.md','v351-sluttrapport.md'])assert.doesNotMatch(await fs.readFile(path.join(root,'docs',file),'utf8'),/Erlings anslag|Erling Danielsens om lag 33|Erling Danielsen[^\n|]*\|[^\n]*Om lag 33/);
 });

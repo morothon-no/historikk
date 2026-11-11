@@ -15,7 +15,7 @@ test('V3.5.2 one registered-tenure calculation drives counts, all six cumulative
  const e=member('einar-danielsen');assert.equal(e.contribution.approvedTotal.editions,33);assert.equal(e.contribution.confirmedYears,undefined);assert.deepEqual(H.serviceTenure(data,e).years,[]);assert.ok(Object.values(H.serviceTenure(data,e).milestoneYears).every(y=>y===null));
  for(const id of ['oscar-lohne','erling-askildsen','einar-danielsen']){const s=H.honorProfile(data,member(id));assert.equal(s.main.badgeId,'service-aeresmerke');assert.deepEqual(s.secondaryHonorIds,['service-grunnlegger']);assert.equal(s.collectionIds.length,5);}
  for(const id of ['arnfinn-haverstad','helge-reisvoll']){const s=H.honorProfile(data,member(id));assert.equal(s.main.badgeId,'service-grunnlegger');assert.equal(s.tenure.count,null);assert.deepEqual(s.secondaryHonorIds,[]);}
- const erling=H.honorProfile(data,member('erling-danielsen'));assert.equal(erling.main.badgeId,'service-memorial');assert.equal(H.isFounder(data,member('erling-danielsen')),false);assert.notEqual(erling.tenure.count,33);
+ const erling=H.honorProfile(data,member('erling-danielsen'));assert.equal(erling.main.badgeId,'service-memorial');assert.equal(H.isFounder(data,member('erling-danielsen')),false);assert.equal(erling.tenure.count,null);assert.equal(erling.tenure.fromYear,1992);assert.deepEqual(erling.earnedBadgeIds,[]);
  assert.equal(JSON.stringify(data),before);
 });
 test('V3.5.2 source priority, known absences, missing/end/future years and aggregate totals never invent annual records',()=>{
@@ -30,6 +30,45 @@ test('V3.5.2 source priority, known absences, missing/end/future years and aggre
  for(const n of [5,10,15,20,30,40])assert.equal(calc({fromYear:1992},Array.from({length:n},(_,i)=>1992+i)).highest.editions,n);
  assert.equal(calc({fromYear:2021,excludedYears:[2026]}).milestoneYears[5],2025);
  assert.equal(H.serviceTenure(data,member('hakon-lohne')).milestoneYears[10],2024);
+});
+test('V3.5.2 memorials never extend an unknown end year; explicit years, end years and approved totals remain authoritative',()=>{
+ const original=member('erling-danielsen'),before=JSON.stringify(original),years=data.editionYears;
+ for(const context of [years,[...years,2027]]){
+  const tenure=H.serviceTenure(data,original,context);
+  assert.equal(tenure.count,null);assert.equal(tenure.fromYear,1992);assert.equal(tenure.toYear,null);assert.deepEqual(tenure.years,[]);assert.equal(tenure.highest,null);
+  assert.deepEqual(H.diplomaChoices(data,original,context),['service-memorial']);assert.equal(H.canPresent(data,original,'service-dugnad-30',context),false);
+ }
+ for(const marker of [{deceased:true},{memorialRecognition:{badgeId:'service-memorial'}}]){
+  const fixture={id:'memorial-fixture',...marker,deathYear:2023,contribution:{fromYear:2014,sourceIds:['organizer-v352']}};
+  assert.equal(H.serviceTenure(data,fixture).count,null,'A death year is not a documented service end year');
+  assert.equal(H.serviceTenure(data,{...fixture,contribution:{...fixture.contribution,toYear:2019}}).count,6);
+  assert.equal(H.serviceTenure(data,{...fixture,contribution:{...fixture.contribution,confirmedYears:[2014,2017]}}).count,2);
+  assert.equal(H.serviceTenure(data,{...fixture,contribution:{...fixture.contribution,approvedTotal:{approved:true,editions:13,sourceIds:['organizer-v352']}}}).count,13);
+ }
+ const grouped={...original};delete grouped.deceased;delete grouped.memorialRecognition;
+ assert.equal(H.serviceTenure(data,grouped).count,null,'The memorial section also identifies a memorial profile');
+ assert.equal(H.honorProfile(data,member('einar-danielsen')).tenure.count,33);assert.equal(JSON.stringify(original),before);assert.equal(original.contribution.toYear,undefined);
+});
+test('V3.5.2 Erling memorial card, profile and actual A4 PDF preserve 1992 without an invented total or later annual medals',async()=>{
+ for(const width of [390,1440]){
+  const p=await h.browser.newPage({viewport:{width,height:1000}});try{
+   await p.goto(h.base+'/heder.html');const card=p.locator('[data-honoree="erling-danielsen"]');await card.waitFor();
+   assert.match(await card.innerText(),/fra 1992/);assert.doesNotMatch(await card.innerText(),/35|2026|33/);
+   await card.locator('a').click();await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Erling Danielsen');
+   assert.match(await p.locator('.honor-profile-header').innerText(),/fra 1992/);assert.doesNotMatch(await p.locator('.honor-profile-header').innerText(),/35|2026|33/);
+   assert.equal(await p.locator('.honor-earned-marks img,.honor-historic-marks img').count(),0);
+   await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled);
+   const d=await p.evaluate(()=>MorothonDiplomas.serviceDraft('erling-danielsen'));
+   assert.equal(d.contributionCount,null);assert.equal(d.achievementYear,null);assert.equal(d.assetKey,'service-memorial');assert.equal(d.printMode,'presentation');assert.deepEqual(d.secondaryAssets,[]);
+   const q=await h.browser.newPage();try{
+    await q.setContent(await p.locator('iframe').getAttribute('srcdoc'));await q.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()));});
+    const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}});
+    assert.match(execFileSync('pdfinfo',['-'],{input:pdf}).toString(),/Pages:\s+1\b/);
+    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString();assert.match(text,/Erling Danielsen/);assert.match(text,/MINNEDIPLOM/);assert.doesNotMatch(text,/35|33|2026|1992–2026|FORHÅNDSVISNING|UTKAST/);
+   }finally{await q.close();}
+   assert.equal(await p.locator('[data-honor-pdf]').isEnabled(),true);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  }finally{await p.close();}
+ }
 });
 test('V3.5.2 mobile/PC profiles and clean A4 diplomas show every earned image once, including all three complete founder honors',async()=>{
  for(const width of [390,1440]){

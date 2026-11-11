@@ -102,12 +102,12 @@ test('issue #13 quality details report the 55mm SVG main badge and all secondary
    const lines=await p.locator('#honorProfile .honor-image-quality p').allTextContents();
    assert.equal(lines.length,7);assert.match(lines[0],/Morothons æresmerke.*SVG · ingen fast original-DPI · Skalerbar vektor ved 55\.0 mm/);
    for(const line of lines){assert.match(line,/ikke godkjent for tildeling/);assert.match(line,/kontrolleres og godkjennes/);}
-   await p.selectOption('.honor-choice select','service-dugnad-30');
-   await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('h1')?.textContent==='DUGNADSDIPLOM');
-   await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Fredet inventar:'));
-   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),6);
+   await p.selectOption('.honor-choice select','latest');
+   await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet')?.dataset.medalDisplay==='latest');
+   await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Morothons æresmerke:'));
+   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),2);
    assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
-   assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','service-dugnad-30')).imageReady),false);
+   assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','latest')).imageReady),false);
   }finally{await p.close();}
  }
 });

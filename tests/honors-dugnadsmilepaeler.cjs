@@ -93,7 +93,7 @@ test('date field uses the race when the volunteer actually reached each mileston
   await page.locator('[data-honoree="oscar-lohne"]').waitFor();
   const result=await page.evaluate(async()=>{
    const [thirty,honor,erling,anonymous,notDocumented]=await Promise.all([
-     MorothonDiplomas.serviceDraft('oscar-lohne','service-dugnad-30'),
+     MorothonDiplomas.serviceDraft('oscar-lohne','latest'),
      MorothonDiplomas.serviceDraft('oscar-lohne','service-aeresmerke'),
      MorothonDiplomas.serviceDraft('erling-askildsen','service-aeresmerke'),
      MorothonDiplomas.serviceExample('dugnad-30'),
@@ -107,7 +107,7 @@ test('date field uses the race when the volunteer actually reached each mileston
    }));
   });
   const [thirty,honor,erling,anonymous,unknown]=result;
-  assert.deepEqual([thirty.year,thirty.eventDate,thirty.label],[2021,'2021-11-13','Søgne, 13. november 2021']);
+  assert.deepEqual([thirty.year,thirty.eventDate,thirty.label],[2026,'2026-11-07','Søgne, 7. november 2026']);
   for(const entry of [honor,erling])assert.deepEqual([entry.year,entry.eventDate,entry.label],[2026,'2026-11-07','Søgne, 7. november 2026']);
   assert.deepEqual([anonymous.year,anonymous.eventDate,anonymous.label],[null,null,'']);
   assert.deepEqual([unknown.year,unknown.eventDate,unknown.label],[2023,'2023-11-11','Søgne, 11. november 2023']);
