@@ -56,7 +56,12 @@
     {
       "id": "birgitte-aamodt",
       "name": "Birgitte Aamodt",
-      "nameStatus": "as-provided"
+      "nameStatus": "as-provided",
+      "fromYear": 2022,
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-volunteer-years-2026-11-11"
+      ]
     },
     {
       "id": "nils-henning-pedersen",
@@ -71,7 +76,12 @@
     {
       "id": "johannes-aamodt",
       "name": "Johannes Aamodt",
-      "nameStatus": "as-provided"
+      "nameStatus": "as-provided",
+      "fromYear": 2021,
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-volunteer-years-2026-11-11"
+      ]
     },
     {
       "id": "linea-morland",
@@ -224,7 +234,12 @@
       "id": "atle-aamodt",
       "name": "Atle Aamodt",
       "sourceIds": [
-        "organizer-aud-atle-2026-11-11"
+        "organizer-aud-atle-2026-11-11",
+        "organizer-volunteer-years-2026-11-11"
+      ],
+      "fromYear": 2021,
+      "internalNotes": [
+        "Arrangøren bekrefter at Atle ikke bidro på dugnad i 2026. Ingen sammenhengende årsrekke eller 5-årsmerke skal utledes fra startåret 2021."
       ]
     }
   ],
@@ -234,6 +249,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "Arrangøren har bekreftet at den ufullstendige oppføringen «Aud O» gjelder Aud Ovesen. Atle Aamodt oppgis som frivillig uten nærmere oppgave eller årstall. Ingen dugnadsutgaver eller merkekvalifikasjon utledes."
+    },
+    "organizer-volunteer-years-2026-11-11": {
+      "title": "Arrangøropplysninger – Birgitte, Johannes og Atle",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Birgitte Aamodt bidro fra 2022, Johannes Aamodt fra 2021 og Atle Aamodt fra 2021, men Atle deltok ikke på dugnad i 2026. Startår fastslår ikke alle mellomliggende dugnadsutgaver."
     }
   }
 }

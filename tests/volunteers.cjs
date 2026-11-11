@@ -134,3 +134,15 @@ test('Nov 2026 organizer name additions stay unique, memorial honors Leif, and n
  assert.equal(all.find(x=>x.id==='aud-o').name,'Aud Ovesen');assert.equal(all.find(x=>x.id==='aud-o').contribution,undefined);
  assert.ok(all.every(x=>x.awards.length===0&&x.issuedDiplomas.length===0));
 });
+
+test('Arrangørens nye dugnadsstartår og Atles fravær i 2026 gir ingen automatisk årsrekke eller merke',()=>{
+ const c=mergeVolunteers(core,list),people=c.groups.flatMap(g=>g.members);
+ for(const [id,year] of [['birgitte-aamodt',2022],['johannes-aamodt',2021],['atle-aamodt',2021]]){
+   const m=people.find(person=>person.id===id);
+   assert.equal(m.contribution.fromYear,year);
+   assert.equal(m.contribution.confirmedYears,undefined);
+   assert.equal(m.badgeProposal.primaryBadgeId,null);
+   assert.deepEqual(m.badgeProposal.badgeIds,[]);
+ }
+ assert.match(people.find(m=>m.id==='atle-aamodt').internalNotes.join(' '),/ikke bidro på dugnad i 2026/);
+});
