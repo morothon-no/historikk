@@ -1,4 +1,6 @@
-# Morothon V3.5 – sluttkontroll
+# Morothon V3.5 – historisk sluttkontroll
+
+Denne rapporten beskriver V3.5 ved PR #18. Gjeldende løsning og nyere endringer er dokumentert i [V3.5.1-rapporten](v351-sluttrapport.md).
 
 Utgangspunkt: `main` på `8e28dd6063dda7faf48d37e4baf6e754ba41e1c8`, inkludert PR #17. Arbeidsgren: `codex/morothon-v3-5-hedersregister`. Leveransen skal gjennomgås som én Draft PR, uten merge eller publisering.
 

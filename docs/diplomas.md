@@ -10,7 +10,7 @@ Malen følger Gunnar Kåsa v2: liggende A4, lys kremflate, doble rammer, petrolh
 
 Hovedtittel og undertittel gjentar ikke hverandre. Debutdiplomet har «MIN FØRSTE MOROTHON» som hovedtittel og «Debutdiplom» under navnet. Datoen står på én linje i håndskriftstil. Alle diplomtyper har sted/dato og «Håkon Lohne» i samme håndskriftfont, størrelse og farge, rett over to like streker på samme høyde. Under høyre strek står «Løpsleder Morothon» i mindre Arial. Dette er typografisk navneangivelse, ikke en etterligning av en personlig signatur. Vannmerkets godkjente styrke er uendret.
 
-Trykkgodkjenningen av konkrete filer er knyttet til SHA-256. Faktisk DPI beregnes og oppgis; dokumenterte, brukeraksepterte avvik gjør ikke en lavoppløselig kilde til en ny 300 DPI-original. Manglende godkjenning, endrede filbytes eller layoutfeil sperrer fortsatt utskrift. Hedersprofiler bruker samme dokumentbygger og merkeregister, men foreløpige dugnadsoppføringer kan ikke utstede diplomer. Hedersdiplomer er kun forhåndsvisninger, med utkaststatus utenfor det seremonielle diplomdesignet og uten utskrift/PDF på nettsiden; se [hedersprofiler](honors.md).
+Trykkgodkjenningen av konkrete filer er knyttet til SHA-256. Faktisk DPI beregnes og oppgis; dokumenterte, brukeraksepterte avvik gjør ikke en lavoppløselig kilde til en ny 300 DPI-original. Manglende godkjenning, endrede filbytes eller layoutfeil sperrer fortsatt utskrift. Hedersprofiler bruker samme dokumentbygger og merkeregister, men foreløpige dugnadsoppføringer kan ikke utstede diplomer. Hedersdiplomer har et eget kontrollert presentasjonssett for rene utskrifter, adskilt fra formell utstedelse; se [hedersprofiler](honors.md).
 
 PDF bruker nettleserens utskriftsdialog, uten eksterne PDF-tjenester. Velg A4, 100 %, ingen marger, bakgrunnsgrafikk på og topp-/bunntekst av. Layout, native bildedimensjoner og PDF-format kontrolleres i regresjonstestene. Fysisk prøvetrykk er ikke simulert.
 
@@ -131,74 +131,59 @@ tegnmålingen fra V3.1 er bevart. Lukking avslutter den pågående gjengivelsen 
 dialog ignoreres hvis dialogen allerede er åpnet igjen, og flytter ikke fokus
 fra en annen kontroll/dialog. Rask Escape/Enter avbryter dermed ikke en ny forhåndsvisning.
 
-## V3.5 – ett hovedmerke på hedersdiplomer
+## V3.5.1 – hedersdiplomer og kontrollerte presentasjonskopier
 
-Service-malen bruker samme liggende A4-grunnlag og felles merkeregister som før,
-men har ett aktivt hovedmerke og ingen sekundærmedaljer. Ordinære løperdiplomer
-er uendret. Seks dugnadsnivåer, Grunnlegger, Morothons æresmerke og det nye
-minnemerket er tilgjengelige som foreløpige diplomtyper. Hedersildsjel og det
-gamle generelle Dugnadshelt-merket tilbys ikke ved nye diplomer; originalfiler,
-ID-er og eventuell historisk tildeling er bevart.
+Service-malen beholder liggende A4, ett hovedmerke, eksisterende originalfiler,
+vannmerke og Håkon Lohnes typografiske signatur. Ordinære løperdiplomer er uendret.
+Alle 44 personer har personlig diplom, med faktisk registrert navn.
 
 `serviceDraft()` bruker samme `mainBadge()` og `diplomaChoices()` som hederssiden.
-Ingen dato utledes fra anslått fartstid. Navngitte anslag merkes «MULIGE
-DUGNADSUTGAVER», med periode og forbehold om foreløpig sluttår der det gjelder.
-Dokumenterte milepæler fryses til terskelen: Oscar/Erling ved 30 viser 30,
-1992–2021 og oppnåelsesåret 2021. Modellen beholder løpsdato 13. november 2021.
-Deres æresutkast omtaler 35 dokumenterte utgaver i 2026; modellens dato er
-7. november 2026, uten påstand om formell tildeling av æresmerket.
+`confirmedYears` avgjør historiske milepæler: Dag ved 10 viser 2014–2023 og
+Håkon ved 10 viser 2014–2024. Oscar/Erling ved 30 viser 1992–2021. Modellene
+beholder bekreftet løpsdato, mens service-malens signoff viser milepælens år.
+Ingen faktisk utdelingsdato konstrueres. Einar har æresdiplom uten oppdiktet
+35-årsinnsats. Minnediplomer og anonyme eksempler har ingen oppdiktet dato.
 
-Minnediplomet har tittelen «MINNEDIPLOM» og «TIL MINNE OM» over navnet, varm
-hederstekst og én minnemedalje. Det har ingen oppdiktet dato eller formulering
-om personlig overlevering. Anonyme typeeksempler har ingen dato eller datostrek.
-Håkon Lohnes typografiske signaturfelt beholdes. Alle service-diplomer er fortsatt
-forhåndsvisninger, uten nye tildelinger eller utstedte originaldiplomer. Teknisk kontrollerte utkast kan nå skrives ut eller lagres via nettleserens PDF-skriver.
+Personer med bare anslått fartstid får «Takk for innsatsen» som standard,
+uten årsmerke, utgaveantall eller opptjeningsdato. Eksplisitt valgte anslåtte
+årsmerker beholder «MULIGE DUGNADSUTGAVER» og forbehold i en merket forhåndsvisning.
+De blir ikke rene årsmerkediplomer ved å regenerere presentasjonssettet.
 
-Se [hedersmodellen](honors.md). Reproduser faktiske A4-prøver med:
+### Tre utskriftsmoduser
 
-```sh
-node scripts/review-honors-v35.cjs /tmp/morothon-v35
-```
+- `presentation`: kontrollert presentasjonskopi uten utkastmerking. Krever et
+  samsvarende innholdsfingeravtrykk i `presentationPrintSet`, et tillatt
+  person-/diplomvalg og bestått teknisk kontroll. 56 valg dekker alle 44 personer.
+- `draft` (internt navn): merket «FORHÅNDSVISNING», eller «EKSEMPEL» for anonyme
+  typeeksempler. Merkingen følger PDF og papir. Ingen generell «UTKAST»-merking.
+- `final`: særskilt godkjent endelig bruk via eksisterende `diplomaApprovals`,
+  med krav til nøyaktig innhold og godkjent grafikk. Registeret er fortsatt tomt.
 
-SVG-kilder er skalerbare vektorer, uten fast original-DPI. Ikke bruk deklarert
-pikselstørrelse som bevis på bitmapoppløsning. Godkjenningsvarsler og layoutkontroll
-beholdes; en godkjent test er ikke automatisk trykkgodkjenning av et nytt motiv.
+Ingen modus oppretter `awards` eller `issuedDiplomas`, og ingen originalfil får
+ny trykkstatus. Presentasjonssettet er for gjennomgang, ikke et register over
+utdelte utmerkelser. Det kontrolleres samlet i GitHub; endret innhold eller
+CSS gjør gamle fingeravtrykk ugyldige. Ved klargjøring brukes en merket
+forhåndsvisning; ved endring av et allerede åpent dokument sperres utskrift.
 
-### Personlig takk og utskrivbare utkast
+`serviceProof()` dekker navngitt innhold, år/forbehold, HTML, CSS og faktiske
+bildebytes. Verifiseringen er uavhengig av servernavn og versjonerte cache-URL-er.
+`checkServiceDraft()` gjenbruker `checkLayout()` og V3.1-målingen med synlig
+numerisk blekkhøyde. DPI måles ved faktisk utskriftsstørrelse. Fonter, manglende
+eller endrede bilder, kanter, SVG, avkutting og overlapp kontrolleres på nytt
+ved begge utskriftsknapper. Ingen toleranse er økt eller kontroll deaktivert.
 
-Personer uten kvalifisert årsmerke får «TAKK FOR INNSATSEN» med navn, eventuell
-kjent oppgave og eksisterende Morothon-logo. Ingen årsmerke, antall utgaver eller
-oppnåelsesdato konstrueres. `thanks` er et diplomvalg, ikke en tiende merketype.
-Alle 44 registrerte personer og fremtidige navneoppføringer omfattes.
+Originalenes design-/trykkvarsler beholdes i «Bildekvalitet». En ren
+presentasjonskopi betyr ikke at `printReady` er endret. SVG omtales som vektor,
+ikke som en oppskalert 300 DPI-original.
 
-Alle personlige diplomer og anonyme eksempler har knappene «Skriv ut diplom» og
-«Lagre som PDF». Begge bruker nettleserens eksisterende utskriftsdialog.
-PDF-knappen forklarer valget av PDF-skriver; A4 liggende, skala 100 %, null marger,
-bakgrunnsgrafikk på og topp-/bunntekst av anbefales.
+«Lagre som PDF» bruker nettleserens utskriftsdialog. Bruk A4 liggende, skala
+100 %, null marger, bakgrunnsgrafikk på og topp-/bunntekst av.
 
-`checkServiceDraft()` avgjør teknisk utskrivbarhet separat fra `imageReady` og
-`printReady`. Den gjenbruker `checkLayout()` uendret, inkludert Windows-fiksen
-med konservativ Range-bredde og synlig numerisk blekkhøyde. En liten intern
-padding i **service-malen** gir også ord som TAKK og MINNE plass til fontens
-fulle linjeboks. Ingen toleranse er økt og ingen kontroll er deaktivert.
+Kontrollsettet oppdateres eksplisitt med `npm run diplomer:klargjor` etter
+innholdsgjennomgang; `npm run diplomer:kontroll` kontrollerer uten å endre filer.
+Dette kjøres ikke automatisk i bygg. Faktiske kontrollbilder og PDF-er kan
+regenereres med `node scripts/review-honors-v35.cjs /tmp/morothon-v351`.
 
-Ikke-godkjente utkast må vise «UTKAST – IKKE UTDELT» i selve dokumentet, også i PDF og på papir.
-Reell overlapp, avkutting, manglende/endrede bilder, ubrukelig rasteroppløsning,
-ugyldig SVG eller manglende utkasttekst sperrer begge knapper. Alt kontrolleres
-på nytt ved klikk. Alle godkjenningsvarsler beholdes i bildekvalitetsseksjonen.
-Et grønt utkast gir ingen ny `award`, `issuedDiploma` eller `printReady:true`.
-Ordinære løperdiplomers modell, HTML, utskriftsflyt og eksisterende CSS er bevart.
-
-### Endelig bruk og profesjonelt sidespråk
-
-Generell sidevisning og galleri omtaler dokumentene som diplomer. Ikke-godkjente
-dokumenter viser utkastforklaring når de åpnes og utkastmerking i selve PDF-en.
-Endelige diplomer uten slik merking krever en særskilt, kildebelagt godkjenning
-av mottaker og nøyaktig innhold i `diplomaApprovals`, i tillegg til godkjente
-bildefiler. Registeret er tomt i produksjonsdataene.
-
-Kontrollsummen omfatter tekst, navn, forbehold, år/dato, grafikk og CSS.
-Utdatert godkjenning gir et merket utkast ved neste klargjøring. Endringer i et
-allerede åpnet endelig dokument sperrer utskrift til dokumentet er klargjort
-på nytt. Tekniske layoutkontroller gjelder i begge moduser. Ingen automatisk
-merketildeling eller diplomutstedelse gjennomføres.
+Hederssiden er offentlig på direkte URL. Innlogging er utsatt etter arrangørens
+avklaring. Det er ingen fri mottaker-/tittelredigering eller automatisk formell
+utstedelse. Se [hedersmodellen og avgrensningene](honors.md).

@@ -76,9 +76,10 @@ test('six anonymous preview diplomas exist with formal issuance locked and clear
    for(const d of a){assert.equal(d.key,'service-dugnad-'+d.n);assert.equal(d.ready,false);assert.equal(d.preview,true);assert.equal(d.issued,false)}
    await p.goto(h.base+'/heder.html#person/oscar-lohne');
    await p.locator('#profileName').waitFor();
-   assert.match(await p.locator('.honor-tenure-note').textContent(),/30 utgaver/);
+   assert.equal(await p.locator('.honor-tenure-note').count(),0);
+   assert.equal(await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return MorothonHonorsData.tenureMilestones(d,MorothonHonorsData.findIn(d,'oscar-lohne').member).highestQualified.editions;}),30);
    assert.equal(await p.locator('.honor-secondary-badges img').count(),0);
-   assert.match(await p.locator('.honor-historical-label').textContent(),/Historisk grunnlegger/);
+   assert.match(await p.locator('.honor-historical-label').textContent(),/Grunnlegger fra 1992/);
    assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   }finally{await p.close()}

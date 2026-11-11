@@ -1,4 +1,4 @@
-# Morothon V3.5 – revisjon av alle 44 personer
+# Morothon V3.5.1 – revisjon av alle 44 personer
 
 Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, uten formell tildeling. Ukjente opplysninger er ikke fylt inn.
 
@@ -8,7 +8,7 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 | Oscar Lohne | Grunnlegger | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
 | Arnfinn Håverstad | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
 | Helge Reisvoll | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
-| Einar Danielsen | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
+| Einar Danielsen | Grunnlegger | Fra 1992 | Ikke fastsatt | Arrangørens beslutning om planlagt heder; dugnadstall ukjent | Morothons æresmerke | Æresdiplom |
 | Kalle Kimestad | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Finn Lohne | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Dag Morten Frantzen | Arrangør siden 2014 · Tidligere styreleder i Søgne Skiklubb | Fra 2014 | 13 utgaver | Dokumenterte enkeltår | Dugnadshelt | Dugnadsdiplom |
@@ -83,7 +83,7 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 - Dag Morten Frantzen, Håkon Lohne, Finn Lohne og Kalle Kimestad: gammelt generelt Dugnadshelt-merke erstattes av nytt Dugnadshelt (10). Dag har nå 13 dokumenterte utgaver, Håkon 12 dokumenterte utgaver med bekreftet fravær i 2016. Finn og Kalle har fortsatt 13 mulige utgaver.
 - Bent-Inge Bakke: foreløpig Ivrig hjelper (5), beregnet innen den foreløpige perioden 2014–2019. Seks mulige utgaver, ikke bekreftede enkeltår.
 - Oscar Lohne og Erling Askildsen: bare Morothons æresmerke som foreslått hovedmerke. Grunnleggerstatus og dokumenterte 35 utgaver bevares som fakta; tidligere merkeforslag er arkivert.
-- Arnfinn Håverstad, Helge Reisvoll og Einar Danielsen: bare Grunnlegger; ingen automatisk 35-årsberegning.
+- Arnfinn Håverstad og Helge Reisvoll: bare Grunnlegger. Einar Danielsen: æresmerket, etter arrangørens beslutning om planlagt heder i 2026. Grunnleggerrollen beholdes, uten dokumenterte dugnadsår, oppdiktet fartstid, utdelingsdato eller utstedt diplom.
 - Erling Danielsen, Floke Bredland og Leif Wiig: bare For alltid en del av Morothon, uten årsmerker.
 - Hedersildsjel og generelt Dugnadshelt er utgått fra aktive forslag, galleri og nye diplomvalg. Originalfiler og eventuell historisk tildeling beholdes.
 

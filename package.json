@@ -4,7 +4,9 @@
   "scripts": {
     "test": "node --test tests/*.cjs",
     "build": "node scripts/build-site.cjs",
-    "build:branding": "node scripts/build-brand-assets.cjs"
+    "build:branding": "node scripts/build-brand-assets.cjs",
+    "diplomer:kontroll": "node scripts/prepare-honor-print-set.cjs",
+    "diplomer:klargjor": "node scripts/prepare-honor-print-set.cjs --write"
   },
   "devDependencies": {
     "playwright": "1.62.1"

@@ -8,16 +8,15 @@ test('professional honor overview, cards, profiles and gallery avoid redundant d
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.doesNotMatch(await p.title(),/utkast|forhåndsvisning/i);
    assert.doesNotMatch(await p.locator('body').innerText(),/utkast|ikke utdelt|under utvikling/i);
-   assert.match(await p.locator('[data-honoree="hakon-lohne"]').innerText(),/12 dokumenterte.*Foreløpig 10-årsmerke/s);
-   assert.match(await p.locator('[data-honoree="oscar-lohne"]').innerText(),/forslag/);
+   assert.match(await p.locator('[data-honoree="hakon-lohne"]').innerText(),/12 dugnadsutgaver · siden 2014/);
+   assert.doesNotMatch(await p.locator('[data-honoree="oscar-lohne"]').innerText(),/forslag/);
    await p.locator('.honor-diploma-examples>summary').click();
    assert.doesNotMatch(await p.locator('#honorExamples').innerText(),/utkast|ikke utdelt/i);
    assert.ok((await p.locator('#honorExamples summary').allTextContents()).filter(t=>t==='Vis diplom').length>=11);
    await p.goto(h.base+'/heder.html#person/hakon-lohne');await p.locator('#profileName').waitFor();
    assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/utkast|ikke utdelt/i);await open(p);
-   assert.equal(await p.locator('.honor-draft-notice').isVisible(),true);
-   assert.match(await p.locator('.honor-draft-notice').innerText(),/UTKAST – IKKE UTDELT/);
-   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').isVisible(),true);
+   assert.equal(await p.locator('.honor-draft-notice').isVisible(),false);
+   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
   }finally{await p.close();}
@@ -104,7 +103,8 @@ test('approved final printing preserves estimated volunteer years and never chan
   Object.assign(badge,{status:'fixture-approved',printReady:true,cropReviewed:true,reviewedSha256:digest,printApproval:{sha256:digest}});
   await p.route('**/data/badges.json',r=>r.fulfill({json:registry}));
   const {id}=await approvalFixture(p,h.base,{badgeId:badge.id,estimated:true});await open(p);
-  const d=await p.evaluate(id=>MorothonDiplomas.serviceDraft(id),id);
+  await p.selectOption('.honor-choice select',badge.id);await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled&&document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-metric span')?.textContent==='MULIGE DUGNADSUTGAVER');
+  const d=await p.evaluate(({id,badgeId})=>MorothonDiplomas.serviceDraft(id,badgeId),{id,badgeId:badge.id});
   assert.equal(d.printMode,'final');assert.equal(d.estimated,true);assert.equal(d.estimatedCount,13);assert.equal(d.achievementYear,null);
   assert.match(await p.frameLocator('iframe').locator('body').innerText(),/MULIGE DUGNADSUTGAVER/);
   assert.match(await p.frameLocator('iframe').locator('body').innerText(),/anslag/);
