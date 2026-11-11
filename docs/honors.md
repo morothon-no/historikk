@@ -1,6 +1,6 @@
 # Menneskene bak Morothon – V3.5
 
-Hederssiden er en skjult forhåndsvisning med `noindex, nofollow`, uten lenker i
+Hederssiden er skjult fra navigasjonen og beholdes med `noindex, nofollow`, uten lenker i
 hovedmeny, mobilmeny eller ordinære løperprofiler. Direkte URL er offentlig,
 ikke tilgangsbeskyttet. Ingen automatisk tildeling eller offentlig utstedelse av endelige diplomer. Tydelig merkede utkast kan skrives ut etter teknisk kontroll.
 
@@ -90,11 +90,16 @@ koblinger til løperprofiler beholdes. Løpsstarter blir aldri dugnadsutgaver.
 
 ## Diplomer og kontrollartefakter
 
-Alle hedersdiplomer beholder `previewOnly:true` og `imageReady:false`: dette
-betyr at de ikke er godkjente/utstedte originaldiplomer. `printMode:draft`
-og `checkServiceDraft()` åpner en **separat** utskriftsvei for teknisk kontrollerte
-utkast. Begge knappene finnes i alle personprofiler og alle gallerieksempler.
-Alle utskrifter og PDF-er inneholder «UTKAST – IKKE UTDELT» i selve A4-dokumentet.
+Den generelle siden, kort og diplomgalleri bruker vanlig, verdig språk, uten
+repeterte utkastadvarsler. «Vis diplom» åpner dokumentet. Foreløpige år og forslag
+til æres-/minnemerke er fortsatt tydelig merket. Intern status i merkeregisteret
+og historiske tildelingsregistre er ikke endret.
+
+Alle hedersdiplomer beholder `previewOnly:true`: visning og utskrift oppretter
+aldri en formell tildeling eller registrert utstedelse. `printMode:draft` er
+standard. `checkServiceDraft()` kontrollerer både utkast og særskilt godkjente
+endelige diplomer, uten å endre ordinære løperdiplomer. Begge knappene finnes i alle personprofiler og alle gallerieksempler.
+Ikke-godkjente diplomer har én forklaring ved åpning og «UTKAST – IKKE UTDELT» i selve A4-dokumentet, også i PDF. Særskilt godkjente endelige diplomer kan skrives ut uten merkingen.
 
 Iframe har `allow-same-origin allow-modals`, uten skript. Knappene åpner den
 samme nettleserbaserte utskriftsdialogen som løperdiplomene. PDF-knappen viser
@@ -125,3 +130,34 @@ målinger og en tabell over alle 44 personer. QA-filer legges utenfor repository
 GitHub Actions legger dem i PR-artefaktet `morothon-v35-forhaandsvisning`, beholdt
 14 dager. De inngår ikke i Pages-bygget. Merkegodkjenning, fysisk prøvetrykk og
 formell utdeling er separate vurderinger; ingen godkjenning utledes fra grønne tester.
+
+## Særskilt godkjenning for endelig diplom
+
+`data/honors.json.diplomaApprovals` er et separat godkjenningsregister, uavhengig
+av `awards` og `issuedDiplomas`. Listen er foreløpig **tom**. Ingen eksisterende
+hedersdiplomer er automatisk godkjent av denne kodeendringen.
+
+En godkjenning krever `id`, kanonisk `personId`, `badgeId` (eller `thanks`),
+`status:approved`, `approvedForFinal:true`, `approvedOn`, kildehenvisninger i
+`sourceIds` og `contentSha256`. Dette er en særskilt godkjenning av ett bestemt
+diplom, ikke en generell godkjenning av en mal eller en tildeling av et merke.
+Anonyme gallerieksempler forblir merkede utkast.
+
+`serviceDraft(...).contentProof` gir kontrollsummene til den vurderte versjonen.
+`serviceProof()` dekker ferdig A4-komposisjon, navn, rolle, tekst, dato/år,
+fartstidsforbehold, originalgrafikk, vannmerke og hele diplom-CSS-en. Lokalt
+servernavn og byggesystemets cacheparametre normaliseres bort. En visuelt og
+teknisk godkjent versjon kan dermed flyttes uendret fra lokal QA til Pages.
+
+Et endelig diplom krever **både** en gyldig innholdsgodkjenning og separat
+godkjent grafikk. Merkenes `design-draft`/`printReady:false` beholdes inntil
+faktisk godkjenning. Ingen slike flagg settes automatisk. Ved manglende eller
+utdatert innholdsgodkjenning tilbys et merket utkast; reelle kvalitetsfeil
+sperrer begge utskriftshandlingene. Før utskrift valideres også dokumentet som
+faktisk ligger i rammen, slik at endret tekst, CSS eller grafikk ikke bruker en
+gammel godkjenning. Foreløpige dugnadsår blir ikke dokumenterte selv om selve
+diplomet er godkjent for endelig bruk.
+
+`tests/helpers/honor-approval.cjs` lager kun isolerte testdata. Kontrollpersonen
+i rene test-PDF-er er ikke en faktisk mottaker, og ingen produksjonsgodkjenning
+eller tildeling følger med disse testene.

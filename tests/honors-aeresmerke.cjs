@@ -54,7 +54,7 @@ test('highest-honor page and each A4 preview remain visually contained and impos
     assert.match(await page.locator('.profile-medal').getAttribute('src'),/aeresmerke\.svg$/);
     assert.equal(await page.locator('.honor-secondary-badges img').count(),0);
     await page.locator('.diploma-example>summary').click();
-    await page.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('A4-utkast kontrollert'));
+    await page.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('Diplomet er kontrollert'));
     const q=await page.evaluate(async()=>{
       const d=await MorothonDiplomas.serviceDraft(location.hash.split('/').at(-1));
       const doc=document.querySelector('.diploma-example iframe').contentDocument;

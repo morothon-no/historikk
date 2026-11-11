@@ -82,7 +82,7 @@ test('V3.5 live print revalidation blocks real clipping, overlap, oversized or m
  for(const [name,mutate]of Object.entries(faults)){
   const p=await h.browser.newPage();try{
    await open(p);await p.locator('iframe').evaluate((e,fn)=>{e.contentWindow.__prints=0;e.contentWindow.print=()=>e.contentWindow.__prints++;new Function('doc',`return (${fn})(doc)`)(e.contentDocument);},mutate.toString());
-   await p.locator('[data-honor-print]').click();await p.waitForFunction(()=>{const t=document.querySelector('.honor-diploma-status').textContent;return !t.startsWith('A4-utkast kontrollert');});
+   await p.locator('[data-honor-print]').click();await p.waitForFunction(()=>{const t=document.querySelector('.honor-diploma-status').textContent;return !t.startsWith('Diplomet er kontrollert');});
    assert.equal(await p.locator('[data-honor-print]').isEnabled(),false,name);assert.equal(await p.locator('[data-honor-pdf]').isEnabled(),false,name);assert.equal(await p.locator('iframe').evaluate(e=>e.contentWindow.__prints),0,name);
   }finally{await p.close();}
  }

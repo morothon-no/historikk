@@ -98,7 +98,7 @@ test('issue #13 quality details report the single 55mm SVG main badge for highes
  for(const width of [390,1440]){
   const p=await open(width);try{
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
-   await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('A4-utkast kontrollert'));
+   await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('Diplomet er kontrollert'));
    const lines=await p.locator('#honorProfile .honor-image-quality p').allTextContents();
    assert.equal(lines.length,1);assert.match(lines[0],/Morothons æresmerke.*SVG · ingen fast original-DPI · Skalerbar vektor ved 55\.0 mm/);
    for(const line of lines){assert.match(line,/ikke godkjent for tildeling/);assert.match(line,/kontrolleres og godkjennes/);}

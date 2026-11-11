@@ -1376,7 +1376,7 @@
     },
     {
       "id": "grunnlegger-flere",
-      "label": "Grunnlegger – diplomutkast",
+      "label": "Grunnlegger – diplom",
       "personId": "arnfinn-haverstad",
       "badgeId": "service-grunnlegger"
     },
@@ -1394,7 +1394,7 @@
     },
     {
       "id": "minnediplom",
-      "label": "For alltid en del av Morothon – minnediplomutkast",
+      "label": "For alltid en del av Morothon – minnediplom",
       "personId": "erling-danielsen",
       "badgeId": "service-memorial"
     },
@@ -1406,5 +1406,6 @@
       "name": "Eksempel på dugnadsperson"
     }
   ],
-  "volunteerList": "data/volunteers.json"
+  "volunteerList": "data/volunteers.json",
+  "diplomaApprovals": []
 }

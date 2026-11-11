@@ -163,6 +163,18 @@
     if(data.displayOrder&&(!Array.isArray(data.displayOrder)||data.displayOrder.some(id=>!groups.has(id))))throw new Error('Ugyldig visningsrekkefølge.');
     if(data.featuredIds&&(!Array.isArray(data.featuredIds)||new Set(data.featuredIds).size!==data.featuredIds.length||data.featuredIds.some(id=>{const m=findIn(data,id)?.member;return !m||!m.contribution?.allEditions||contribution(m).count!==35;})))throw new Error('Fremheving av 35 utgaver krever dokumenterte dugnadsår.');
     for(const item of [...(data.narrative?.timeline||[]),...(data.narrative?.sharedStories||[]),...(data.narrative?.uncertainties||[])])refs(item.sourceIds);
+    // Final-use approval is distinct from an award or issued diploma. It is
+    // scoped to one named recipient, one diploma and the exact reviewed content.
+    if(data.diplomaApprovals!==undefined&&!Array.isArray(data.diplomaApprovals))throw new Error('Ugyldig diplomgodkjenning.');
+    const approvals=new Set();
+    for(const a of data.diplomaApprovals||[]){
+      refs(a.sourceIds);const pair=a.personId+':'+a.badgeId;
+      if(!key(a.id)||approvals.has(a.id)||approvals.has(pair)||!findIn(data,a.personId)||
+        a.status!=='approved'||a.approvedForFinal!==true||!a.sourceIds?.length||
+        !/^\d{4}-\d{2}-\d{2}$/.test(a.approvedOn||'')||!/^[a-f0-9]{64}$/.test(a.contentSha256||'')||
+        !isActiveBadge(data,a.badgeId)||(a.badgeId!=='thanks'&&MorothonBadges.get(a.badgeId).kind!=='service'))throw new Error('Endelig diplom krever en særskilt kildebelagt godkjenning av nøyaktig innhold.');
+      approvals.add(a.id);approvals.add(pair);
+    }
     const examples=new Set();for(const e of data.diplomaExamples||[]){if(!key(e.id)||examples.has(e.id)||!e.label||!isActiveBadge(data,e.badgeId)||(e.badgeId!=='thanks'&&MorothonBadges.get(e.badgeId).kind!=='service'))throw new Error('Ugyldig diplomutkast.');examples.add(e.id);if(e.personId){const found=findIn(data,e.personId);if(!found||!badgePlan(data,found.member,found.group).badgeIds.includes(e.badgeId))throw new Error('Diplomutkast mangler merkeforslag.');}else if(e.illustrative!==true||!e.name||e.badgeId!=='thanks'&&(!Number.isInteger(e.contributionCount)||e.contributionCount<1))throw new Error('Typeeksempel må være eksplisitt og uten personkobling.');}
     return data;
   }

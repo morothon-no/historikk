@@ -171,7 +171,7 @@ kjent oppgave og eksisterende Morothon-logo. Ingen årsmerke, antall utgaver ell
 oppnåelsesdato konstrueres. `thanks` er et diplomvalg, ikke en tiende merketype.
 Alle 44 registrerte personer og fremtidige navneoppføringer omfattes.
 
-Alle personlige og anonyme hedersutkast har knappene «Skriv ut diplom» og
+Alle personlige diplomer og anonyme eksempler har knappene «Skriv ut diplom» og
 «Lagre som PDF». Begge bruker nettleserens eksisterende utskriftsdialog.
 PDF-knappen forklarer valget av PDF-skriver; A4 liggende, skala 100 %, null marger,
 bakgrunnsgrafikk på og topp-/bunntekst av anbefales.
@@ -182,9 +182,23 @@ med konservativ Range-bredde og synlig numerisk blekkhøyde. En liten intern
 padding i **service-malen** gir også ord som TAKK og MINNE plass til fontens
 fulle linjeboks. Ingen toleranse er økt og ingen kontroll er deaktivert.
 
-Utkast må vise «UTKAST – IKKE UTDELT» i selve dokumentet, også i PDF og på papir.
+Ikke-godkjente utkast må vise «UTKAST – IKKE UTDELT» i selve dokumentet, også i PDF og på papir.
 Reell overlapp, avkutting, manglende/endrede bilder, ubrukelig rasteroppløsning,
 ugyldig SVG eller manglende utkasttekst sperrer begge knapper. Alt kontrolleres
 på nytt ved klikk. Alle godkjenningsvarsler beholdes i bildekvalitetsseksjonen.
 Et grønt utkast gir ingen ny `award`, `issuedDiploma` eller `printReady:true`.
 Ordinære løperdiplomers modell, HTML, utskriftsflyt og eksisterende CSS er bevart.
+
+### Endelig bruk og profesjonelt sidespråk
+
+Generell sidevisning og galleri omtaler dokumentene som diplomer. Ikke-godkjente
+dokumenter viser utkastforklaring når de åpnes og utkastmerking i selve PDF-en.
+Endelige diplomer uten slik merking krever en særskilt, kildebelagt godkjenning
+av mottaker og nøyaktig innhold i `diplomaApprovals`, i tillegg til godkjente
+bildefiler. Registeret er tomt i produksjonsdataene.
+
+Kontrollsummen omfatter tekst, navn, forbehold, år/dato, grafikk og CSS.
+Utdatert godkjenning gir et merket utkast ved neste klargjøring. Endringer i et
+allerede åpnet endelig dokument sperrer utskrift til dokumentet er klargjort
+på nytt. Tekniske layoutkontroller gjelder i begge moduser. Ingen automatisk
+merketildeling eller diplomutstedelse gjennomføres.

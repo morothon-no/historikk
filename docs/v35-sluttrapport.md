@@ -26,14 +26,36 @@ Eksisterende A4-/Windows-layoutkontroller er beholdt, og reelle feil sperrer
 fortsatt. Designgodkjenning er et synlig forbehold, ikke et krav om formell
 utdeling for å kunne prøvetrykke. Ingen godkjenningsflagg er endret.
 
+## Profesjonell sidevisning og endelige diplomer
+
+Generell side, personkort og galleri har fått vanlig, verdig språk uten repeterte
+utkast- og utviklingsadvarsler. «Vis diplom» brukes gjennomgående. Usikre
+fartstidsanslag og forslag til æres-/minnemerker er fortsatt tydelig identifisert.
+Når et ikke-godkjent diplom åpnes, vises én forklaring og utkastmerking i
+selve dokumentet. Godkjente endelige diplomer kan skrives ut uten merkingen.
+
+`diplomaApprovals` er et nytt separat register over særskilte godkjenninger,
+fortsatt **tomt** i produksjonsdataene. Godkjenningen dekker mottaker, tekst,
+år/dato, forbehold, bilder, vannmerke og CSS. Endret innhold eller manglende
+bildegodkjenning gir et merket utkast; reelle tekniske feil sperrer utskrift.
+Ved klikk kontrolleres den faktisk viste versjonen på nytt. Ingen tildeling
+eller utstedelse opprettes automatisk.
+
+Seks nye regresjoner kontrollerer profesjonelt språk, særskilt godkjente
+PDF-er uten utkasttekst, manglende/utdaterte godkjenninger, faktisk grafikk,
+endrede tekster/CSS, kildekrav og foreløpige årsgrunnlag. Samme godkjenning er
+også testet på nytt servernavn og med produksjonsbyggets versjonerte adresser.
+Det rene PDF-eksemplet heter «Kontrollperson – bare testdata» og innebærer
+**ingen faktisk godkjenning** av en registrert person eller et hedersmerke.
+
 ## Tester og faktiske forhåndsvisninger
 
-- `npm test`: **156 bestått, 0 feil, 0 hoppet over**.
-- `npm run build`: bestått, 56 produksjonsfiler, innholdsversjon `12562e0bbc74f57c`.
+- `npm test`: **162 bestått, 0 feil, 0 hoppet over**.
+- `npm run build`: bestått, 56 produksjonsfiler, innholdsversjon `e884b1f92ea7ccab`.
 - Seks nye utskriftsregresjoner dekker alle 44 profiler, alle 11 gallerieksempler, faktisk PDF-tekst/A4, reelle feil, rasteroppløsning og Windows-lignende fontmåling ved 100–200 % pikseltetthet.
 - `git diff --check`, JavaScript-syntakskontroller og `actionlint`: bestått.
 - Chromium: faktiske helsidesbilder ved 1440 og 390 px, seksjonsbilder og kontroll av alle 44 kort/profiler. Ingen konsollfeil eller utilsiktet horisontal rulling i kontrollene.
-- **17 A4-utkast** er gjengitt fra gjeldende kode som PNG og én-sides liggende A4-PDF. Layoutkontrollen består; datoer, lange navn, hovedmerke og tydelig utkastmerking i både skjermvisning og PDF er kontrollert. Begge knapper er kontrollert for alle 44 personlige diplomvalg og alle 11 gallerieksempler. Oscar og Erlings 30-utgaversmilepæl bruker 2021, æresutkastene 2026. Anonyme og anslåtte milepæler samt minnediplomer får ikke oppdiktede datoer.
+- **17 personlige/anonyme A4-prøver fra produksjonsdataene**, pluss én særskilt godkjent prøve med fiktive testdata, er gjengitt som PNG og én-sides liggende A4-PDF. Layoutkontrollen består; datoer, lange navn, hovedmerke og korrekt utkastmerking for ikke-godkjente diplomer i både skjermvisning og PDF er kontrollert. Begge knapper er kontrollert for alle 44 personlige diplomvalg og alle 11 gallerieksempler. Oscar og Erlings 30-utgaversmilepæl bruker 2021, æresutkastene 2026. Anonyme og anslåtte milepæler samt minnediplomer får ikke oppdiktede datoer.
 - Det nye SVG-merket er kontrollert med både prosjektets font og Arial som fontalternativ. Originale medaljefiler er ikke endret.
 
 PDF-rapporten inneholder også `pdffonts` og `pdfimages -list`. Fontene er innebygd.
@@ -53,7 +75,7 @@ node scripts/review-honors-v35.cjs /tmp/morothon-v35
 
 Regresjonstestene kontrollerer at `data/history.json`, resultat- og person-ID-er, løperkoblinger, offisielle løpermerker og eksisterende bildefiler er bevart. Ordinær diplomkode utenfor hedersdiplomdelene og alle eksisterende CSS-regler er uendret; nye CSS-regler er avgrenset til `.diploma-service`. Eksisterende roller, historier, tildelinger og utstedelsesregistre bevares. Ingen nye `awards` eller `issuedDiplomas` opprettes.
 
-Hederssiden er fortsatt skjult fra offentlig navigasjon og har `noindex, nofollow`. Alle hedersdiplomer er forhåndsvisninger. Teknisk kontrollerte utkast kan skrives ut og lagres via nettleserens PDF-skriver, med «UTKAST – IKKE UTDELT» i selve dokumentet. Endelige diplomer og formell utstedelse er fortsatt sperret. Det nye merket har `design-draft` og `printReady: false`. Tekniske A4/PDF-prøvefiler er kontrollartefakter, ikke utstedte diplomer.
+Hederssiden er fortsatt skjult fra offentlig navigasjon og har `noindex, nofollow`. Alle hedersdiplomer er forhåndsvisninger. Teknisk kontrollerte utkast kan skrives ut og lagres via nettleserens PDF-skriver, med «UTKAST – IKKE UTDELT» i selve dokumentet. Endelige diplomer uten utkastmerking krever en særskilt godkjenning av nøyaktig mottaker/innhold og godkjent grafikk. Ingen slike faktiske godkjenninger er registrert av denne endringen. Det nye merket har `design-draft` og `printReady: false`. Tekniske A4/PDF-prøvefiler er kontrollartefakter, ikke utstedte diplomer.
 
 ## Gjenstående usikkerheter
 
@@ -67,7 +89,7 @@ Hederssiden er fortsatt skjult fra offentlig navigasjon og har `noindex, nofollo
 
 ## Endrede filer mot main
 
-37 filer i den samlede V3.5-leveransen. Store kontrollbilder og PDF-er ligger utenfor repositoryet.
+39 filer i den samlede V3.5-leveransen. Store kontrollbilder og PDF-er ligger utenfor repositoryet.
 
 ```text
 .github/workflows/pages.yml
@@ -93,9 +115,11 @@ tests/badges.cjs
 tests/diploma-layout.cjs
 tests/final-polish.cjs
 tests/final-readiness.cjs
+tests/helpers/honor-approval.cjs
 tests/helpers/honors.cjs
 tests/honor-badge-review.cjs
 tests/honor-draft-print.cjs
+tests/honor-final-approval.cjs
 tests/honors-aeresmerke.cjs
 tests/honors-dugnadsmilepaeler.cjs
 tests/honors-issue13.cjs
