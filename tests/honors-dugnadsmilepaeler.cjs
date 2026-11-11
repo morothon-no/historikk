@@ -101,7 +101,8 @@ test('date field uses the race when the volunteer actually reached each mileston
    return [thirty,honor,erling,anonymous,notDocumented].map(d=>({
      year:d.achievementYear||null,eventDate:d.eventDate||null,label:d.dateLabel,
      basis:d.dateBasis,preview:d.previewOnly,ready:d.imageReady,
-     htmlDate:new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html').querySelector('.diploma-date p').textContent,\n     htmlLineCount:new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html').querySelectorAll('.diploma-date .diploma-signature-line').length
+     htmlDate:new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html').querySelector('.diploma-date p').textContent,
+     htmlLineCount:new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html').querySelectorAll('.diploma-date .diploma-signature-line').length
    }));
   });
   const [thirty,honor,erling,anonymous,unknown]=result;
@@ -109,7 +110,8 @@ test('date field uses the race when the volunteer actually reached each mileston
   for(const entry of [honor,erling])assert.deepEqual([entry.year,entry.eventDate,entry.label],[2026,'2026-11-07','Søgne, 7. november 2026']);
   for(const entry of [anonymous,unknown])assert.deepEqual([entry.year,entry.eventDate,entry.label],[null,null,'']);
   for(const entry of result){
-    assert.equal(entry.htmlDate.trim(),entry.year?(entry.year===2021?'MILEPÆL OPPNÅDD I 2021':'35 DUGNADSUTGAVER I 2026'):'');\n    assert.equal(entry.htmlLineCount,0);
+    assert.equal(entry.htmlDate.trim(),entry.year?(entry.year===2021?'MILEPÆL OPPNÅDD I 2021':'35 DUGNADSUTGAVER I 2026'):'');
+    assert.equal(entry.htmlLineCount,0);
     assert.equal(entry.preview,true);assert.equal(entry.ready,false);
     assert.equal(entry.basis,entry.eventDate?'documented-race-date':'not-established');
     assert.doesNotMatch(entry.label,/utstedt|utskriftsdato|10\. november 2026/i);
