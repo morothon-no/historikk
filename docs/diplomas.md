@@ -163,26 +163,25 @@ Seks anonyme, ikke-utdelte diplomforhåndsvisninger viser de seks milepælene. O
 
 ### Datofelt: oppnådd milepæl, ikke utskriftsdato
 
-Ved dugnadsmilepæler 5/10/15/20/30/40 viser datofeltet arrangementsdatoen
-for personens N-te **bekreftede dugnadsutgave**, hentet fra
-`data/event-dates.json`. Et 30-utgaversmerke for Oscar og Erling peker
-dermed på **13. november 2021**. Æresdiplomutkast som uttrykkelig omtaler
-35 dokumenterte utgaver viser **7. november 2026**. Dette er
-oppnåelsesdato, **ikke** automatisk dato for individuell tildeling.
-Anonyme eller udokumenterte tilfeller beholder tomt datofelt.
+Ved dugnadsmilepæler 5/10/15/20/30/40 viser feltet året for personens N-te
+**bekreftede dugnadsutgave**. Oscar og Erlings 30-utkast viser dermed **2021**.
+Æresutkastene omtaler **35 dugnadsutgaver i 2026**, ikke en tildeling av æresmerket.
+Modellen beholder løpsdatoene **13. november 2021** og **7. november 2026** fra
+`data/event-dates.json` som kildegrunnlag. Anonyme eller udokumenterte tilfeller
+har ingen datotekst, plassholder eller datostrek. Signaturen til høyre beholdes.
 Hedersdiplomer er fortsatt ikke utstedt eller utskriftsgodkjent.
 
 ## Morothon-navn med glimt i øyet
 
-Dugnadsmilepælene heter nå Ivrig hjelper, Dugnadshelt, Trofast ildsjel, Bærebjelke, Fredet inventar og Morothon-legende. Det illustrerende A4-diplomet får en kort humoristisk hyllest til hvert nivå, men datofeltet følger fortsatt dokumentert løpsdato for faktisk nådd milepæl. Utskrift og formell utstedelse er ikke aktivert.
+Dugnadsmilepælene heter nå Ivrig hjelper, Dugnadshelt, Trofast ildsjel, Bærebjelke, Fredet inventar og Morothon-legende. Det illustrerende A4-diplomet får en kort humoristisk hyllest til hvert nivå. Et virkelig oppnåelsesår krever bekreftede dugnadsutgaver; anonyme eksempler har ingen dato. Utskrift og formell utstedelse er ikke aktivert.
 
 ## PR #16 – kontroll av alle ni merker og dugnadsdiplomer
 
 Historiske dugnadsdiplomer fryses til valgt terskel: 30 bekreftede utgaver gir
-30 og perioden 1992–2021 for Oscar/Erling, med løpsdato 13. november 2021 og
+30 og perioden 1992–2021 for Oscar/Erling, med synlig oppnåelsesår 2021 og
 den samme valgte humoristiske teksten som 30-eksemplet. De viser ikke dagens
 35 eller senere forslag til personlige hedersmerker. Æresdiplomene beholder
-deres 35 utgaver, personlige tekster og 7. november 2026. Anonyme eksempler
+deres 35 utgaver, personlige tekster og omtale av 2026. Anonyme eksempler
 viser aldri en oppdiktet arrangementsdato.
 
 Service-tekst på lyst papir har fått mørkere metallfarge for lesbarhet. Tre
@@ -191,8 +190,11 @@ Vanlig diplomimplementasjon utenfor service-funksjonene er identisk med
 utgangspunktet; ekstra CSS er avgrenset til `.diploma-service`. Dato, håndskriftstil
 og signaturfelt er bevart.
 
-Alle faktiske prøver, SVG-hasher, font-/tekstgrenser, kontrastmålinger og
-PDF-sidestørrelser finnes i `review/heder-pr16/`. SVG-medaljene er vektorer og
+Faktiske prøver, SVG-hasher, font-/tekstgrenser, kontrastmålinger og
+PDF-sidestørrelser regenereres med `node scripts/review-honor-badges.cjs`
+i operativsystemets midlertidige mappe `morothon-heder-pr16`.
+De store QA-filene følger ikke med i PR-en eller produksjonsbygget.
+Se [sluttkontrollen](pr16-sluttkontroll.md). SVG-medaljene er vektorer og
 har ingen fast original-DPI. PDF-kontroll viser innebygde fonter og vektormerker;
 de to eksisterende PNG-merkene beholder sine originale 2400 × 2400 piksler.
 Dette er teknisk dokumentasjon, ikke visuell godkjenning eller trykkgodkjenning.

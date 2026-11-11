@@ -90,7 +90,7 @@ test('V3.4 Anne Lene and Laila have one working profile each and no visible gues
 
 test('V3.4 a new sourced volunteer is added through volunteers.json alone, while a founder reference stays a single featured profile',async()=>{
  const fixture=structuredClone(list);
- fixture.sources={'fixture-source':{title:'Kilde for testnavn',publisher:'Test',basis:'Ikke en faktisk person.'}};
+ fixture.sources={...fixture.sources,'fixture-source':{title:'Kilde for testnavn',publisher:'Test',basis:'Ikke en faktisk person.'}};
  fixture.people.push({profileId:'oscar-lohne'},{id:'fixture-name',name:'Bare test <b>navn</b>',role:'Testrolle',sourceIds:['fixture-source']});
  const p=await h.browser.newPage({viewport:{width:390,height:1000}});
  try{
@@ -104,6 +104,10 @@ test('V3.4 a new sourced volunteer is added through volunteers.json alone, while
   assert.equal(await p.locator('#honorProfile .runner-profile-link,#honorProfile iframe').count(),0);
   const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return {total:d.groups.flatMap(g=>g.members).length,source:d.sources['fixture-source'].title,member:(await MorothonHonorsData.find('fixture-name')).member};});
   assert.equal(result.total,45);assert.equal(result.source,'Kilde for testnavn');assert.deepEqual(result.member.badgeProposal.badgeIds,[]);
+  const preserved=await p.evaluate(async()=> (await MorothonHonorsData.load()).sources);
+  for(const [id,source]of Object.entries({...core.sources,...list.sources}))assert.deepEqual(preserved[id],source,id);
+  assert.deepEqual(core,JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8')));
+  assert.deepEqual(list,JSON.parse(await fs.readFile(path.join(root,'data/volunteers.json'),'utf8')));
  }finally{await p.close();}
 });
 
@@ -112,9 +116,14 @@ test('V3.4 a failed volunteer fetch shows a clear error, never a silently incomp
  try{
   await p.route('**/data/volunteers.json',r=>r.fulfill({status:404,body:'Not found'}));
   await p.goto(h.base+'/heder.html');await p.waitForFunction(()=>document.querySelector('#honorStatus').textContent.includes('Dugnadslisten kunne ikke lastes'));
-  assert.equal(await p.locator('[data-honoree]').count(),44);
+  assert.equal(await p.locator('[data-honoree]').count(),0);
+  assert.equal(await p.locator('#honorProfile iframe,[data-honor-print],[data-honor-pdf]').count(),0);
+  assert.equal(await p.evaluate(async()=>{try{await MorothonHonorsData.load();return '';}catch(e){return e.message;}}),'Dugnadslisten kunne ikke lastes.');
   await p.unroute('**/data/volunteers.json');
   assert.equal(await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return d.groups.flatMap(g=>g.members).length;}),44);
+  await p.reload();await p.locator('[data-honoree="oscar-lohne"]').waitFor();
+  assert.equal(await p.locator('[data-honoree]').count(),44);
+  assert.doesNotMatch(await p.locator('#honorStatus').textContent(),/kunne ikke lastes/);
  }finally{await p.close();}
 });
 

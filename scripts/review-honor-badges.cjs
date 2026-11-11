@@ -1,5 +1,5 @@
 // Actual Chromium renders of registered SVG originals. Review files never enter the site build.
-const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
+const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),assert=require('node:assert/strict');
 const {createHash}=require('node:crypto'),{execFileSync}=require('node:child_process');
 const {createHarness}=require('./diploma-harness.cjs');
 const root=path.resolve(__dirname,'..');
@@ -35,7 +35,7 @@ async function inspectVector(page,url,font){
  });
 }
 
-async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
+async function review(out=path.join(os.tmpdir(),'morothon-heder-pr16'),badgesOnly=false){
  out=path.resolve(out);await fs.mkdir(out,{recursive:true});
  const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
  const levels=[5,10,15,20,30,40],ids=[...levels.map(n=>'service-dugnad-'+n),'service-hedersildsjel','service-grunnlegger','service-aeresmerke'];
@@ -44,7 +44,10 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
  const css='*{box-sizing:border-box}body{margin:0;padding:24px;background:#f6f3e9;color:#12343e;font:16px/1.5 Arial}h1,h2,p{text-align:center}h1{font-family:Georgia;font-weight:400}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.six{grid-template-columns:repeat(6,minmax(0,1fr))}figure{margin:0;padding:12px;background:#fffdf6;border:1px solid #d8cdb3;border-radius:12px;text-align:center}figure img{display:block;width:100%;height:345px;object-fit:contain}figcaption b{display:block;font-size:20px}figcaption small{display:block;color:#526b70}.six img{height:250px}.six b{font-size:17px}.single img{height:600px}.dark{background:#092936;color:#fff}';
  const tile=b=>`<figure><img src="${harness.base}/${b.vectorSource}"><figcaption><b>${b.name}</b><small>${b.milestoneEditions?b.milestoneEditions+' dugnadsutgaver':'Særskilt heder'} · designutkast</small></figcaption></figure>`;
  try{
-  const p=await harness.browser.newPage({deviceScaleFactor:1.5});p.on('pageerror',e=>errors.push(e.message));
+  const p=await harness.browser.newPage({deviceScaleFactor:1.5});p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  // Standalone SVG documents have no HTML icon link. Serve the site's real
+  // favicon for Chromium's implicit request in this local QA harness.
+  await p.route('**/favicon.ico',r=>r.fulfill({path:path.join(root,'assets/icons/favicon.ico'),contentType:'image/x-icon'}));
   for(const [file,items,width,extra]of [['alle-ni-merker',badges,1500,''],['seks-dugnadsmerker',badges.slice(0,6),1650,'six'],...levels.slice(3).map(n=>['naerbilde-'+n,[badges.find(b=>b.milestoneEditions===n)],650,'single'])]){
    await p.setViewportSize({width,height:1000});await p.setContent(`<html lang="no"><meta charset="utf-8"><style>${css}</style><h1>Morothon · ${file==='alle-ni-merker'?'ni hedersmerker':file==='seks-dugnadsmerker'?'seks nivåer i samme størrelse':items[0].name}</h1><p>Faktiske SVG-originaler · utkast til visuell godkjenning</p><div class="grid ${extra}" style="${items.length===1?'grid-template-columns:1fr':''}">${items.map(tile).join('')}</div></html>`);
    await p.evaluate(()=>Promise.all([...document.images].map(i=>i.decode())));await p.screenshot({path:path.join(out,file+'.png'),fullPage:true});
@@ -59,10 +62,15 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
   if(!badgesOnly){
    for(const width of [390,1440]){
     await p.setViewportSize({width,height:1000});await p.goto(harness.base+'/heder.html');
-    await p.locator('[data-honoree="oscar-lohne"]').waitFor();await p.locator('.honor-library>summary').click();
+    await p.locator('[data-honoree="oscar-lohne"]').waitFor();
+    const ids=await p.locator('[data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree));
+    assert.equal(ids.length,44);assert.equal(new Set(ids).size,44);
+    await p.screenshot({path:path.join(out,`oversikt-${width}.png`),fullPage:true});
+    await p.locator('[data-honor-group="memorial"]').screenshot({path:path.join(out,`til-minne-om-${width}.png`)});
+    await p.locator('.honor-library>summary').click();
     await p.evaluate(()=>Promise.all([...document.querySelectorAll('#serviceBadges img')].map(i=>i.decode())));
     await p.locator('#serviceBadges').screenshot({path:path.join(out,`merker-${width}.png`)});
-    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);views.push({width,badges:await p.locator('#serviceBadges img').count(),overflow:false});
+    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);views.push({width,people:ids.length,uniquePeople:new Set(ids).size,badges:await p.locator('#serviceBadges img').count(),overflow:false});
     for(const id of ['oscar-lohne','erling-askildsen']){
      await p.goto(harness.base+'/heder.html#person/'+id);await p.waitForFunction(id=>document.querySelector('#profileName')?.textContent===(id==='oscar-lohne'?'Oscar Lohne':'Erling Askildsen'),id);
      await p.evaluate(()=>Promise.all([...document.querySelectorAll('.honor-profile-header img')].map(i=>i.decode())));
@@ -77,6 +85,7 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
     },key);
     assert.equal(model.preview,true);assert.equal(model.imageReady,false);
     const q=await harness.browser.newPage({viewport:{width:1123,height:794},deviceScaleFactor:300/96});
+    q.on('pageerror',e=>errors.push(e.message));q.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
     await q.setContent(model.html);await q.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()))});
     await q.addScriptTag({url:harness.base+'/js/diplomas.js'});const layout=await q.evaluate(()=>MorothonDiplomas.checkLayout(document));
     assert.equal(layout.ready,true,key+': '+layout.failures.join(' '));
@@ -85,7 +94,11 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
     const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}});
     await fs.writeFile(path.join(out,key+'-A4-UTKAST-IKKE-UTDELT.pdf'),pdf);
     const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString();assert.match(info,/Pages:\s+1\b/);
+    const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.8898)<.5&&Math.abs(+size[2]-595.2756)<.5,key+': landscape A4');
     const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(model.name));assert.ok(text.includes(model.yearText||'Løpsleder Morothon'));assert.ok(!text.includes('__________________'));
+    const signoff=await q.locator('.diploma-service-signoff').evaluate(e=>({date:e.querySelector('.diploma-date').textContent.trim(),dateLines:e.querySelectorAll('.diploma-date .diploma-signature-line').length,signature:e.querySelector('.diploma-signature b').textContent,role:e.querySelector('.diploma-signature-role').textContent}));
+    assert.deepEqual(signoff,{date:model.yearText,dateLines:0,signature:'Håkon Lohne',role:'Løpsleder Morothon'});
+    assert.ok(!/tildelt i|utdelt i|utstedt i/i.test(text));
     proofs.push({key,...model,html:undefined,layout:{ready:layout.ready,failures:layout.failures},contrasts,pdfInfo:info});await q.close();
    }
   }
@@ -94,12 +107,12 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
   let markdown='# PR #16 – faktisk visuell gjennomgang\n\nAlle bilder er gjengitt direkte fra SVG-filene i denne grenen med Chromium. Ingen AI-illustrasjoner eller plassholdere. Alle merker er designutkast; ingen nye tildelinger og ingen offentlig utskrift/PDF.\n\n## Alle ni merker\n\n![Alle ni merker](alle-ni-merker.png)\n\n## Seks nivåer i lik størrelse\n\n![Seks dugnadsmerker](seks-dugnadsmerker.png)\n\n## Nærbilder\n\n';
   for(const n of [20,30,40])markdown+=`### ${n} dugnadsutgaver\n\n![${n} dugnadsutgaver](naerbilde-${n}.png)\n\n`;
   if(!badgesOnly){
-   markdown+='## Mobil og PC\n\n[Merker på mobil](merker-390.png) · [Merker på PC](merker-1440.png)\n\n![Mobilvisning](merker-390.png)\n\n';
+   markdown+='## Mobil og PC\n\n[Oversikt på mobil](oversikt-390.png) · [Oversikt på PC](oversikt-1440.png) · [Til minne om](til-minne-om-390.png)\n\n[Merker på mobil](merker-390.png) · [Merker på PC](merker-1440.png)\n\n![Mobilvisning](merker-390.png)\n\n';
    for(const id of ['oscar-lohne','erling-askildsen'])markdown+=`[${id}: mobil](${id}-390.png) · [PC](${id}-1440.png)\n\n`;
    markdown+='## A4 – utkast, ikke utdelt\n\nNavngitte dugnadsmilepæler viser oppnåelsesåret (30: 2021, 35 utgaver: 2026), ikke en formell tildelingsdato. Anonyme eksempler har ingen dato eller strek.\n\n';
    for(const item of proofs)markdown+=`### ${item.role} · ${item.name} · ${item.count} utgaver\n\n[PDF – utkast, ikke utdelt](${item.key}-A4-UTKAST-IKKE-UTDELT.pdf)\n\n![${item.key} – utkast, ikke utdelt](${item.key}-A4-UTKAST-IKKE-UTDELT.png)\n\n`;
   }
-  markdown+='## Målinger og vurdering\n\n[Maskinlesbare kilder, SHA-256, tekstgrenser og A4-resultater](kontroll.json). [Vurdering og testresultater](VURDERING.md).\n';
+  markdown+='## Målinger\n\n[Maskinlesbare kilder, SHA-256, tekstgrenser og A4-resultater](kontroll.json). Filene er lokale QA-prøver og skal ikke committes eller publiseres. Sluttrapporten vedlikeholdes i repositoryets `docs/pr16-sluttkontroll.md`.\n';
   await fs.writeFile(path.join(out,'README.md'),markdown);
   const html=markdown.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>').replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img alt="$1" src="$2">').replace(/\[([^\]]*)\]\(([^)]+)\)/g,'<a href="$2">$1</a>').replace(/\n\n/g,'<p>');
   await fs.writeFile(path.join(out,'index.html'),`<!doctype html><html lang="no"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}body{max-width:1600px;margin:auto}img{max-width:100%;height:auto;display:block;margin:20px auto}a{color:inherit}</style>${html}</html>`);

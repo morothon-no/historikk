@@ -12,13 +12,14 @@ V3.4-bestilling. `organizer-v34` i `data/honors.json` viser til dette grunnlaget
 Artikkelopplysninger fra Fædrelandsvennen og N247 beholder sine opprinnelige
 kildehenvisninger og forbehold; ingen nye artikkelopplysninger er lagt til.
 
-35 kanoniske personer vises én gang hver i oversikten. Oscar Lohne og
-Erling Askildsen har de to fremhevede kortene, og gjentas ikke som egne kort i
-grunnleggergruppen. Den gruppen viser Arnfinn Håverstad, Helge Reisvoll og Einar
-Danielsen; alle fem inngår fortsatt i grunnleggerkohorten og dens løpsberegninger.
-Dag Morten Frantzen, Håkon Lohne og Bent Bakke vises under arrangørhistorien.
-Øvrige dugnadsnavn vises kompakt, og Erling Danielsen/Floke Bredland har en egen,
-diskret «Til minne om»-omtale.
+44 kanoniske personer vises én gang hver i oversikten. Alle fem grunnleggerne
+er samlet i én seksjon: Oscar Lohne, Erling Askildsen, Arnfinn Håverstad,
+Helge Reisvoll og Einar Danielsen. Oscar og Erling har de to fremhevede kortene
+inne i samme seksjon. Grunnleggerkohorten og løpsberegningene er bevart.
+Dag Morten Frantzen, Håkon Lohne og Bent-Inge Bakke vises under arrangørhistorien.
+Øvrige dugnadsnavn vises kompakt. Erling Danielsen, Floke Bredland og Leif Wiig
+har en diskret «Til minne om»-omtale. Leif døde i 2023 og omtales for tidtaking
+og organisering.
 
 - Karl Kimestad er et eksplisitt navnealias for Kalle Kimestad. Én oppføring,
   ett søketreff og én kanonisk profil. `#person/karl-kimestad` peker videre til
@@ -26,10 +27,15 @@ diskret «Til minne om»-omtale.
 - Nils Henning Pedersen og Nils Martin Otterdal Nilsen er separate personer.
   Jenny Åmodt og Johannes Aamodt er separate oppføringer. Arnfinn G er ikke
   koblet til grunnlegger Arnfinn Håverstad.
-- Aud O, Arnfinn G og Magne beholdes som ufullstendige navn. Ole J.Bueklev
-  beholdes slik navnet er oppgitt. Ukjente år og oppgaver utelates i den
-  vanlige presentasjonen og forklares under «Bakgrunn og kilder».
-- Lars Aamodt er en egen person uten oppgitt startår/oppgave. Laila Endresen
+- Aud Ovesen, Arnfinn Grimestad, Magne Lia og Lars Vassbotn Aamodt har fått
+  fullstendige navn etter arrangørens opplysninger 11. november 2026. Tidligere
+  profil-ID-er beholdes. Bent-Inge Bakke har aliaset Bent Bakke; hans foreløpige
+  periode 2014–2019 brukes ikke som bekreftede enkeltår eller merketerskel.
+  Ole J.Bueklev beholdes slik navnet er oppgitt. Ukjente år og oppgaver utelates.
+- Birgitte Aamodt har startår 2022. Johannes Aamodt og Atle Aamodt har startår
+  2021, men Atle deltok ikke på dugnad i 2026. Ingen mellomliggende årsrekke,
+  deltakelsesantall eller merker utledes fra disse startårene.
+- Lars Vassbotn Aamodt er en egen person uten oppgitt startår/oppgave. Laila Endresen
   Skjulestad har bidratt på drikkestasjon sammen med Anne Lene Førland-Hansen.
   Begge har ukjent startår etter arrangørens siste avklaring. De begynte samtidig,
   men mulig 2016 er ikke bekreftet og brukes ikke som startår. Den tidligere
@@ -266,19 +272,17 @@ medaljeoriginaler, ordinære diplomer eller historiske løpsdata endres.
 
 ### Datofelt på dugnads- og hedersdiplomer
 
-Datofeltet viser **faktisk løpsdato da milepælen ble oppnådd**, ikke dagens
-dato eller dagen noen klikker på diplomutkastet. Dette beregnes kun fra
-bekreftede dugnadsutgaver og `data/event-dates.json`.
+Det synlige feltet viser **året for dokumentert milepæl**, ikke utskriftsår
+eller en formell tildelingsdato. Beregningen bruker bare bekreftede dugnadsutgaver.
+Eksakt løpsdato beholdes i modellen fra `data/event-dates.json` når den er kjent.
 
-- Oscar og Erling: `service-dugnad-30` oppnådd i 2021 → **13. november 2021**.
-- Æresdiplomutkastet deres omtaler alle **35 utgaver** og viser derfor
-  datoen for 35. utgave: **7. november 2026**. Det betyr ikke at det
-  særskilte Æresmerket allerede er formelt tildelt.
-- For personer uten tilstrekkelig bekreftede dugnadsår, eller der kilden
-  mangler historisk løpsdato, beholdes et **åpent datofelt**.
-- Anonyme typeeksempler har ikke en virkelig mottaker og får ingen
-  oppdiktet løpsdato. Ordinære deltakerdiplomer bruker allerede korrekt
-  arrangementsdato og er ikke endret.
+- Oscar og Erling: `service-dugnad-30` viser **MILEPÆL OPPNÅDD I 2021**;
+  modellens løpsdato er **13. november 2021**.
+- Æresdiplomutkastene viser **35 DUGNADSUTGAVER I 2026**;
+  modellens løpsdato er **7. november 2026**. Æresmerket er ikke formelt tildelt.
+- Anonyme typeeksempler og tilfeller uten dokumentert år har ingen datotekst,
+  plassholder eller datostrek. Signaturfeltet til høyre beholdes.
+- Ordinære deltakerdiplomer viser fortsatt korrekt arrangementsdato uendret.
 - En senere **formell tildelingsdato** hører hjemme i `awards` og
   `issuedDiplomas`, aldri som automatisk erstatning for oppnådd milepæl.
 
@@ -305,20 +309,21 @@ tittel. Lange titler er fordelt på to linjer. 20 har søylemotiv/burgunder,
 Æresmerket har en egen gullstrålende ordensstjerne og krone/løper. Hedersildsjel
 og Grunnlegger er bevart. Ingen godkjente løperoriginaler er endret.
 
-Faktiske SVG-gjengivelser, mobil-/PC-visning og ti A4-prøver ligger i
-[`review/heder-pr16/README.md`](../review/heder-pr16/README.md). Denne mappen
-inntas ikke i nettstedets runtime-bygg. Reproduser med:
+Faktiske SVG-gjengivelser, mobil-/PC-visning og ti A4-prøver regenereres utenfor
+repositoryet. Store PNG/PDF-er og utdaterte målinger er fjernet fra PR-en.
+Se [sluttkontrollen](pr16-sluttkontroll.md). Reproduser med:
 
 ```sh
-node scripts/review-honor-badges.cjs review/heder-pr16
+node scripts/review-honor-badges.cjs /tmp/morothon-heder-pr16
 ```
 
 En valgt, historisk dugnadsmilepæl viser N bekreftede utgaver og perioden frem
 til N-te utgave, ikke dagens samlede antall. Oscar/Erling får dermed 30,
-1992–2021 og 13. november 2021 på Fredet inventar-utkastet, med den valgte
+1992–2021 og oppnåelsesåret 2021 på Fredet inventar-utkastet, med den valgte
 Riksantikvaren-teksten. Senere forslag til særskilt heder tas ikke inn på dette
-historiske milepælsdiplomet. Deres æresutkast beholder 35, 1992–2026 og
-7. november 2026. Kildedata, person-ID-er, merkeforslag og tildelinger er uendret.
+historiske milepælsdiplomet. Deres æresutkast beholder 35 og 1992–2026.
+Eksakte løpsdatoer beholdes i modellen. Kildedata, person-ID-er, merkeforslag
+og tildelinger er bevart.
 
 SVG-er er skalerbare vektorer, ikke 2400px-bitmaporiginaler med en fast DPI.
 Kvalitetspanelet skiller nå SVG fra PNG. Hovedmerket er 55 mm; ved tre

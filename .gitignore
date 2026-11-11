@@ -7,3 +7,5 @@ __pycache__/
 *.log
 .env
 .env.*
+# Reproducible QA renders; keep official source assets under assets/.
+review/heder-pr16/

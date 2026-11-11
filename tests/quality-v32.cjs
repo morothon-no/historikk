@@ -44,8 +44,13 @@ test('V3.2 controls have accessible names and keyboard profile/dialog/menu focus
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  }finally{await p.close();}}
 });
-test('V3.2 CI tests branches/PRs and deploys only verified main; existing historical corrections and registered files are preserved',async()=>{
- assert.deepEqual((await fs.readdir(path.join(root,'.github/workflows'))).sort(),['pages.yml']);const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');assert.match(workflow,/pull_request:[\s\S]*branches: \[main\]/);assert.match(workflow,/branches: \[main, 'codex\/\*\*'\]/);assert.match(workflow,/needs: verify/);assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);for(const s of ['npm ci','npm test','npm run build','playwright install --with-deps chromium','poppler-utils','requirements-dev.txt','fetch-depth: 0'])assert.ok(workflow.includes(s),s);assert.doesNotMatch(workflow,/continue-on-error|if: always\(\)/);
+test('V3.2 CI runs once per PR update, tests main pushes and deploys only verified main; historical corrections and registered files are preserved',async()=>{
+ assert.deepEqual((await fs.readdir(path.join(root,'.github/workflows'))).sort(),['pages.yml']);const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');
+ // A feature push is tested by pull_request only; main keeps its tested Pages deployment.
+ const triggers=workflow.match(/^on:\n([\s\S]*?)(?=^\S)/m)?.[1];assert.ok(triggers);
+ assert.deepEqual([...triggers.matchAll(/^  ([a-z_]+):/gm)].map(m=>m[1]),['push','pull_request','workflow_dispatch']);
+ assert.match(triggers,/^  push:\n    branches: \[main\]\n/m);assert.match(triggers,/^  pull_request:\n    branches: \[main\]\n/m);assert.doesNotMatch(triggers,/codex|\*|paths-ignore|types:/);
+ assert.match(workflow,/needs: verify/);assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);for(const s of ['npm ci','npm test','npm run build','playwright install --with-deps chromium','poppler-utils','requirements-dev.txt','fetch-depth: 0'])assert.ok(workflow.includes(s),s);assert.doesNotMatch(workflow,/continue-on-error|if: always\(\)/);
   const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
   const originalRegistry=JSON.parse(execFileSync('git',['show','bb22ec8:data/badges.json'],{cwd:root}));
   assert.equal(registry.badges.length,originalRegistry.badges.length+7,'Only seven proposed designs may extend the registry');
