@@ -70,3 +70,12 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 .honor-founder-names{margin:0;grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:950px){.honor-founder-names{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.honor-founders{padding:20px 14px;margin:26px 0}.honor-founder-names{grid-template-columns:1fr}.honor-founder-others{margin-top:12px}.honor-founders-heading h2{font-size:27px}}
+
+/* Draft output uses the existing browser print flow, never formal issuance. */
+.honor-print-controls{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.honor-print-controls button{min-height:44px;padding:11px 18px;border:1px solid #123b45;border-radius:8px;background:#123b45;color:#fff;font:700 14px Arial,sans-serif;cursor:pointer}
+.honor-print-controls button:disabled{opacity:.45;cursor:not-allowed}
+.honor-print-controls button:focus-visible{outline:2px solid #9c7933;outline-offset:4px}
+.honor-print-help{font-size:12px;color:#526b70;max-width:850px}
+@media(max-width:650px){.honor-print-controls button{flex:1}}
+@media print{.honor-print-controls,.honor-print-help{display:none}}

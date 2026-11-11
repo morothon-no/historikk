@@ -2,7 +2,7 @@
 
 Hederssiden er en skjult forhåndsvisning med `noindex, nofollow`, uten lenker i
 hovedmeny, mobilmeny eller ordinære løperprofiler. Direkte URL er offentlig,
-ikke tilgangsbeskyttet. Ingen automatisk tildeling eller offentlig diplomutstedelse.
+ikke tilgangsbeskyttet. Ingen automatisk tildeling eller offentlig utstedelse av endelige diplomer. Tydelig merkede utkast kan skrives ut etter teknisk kontroll.
 
 ## Ett hovedmerke
 
@@ -16,7 +16,7 @@ profiler, diplomvalg og i personrapporten. Prioriteten er:
 
 Kort og profiler viser høyst ett medaljebilde. Tidligere milepæler og rollen
 som grunnlegger omtales som tekst, ikke en sekundær medaljesamling.
-Ukjent eller utilstrekkelig grunnlag gir ingen medalje; personen beholdes.
+Ukjent eller utilstrekkelig grunnlag gir ingen medalje; personen beholdes med et personlig «Takk for innsatsen»-diplom. Alle 44 kan åpne profil og diplom. Dette gjelder også nye navneoppføringer.
 
 Ni merketyper er aktive: Ivrig hjelper (5), Dugnadshelt (10), Trofast ildsjel
 (15), Bærebjelke (20), Fredet inventar (30), Morothon-legende (40), Grunnlegger,
@@ -81,7 +81,7 @@ beregner visningsanslag separat. `arrangedYears()` finner gjennomførte utgaver
 fra resultater og teller ikke bare kalenderoppføringer, påmeldte eller DNS.
 Startår, valgfritt sluttår og eksplisitte fravær påvirker anslaget. `confirmedYears`
 fylles aldri med antatte mellomår. `diplomaChoices()` tilbyr bare aktive nivåer
-med tilstrekkelig grunnlag, uten å endre tildelingsregisteret.
+med tilstrekkelig grunnlag. Uten kvalifisert hovedmerke returneres `thanks`, et diplomvalg og **ikke** et nytt medaljenivå. Tildelingsregisteret endres aldri.
 
 Dugnadsheltene sorteres etter eldste registrerte startår og norsk alfabet;
 ukjente startår ligger sist. Minneseksjon og grunnleggerrekkefølge sorteres ikke om.
@@ -90,8 +90,26 @@ koblinger til løperprofiler beholdes. Løpsstarter blir aldri dugnadsutgaver.
 
 ## Diplomer og kontrollartefakter
 
-Alle hedersdiplomer er forhåndsvisninger med `previewOnly:true`, `imageReady:false`,
-uten utskrifts-/PDF-knapper og uten `allow-modals` i iframe. Minnediplomet sier
+Alle hedersdiplomer beholder `previewOnly:true` og `imageReady:false`: dette
+betyr at de ikke er godkjente/utstedte originaldiplomer. `printMode:draft`
+og `checkServiceDraft()` åpner en **separat** utskriftsvei for teknisk kontrollerte
+utkast. Begge knappene finnes i alle personprofiler og alle gallerieksempler.
+Alle utskrifter og PDF-er inneholder «UTKAST – IKKE UTDELT» i selve A4-dokumentet.
+
+Iframe har `allow-same-origin allow-modals`, uten skript. Knappene åpner den
+samme nettleserbaserte utskriftsdialogen som løperdiplomene. PDF-knappen viser
+veiledning om PDF-skriver, A4 liggende, 100 %, null marger, bakgrunnsgrafikk og
+avslått topp-/bunntekst. Ingen filutstedelse eller tildeling registreres.
+
+`checkServiceDraft()` gjenbruker den uendrede V3.1-layoutmålingen og kontrollerer
+faktisk lastet grafikk, integritet, transparens, mulig kildebeskjæring, raster-DPI
+ved vist størrelse, SVG-avhengigheter, vannmerke og synlig utkasttekst. Reelle
+feil sperrer begge knapper. Kontrollen gjentas før hver utskrift. Design- og
+beskjæringsgodkjenning er fortsatt synlige varsler, men stopper ikke et ellers
+teknisk brukbart, tydelig merket utkast. `printReady` endres ikke.
+
+Takkediplomer bruker eksisterende Morothon-logo, personens navn og eventuell
+kjent rolle, uten å dikte opp startår, antall eller medaljer. Minnediplomet sier
 «TIL MINNE OM», aldri at diplomet er overlevert mottakeren. Historiske milepæler
 bruker dokumentert oppnåelsesår; anslag og minneomtaler får ingen oppdiktet dato.
 Vanlige løperdiplomer, 2018-datoen 11. november og alle løpsresultater er uendret.

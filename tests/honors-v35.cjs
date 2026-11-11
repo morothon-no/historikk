@@ -37,10 +37,11 @@ test('V3.5 nine active badge types coexist with unchanged retired assets and pre
   if(JSON.stringify(m.badgeProposal)!==JSON.stringify(now.badgeProposal))assert.ok(now.previousBadgeProposals.some(p=>JSON.stringify(p)===JSON.stringify(m.badgeProposal)),m.id);
   for(const r of m.roles)assert.ok(now.roles.some(n=>JSON.stringify(n)===JSON.stringify(r)),m.id+': historical role');
  }
- for(const dir of ['data/history.json','data/event-dates.json','assets','index.html','js/history-data.js','js/brag-card.js','css/diplomas.css']){
+ await require('./helpers/honors.cjs').assertOrdinaryDiplomaCss(root);
+ for(const dir of ['data/history.json','data/event-dates.json','assets','index.html','js/history-data.js','js/brag-card.js']){
   const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');for(const f of files)assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
  }
- const stripService=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE\n').replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOC\n');
+ const stripService=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE\n').replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOC\n').replace('serviceExample, checkServiceDraft, printServiceDraft,','serviceExample,');
  assert.equal(stripService(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),stripService(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));
 });
 
@@ -62,7 +63,7 @@ test('V3.5 every card and profile has at most one main badge at mobile/desktop w
     await p.goto(h.base+'/heder.html#person/'+m.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,m.name);
     assert.equal(await p.locator('.honor-profile-medals img').count(),expected[m.id]?1:0,m.id);assert.equal(await p.locator('.honor-secondary-badges img').count(),0);
     assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,m.id);
-    assert.equal(await p.locator('option[value="service-hedersildsjel"],option[value="service-dugnadshelt"],[data-honor-print],[data-honor-pdf]').count(),0);
+    assert.equal(await p.locator('option[value="service-hedersildsjel"],option[value="service-dugnadshelt"]').count(),0);
    }
    await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));assert.equal(await p.locator('a[href*="heder.html"]').count(),0);assert.deepEqual(errors,[]);
   }finally{await p.close();}

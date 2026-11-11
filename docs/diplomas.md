@@ -152,7 +152,7 @@ Minnediplomet har tittelen «MINNEDIPLOM» og «TIL MINNE OM» over navnet, varm
 hederstekst og én minnemedalje. Det har ingen oppdiktet dato eller formulering
 om personlig overlevering. Anonyme typeeksempler har ingen dato eller datostrek.
 Håkon Lohnes typografiske signaturfelt beholdes. Alle service-diplomer er fortsatt
-forhåndsvisninger, uten aktiv offentlig utskrift/PDF eller nye tildelinger.
+forhåndsvisninger, uten nye tildelinger eller utstedte originaldiplomer. Teknisk kontrollerte utkast kan nå skrives ut eller lagres via nettleserens PDF-skriver.
 
 Se [hedersmodellen](honors.md). Reproduser faktiske A4-prøver med:
 
@@ -163,3 +163,28 @@ node scripts/review-honors-v35.cjs /tmp/morothon-v35
 SVG-kilder er skalerbare vektorer, uten fast original-DPI. Ikke bruk deklarert
 pikselstørrelse som bevis på bitmapoppløsning. Godkjenningsvarsler og layoutkontroll
 beholdes; en godkjent test er ikke automatisk trykkgodkjenning av et nytt motiv.
+
+### Personlig takk og utskrivbare utkast
+
+Personer uten kvalifisert årsmerke får «TAKK FOR INNSATSEN» med navn, eventuell
+kjent oppgave og eksisterende Morothon-logo. Ingen årsmerke, antall utgaver eller
+oppnåelsesdato konstrueres. `thanks` er et diplomvalg, ikke en tiende merketype.
+Alle 44 registrerte personer og fremtidige navneoppføringer omfattes.
+
+Alle personlige og anonyme hedersutkast har knappene «Skriv ut diplom» og
+«Lagre som PDF». Begge bruker nettleserens eksisterende utskriftsdialog.
+PDF-knappen forklarer valget av PDF-skriver; A4 liggende, skala 100 %, null marger,
+bakgrunnsgrafikk på og topp-/bunntekst av anbefales.
+
+`checkServiceDraft()` avgjør teknisk utskrivbarhet separat fra `imageReady` og
+`printReady`. Den gjenbruker `checkLayout()` uendret, inkludert Windows-fiksen
+med konservativ Range-bredde og synlig numerisk blekkhøyde. En liten intern
+padding i **service-malen** gir også ord som TAKK og MINNE plass til fontens
+fulle linjeboks. Ingen toleranse er økt og ingen kontroll er deaktivert.
+
+Utkast må vise «UTKAST – IKKE UTDELT» i selve dokumentet, også i PDF og på papir.
+Reell overlapp, avkutting, manglende/endrede bilder, ubrukelig rasteroppløsning,
+ugyldig SVG eller manglende utkasttekst sperrer begge knapper. Alt kontrolleres
+på nytt ved klikk. Alle godkjenningsvarsler beholdes i bildekvalitetsseksjonen.
+Et grønt utkast gir ingen ny `award`, `issuedDiploma` eller `printReady:true`.
+Ordinære løperdiplomers modell, HTML, utskriftsflyt og eksisterende CSS er bevart.

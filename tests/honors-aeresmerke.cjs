@@ -72,7 +72,7 @@ test('highest-honor page and each A4 preview remain visually contained and impos
     assert.equal(q.secondary,0);assert.equal(q.layout,true,q.reason.join(' '));
     assert.equal(q.fit,true);assert.equal(q.preview,true);assert.equal(q.canPrint,false);
     assert.equal(q.approved,false);assert.equal(q.transparent,true);
-    assert.deepEqual(q.dims,[2400,2400]);assert.equal(q.printed,0);
+    assert.deepEqual(q.dims,[2400,2400]);assert.equal(q.printed,2);
    }
   }finally{await page.close();}
  }

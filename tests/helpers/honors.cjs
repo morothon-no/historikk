@@ -16,4 +16,11 @@ function historicalMember(member){
  if(copy.memorialRecognition){for(const key of ['reason','sourceIds','diplomaTribute']){if(old[key]===undefined)delete copy[key];else copy[key]=old[key];}delete copy.memorialRecognition;delete copy.serviceEstimate;}
  return copy;
 }
-module.exports={readHonors,historicalMember};
+async function assertOrdinaryDiplomaCss(root){
+ const assert=require('node:assert/strict'),{execFileSync}=require('node:child_process');
+ const original=execFileSync('git',['show','8e28dd6:css/diplomas.css'],{cwd:root}).toString(),current=await fs.readFile(path.join(root,'css/diplomas.css'),'utf8');
+ assert.ok(current.startsWith(original),'All existing diploma styles are preserved verbatim');
+ const added=current.slice(original.length).replace(/\/\*[\s\S]*?\*\//g,'').trim();
+ for(const rule of added.split('}').filter(s=>s.trim()))assert.ok(rule.trim().startsWith('.diploma-service '),'New styles are scoped only to service drafts');
+}
+module.exports={readHonors,historicalMember,assertOrdinaryDiplomaCss};

@@ -77,7 +77,7 @@
   }
   function diplomaChoices(data,member,editionYears){
     const main=mainBadge(data,member,editionYears);
-    if(!main.badgeId)return [];
+    if(!main.badgeId)return ['thanks'];
     if(main.badgeId==='service-memorial'||main.badgeId==='service-grunnlegger')return [main.badgeId];
     const levels=(data.awardPolicy?.milestones||[]).filter(m=>m.minimumDocumentedEditions<=(main.count||0)).map(m=>m.badgeId);
     return [...new Set([main.badgeId,...levels])].filter(id=>isActiveBadge(data,id));
@@ -163,7 +163,7 @@
     if(data.displayOrder&&(!Array.isArray(data.displayOrder)||data.displayOrder.some(id=>!groups.has(id))))throw new Error('Ugyldig visningsrekkefølge.');
     if(data.featuredIds&&(!Array.isArray(data.featuredIds)||new Set(data.featuredIds).size!==data.featuredIds.length||data.featuredIds.some(id=>{const m=findIn(data,id)?.member;return !m||!m.contribution?.allEditions||contribution(m).count!==35;})))throw new Error('Fremheving av 35 utgaver krever dokumenterte dugnadsår.');
     for(const item of [...(data.narrative?.timeline||[]),...(data.narrative?.sharedStories||[]),...(data.narrative?.uncertainties||[])])refs(item.sourceIds);
-    const examples=new Set();for(const e of data.diplomaExamples||[]){if(!key(e.id)||examples.has(e.id)||!e.label||!isActiveBadge(data,e.badgeId)||MorothonBadges.get(e.badgeId).kind!=='service')throw new Error('Ugyldig diplomutkast.');examples.add(e.id);if(e.personId){const found=findIn(data,e.personId);if(!found||!badgePlan(data,found.member,found.group).badgeIds.includes(e.badgeId))throw new Error('Diplomutkast mangler merkeforslag.');}else if(e.illustrative!==true||!e.name||!Number.isInteger(e.contributionCount)||e.contributionCount<1)throw new Error('Typeeksempel må være eksplisitt og uten personkobling.');}
+    const examples=new Set();for(const e of data.diplomaExamples||[]){if(!key(e.id)||examples.has(e.id)||!e.label||!isActiveBadge(data,e.badgeId)||(e.badgeId!=='thanks'&&MorothonBadges.get(e.badgeId).kind!=='service'))throw new Error('Ugyldig diplomutkast.');examples.add(e.id);if(e.personId){const found=findIn(data,e.personId);if(!found||!badgePlan(data,found.member,found.group).badgeIds.includes(e.badgeId))throw new Error('Diplomutkast mangler merkeforslag.');}else if(e.illustrative!==true||!e.name||e.badgeId!=='thanks'&&(!Number.isInteger(e.contributionCount)||e.contributionCount<1))throw new Error('Typeeksempel må være eksplisitt og uten personkobling.');}
     return data;
   }
   async function load(){if(!pending)pending=(async()=>{await MorothonBadges.init();const r=await fetch('data/honors.json',{cache:'no-cache'});if(!r.ok)throw new Error('Navnelisten kunne ikke lastes.');let data=await r.json();if(data.volunteerList!==undefined){if(data.volunteerList!=='data/volunteers.json')throw new Error('Ugyldig dugnadslistefil.');const v=await fetch(data.volunteerList,{cache:'no-cache'});if(!v.ok)throw new Error('Dugnadslisten kunne ikke lastes.');data=mergeVolunteers(data,await v.json());}return validate(data);})().catch(e=>{pending=null;throw e;});return pending;}

@@ -59,17 +59,17 @@ test('issue #13 renders short non-duplicated volunteer rows with only supplied d
  }
 });
 
-test('issue #13 old volunteer URLs remain minimal, return focus and never grow a story, runner profile or diploma automatically',async()=>{
+test('issue #13 old volunteer URLs remain minimal, return focus and never invent a story or runner profile, but offer a personal thank-you draft',async()=>{
  const p=await open();try{
   for(const entry of list.people.filter(e=>e.id&&!['jon-fjeld','rune-bergjord','per-sangvik','tom-lohne','birgitte-aamodt','johannes-aamodt','atle-aamodt'].includes(e.id))){
    await p.goto(h.base+'/heder.html#person/'+entry.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,entry.name);
    assert.equal(await p.locator('#honorProfile .honor-story,#honorProfile .honor-racing,#honorProfile img,#honorProfile iframe,#honorProfile .eyebrow').count(),0);
-   assert.ok(await p.locator('#honorProfile').evaluate(e=>e.getBoundingClientRect().height<350));
+   assert.ok(await p.locator('#honorProfile').evaluate(e=>e.getBoundingClientRect().height<500));
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await p.keyboard.press('Escape');await p.locator('#honorOverview').waitFor({state:'visible'});
    assert.equal(await p.evaluate(()=>document.activeElement.closest('[data-honoree]')?.dataset.honoree),entry.id);
   }
-  const rejected=await p.evaluate(async()=>{try{await MorothonDiplomas.serviceDraft('christan-berthelsen');return false;}catch{return true;}});assert.equal(rejected,true);
+  const gratitude=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('christan-berthelsen');return {thanks:d.gratitude,count:d.contributionCount,year:d.achievementYear};});assert.deepEqual(gratitude,{thanks:true,count:null,year:null});
   // Legacy long fields must not silently upgrade a name-list entry to a full profile.
   const r=await p.evaluate(async()=>{const d=await MorothonHonorsData.load(),core=structuredClone(d);core.groups.forEach(g=>g.members=g.members.filter(m=>!m.listingOnly));const merged=MorothonHonorsData.mergeVolunteers(core,{schemaVersion:1,sourceIds:['organizer-v34'],people:[{id:'fixture-only',name:'Bare test',text:'Automatisk skryt skal ikke vises',stories:[{text:'En lang testhistorie',source:'Test',confirmed:true}]}]});return merged.groups.flatMap(g=>g.members).find(m=>m.id==='fixture-only');});
   assert.equal(r.listingOnly,true);assert.equal(r.reason,null);assert.deepEqual(r.stories,[]);assert.deepEqual(r.roles,[]);assert.deepEqual(r.badgeProposal.badgeIds,[]);
@@ -84,7 +84,7 @@ test('issue #13 personal organizer stories stay separate from racing and all hon
    assert.equal(await p.locator('.honor-racing').count(),0);
    await p.goto(h.base+'/heder.html#person/hakon-lohne');await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Håkon Lohne');
    const hakon=await p.locator('#honorProfile').innerText();for(const word of ['Det spreke alibiet','replikken','løypemerking','klargjøring','nedrigging','2016'])assert.ok(hakon.includes(word));
-   assert.equal(await p.locator('.honor-racing').count(),1);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
+   assert.equal(await p.locator('.honor-racing').count(),1);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="christan-berthelsen"]').waitFor();
    assert.equal(await p.locator('#honorFeatured [data-honoree]').count(),5);assert.equal(await p.locator('#honorFeatured .honor-featured-card').count(),2);assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);assert.equal(await p.locator('[data-honoree="erling-askildsen"]').count(),1);
    for(const key of ['dugnadshelt-fem','grunnlegger-flere','oscar-35','erling-35']){const d=await p.evaluate(async key=>{const m=await MorothonDiplomas.serviceExample(key);return {preview:m.previewOnly,ready:m.imageReady};},key);assert.deepEqual(d,{preview:true,ready:false});}
@@ -106,7 +106,7 @@ test('issue #13 quality details report the single 55mm SVG main badge for highes
    await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('h1')?.textContent==='DUGNADSDIPLOM');
    await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Fredet inventar:'));
    assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),1);
-   assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
+   assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
    assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','service-dugnad-30')).imageReady),false);
   }finally{await p.close();}
  }

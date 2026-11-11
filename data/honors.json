@@ -1397,6 +1397,13 @@
       "label": "For alltid en del av Morothon – minnediplomutkast",
       "personId": "erling-danielsen",
       "badgeId": "service-memorial"
+    },
+    {
+      "id": "takk-for-innsatsen",
+      "label": "Takk for innsatsen – uten årsmerke",
+      "badgeId": "thanks",
+      "illustrative": true,
+      "name": "Eksempel på dugnadsperson"
     }
   ],
   "volunteerList": "data/volunteers.json"

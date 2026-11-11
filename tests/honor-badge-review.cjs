@@ -38,7 +38,7 @@ test('PR16 milestone diplomas freeze the count, period, selected humour and actu
    assert.deepEqual([result.honor.count,result.honor.first,result.honor.last,result.honor.date],[35,1992,2026,'Søgne, 7. november 2026']);
    assert.equal(result.source,35);for(const d of [result.thirty,result.honor]){assert.equal(d.ready,false);assert.equal(d.preview,true);}
   }
-  for(const example of honors.diplomaExamples.filter(e=>e.illustrative)){
+  for(const example of honors.diplomaExamples.filter(e=>e.illustrative&&e.badgeId!=='thanks')){
    const d=await p.evaluate(async id=>{const d=await MorothonDiplomas.serviceExample(id);return {count:d.contributionCount,date:d.dateLabel,year:d.achievementYear,tribute:d.tribute};},example.id);
    assert.equal(d.count,example.contributionCount);assert.equal(d.tribute,example.tribute);assert.equal(d.year,null);assert.equal(d.date,'');
   }
@@ -48,7 +48,7 @@ test('PR16 milestone diplomas freeze the count, period, selected humour and actu
 test('PR16 every example describes its selected threshold, never five years for all six levels',async()=>{
  const p=await h.browser.newPage();try{
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
-  for(const e of honors.diplomaExamples.filter(e=>e.illustrative)){
+  for(const e of honors.diplomaExamples.filter(e=>e.illustrative&&e.badgeId!=='thanks')){
    const text=await p.locator(`[data-example="${e.id}"]`).textContent();assert.ok(text.includes(e.contributionCount+' dokumenterte dugnadsutgaver'));assert.ok(text.includes('Vis utkastet for '+e.contributionCount+' dugnadsutgaver'));
   }
  }finally{await p.close();}
@@ -74,7 +74,7 @@ test('PR16 legacy assets, all histories, IDs, awards and ordinary diploma implem
  const originalCss=execFileSync('git',['show',base+':css/diplomas.css'],{cwd:root}).toString(),css=await fs.readFile(path.join(root,'css/diplomas.css'),'utf8');assert.ok(css.startsWith(originalCss));assert.match(css.slice(originalCss.length),/\.diploma-service /);
  const ordinary=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE-ONLY\n')
   .replace(/  \/\/ Volunteer diplomas show the documented milestone YEAR only\.[\s\S]*?(?=  function serviceDocumentHtml)/,'')
-  .replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOCUMENT-ONLY\n');
+  .replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOCUMENT-ONLY\n').replace('serviceExample, checkServiceDraft, printServiceDraft,','serviceExample,');
  assert.equal(ordinary(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),ordinary(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));
  for(const b of registry.badges.filter(b=>b.kind==='service')){assert.equal(b.status,'design-draft');assert.equal(b.printReady,false);assert.equal(b.cropReviewed,false);}
  assert.ok(honors.groups.flatMap(g=>g.members).every(m=>!m.awards.length&&!m.issuedDiplomas.length));

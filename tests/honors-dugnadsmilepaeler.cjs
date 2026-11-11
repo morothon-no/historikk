@@ -56,7 +56,7 @@ test('only explicitly documented volunteer editions count and determine highest 
  }finally{await p.close()}
 });
 
-test('six anonymous preview diplomas exist with all award issuance and print paths locked, responsive for mobile and desktop',async()=>{
+test('six anonymous preview diplomas exist with formal issuance locked and clearly marked draft print controls, responsive for mobile and desktop',async()=>{
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1100}});
   try{
@@ -67,7 +67,7 @@ test('six anonymous preview diplomas exist with all award issuance and print pat
      ['Ivrig hjelper','Dugnadshelt','Trofast ildsjel','Bærebjelke','Fredet inventar','Morothon-legende','Morothons æresmerke','Grunnlegger','For alltid en del av Morothon']);
    const a=await p.evaluate(async()=>{
      const h=await MorothonHonorsData.load();
-     return Promise.all(h.diplomaExamples.filter(x=>x.illustrative).map(async x=>{
+     return Promise.all(h.diplomaExamples.filter(x=>x.illustrative&&x.badgeId!=='thanks').map(async x=>{
        const d=await MorothonDiplomas.serviceExample(x.id);
        return {n:x.contributionCount,key:d.assetKey,ready:d.imageReady,preview:d.previewOnly,issued:!!d.award};
      }));
@@ -79,7 +79,7 @@ test('six anonymous preview diplomas exist with all award issuance and print pat
    assert.match(await p.locator('.honor-tenure-note').textContent(),/30 utgaver/);
    assert.equal(await p.locator('.honor-secondary-badges img').count(),0);
    assert.match(await p.locator('.honor-historical-label').textContent(),/Historisk grunnlegger/);
-   assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
+   assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   }finally{await p.close()}
  }

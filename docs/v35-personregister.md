@@ -1,53 +1,53 @@
-# Morothon V3.5 – 44 personvurderinger
+# Morothon V3.5 – revisjon av alle 44 personer
 
-Beregnet fra gjeldende register og siste gjennomførte utgave, 2026. Alle merker er foreløpige eller forslag, uten formell tildeling.
+Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, uten formell tildeling. Ukjente opplysninger er ikke fylt inn.
 
-| Person | Registrert fartstid | Grunnlag | Hovedmerke | Status |
-| --- | --- | --- | --- | --- |
-| Erling Askildsen | Fra 1992 · 35 dokumenterte utgaver | Dokumenterte enkeltår | Morothons æresmerke | Foreløpig / forslag – ikke tildelt |
-| Oscar Lohne | Fra 1992 · 35 dokumenterte utgaver | Dokumenterte enkeltår | Morothons æresmerke | Foreløpig / forslag – ikke tildelt |
-| Arnfinn Håverstad | Fra 1992 | Bekreftet historisk rolle | Grunnlegger | Foreløpig / forslag – ikke tildelt |
-| Helge Reisvoll | Fra 1992 | Bekreftet historisk rolle | Grunnlegger | Foreløpig / forslag – ikke tildelt |
-| Einar Danielsen | Fra 1992 | Bekreftet historisk rolle | Grunnlegger | Foreløpig / forslag – ikke tildelt |
-| Kalle Kimestad | Fra 2014 · 13 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Foreløpig / forslag – ikke tildelt |
-| Finn Lohne | Fra 2014 · 13 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Foreløpig / forslag – ikke tildelt |
-| Dag Morten Frantzen | Fra 2014 · 13 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Foreløpig / forslag – ikke tildelt |
-| Håkon Lohne | Fra 2014 · 13 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Foreløpig / forslag – ikke tildelt |
-| Jon Fjeld | Fra 2014 · 13 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Foreløpig / forslag – ikke tildelt |
-| Rune Bergjord | Fra 2015 · 12 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Foreløpig / forslag – ikke tildelt |
-| Astrid Lohne | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Per Sangvik | Fra 2019 · 8 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Foreløpig / forslag – ikke tildelt |
-| Tom Lohne | Fra 2021 · 6 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Foreløpig / forslag – ikke tildelt |
-| Joar Lohne | Fra 2025 · 2 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ingen | Uten merke |
-| Anne Lene Førland-Hansen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Birgitte Aamodt | Fra 2022 · 5 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Foreløpig / forslag – ikke tildelt |
-| Nils Henning Pedersen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Ingvild Holmen Solvik | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Johannes Aamodt | Fra 2021 · 6 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Foreløpig / forslag – ikke tildelt |
-| Linea Morland | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Mari Melsom Kristensen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Nils Martin Otterdal Nilsen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Jenny Åmodt | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Ole J.Bueklev | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Trine Dybesland | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Aud Ovesen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Arnfinn Grimestad | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Magne Lia | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Lars Vassbotn Aamodt | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Laila Endresen Skjulestad | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Christan Berthelsen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Georg Engenes | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Trine Danielsen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Lene Holmen Berg | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Arvid Borø | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Margrete Tofte | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Jøran Eriksen | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Preben S. Dahl | Startår ukjent | Utilstrekkelig grunnlag | Ingen | Uten merke |
-| Atle Aamodt | Fra 2021 · fravær 2026 · 5 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Foreløpig / forslag – ikke tildelt |
-| Bent-Inge Bakke | Fra 2014 · til 2019 (foreløpig sluttår) · 6 mulige utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Foreløpig / forslag – ikke tildelt |
-| Erling Danielsen | Fra 1992 · om lag 33 anslåtte utgaver | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Foreløpig / forslag – ikke tildelt |
-| Floke Bredland | Startår ukjent · minst 25 anslåtte år med innsats | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Foreløpig / forslag – ikke tildelt |
-| Leif Wiig | Startår ukjent · minst 25 anslåtte år med innsats | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Foreløpig / forslag – ikke tildelt |
+| Navn | Rolle | Startår / periode | Utgaver / innsats | Dokumentert / anslag | Hovedmerke | Diplomtype |
+| --- | --- | --- | --- | --- | --- | --- |
+| Erling Askildsen | Idéskaper og grunnlegger | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
+| Oscar Lohne | Grunnlegger | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
+| Arnfinn Håverstad | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
+| Helge Reisvoll | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
+| Einar Danielsen | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
+| Kalle Kimestad | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Finn Lohne | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Dag Morten Frantzen | Arrangør siden 2014 | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Håkon Lohne | Løpsleder Morothon · Arrangør siden 2014 | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Jon Fjeld | Barneløp og startpistol | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Rune Bergjord | Ikke oppgitt | Fra 2015 | 12 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Astrid Lohne | Løypemerking | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Per Sangvik | Løypemerking | Fra 2019 | 8 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
+| Tom Lohne | Ikke oppgitt | Fra 2021 | 6 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
+| Joar Lohne | Ikke oppgitt | Fra 2025 | 2 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ingen | Takk for innsatsen |
+| Anne Lene Førland-Hansen | Drikkestasjon | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Birgitte Aamodt | Ikke oppgitt | Fra 2022 | 5 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
+| Nils Henning Pedersen | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Ingvild Holmen Solvik | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Johannes Aamodt | Ikke oppgitt | Fra 2021 | 6 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
+| Linea Morland | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Mari Melsom Kristensen | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Nils Martin Otterdal Nilsen | Styreleder i Søgne Skiklubb | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Jenny Åmodt | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Ole J.Bueklev | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Trine Dybesland | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Aud Ovesen | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Arnfinn Grimestad | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Magne Lia | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Lars Vassbotn Aamodt | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Laila Endresen Skjulestad | Drikkestasjon | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Christan Berthelsen | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Georg Engenes | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Trine Danielsen | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Lene Holmen Berg | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Arvid Borø | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Margrete Tofte | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Jøran Eriksen | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Preben S. Dahl | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
+| Atle Aamodt | Ikke oppgitt | Fra 2021 · fravær 2026 | 5 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
+| Bent-Inge Bakke | Arrangør fra 2014 | Fra 2014 · til 2019 (foreløpig sluttår) | 6 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
+| Erling Danielsen | Dugnad | Fra 1992 | Om lag 33 utgaver | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
+| Floke Bredland | Banketten og fellesskapet | Startår ukjent | Minst 25 år | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
+| Leif Wiig | Tidtaking og organisering | Startår ukjent | Minst 25 år | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
 
 ## Manglende startår
 
