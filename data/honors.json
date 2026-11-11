@@ -101,6 +101,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "Arrangøren har bekreftet Leif Wiigs dugnadsinnsats og dødsår 2023, Georg Engenes' tidlige bidrag, Trine Danielsens og Lene Holmen Bergs bidrag etter 2014, de øvrige dugnadsnavnene og fullt navn på Bent-Inge Bakke, Magne Lia, Arnfinn Grimestad og Lars Vassbotn Aamodt. Eksakte opptjeningsår og merkenivåer er ikke dokumentert."
+    },
+    "organizer-bent-2014-2019-provisional": {
+      "title": "Arrangørens foreløpige periode for Bent-Inge Bakke",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Arrangøren oppgir foreløpig periode 2014–2019. Det er ikke bekreftet at Bent-Inge deltok i alle utgavene i perioden, og perioden skal ikke automatisk telle som seks dugnadsutgaver."
     }
   },
   "displayOrder": [
@@ -732,10 +738,11 @@
           "id": "bent-bakke",
           "name": "Bent-Inge Bakke",
           "status": "confirmed",
-          "reason": "Med da nye krefter tok over i 2014, og med innsats i noen år etterpå.",
+          "reason": "Med da nye krefter tok over i 2014. Foreløpig dugnadsperiode: 2014–2019 (enkeltår ennå ikke bekreftet).",
           "sourceIds": [
             "organizer-v3",
-            "organizer-honor-names-2026-11-11"
+            "organizer-honor-names-2026-11-11",
+            "organizer-bent-2014-2019-provisional"
           ],
           "roles": [
             {
@@ -773,7 +780,8 @@
           "issuedDiplomas": [],
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
-            "Bidro i noen år etter overtakelsen; avslutningsår er ikke bekreftet."
+            "Bidro i noen år etter overtakelsen; avslutningsår er ikke bekreftet.",
+            "Arrangøren oppgir foreløpig periode 2014–2019. Årlige dugnadsutgaver i perioden er ikke bekreftet enkeltvis, og perioden kvalifiserer ikke automatisk til 5-årsmerke."
           ],
           "aliases": [
             "Bent Bakke"

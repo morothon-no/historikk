@@ -27,7 +27,8 @@ test('V3.4 separate volunteer list preserves all 44 canonical identities and rem
    assert.deepEqual(actual.badgeProposal.badgeIds,[]);
   }else if(actual.listingOnly){assert.equal(actual.runnerId,undefined);assert.equal(actual.reason,null);assert.deepEqual(actual.stories,[]);assert.deepEqual(actual.badgeProposal.badgeIds,[]);}else if(['dag-morten-frantzen','hakon-lohne','oscar-lohne','erling-askildsen'].includes(m.id)){for(const key of ['id','name','status','runnerId','roles','awards','issuedDiplomas'])assert.deepEqual(actual[key],m[key],m.id+': '+key);if(!['oscar-lohne','erling-askildsen'].includes(m.id))assert.deepEqual(actual.badgeProposal,m.badgeProposal);for(const story of m.stories)assert.ok(actual.stories.some(s=>s.text===story.text.replaceAll('Bent Bakke','Bent-Inge Bakke')));}else if(m.id==='bent-bakke'){
     assert.equal(actual.name,'Bent-Inge Bakke');assert.ok(actual.aliases.includes('Bent Bakke'));
-    const normalized={...actual,name:m.name,sourceIds:m.sourceIds};delete normalized.aliases;
+    assert.match(actual.reason,/2014–2019/);assert.equal(actual.contribution?.confirmedYears,undefined);
+    const normalized={...actual,name:m.name,sourceIds:m.sourceIds,reason:m.reason,internalNotes:m.internalNotes};delete normalized.aliases;
     assert.deepEqual(normalized,m,'Existing organizer metadata unchanged except verified full name');
   }else assert.deepEqual(actual,m,m.id);
  }

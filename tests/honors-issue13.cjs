@@ -28,7 +28,8 @@ test('issue #13 changes only sourced honor content: 44 identities, Christan name
    for(const story of m.stories)assert.ok(n.stories.some(s=>s.text===story.text.replaceAll('Bent Bakke','Bent-Inge Bakke')));
   }else if(m.id==='bent-bakke'){
     assert.equal(n.name,'Bent-Inge Bakke');assert.ok(n.aliases.includes('Bent Bakke'));
-    const normalized={...n,name:m.name,sourceIds:m.sourceIds};delete normalized.aliases;
+    assert.match(n.reason,/2014–2019.*foreløpig|Foreløpig.*2014–2019/i);assert.deepEqual(n.badgeProposal.badgeIds,[]);
+    const normalized={...n,name:m.name,sourceIds:m.sourceIds,reason:m.reason,internalNotes:m.internalNotes};delete normalized.aliases;
     assert.deepEqual(normalized,m,m.id);
   }else assert.deepEqual(n,m,m.id);
  }
