@@ -112,7 +112,7 @@
       "title": "Arrangørens V3.5-avklaringer om roller, fartstid og hovedmerker",
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
-      "basis": "V3.5-bestillingen: Finn og Kalle fra minst 2014, Bent-Inge foreløpig 2014–2019, Håkon som løpsleder uten fastsatt startår for rollen, Nils Martin som styreleder i Søgne Skiklubb. Minnestatus og anslag for Erling Danielsen (33 utgaver), Floke Bredland og Leif Wiig (minst 25 år) er oppgitt av arrangøren. Ingen formelle tildelinger."
+      "basis": "V3.5-bestillingen: Finn og Kalle fra minst 2014, Bent-Inge foreløpig 2014–2019, Håkon som løpsleder uten fastsatt startår for rollen, Nils Martin som styreleder i Søgne Skiklubb. Minnestatus for Erling Danielsen, Floke Bredland og Leif Wiig, og anslag for Floke og Leif (minst 25 år), er oppgitt av arrangøren. Ingen formelle tildelinger."
     },
     "organizer-pr18-confirmed-years": {
       "title": "Arrangørens sluttkorrigering før merge av PR #18",
@@ -125,6 +125,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "Einar Danielsen skal få Morothons æresmerke i 2026. Planlagt heder, ikke gjennomført utdeling; ingen faktisk utdelingsdato eller dokumentert dugnadsantall er oppgitt. Einar skal fremheves mellom toppkortene og øvrige grunnleggere. Alle tre minneoppføringer skal være likeverdige. Rene, teknisk kontrollerte presentasjonsdiplomer klargjøres samlet for gjennomgang; utskrift er ikke en tildeling."
+    },
+    "organizer-danielsen-estimate-correction": {
+      "title": "Arrangørens presisering av dugnadsinnsats – Danielsen",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Einar Danielsen har 33 år med solid tjeneste i en rekke ulike roller. Opplysningen er gitt av arrangøren, uten en eksakt årsrekke eller registrert utdeling."
     }
   },
   "displayOrder": [
@@ -531,7 +537,8 @@
           "status": "confirmed",
           "reason": "En av de fem som la grunnlaget for Morothon i 1992.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-danielsen-estimate-correction"
           ],
           "roles": [
             {
@@ -604,7 +611,15 @@
                 "organizer-v351"
               ]
             }
-          ]
+          ],
+          "serviceEstimate": {
+            "editions": 33,
+            "qualifier": "approximately",
+            "sourceIds": [
+              "organizer-danielsen-estimate-correction"
+            ],
+            "unit": "years"
+          }
         }
       ]
     },
@@ -1062,10 +1077,11 @@
           "id": "erling-danielsen",
           "name": "Erling Danielsen",
           "status": "confirmed",
-          "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Arrangøren anslår om lag 33 dugnadsutgaver. Vi minnes Erling og innsatsen hans med takknemlighet.",
+          "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
           "sourceIds": [
             "organizer-v34",
-            "organizer-v35"
+            "organizer-v35",
+            "organizer-danielsen-estimate-correction"
           ],
           "roles": [
             {
@@ -1116,14 +1132,6 @@
             "sourceIds": [
               "organizer-v35"
             ]
-          },
-          "serviceEstimate": {
-            "editions": 33,
-            "qualifier": "approximately",
-            "sourceIds": [
-              "organizer-v35"
-            ],
-            "unit": "editions"
           },
           "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
         },

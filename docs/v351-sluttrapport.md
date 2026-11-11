@@ -1,5 +1,11 @@
 # Morothon V3.5.1 – leveransekontroll
 
+Hotfix etter V3.5.1: Teksten «33 år med solid tjeneste i en rekke ulike roller»
+gjelder Einar Danielsen. Oppføringen til Erling Danielsen har ikke dette tallet.
+Kontroll av hotfixen: 171 tester bestått, 56 diplomvalg verifisert uten endrede
+kontrollfingeravtrykk, 21 A4-prøver og ingen konsollfeil. Produksjonsbygget
+består med 56 filer, versjon `bceb4d6e9e790087`. Historikk og diplominnhold er uendret.
+
 Utgangspunkt: `main` etter merge av PR #18, `41f5e45`.
 Gren: `codex/morothon-v3-5-1-heder-diplomer`.
 
@@ -7,13 +13,14 @@ Gren: `codex/morothon-v3-5-1-heder-diplomer`.
 
 - 44 unike personer, uten nye eller dupliserte identiteter.
 - Einar har æresmerket og et eget mellomstort kort. Beslutningen om planlagt
-  heder i 2026 har arrangøren som kilde. Ingen dugnadsår, utdelingsdato eller
-  utstedt diplom er lagt til. Grunnleggerrollen fra 1992 er bevart.
+  heder i 2026 har arrangøren som kilde. Ingen dokumentert årsrekke, utdelingsdato eller
+  utstedt diplom er lagt til. Einar har 33 år med solid tjeneste
+  i en rekke ulike roller. Grunnleggerrollen fra 1992 er bevart.
 - Oscar og Erling Askildsen beholder toppkortene og 35 dokumenterte utgaver.
   Arnfinn og Helge har de mindre grunnleggerkortene.
 - Erling Danielsen, Floke og Leif har like store minnekort nederst, etter
-  grunnleggere, arrangører og dugnadshelter. Erlings anslag på om lag 33 utgaver
-  er bevart som et anslag.
+  grunnleggere, arrangører og dugnadshelter. Erling Danielsen var med på dugnad fra 1992 og bidro gjennom mange år,
+  uten fastsatt antall utgaver.
 - Hovedpresentasjonen bruker korte, naturlige beskrivelser. Fartstidsforbehold
   og merkestatus finnes i kildedetaljene. Håkons gamle fraværsmerknad er
   korrigert, og originalmerknaden er arkivert. Fullstendige navn og tre

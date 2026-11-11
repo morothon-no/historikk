@@ -8,7 +8,7 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 | Oscar Lohne | Grunnlegger | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
 | Arnfinn Håverstad | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
 | Helge Reisvoll | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
-| Einar Danielsen | Grunnlegger | Fra 1992 | Ikke fastsatt | Arrangørens beslutning om planlagt heder; dugnadstall ukjent | Morothons æresmerke | Æresdiplom |
+| Einar Danielsen | Grunnlegger | Fra 1992 | 33 år | Oppgitt av arrangøren, uten eksakt årsrekke | Morothons æresmerke | Æresdiplom |
 | Kalle Kimestad | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Finn Lohne | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Dag Morten Frantzen | Arrangør siden 2014 · Tidligere styreleder i Søgne Skiklubb | Fra 2014 | 13 utgaver | Dokumenterte enkeltår | Dugnadshelt | Dugnadsdiplom |
@@ -45,7 +45,7 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 | Preben S. Dahl | Ikke oppgitt | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
 | Atle Aamodt | Ikke oppgitt | Fra 2021 · fravær 2026 | 5 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
 | Bent-Inge Bakke | Arrangør fra 2014 | Fra 2014 · til 2019 (foreløpig sluttår) | 6 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Ivrig hjelper | Dugnadsdiplom |
-| Erling Danielsen | Dugnad | Fra 1992 | Om lag 33 utgaver | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
+| Erling Danielsen | Dugnad | Fra 1992 | Ikke fastsatt | Historisk dugnadsrolle, uten fastsatt antall | For alltid en del av Morothon | Minnediplom |
 | Floke Bredland | Banketten og fellesskapet | Startår ukjent | Minst 25 år | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
 | Leif Wiig | Tidtaking og organisering | Startår ukjent | Minst 25 år | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
 
@@ -83,7 +83,7 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 - Dag Morten Frantzen, Håkon Lohne, Finn Lohne og Kalle Kimestad: gammelt generelt Dugnadshelt-merke erstattes av nytt Dugnadshelt (10). Dag har nå 13 dokumenterte utgaver, Håkon 12 dokumenterte utgaver med bekreftet fravær i 2016. Finn og Kalle har fortsatt 13 mulige utgaver.
 - Bent-Inge Bakke: foreløpig Ivrig hjelper (5), beregnet innen den foreløpige perioden 2014–2019. Seks mulige utgaver, ikke bekreftede enkeltår.
 - Oscar Lohne og Erling Askildsen: bare Morothons æresmerke som foreslått hovedmerke. Grunnleggerstatus og dokumenterte 35 utgaver bevares som fakta; tidligere merkeforslag er arkivert.
-- Arnfinn Håverstad og Helge Reisvoll: bare Grunnlegger. Einar Danielsen: æresmerket, etter arrangørens beslutning om planlagt heder i 2026. Grunnleggerrollen beholdes, uten dokumenterte dugnadsår, oppdiktet fartstid, utdelingsdato eller utstedt diplom.
+- Arnfinn Håverstad og Helge Reisvoll: bare Grunnlegger. Einar Danielsen: æresmerket, etter arrangørens beslutning om planlagt heder i 2026. Grunnleggerrollen beholdes. 33 år med solid tjeneste i en rekke ulike roller, uten eksakt årsrekke, utdelingsdato eller utstedt diplom.
 - Erling Danielsen, Floke Bredland og Leif Wiig: bare For alltid en del av Morothon, uten årsmerker.
 - Hedersildsjel og generelt Dugnadshelt er utgått fra aktive forslag, galleri og nye diplomvalg. Originalfiler og eventuell historisk tildeling beholdes.
 
