@@ -113,25 +113,34 @@
     },
     {
       "id": "arnfinn-g",
-      "name": "Arnfinn G",
-      "nameStatus": "partial",
+      "name": "Arnfinn Grimestad",
+      "nameStatus": "as-provided",
       "internalNotes": [
-        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+        "Fullt navn opplyst av arrangøren 11. november 2026. Ikke legg til ubekreftede dugnadsår eller løper-ID."
+      ],
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-honor-names-2026-11-11"
       ]
     },
     {
       "id": "magne",
-      "name": "Magne",
-      "nameStatus": "partial",
+      "name": "Magne Lia",
+      "nameStatus": "as-provided",
       "internalNotes": [
-        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+        "Fullt navn opplyst av arrangøren 11. november 2026. Ikke legg til ubekreftede dugnadsår eller løper-ID."
+      ],
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-honor-names-2026-11-11"
       ]
     },
     {
       "id": "lars-aamodt",
-      "name": "Lars Aamodt",
+      "name": "Lars Vassbotn Aamodt",
       "sourceIds": [
-        "organizer-v34-lars"
+        "organizer-v34-lars",
+        "organizer-honor-names-2026-11-11"
       ]
     },
     {
@@ -147,6 +156,64 @@
       "name": "Christan Berthelsen",
       "sourceIds": [
         "organizer-v34-issue13-christan"
+      ]
+    },
+    {
+      "id": "georg-engenes",
+      "name": "Georg Engenes",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ],
+      "internalNotes": [
+        "Bidro fra Morothons tidlige år; eksakt første og siste dugnadsår er ikke oppgitt."
+      ]
+    },
+    {
+      "id": "trine-danielsen",
+      "name": "Trine Danielsen",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ],
+      "internalNotes": [
+        "Bidro i noen utgaver etter 2014; ikke registrert som frivillig fra 2014 uten dokumentasjon."
+      ]
+    },
+    {
+      "id": "lene-holmen-berg",
+      "name": "Lene Holmen Berg",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ],
+      "internalNotes": [
+        "Bidro i noen utgaver etter 2014; ingen eksakte opptjeningsår er bekreftet."
+      ]
+    },
+    {
+      "id": "arvid-boro",
+      "name": "Arvid Borø",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "margrete-tofte",
+      "name": "Margrete Tofte",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "joran-eriksen",
+      "name": "Jøran Eriksen",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
+      ]
+    },
+    {
+      "id": "preben-s-dahl",
+      "name": "Preben S. Dahl",
+      "sourceIds": [
+        "organizer-honor-names-2026-11-11"
       ]
     }
   ]

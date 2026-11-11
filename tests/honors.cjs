@@ -7,7 +7,7 @@ test('V3.4 honor page: single compact cards, featured founders, organizer roles 
  for(const width of [320,390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:900}});try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="hakon-lohne"]').first().waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),35);assert.deepEqual(await p.locator('[data-honor-group="organizers"] .honor-person-main strong').allTextContents(),['Dag Morten Frantzen','Håkon Lohne','Bent Bakke']);
+   assert.equal(await p.locator('[data-honoree]').count(),43);assert.deepEqual(await p.locator('[data-honor-group="organizers"] .honor-person-main strong').allTextContents(),['Dag Morten Frantzen','Håkon Lohne','Bent-Inge Bakke']);
    assert.deepEqual(await p.locator('[data-honor-group="founders"] .honor-person-main strong').allTextContents(),['Oscar Lohne','Erling Askildsen','Arnfinn Håverstad','Helge Reisvoll','Einar Danielsen']);assert.deepEqual(await p.locator('#honorFeatured .honor-featured-card strong').allTextContents(),['Oscar Lohne','Erling Askildsen']);assert.equal(await p.locator('[data-honor-group="founders"] .honor-founder-others li').count(),3);
    assert.equal(await p.locator('.honor-award-status').count(),0);
    assert.equal(await p.locator('#serviceBadges img').count(),9);
@@ -21,7 +21,7 @@ test('another volunteer is rendered from data only, with escaped names/reasons a
  const copy=structuredClone(data);copy.groups.find(g=>g.id==='volunteers').members.push({id:'new-volunteer',name:'Nytt navn <b>Test</b>',status:'provisional',reason:'Tekst <img src=x onerror=alert(1)>'});
  const p=await h.browser.newPage();try{
   await p.route('**/data/honors.json',route=>route.fulfill({json:copy}));await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="new-volunteer"]').waitFor();
-  assert.equal(await p.locator('[data-honor-group="volunteers"] li').count(),26);
+  assert.equal(await p.locator('[data-honor-group="volunteers"] li').count(),33);
   assert.equal(await p.locator('[data-honoree="new-volunteer"] strong').textContent(),'Nytt navn <b>Test</b>');
   assert.equal(await p.locator('[data-honoree="new-volunteer"] img[src="x"],[data-honoree="new-volunteer"] strong b').count(),0);
  }finally{await p.close();}

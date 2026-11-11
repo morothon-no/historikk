@@ -95,6 +95,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-10",
       "basis": "Arrangøren ønsker en egen serie for faktisk dokumenterte dugnadsutgaver. Merkene er foreløpige designforslag. Kvalifikasjon er ikke automatisk tildeling."
+    },
+    "organizer-honor-names-2026-11-11": {
+      "title": "Arrangøropplysninger – navn, dugnad og minneomtale",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Arrangøren har bekreftet Leif Wiigs dugnadsinnsats og dødsår 2023, Georg Engenes' tidlige bidrag, Trine Danielsens og Lene Holmen Bergs bidrag etter 2014, de øvrige dugnadsnavnene og fullt navn på Bent-Inge Bakke, Magne Lia, Arnfinn Grimestad og Lars Vassbotn Aamodt. Eksakte opptjeningsår og merkenivåer er ikke dokumentert."
     }
   },
   "displayOrder": [
@@ -724,11 +730,12 @@
       "members": [
         {
           "id": "bent-bakke",
-          "name": "Bent Bakke",
+          "name": "Bent-Inge Bakke",
           "status": "confirmed",
           "reason": "Med da nye krefter tok over i 2014, og med innsats i noen år etterpå.",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v3",
+            "organizer-honor-names-2026-11-11"
           ],
           "roles": [
             {
@@ -767,6 +774,9 @@
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
             "Bidro i noen år etter overtakelsen; avslutningsår er ikke bekreftet."
+          ],
+          "aliases": [
+            "Bent Bakke"
           ]
         }
       ],
@@ -867,6 +877,36 @@
           "internalNotes": [
             "Oppgitt start i 1993; eldre kilder gir ulike startår. Mulig sluttår 2017 er usikkert og vises ikke som fakta."
           ]
+        },
+        {
+          "id": "leif-wiig",
+          "name": "Leif Wiig",
+          "status": "confirmed",
+          "reason": "Leif var en ivrig tidtaker og organisator gjennom mange år. Han gikk bort i 2023, og vi minnes innsatsen hans med takknemlighet.",
+          "deathYear": 2023,
+          "sourceIds": [
+            "organizer-honor-names-2026-11-11"
+          ],
+          "roles": [
+            {
+              "title": "Tidtaking og organisering",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-honor-names-2026-11-11"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-honor-names-2026-11-11"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": []
         }
       ]
     }
