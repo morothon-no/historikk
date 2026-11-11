@@ -22,13 +22,13 @@ test('honor profile routes: Oscar is a documented founder, provisional volunteer
    assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Oscar Lohne');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'ÆRESDIPLOM');
    assert.equal(await p.evaluate(async()=>MorothonDiplomas.checkLayout(document.querySelector('iframe').contentDocument).then(r=>r.ready)),true);
    assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
-   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),1);
-   assert.match(await p.locator('.honor-draft-notice').textContent(),/UTKAST – IKKE UTDELT/);
+   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
+   assert.equal(await p.locator('.honor-draft-notice').isVisible(),false);
    assert.equal(await p.locator('iframe').getAttribute('sandbox'),'allow-same-origin allow-modals');
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await p.goBack();await p.locator('#honorOverview').waitFor({state:'visible'});await p.locator('[data-honoree="dag-morten-frantzen"] .honor-person-main').first().click();await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Dag Morten Frantzen');
    await p.locator('.diploma-example summary').click();await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet'));
-   assert.match(await p.locator('.profile-role').textContent(),/Arrangør siden 2014/);assert.equal(await p.locator('#honorProfile .honor-preview-marker').count(),0);assert.match(await p.locator('#honorProfile .honor-main-caption').textContent(),/Foreløpig/);assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Dag Morten Frantzen');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'DUGNADSDIPLOM');
+   assert.match(await p.locator('.profile-role').textContent(),/Arrangør siden 2014/);assert.equal(await p.locator('#honorProfile .honor-preview-marker').count(),0);assert.match(await p.locator('#honorProfile .honor-main-caption').textContent(),/13 dugnadsutgaver/);assert.equal(await p.frameLocator('iframe').locator('.diploma-recipient h2').textContent(),'Dag Morten Frantzen');assert.equal(await p.frameLocator('iframe').locator('.diploma-heading h1').textContent(),'DUGNADSDIPLOM');
    assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Floke|Til minne om/);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
    assert.deepEqual(errors,[]);
   }finally{await p.close();}

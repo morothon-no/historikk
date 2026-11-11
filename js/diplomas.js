@@ -143,7 +143,7 @@
     const assets=await Promise.all(ids.map(inspectAsset));
     const gratitude=badgeId==='thanks';
     const badge=gratitude?{id:'thanks',name:'Takk for innsatsen',color:'#A47A46'}:MorothonBadges.get(badgeId),asset=assets.find(a=>a.key===(gratitude?'debut':badgeId));
-    if(!asset)throw new Error('Diplomutkastet mangler et foreslått hovedmerke.');
+    if(!asset)throw new Error('Diplomet mangler et hovedmerke.');
     // Only documented volunteer editions count. For a numbered milestone the event
     // date belongs to the Nth confirmed edition, not to printing or awarding the diploma.
     // A special 35-edition tribute uses the last confirmed event, but no undated
@@ -167,13 +167,13 @@
       achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
       illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
       watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
-      filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-diplomutkast`,description:'Et personlig diplom fra Morothon.',citation:''};
+      filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-${illustrative?'eksempel':'diplom'}`,description:'Et personlig diplom fra Morothon.',citation:''};
   }
   async function serviceDraft(id = 'oscar-lohne', requestedBadgeId) {
     const data=await MorothonHonorsData.load(),{member}=await MorothonHonorsData.find(id);
     let years=[];try{years=MorothonHonorsData.arrangedYears((await MorothonHistoryData.load()).data.results);}catch{}
     const main=MorothonHonorsData.mainBadge(data,member,years),options=MorothonHonorsData.diplomaChoices(data,member,years);
-    const badgeId=requestedBadgeId||main.badgeId||'thanks';
+    const badgeId=requestedBadgeId||options[0]||'thanks';
     if(!options.includes(badgeId)||!MorothonHonorsData.isActiveBadge(data,badgeId))throw new Error('Ingen slik aktiv hedersutmerkelse har beregningsgrunnlag for denne profilen.');
     const milestone=badgeId!=='thanks'&&MorothonBadges.get(badgeId).series==='dugnad';
     const selectedText=milestone?data.diplomaExamples.find(e=>e.illustrative&&e.badgeId===badgeId)?.tribute:null;
@@ -184,7 +184,7 @@
   }
   async function serviceExample(id) {
     const data=await MorothonHonorsData.load(),example=data.diplomaExamples?.find(e=>e.id===id);
-    if(!example)throw new Error('Diplomutkastet finnes ikke.');
+    if(!example)throw new Error('Diplomet finnes ikke.');
     if(example.personId)return serviceDraft(example.personId,example.badgeId);
     return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId],{count:example.contributionCount},true));
   }
@@ -199,7 +199,11 @@
     const sha=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');
     const cssSha256=await sha(await response.arrayBuffer());
     const dom=renderedDocument||new DOMParser().parseFromString(serviceDocumentHtml({...diploma,printMode:'final',finalApproval:{verified:true}}),'text/html');
-    const sheet=dom.querySelector('.diploma-sheet').cloneNode(true);
+    // A clone owned by a live iframe may fetch images even while detached.
+    // Normalize URLs in inert template content so proof-only asset: identifiers
+    // never become real browser requests. Preserve the actual rendered markup.
+    const template=document.createElement('template');template.innerHTML=dom.querySelector('.diploma-sheet').outerHTML;
+    const sheet=template.content.firstElementChild;
     const assetSha256=diploma.asset.digest,watermarkSha256=registry.watermark.sha256;
     sheet.querySelector('.diploma-medal').setAttribute('src','asset:'+diploma.assetKey+':'+assetSha256);
     sheet.querySelector('.diploma-watermark').setAttribute('src','watermark:'+watermarkSha256);
@@ -210,12 +214,22 @@
     if(d.illustrative||!d.honoreeId)return null;
     return (data.diplomaApprovals||[]).find(a=>a.personId===d.honoreeId&&a.badgeId===(d.gratitude?'thanks':d.assetKey)&&a.status==='approved'&&a.approvedForFinal===true&&a.contentSha256===proof.contentSha256)||null;
   }
+  function presentationRecord(data,d,proof){
+    const member=MorothonHonorsData.findIn(data,d.honoreeId)?.member;
+    if(d.illustrative||!member||!MorothonHonorsData.canPresent(data,member,d.gratitude?'thanks':d.assetKey))return null;
+    return data.presentationPrintSet?.scope==='presentation-only'
+      ? data.presentationPrintSet.entries.find(e=>e.personId===d.honoreeId&&e.badgeId===(d.gratitude?'thanks':d.assetKey)&&['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>e[k]===proof[k]))||null
+      : null;
+  }
   async function withServiceApproval(data,diploma){
     const proof=await serviceProof(diploma),record=approvedServiceRecord(data,diploma,proof),registry=await MorothonBadges.init();
     diploma.contentProof={contentSha256:proof.contentSha256,cssSha256:proof.cssSha256,assetSha256:proof.assetSha256,watermarkSha256:proof.watermarkSha256};
     if(record&&diploma.asset.ready&&registry.watermark.printReady===true){
       diploma.printMode='final';diploma.finalApproval={id:record.id,verified:true};
       diploma.imageReady=true;diploma.filename=diploma.filename.replace(/-diplomutkast$/,'-diplom');
+    }else if(presentationRecord(data,diploma,proof)){
+      diploma.printMode='presentation';diploma.presentationApproval={verified:true,setId:data.presentationPrintSet.id};
+      diploma.filename=diploma.filename.replace(/-diplomutkast$/,'-diplom');
     }
     return diploma;
   }
@@ -226,7 +240,7 @@
   async function checkServiceDraft(draft, doc) {
     const failures=[],warnings=[];
     let layout=null;
-    if(draft?.type!=='service'||draft.previewOnly!==true||!['draft','final'].includes(draft.printMode))failures.push('Ugyldig utskriftsmodus for hedersdiplomet.');
+    if(draft?.type!=='service'||draft.previewOnly!==true||!['draft','final','presentation'].includes(draft.printMode))failures.push('Ugyldig utskriftsmodus for hedersdiplomet.');
     try {
       layout=await checkLayout(doc);failures.push(...layout.failures);
       const registry=await MorothonBadges.init(),asset=await inspectAsset(draft.assetKey),settings=MorothonBadges.get(draft.assetKey);
@@ -258,7 +272,11 @@
         if(!approvedServiceRecord(data,draft,proof))failures.push('Diplomet mangler særskilt godkjenning av dette innholdet for endelig bruk.');
         if(!asset.ready||registry.watermark.printReady!==true)failures.push('Grafikken er ikke godkjent for endelig bruk.');
         if(stamp)failures.push('Diplomet samsvarer ikke med den godkjente endelige versjonen.');
-      }else if(stamp?.textContent.trim()!=='UTKAST – IKKE UTDELT'||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)!==1||!r?.width||!r?.height||parseFloat(style.fontSize)<10)failures.push('Synlig utkastmerking mangler i selve diplomet.');
+      }else if(draft.printMode==='presentation'){
+        const data=await MorothonHonorsData.load(),proof=await serviceProof(draft,doc);
+        if(!presentationRecord(data,draft,proof))failures.push('Presentasjonsdiplomet samsvarer ikke med det kontrollerte utskriftssettet.');
+        if(stamp)failures.push('Presentasjonsdiplomet samsvarer ikke med den kontrollerte versjonen.');
+      }else if(stamp?.textContent.trim()!==(draft.illustrative?'EKSEMPEL':'FORHÅNDSVISNING')||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)!==1||!r?.width||!r?.height||parseFloat(style.fontSize)<10)failures.push('Synlig forhåndsvisningsmerking mangler i selve diplomet.');
     }catch(error){failures.push('Diplomet kan ikke skrives ut: '+error.message);}
     return {ready:failures.length===0,mode:draft.printMode,layout,failures:[...new Set(failures)],warnings:[...new Set(warnings)]};
   }
@@ -310,7 +328,7 @@
       <div class="diploma-main diploma-service-main"><div class="diploma-metric" data-layout-check><strong>${safe(value)}</strong><span>${label}</span><small>${safe(period)}</small></div><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure>${secondaryHtml}</div>
       <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
       ${serviceSignoffHtml(d)}
-      ${d.printMode==='final'&&d.finalApproval?.verified===true?'':'<p class="diploma-draft" data-layout-check>UTKAST – IKKE UTDELT</p>'}
+      ${d.printMode==='final'&&d.finalApproval?.verified===true||d.printMode==='presentation'&&d.presentationApproval?.verified===true?'':`<p class="diploma-draft" data-layout-check>${d.illustrative?'EKSEMPEL':'FORHÅNDSVISNING'}</p>`}
       </article></body></html>`;
   }
 

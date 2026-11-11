@@ -51,13 +51,9 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 .honor-memorial .honor-names{grid-template-columns:repeat(2,minmax(0,1fr))}
 .honor-memorial .honor-card-summary{display:block;overflow:visible}
 .honor-memorial .honor-card-medal{width:78px;height:90px}
-.honor-memorial-lead{grid-column:1/-1;border:3px double #b49460;background:#faf4e8!important}
-.honor-memorial-lead .honor-person-main{padding:24px;gap:24px;min-height:180px}
-.honor-memorial-lead .honor-card-medal{width:130px;height:150px}
-.honor-memorial-lead strong{font:400 27px/1.25 Georgia,serif}
 .honor-profile-memorial{border:3px double #b49460;background:#faf6eb}
 .honor-historical-label{font-size:13px;color:#526b70}
-@media(max-width:650px){.honor-memorial .honor-names{grid-template-columns:1fr}.honor-memorial-lead .honor-person-main{padding:18px;gap:14px}.honor-memorial-lead .honor-card-medal{width:90px;height:120px}.honor-memorial-lead strong{font-size:24px}}
+@media(max-width:650px){.honor-memorial .honor-names{grid-template-columns:1fr}}
 
 /* One unified founder section: equal founder status, with two lifelong contributors featured. */
 .honor-founders{margin:35px 0 44px;padding:28px 24px;border:1px solid #c7b07b;border-radius:18px;background:linear-gradient(180deg,#fffaf0,#f8f3e8)}
@@ -79,3 +75,15 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 .honor-print-help{font-size:12px;color:#526b70;max-width:850px}
 @media(max-width:650px){.honor-print-controls button{flex:1}}
 @media print{.honor-print-controls,.honor-print-help{display:none}}
+
+/* A founder honored in 2026: distinct from the two 35-edition top cards. */
+.honor-founder-spotlight{grid-template-columns:minmax(0,1fr);max-width:720px;margin:20px auto}
+.honor-founder-honoree{border:2px solid #b08b42;background:#fffbf2}
+.honor-founder-honoree .honor-person-main{min-height:155px;padding:18px;gap:18px}
+.honor-founder-honoree .honor-card-medal{width:85px;height:105px}
+.honor-founder-honoree strong{font:400 24px/1.25 Georgia,serif}
+.honor-founder-names{grid-template-columns:repeat(2,minmax(0,1fr))}
+.honor-memorial .honor-names{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;grid-auto-rows:1fr}
+@media(max-width:650px){.honor-founder-honoree .honor-person-main{min-height:145px;padding:14px;gap:12px}.honor-founder-honoree .honor-card-medal{width:72px;height:90px}.honor-founder-honoree strong{font-size:22px}.honor-founder-names,.honor-memorial .honor-names{grid-template-columns:1fr}.honor-memorial .honor-person-main{min-height:150px}}
+
+@media(min-width:651px) and (max-width:950px){.honor-memorial .honor-names{grid-template-columns:repeat(2,minmax(0,1fr))}}

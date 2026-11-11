@@ -49,7 +49,7 @@ test('PR18 undated chair roles remain visible supplementary roles and cannot cha
     assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    }
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="hakon-lohne"]').waitFor();
-   for(const [id,count]of [['dag-morten-frantzen',13],['hakon-lohne',12]])assert.match(await p.locator(`[data-honoree="${id}"]`).innerText(),new RegExp(count+' dokumenterte'));
+   for(const [id,count]of [['dag-morten-frantzen',13],['hakon-lohne',12]])assert.match(await p.locator(`[data-honoree="${id}"]`).innerText(),new RegExp(count+' dugnadsutgaver'));
    const models=await p.evaluate(async()=>Promise.all(['dag-morten-frantzen','hakon-lohne'].map(async id=>{
     const d=await MorothonDiplomas.serviceDraft(id);return {id,count:d.contributionCount,year:d.achievementYear,estimated:d.estimated,date:d.eventDate};
    })));

@@ -1,167 +1,100 @@
-# Menneskene bak Morothon – V3.5
+# Menneskene bak Morothon
 
-Hederssiden er skjult fra navigasjonen og beholdes med `noindex, nofollow`, uten lenker i
-hovedmeny, mobilmeny eller ordinære løperprofiler. Direkte URL er offentlig,
-ikke tilgangsbeskyttet. Ingen automatisk tildeling eller offentlig utstedelse av endelige diplomer. Tydelig merkede utkast kan skrives ut etter teknisk kontroll.
+`heder.html` er en offentlig side via direkte URL, skjult fra hovedmenyen og
+mobilmenyen, med `noindex, nofollow`. Dette er ikke tilgangsbeskyttelse.
+Siden viser 44 unike personer: 13 hedersprofiler og 31 oppføringer fra den
+enkle `data/volunteers.json`. Eksisterende ID-er, aliaser og løperlenker bevares.
 
-## Ett hovedmerke
+## Roller, innsats og heder
 
-`MorothonHonorsData.mainBadge(data, member, editionYears)` brukes på kort,
-profiler, diplomvalg og i personrapporten. Prioriteten er:
+Historiske roller, dokumenterte dugnadsutgaver, anslått fartstid, merkeforslag,
+planlagt heder, gjennomført utdeling og utstedte diplomer er forskjellige ting.
+Løpsdeltakelser dokumenterer aldri dugnadsinnsats. Hvert dokumentert dugnadsår
+teller én gang. `confirmedYears` fylles ikke ut fra et startår.
 
-1. Et eksplisitt kildebelagt minneforslag: For alltid en del av Morothon.
-2. Et eksplisitt forslag om Morothons æresmerke.
-3. Grunnlegger for øvrige bekreftede historiske grunnleggere.
-4. Høyeste kvalifiserte dugnadsnivå basert på dokumenterte år eller et tydelig anslag.
+- Fem grunnleggere er samlet: Oscar Lohne, Erling Askildsen, Einar Danielsen,
+  Arnfinn Håverstad og Helge Reisvoll.
+- Oscar og Erling har 35 dokumenterte utgaver (1992–2026), de to største kortene
+  og æresmerket som hovedmerke. Faktisk utdeling er ikke registrert.
+- Einar skal ifølge arrangørens beslutning få æresmerket i 2026. `plannedHonors`
+  registrerer år og kilde, uten utdelingsdato. Grunnleggerrollen bevares; ingen
+  dugnadsutgaver konstrueres. `founderSpotlightIds` gir et mellomstort kort,
+  uavhengig av `featuredIds`, som fortsatt krever 35 dokumenterte utgaver.
+- Dag har 13 dokumenterte dugnadsutgaver (2014–2026). Håkon har 12 (2014, 2015,
+  2017–2026), med `excludedYears:[2016]`. Tidligere merknad om uavklart fravær
+  er arkivert i `historicalNotes`; gjeldende opplysning er korrigert.
+- Finn og Kalle er med fra minst 2014. Mellomliggende enkeltår er ikke bevist.
+  Bent-Inge var med da arrangøransvaret ble overtatt i 2014; sluttåret 2019 er
+  fortsatt et foreløpig beregningsgrunnlag, ikke en bekreftet årsrekke.
+- Styreledervervene til Dag, Erling Askildsen og Nils Martin Otterdal Nilsen
+  teller ikke som dugnadsår (`countsForTenure:false`). Ingen periode er lagt
+  til de udaterte tilleggsrollene.
+- Atle har bekreftet fravær i 2026. Birgitte har start 2022, Johannes 2021.
+  Anne Lene og Laila har ukjent startår. Christan har bare oppgitt navn.
+- Aud Ovesen, Arnfinn Grimestad og Magne Lia er registrert med fullstendige navn.
 
-Kort og profiler viser høyst ett medaljebilde. Tidligere milepæler og rollen
-som grunnlegger omtales som tekst, ikke en sekundær medaljesamling.
-Ukjent eller utilstrekkelig grunnlag gir ingen medalje; personen beholdes med et personlig «Takk for innsatsen»-diplom. Alle 44 kan åpne profil og diplom. Dette gjelder også nye navneoppføringer.
+Rekkefølgen er grunnleggere, arrangører, dugnadshelter og til slutt minneomtalen.
+Erling Danielsen, Floke Bredland og Leif Wiig har like store kort og samme
+minnemerke. Erlings anslag på om lag 33 dugnadsutgaver er bevart som anslag.
+Leif har dødsår 2023. Ukjente perioder og dødsår fylles ikke inn.
 
-Ni merketyper er aktive: Ivrig hjelper (5), Dugnadshelt (10), Trofast ildsjel
-(15), Bærebjelke (20), Fredet inventar (30), Morothon-legende (40), Grunnlegger,
-Morothons æresmerke og minnemerket. Alle er `design-draft` og `printReady:false`.
+Dugnadslisten sorteres etter startår, ellers tidligste dokumenterte år, og
+norsk alfabetisk rekkefølge. Ukjent startår kommer sist. `toYear` og
+`excludedYears` begrenser anslag; bare faktiske arrangerte utgaver teller.
+Tersklene 5, 10, 15, 20, 30 og 40 hentes fra `awardPolicy`.
 
-Hedersildsjel (`service-hedersildsjel`) og det gamle generelle Dugnadshelt-merket
-(`service-dugnadshelt`) er **utgått fra aktiv bruk**, galleri og nye diplomvalg.
-Originalfilene og register-ID-ene er beholdt for historisk kompatibilitet.
-Gamle forslag ligger uendret i `previousBadgeProposals`; eksisterende `awards`
-og `issuedDiplomas` slettes aldri. Ingen nye tildelinger er registrert.
+Hovedpresentasjonen bruker korte beskrivelser. Anslag og kilder finnes under
+«Bakgrunn og kilder». Et anslått merkenivå vises ikke som et bekreftet antall.
+Ni aktive merketyper bruker det felles asset-registeret. Originalene og deres
+kvalitetsstatus er uendret; eldre merkeforslag er bevart i historikken.
 
-## Kilder, roller og fartstid
+## Rene presentasjonsdiplomer
 
-`data/honors.json` inneholder de omfattende profilene. Vanlige dugnadsnavn
-vedlikeholdes i `data/volunteers.json`. Én kanonisk ID beholdes per person;
-`profileId` viser til en eksisterende profil og lager ikke en ny oppføring.
-Det er 44 unike personer: 13 i hedersmodellen og 31 i navnelisten.
+Alle 44 har et personlig diplom med «Vis diplom», «Skriv ut diplom» og
+«Lagre som PDF». Det er ingen fri tekstboks for å lage nye mottakere.
+For anslått fartstid er standarden «Takk for innsatsen», uten oppdiktede tall,
+årsmerker eller datoer. Dokumenterte milepæler bruker terskelens historiske år,
+ikke dagens samlede antall. Dag ved 10 viser 2023; Håkon ved 10 viser 2024.
+Einar får æresdiplom uten et oppfunnet dugnadsantall eller utdelingsdato.
 
-Fem grunnleggere er samlet: Erling Askildsen, Oscar Lohne, Arnfinn Håverstad,
-Helge Reisvoll og Einar Danielsen. Oscar og Erling Askildsen har 35 dokumenterte
-utgaver (1992–2026) og æresmerket som forslag. De tre øvrige har Grunnlegger,
-uten å få anslått 35 dugnadsutgaver på grunnlag av grunnleggerrollen.
+`presentationPrintSet` er et samlet, kildebelagt utskriftssett til V3.5.1-
+gjennomgang. Det er **ikke** et tildelingsregister eller en godkjenning av
+medaljene som formelt utstedte utmerkelser. Hvert av de 56 kontrollerte
+person-/diplomvalgene er bundet til navn, innhold, faktiske bildefiler, vannmerke
+og CSS med SHA-256. Disse presentasjonskopiene skrives ut uten «UTKAST».
+Anonyme eksempler merkes «EKSEMPEL». Uten samsvarende kontrollsum brukes
+«FORHÅNDSVISNING» på både skjerm og PDF. Et endret åpnet dokument sperres.
 
-Dag Morten Frantzen har 13 dokumenterte dugnadsutgaver (2014–2026). Håkon Lohne
-har 12 dokumenterte utgaver (2014, 2015 og 2017–2026), med bekreftet fravær i 2016.
-Begge beholder foreløpig Dugnadshelt (10). Finn Lohne og Kalle Kimestad har
-registrert start i 2014 og samme foreløpige nivå ut fra 13 mulige utgaver.
-Finn og Kalle er bekreftet fra minst 2014; mellomliggende enkeltår er ikke bevist.
-Håkon vises som «Løpsleder Morothon», uten et oppfunnet startår for akkurat
-løpslederrollen. Hans arrangørhistorie fra 2014 og Svalbard-oppholdet i 2016 bevares.
-
-Bent-Inge Bakke beholder sin rolle ved overtakelsen i 2014. Beregningen avgrenses
-til 2014–2019, seks mulige utgaver og foreløpig 5-årsnivå. `toYearStatus:provisional`
-gjør det tydelig at sluttåret er foreløpig. Ingen årsrekke konstrueres.
-
-Nils Martin Otterdal Nilsens rolle som styreleder i Søgne Skiklubb er registrert
-som ekstern rolle (`roleType:external`, normalisert til `countsForTenure:false`).
-Den gir verken dugnadsår eller automatisk medalje. Erling Askildsen og Dag Morten
-Frantzen har i tillegg den udaterte rollen «Tidligere styreleder i Søgne Skiklubb».
-Disse rollene har også `countsForTenure:false` og påvirker ingen dugnadsberegning.
-
-Atle Aamodt har start 2021 og `excludedYears:[2026]`. Birgitte Aamodt har start
-2022, Johannes Aamodt 2021. Anne Lene Førland-Hansen og Laila Endresen Skjulestad
-har fortsatt ukjent startår. Ukjente oppgaver, år og løper-ID-er gjettes ikke.
-Kalle/Karl Kimestad er fortsatt én person med stabile profillenker. Erling
-Danielsen og grunnlegger Einar Danielsen er forskjellige personer.
-
-## Minneseksjon
-
-Erling Danielsen, Floke Bredland og Leif Wiig har samme minnemerke som eneste
-hovedmerke, etter eksplisitt forslag i V3.5. Seksjonen ligger etter grunnleggerne,
-og Erling Danielsen har en større boks øverst. Han er ikke registrert som grunnlegger.
-
-Erling Danielsens start i 1992 bevares; om lag 33 utgaver er et arrangøranslag,
-ikke 33 bekreftede år eller et beregnet sluttår. Floke og Leif har anslag om
-minst 25 **års innsats**, uten konstruerte start-/sluttår. Floke døde i 2024,
-Leif i 2023; Erling Danielsens dødsår er ikke oppgitt og fylles ikke inn.
-`serviceEstimate` lagrer verdi, enhet (`editions` eller `years`), forbehold og kilde.
-Det holdes adskilt fra `contribution.confirmedYears`.
-
-## Beregning og vedlikehold
-
-Se [fartstid og foreløpige dugnadsmerker](dugnadsmerker-fartstid.md).
-`contribution()` teller bare dokumenterte dugnadsår; `provisionalMilestone()`
-beregner visningsanslag separat. `arrangedYears()` finner gjennomførte utgaver
-fra resultater og teller ikke bare kalenderoppføringer, påmeldte eller DNS.
-Startår, valgfritt sluttår og eksplisitte fravær påvirker anslaget. `confirmedYears`
-fylles aldri med antatte mellomår. `diplomaChoices()` tilbyr bare aktive nivåer
-med tilstrekkelig grunnlag. Uten kvalifisert hovedmerke returneres `thanks`, et diplomvalg og **ikke** et nytt medaljenivå. Tildelingsregisteret endres aldri.
-
-Dugnadsheltene sorteres etter eldste registrerte startår og norsk alfabet;
-ukjente startår ligger sist. Minneseksjon og grunnleggerrekkefølge sorteres ikke om.
-Eksisterende kildehenvisninger, historiske forbehold, navnekorrigeringer og
-koblinger til løperprofiler beholdes. Løpsstarter blir aldri dugnadsutgaver.
-
-## Diplomer og kontrollartefakter
-
-Den generelle siden, kort og diplomgalleri bruker vanlig, verdig språk, uten
-repeterte utkastadvarsler. «Vis diplom» åpner dokumentet. Foreløpige år og forslag
-til æres-/minnemerke er fortsatt tydelig merket. Intern status i merkeregisteret
-og historiske tildelingsregistre er ikke endret.
-
-Alle hedersdiplomer beholder `previewOnly:true`: visning og utskrift oppretter
-aldri en formell tildeling eller registrert utstedelse. `printMode:draft` er
-standard. `checkServiceDraft()` kontrollerer både utkast og særskilt godkjente
-endelige diplomer, uten å endre ordinære løperdiplomer. Begge knappene finnes i alle personprofiler og alle gallerieksempler.
-Ikke-godkjente diplomer har én forklaring ved åpning og «UTKAST – IKKE UTDELT» i selve A4-dokumentet, også i PDF. Særskilt godkjente endelige diplomer kan skrives ut uten merkingen.
-
-Iframe har `allow-same-origin allow-modals`, uten skript. Knappene åpner den
-samme nettleserbaserte utskriftsdialogen som løperdiplomene. PDF-knappen viser
-veiledning om PDF-skriver, A4 liggende, 100 %, null marger, bakgrunnsgrafikk og
-avslått topp-/bunntekst. Ingen filutstedelse eller tildeling registreres.
-
-`checkServiceDraft()` gjenbruker den uendrede V3.1-layoutmålingen og kontrollerer
-faktisk lastet grafikk, integritet, transparens, mulig kildebeskjæring, raster-DPI
-ved vist størrelse, SVG-avhengigheter, vannmerke og synlig utkasttekst. Reelle
-feil sperrer begge knapper. Kontrollen gjentas før hver utskrift. Design- og
-beskjæringsgodkjenning er fortsatt synlige varsler, men stopper ikke et ellers
-teknisk brukbart, tydelig merket utkast. `printReady` endres ikke.
-
-Takkediplomer bruker eksisterende Morothon-logo, personens navn og eventuell
-kjent rolle, uten å dikte opp startår, antall eller medaljer. Minnediplomet sier
-«TIL MINNE OM», aldri at diplomet er overlevert mottakeren. Historiske milepæler
-bruker dokumentert oppnåelsesår; anslag og minneomtaler får ingen oppdiktet dato.
-Vanlige løperdiplomer, 2018-datoen 11. november og alle løpsresultater er uendret.
+Kontrollsettet gjennomgås sammen med kodeendringen, uten individuell teknisk
+administrasjon i nettleseren. Oppdatering er eksplisitt, aldri del av bygg:
 
 ```sh
-node scripts/review-honors-v35.cjs /tmp/morothon-v35
+npm run diplomer:kontroll
+# Bare etter at endringene er gjennomgått: forbered et nytt kontrollsett.
+npm run diplomer:klargjor
+```
+
+`canPresent()` avviser rene årsmerkediplomer basert bare på anslag.
+`checkServiceDraft()` kontrollerer fortsatt fonter, A4, avkutting, overlapp,
+faktisk raster-DPI, transparente kanter, SVG-innhold og endrede/manglende filer.
+Disse sperrene gjelder også rene presentasjonskopier. Kvalitetsvarsler beholdes
+under «Bildekvalitet». `printReady`, `awards` og `issuedDiplomas` endres ikke.
+`diplomaApprovals` for særskilt godkjent endelig bruk er fortsatt separat og tomt.
+
+Siden har foreløpig ingen innlogging. Alle som kjenner URL-en kan skrive ut de
+registrerte presentasjonskopiene. Arrangøren har utsatt videre tilgangskontroll;
+kontrollen nå ligger i det avgrensede, versjonerte utskriftssettet. Dette er
+ikke en innlogget eller beskyttet tjeneste for formell diplomutstedelse.
+
+## Regenerering og visuell kontroll
+
+```sh
+node scripts/review-honors-v35.cjs /tmp/morothon-v351
 npm test
 npm run build
 ```
 
-Skriptet lager faktiske PC-/mobilbilder, seksjonsbilder, minnemerke, A4-prøver,
-målinger og en tabell over alle 44 personer. QA-filer legges utenfor repositoryet.
-GitHub Actions legger dem i PR-artefaktet `morothon-v35-forhaandsvisning`, beholdt
-14 dager. De inngår ikke i Pages-bygget. Merkegodkjenning, fysisk prøvetrykk og
-formell utdeling er separate vurderinger; ingen godkjenning utledes fra grønne tester.
-
-## Særskilt godkjenning for endelig diplom
-
-`data/honors.json.diplomaApprovals` er et separat godkjenningsregister, uavhengig
-av `awards` og `issuedDiplomas`. Listen er foreløpig **tom**. Ingen eksisterende
-hedersdiplomer er automatisk godkjent av denne kodeendringen.
-
-En godkjenning krever `id`, kanonisk `personId`, `badgeId` (eller `thanks`),
-`status:approved`, `approvedForFinal:true`, `approvedOn`, kildehenvisninger i
-`sourceIds` og `contentSha256`. Dette er en særskilt godkjenning av ett bestemt
-diplom, ikke en generell godkjenning av en mal eller en tildeling av et merke.
-Anonyme gallerieksempler forblir merkede utkast.
-
-`serviceDraft(...).contentProof` gir kontrollsummene til den vurderte versjonen.
-`serviceProof()` dekker ferdig A4-komposisjon, navn, rolle, tekst, dato/år,
-fartstidsforbehold, originalgrafikk, vannmerke og hele diplom-CSS-en. Lokalt
-servernavn og byggesystemets cacheparametre normaliseres bort. En visuelt og
-teknisk godkjent versjon kan dermed flyttes uendret fra lokal QA til Pages.
-
-Et endelig diplom krever **både** en gyldig innholdsgodkjenning og separat
-godkjent grafikk. Merkenes `design-draft`/`printReady:false` beholdes inntil
-faktisk godkjenning. Ingen slike flagg settes automatisk. Ved manglende eller
-utdatert innholdsgodkjenning tilbys et merket utkast; reelle kvalitetsfeil
-sperrer begge utskriftshandlingene. Før utskrift valideres også dokumentet som
-faktisk ligger i rammen, slik at endret tekst, CSS eller grafikk ikke bruker en
-gammel godkjenning. Foreløpige dugnadsår blir ikke dokumenterte selv om selve
-diplomet er godkjent for endelig bruk.
-
-`tests/helpers/honor-approval.cjs` lager kun isolerte testdata. Kontrollpersonen
-i rene test-PDF-er er ikke en faktisk mottaker, og ingen produksjonsgodkjenning
-eller tildeling følger med disse testene.
+Kontrollgalleriet inneholder mobil/PC-bilder, personregister, A4-PDF/PNG,
+`pdfinfo`, `pdffonts`, `pdfimages` og layoutmålinger. Store kontrollfiler legges
+ikke i produksjonsgrenen. Ordinære løperdiplomer, løpshistorikk og de godkjente
+medaljeoriginalene er uendret. Se også [diplomteknikk](diplomas.md).

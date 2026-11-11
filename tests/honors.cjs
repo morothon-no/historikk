@@ -8,7 +8,7 @@ test('V3.4 honor page: single compact cards, featured founders, organizer roles 
   const p=await h.browser.newPage({viewport:{width,height:900}});try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="hakon-lohne"]').first().waitFor();
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.deepEqual(await p.locator('[data-honor-group="organizers"] .honor-person-main strong').allTextContents(),['Dag Morten Frantzen','Håkon Lohne','Bent-Inge Bakke']);
-   assert.deepEqual(await p.locator('[data-honor-group="founders"] .honor-person-main strong').allTextContents(),['Oscar Lohne','Erling Askildsen','Arnfinn Håverstad','Helge Reisvoll','Einar Danielsen']);assert.deepEqual(await p.locator('#honorFeatured .honor-featured-card strong').allTextContents(),['Oscar Lohne','Erling Askildsen']);assert.equal(await p.locator('[data-honor-group="founders"] .honor-founder-others li').count(),3);
+   assert.deepEqual(await p.locator('[data-honor-group="founders"] .honor-person-main strong').allTextContents(),['Oscar Lohne','Erling Askildsen','Einar Danielsen','Arnfinn Håverstad','Helge Reisvoll']);assert.deepEqual(await p.locator('#honorFeatured .honor-featured-card strong').allTextContents(),['Oscar Lohne','Erling Askildsen']);assert.equal(await p.locator('[data-honor-group="founders"] .honor-founder-others li').count(),2);
    assert.equal(await p.locator('.honor-award-status').count(),0);
    assert.equal(await p.locator('#serviceBadges img').count(),9);
    assert.equal(await p.locator('#honorProfile').isVisible(),false);
