@@ -34,9 +34,15 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
   $('#honorHeading').textContent=data.narrative?.title||'De som gjør Morothon mulig ❤️';$('#honorLead').textContent=data.narrative?.lead||'';
   $('#honorThanks').textContent=data.narrative?.thanks||'';$('#honorThanks').hidden=!data.narrative?.thanks;
   $('#honorIntroText').innerHTML=(data.narrative?.intro||[]).map(p=>`<p>${esc(p)}</p>`).join('');
-  const rendered=new Set(data.featuredIds||[]);
-  $('#honorFeatured').innerHTML=`<h2>Med gjennom alle 35 utgavene</h2><p>Tid og krefter til løpet, fra 1992 til 2026.</p><ul class="honor-names honor-featured">${(data.featuredIds||[]).map(id=>card(MorothonHonorsData.findIn(data,id).member,true)).join('')}</ul>`;
-  $('#honorPeople').innerHTML=(data.displayOrder||data.groups.map(g=>g.id)).map(id=>data.groups.find(g=>g.id===id)).filter(Boolean).map(group=>{
+  // The five founders form one historical group. Oscar and Erling are given
+  // larger cards for 35 documented editions, not a different founder status.
+  const featuredIds=data.featuredIds||[];
+  const otherFounders=founders.filter(member=>!featuredIds.includes(member.id));
+  const rendered=new Set(founders.map(member=>member.id));
+  $('#honorFeatured').classList.add('honor-group','honor-founders');
+  $('#honorFeatured').dataset.honorGroup='founders';
+  $('#honorFeatured').innerHTML=`<div class="honor-founders-heading"><p class="eyebrow">DER HISTORIEN STARTET · 1992</p><h2>Grunnleggerne – de som startet det hele</h2><p>Fem mennesker sto bak starten på Morothon i 1992. Alle fem er grunnleggere. To av dem har i tillegg bidratt i samtlige 35 utgaver.</p></div><ul class="honor-names honor-featured">${featuredIds.map(id=>card(MorothonHonorsData.findIn(data,id).member,true)).join('')}</ul><div class="honor-founder-others"><h3>Også med fra starten</h3><ul class="honor-names honor-founder-names">${otherFounders.map(member=>card(member)).join('')}</ul></div>`;
+  $('#honorPeople').innerHTML=(data.displayOrder||data.groups.map(g=>g.id)).map(id=>data.groups.find(g=>g.id===id)).filter(group=>group&&group.id!=='founders').map(group=>{
    const members=MorothonHonorsData.membersFor(data,group).filter(m=>!rendered.has(m.id));members.forEach(m=>rendered.add(m.id));
    return `<section class="honor-group${group.id==='memorial'?' honor-memorial':''}" id="${esc(group.id)}" data-honor-group="${esc(group.id)}"><h2>${esc(group.title)}</h2><p>${esc(group.description||'')}</p><ul class="honor-names">${members.map(m=>card(m)).join('')}</ul></section>`;
   }).join('');

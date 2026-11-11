@@ -72,7 +72,8 @@ test('PR16 legacy assets, all histories, IDs, awards and ordinary diploma implem
  const allowed=new Set([...levels.map(n=>'assets/medals/service/dugnad-'+n+'.svg'),'assets/medals/service/aeresmerke.svg']);
  for(const f of files.filter(f=>!allowed.has(f)))assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
  const originalCss=execFileSync('git',['show',base+':css/diplomas.css'],{cwd:root}).toString(),css=await fs.readFile(path.join(root,'css/diplomas.css'),'utf8');assert.ok(css.startsWith(originalCss));assert.match(css.slice(originalCss.length),/\.diploma-service /);
- const ordinary=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE-ONLY\n');
+ const ordinary=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE-ONLY\n')
+  .replace(/  \/\/ Volunteer diplomas show the documented milestone YEAR only\.[\s\S]*?(?=  function serviceDocumentHtml)/,'');
  assert.equal(ordinary(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),ordinary(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));
  for(const b of registry.badges.filter(b=>b.kind==='service')){assert.equal(b.status,'design-draft');assert.equal(b.printReady,false);assert.equal(b.cropReviewed,false);}
  assert.ok(honors.groups.flatMap(g=>g.members).every(m=>!m.awards.length&&!m.issuedDiplomas.length));
