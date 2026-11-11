@@ -81,7 +81,7 @@ test('issue #13 personal organizer stories stay separate from racing and all hon
    const hakon=await p.locator('#honorProfile').innerText();for(const word of ['Det spreke alibiet','replikken','løypemerking','klargjøring','nedrigging','2016'])assert.ok(hakon.includes(word));
    assert.equal(await p.locator('.honor-racing').count(),1);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="christan-berthelsen"]').waitFor();
-   assert.equal(await p.locator('#honorFeatured [data-honoree]').count(),2);assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);assert.equal(await p.locator('[data-honoree="erling-askildsen"]').count(),1);
+   assert.equal(await p.locator('#honorFeatured [data-honoree]').count(),5);assert.equal(await p.locator('#honorFeatured .honor-featured-card').count(),2);assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);assert.equal(await p.locator('[data-honoree="erling-askildsen"]').count(),1);
    for(const key of ['dugnadshelt-fem','grunnlegger-flere','oscar-35','erling-35']){const d=await p.evaluate(async key=>{const m=await MorothonDiplomas.serviceExample(key);return {preview:m.previewOnly,ready:m.imageReady};},key);assert.deepEqual(d,{preview:true,ready:false});}
    assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
    await p.goto(h.base+'/index.html');assert.equal(await p.locator('a[href*="heder.html"]').count(),0);
