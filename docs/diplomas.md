@@ -131,75 +131,74 @@ tegnmålingen fra V3.1 er bevart. Lukking avslutter den pågående gjengivelsen 
 dialog ignoreres hvis dialogen allerede er åpnet igjen, og flytter ikke fokus
 fra en annen kontroll/dialog. Rask Escape/Enter avbryter dermed ikke en ny forhåndsvisning.
 
-## V3.4 – hedersutkast med flere merker
+## V3.5 – ett hovedmerke på hedersdiplomer
 
-Service-malen bruker nå én primærmedalje og mindre sekundærmerker fra samme
-fellesregister. Bare service-komposisjonen er justert; vanlige opptjente
-merke-/rekord-/debutdiplomer er uendret. Se [hedersmodellen](honors.md) for
-forskjellen mellom roller, dugnadsår, merkeforslag, tildeling og utstedelse.
+Service-malen bruker samme liggende A4-grunnlag og felles merkeregister som før,
+men har ett aktivt hovedmerke og ingen sekundærmedaljer. Ordinære løperdiplomer
+er uendret. Seks dugnadsnivåer, Grunnlegger, Morothons æresmerke og det nye
+minnemerket er tilgjengelige som foreløpige diplomtyper. Hedersildsjel og det
+gamle generelle Dugnadshelt-merket tilbys ikke ved nye diplomer; originalfiler,
+ID-er og eventuell historisk tildeling er bevart.
 
-Oscar og Erling har et kildebelagt 35-utgavergrunnlag. Femårsutkastet er et
-anonymt typeeksempel, ikke en påstand om en virkelig person. Arrangementsdato
-brukes ikke som en automatisk tildelingsdato. Typografisk signaturnavn er ikke
-en ekte håndskrevet signatur. Alle service-utkast har fortsatt låst utskrift/PDF,
-uten aktive knapper og uten `allow-modals` i iframe. A4-kontroll og faktisk
-bildekvalitet må bestå uavhengig av eventuell senere formell tildeling.
+`serviceDraft()` bruker samme `mainBadge()` og `diplomaChoices()` som hederssiden.
+Ingen dato utledes fra anslått fartstid. Navngitte anslag merkes «MULIGE
+DUGNADSUTGAVER», med periode og forbehold om foreløpig sluttår der det gjelder.
+Dokumenterte milepæler fryses til terskelen: Oscar/Erling ved 30 viser 30,
+1992–2021 og oppnåelsesåret 2021. Modellen beholder løpsdato 13. november 2021.
+Deres æresutkast omtaler 35 dokumenterte utgaver i 2026; modellens dato er
+7. november 2026, uten påstand om formell tildeling av æresmerket.
 
-## Fjerde hedersmerke – Morothons æresmerke (utkast)
+Minnediplomet har tittelen «MINNEDIPLOM» og «TIL MINNE OM» over navnet, varm
+hederstekst og én minnemedalje. Det har ingen oppdiktet dato eller formulering
+om personlig overlevering. Anonyme typeeksempler har ingen dato eller datostrek.
+Håkon Lohnes typografiske signaturfelt beholdes. Alle service-diplomer er fortsatt
+forhåndsvisninger, uten nye tildelinger eller utstedte originaldiplomer. Teknisk kontrollerte utkast kan nå skrives ut eller lagres via nettleserens PDF-skriver.
 
-`service-aeresmerke` er foreslått som det høyeste nivået, uten automatisk
-opptjening. Oscar Lohne og Erling Askildsen har æresmerket som foreslått
-hovedmerke, og Fredet inventar/Hedersildsjel/Grunnlegger som sekundære.
-Den liggende A4-malen viser **ÆRESDIPLOM** og markerer deres 35 utgaver.
-Siden det kan bli tre sekundærmerker, bruker bare service-utkastet en tettere
-3-kolonne-rad; ordinære merkediplomer er ikke berørt.
-Medaljen er et uferdig SVG-motiv og ikke trykkgodkjent. Service-utkast beholder
-`imageReady: false`, `previewOnly: true` og ingen utskrifts- eller PDF-knapper.
+Se [hedersmodellen](honors.md). Reproduser faktiske A4-prøver med:
 
-## Dugnadsmilepæler 5/10/15/20/30/40 – utkast
+```sh
+node scripts/review-honors-v35.cjs /tmp/morothon-v35
+```
 
-Seks anonyme, ikke-utdelte diplomforhåndsvisninger viser de seks milepælene. Oscar/Erling har æresdiplomutkast med et mindre 30-utgaversmerke. Ingen merker er tildelt eller trykkgodkjent. Heders-PDF/print forblir sperret; vanlige løperdiplomer berøres ikke.
+SVG-kilder er skalerbare vektorer, uten fast original-DPI. Ikke bruk deklarert
+pikselstørrelse som bevis på bitmapoppløsning. Godkjenningsvarsler og layoutkontroll
+beholdes; en godkjent test er ikke automatisk trykkgodkjenning av et nytt motiv.
 
+### Personlig takk og utskrivbare utkast
 
-### Datofelt: oppnådd milepæl, ikke utskriftsdato
+Personer uten kvalifisert årsmerke får «TAKK FOR INNSATSEN» med navn, eventuell
+kjent oppgave og eksisterende Morothon-logo. Ingen årsmerke, antall utgaver eller
+oppnåelsesdato konstrueres. `thanks` er et diplomvalg, ikke en tiende merketype.
+Alle 44 registrerte personer og fremtidige navneoppføringer omfattes.
 
-Ved dugnadsmilepæler 5/10/15/20/30/40 viser feltet året for personens N-te
-**bekreftede dugnadsutgave**. Oscar og Erlings 30-utkast viser dermed **2021**.
-Æresutkastene omtaler **35 dugnadsutgaver i 2026**, ikke en tildeling av æresmerket.
-Modellen beholder løpsdatoene **13. november 2021** og **7. november 2026** fra
-`data/event-dates.json` som kildegrunnlag. Anonyme eller udokumenterte tilfeller
-har ingen datotekst, plassholder eller datostrek. Signaturen til høyre beholdes.
-Hedersdiplomer er fortsatt ikke utstedt eller utskriftsgodkjent.
+Alle personlige diplomer og anonyme eksempler har knappene «Skriv ut diplom» og
+«Lagre som PDF». Begge bruker nettleserens eksisterende utskriftsdialog.
+PDF-knappen forklarer valget av PDF-skriver; A4 liggende, skala 100 %, null marger,
+bakgrunnsgrafikk på og topp-/bunntekst av anbefales.
 
-## Morothon-navn med glimt i øyet
+`checkServiceDraft()` avgjør teknisk utskrivbarhet separat fra `imageReady` og
+`printReady`. Den gjenbruker `checkLayout()` uendret, inkludert Windows-fiksen
+med konservativ Range-bredde og synlig numerisk blekkhøyde. En liten intern
+padding i **service-malen** gir også ord som TAKK og MINNE plass til fontens
+fulle linjeboks. Ingen toleranse er økt og ingen kontroll er deaktivert.
 
-Dugnadsmilepælene heter nå Ivrig hjelper, Dugnadshelt, Trofast ildsjel, Bærebjelke, Fredet inventar og Morothon-legende. Det illustrerende A4-diplomet får en kort humoristisk hyllest til hvert nivå. Et virkelig oppnåelsesår krever bekreftede dugnadsutgaver; anonyme eksempler har ingen dato. Utskrift og formell utstedelse er ikke aktivert.
+Ikke-godkjente utkast må vise «UTKAST – IKKE UTDELT» i selve dokumentet, også i PDF og på papir.
+Reell overlapp, avkutting, manglende/endrede bilder, ubrukelig rasteroppløsning,
+ugyldig SVG eller manglende utkasttekst sperrer begge knapper. Alt kontrolleres
+på nytt ved klikk. Alle godkjenningsvarsler beholdes i bildekvalitetsseksjonen.
+Et grønt utkast gir ingen ny `award`, `issuedDiploma` eller `printReady:true`.
+Ordinære løperdiplomers modell, HTML, utskriftsflyt og eksisterende CSS er bevart.
 
-## PR #16 – kontroll av alle ni merker og dugnadsdiplomer
+### Endelig bruk og profesjonelt sidespråk
 
-Historiske dugnadsdiplomer fryses til valgt terskel: 30 bekreftede utgaver gir
-30 og perioden 1992–2021 for Oscar/Erling, med synlig oppnåelsesår 2021 og
-den samme valgte humoristiske teksten som 30-eksemplet. De viser ikke dagens
-35 eller senere forslag til personlige hedersmerker. Æresdiplomene beholder
-deres 35 utgaver, personlige tekster og omtale av 2026. Anonyme eksempler
-viser aldri en oppdiktet arrangementsdato.
+Generell sidevisning og galleri omtaler dokumentene som diplomer. Ikke-godkjente
+dokumenter viser utkastforklaring når de åpnes og utkastmerking i selve PDF-en.
+Endelige diplomer uten slik merking krever en særskilt, kildebelagt godkjenning
+av mottaker og nøyaktig innhold i `diplomaApprovals`, i tillegg til godkjente
+bildefiler. Registeret er tomt i produksjonsdataene.
 
-Service-tekst på lyst papir har fått mørkere metallfarge for lesbarhet. Tre
-sekundærmerker bruker 23 mm bilder og 2,4 mm bildetekst, innen samme A4-grid.
-Vanlig diplomimplementasjon utenfor service-funksjonene er identisk med
-utgangspunktet; ekstra CSS er avgrenset til `.diploma-service`. Dato, håndskriftstil
-og signaturfelt er bevart.
-
-Faktiske prøver, SVG-hasher, font-/tekstgrenser, kontrastmålinger og
-PDF-sidestørrelser regenereres med `node scripts/review-honor-badges.cjs`
-i operativsystemets midlertidige mappe `morothon-heder-pr16`.
-De store QA-filene følger ikke med i PR-en eller produksjonsbygget.
-Se [sluttkontrollen](pr16-sluttkontroll.md). SVG-medaljene er vektorer og
-har ingen fast original-DPI. PDF-kontroll viser innebygde fonter og vektormerker;
-de to eksisterende PNG-merkene beholder sine originale 2400 × 2400 piksler.
-Dette er teknisk dokumentasjon, ikke visuell godkjenning eller trykkgodkjenning.
-Ingen hedersdiplomknapper eller tildelinger er aktivert.
-
-### Oppnåelsesår i synlige heders- og dugnadsdiplomer (november 2026)
-
-A4-utkastene viser **bare året for dokumentert milepæl**, for eksempel «MILEPÆL OPPNÅDD I 2021» for Oscar/Erling ved 30 dugnadsutgaver. De to foreslåtte æresdiplomene viser «35 DUGNADSUTGAVER I 2026», **ikke** at Morothons æresmerke ble tildelt i 2026. Eksakt løpsdato er fortsatt dokumentert i datamodellen, men vises ikke i diplomets footer. Anonyme eksempler uten dokumentert oppnåelsesår har ingen datostrek, understrek eller plassholder. Ingen endringer på vanlige løperdiplomer eller utstedelsesstatus.
+Kontrollsummen omfatter tekst, navn, forbehold, år/dato, grafikk og CSS.
+Utdatert godkjenning gir et merket utkast ved neste klargjøring. Endringer i et
+allerede åpnet endelig dokument sperrer utskrift til dokumentet er klargjort
+på nytt. Tekniske layoutkontroller gjelder i begge moduser. Ingen automatisk
+merketildeling eller diplomutstedelse gjennomføres.

@@ -1,20 +1,20 @@
-/* V3.4: one identity per person, warm history and strictly unissued service previews. */
+/* V3.4: one identity per person, warm history and printable, clearly unissued service drafts. */
 window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 (async function(){
  'use strict';
  const $=s=>document.querySelector(s),status=$('#honorStatus'),overview=$('#honorOverview'),profile=$('#honorProfile');
  let sequence=0,cleanupProfile=()=>{},lastProfileId=null;
- const showStatus=e=>{status.textContent=`Kunne ikke laste forhåndsvisningen: ${e.message}`;};
+ const showStatus=e=>{status.textContent=`Kunne ikke laste siden: ${e.message}`;};
  try{
   const data=await MorothonHonorsData.load(),all=data.groups.flatMap(g=>g.members);
   let history=null;try{history=await MorothonHistoryData.load();}catch{status.textContent='Løpshistorikken er ikke tilgjengelig akkurat nå.';}
-  const editionYears=history?[...new Set(history.data.results.filter(r=>MorothonHistoryData.isCompletedResult(r)||['DNF','Deltatt'].includes(MorothonHistoryData.effectiveStatus(r))).map(r=>r[0]))].sort((a,b)=>a-b):[];
+  const editionYears=history?MorothonHonorsData.arrangedYears(history.data.results):[];
   const linkedStats=m=>m.runnerId&&history?history.stats(m.runnerId):null;
   const runnerLink=m=>{const s=linkedStats(m);return s?`index.html#lop=${encodeURIComponent(s.id)}`:null;};
   const roleTitle=m=>(m.roles||[]).filter(r=>r.confirmed)[0]?.title||'En del av Morothon-historien';
   const listingLabel=m=>[(m.roles||[]).filter(r=>r.confirmed).map(r=>r.title).join(' · '),m.contribution?.fromYear?'fra '+m.contribution.fromYear:''].filter(Boolean).join(' · ');
   const planFor=m=>MorothonHonorsData.badgePlan(data,m,MorothonHonorsData.findIn(data,m.id).group);
-  const badgeImg=(id,cls='')=>`<img class="${cls}" src="${esc(MorothonBadges.source(id))}" alt="${esc(MorothonBadges.get(id).name)} – merkeutkast">`;
+  const badgeImg=(id,cls='')=>`<img class="${cls}" src="${esc(MorothonBadges.source(id))}" alt="${esc(MorothonBadges.get(id).name)}">`;
   const sourceLinks=(ids=[],fallback='')=>`<small class="honor-source">${ids.map(id=>data.sources?.[id]).filter(Boolean).map(s=>s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.publisher||s.title)}</a>`:esc(s.title)).join(' · ')||esc(fallback)}</small>`;
   const founders=data.groups.find(g=>g.id==='founders')?.members.filter(m=>m.status==='confirmed')||[];
   const founderStats=founders.map(member=>({member,stats:linkedStats(member)})).filter(x=>x.stats);
@@ -26,20 +26,24 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
    const labels=[];if(s.count===largestCount&&largestCount>0)labels.push('Flest løpsdeltakelser blant grunnleggerne');
    const best=historic21(s);if(best&&MorothonHistoryData.timeSeconds(best.row[5])===fastest21)labels.push('Raskeste grunnlegger – historisk 21 km');return labels;
   }
-  function provisionalBadge(member){
-   // Explicit proposals stay intact. Inferred tenure cannot replace personal honors.
-   if(planFor(member).badgeIds.length)return {image:'',label:''};
-   const estimate=MorothonHonorsData.provisionalMilestone(data,member,editionYears);
-   if(!estimate.highest)return {image:'',label:''};
-   const basis=estimate.basis==='documented'?`${estimate.count} dokumenterte utgaver`:`basert på startår ${estimate.fromYear}${estimate.toYear?' · til '+estimate.toYear:''}${estimate.excludedYears.length?' · kjente fravær fratrukket':''}`;
-   return {image:badgeImg(estimate.highest.badgeId,'honor-provisional-medal'),label:`<span class="honor-provisional" data-provisional-badge="${esc(estimate.highest.badgeId)}" data-basis="${estimate.basis}"><span>Mulig ${estimate.highest.editions}-årsmerke</span><small>${esc(basis)}</small></span>`};
+  const mainFor=m=>MorothonHonorsData.mainBadge(data,m,editionYears);
+  const optionsFor=m=>MorothonHonorsData.diplomaChoices(data,m,editionYears);
+  function mainCaption(member,main){
+   if(!main.badgeId)return '';
+   if(main.badgeId==='service-memorial')return `${main.qualifier==='at-least'?'Minst':'Om lag'} ${main.count} ${main.qualifier==='at-least'?'års innsats':'dugnadsutgaver'} · arrangørens anslag · forslag til minnemerke`;
+   if(main.badgeId==='service-grunnlegger')return ''; // The role already says Grunnlegger.
+   if(main.badgeId==='service-aeresmerke')return `${main.count} dokumenterte dugnadsutgaver · æresmerket er et forslag`;
+   const period=main.toYear?`${main.fromYear}–${main.toYear}`:`siden ${main.fromYear}`;
+   return `${main.count} ${main.basis==='documented'?'dokumenterte':'mulige'} dugnadsutgaver ${period} · Foreløpig ${main.editions}-årsmerke${main.toYearStatus==='provisional'?' · foreløpig sluttår':''}${main.excludedYears.length?' · kjente fravær fratrukket':''}`;
   }
-  function card(member,featured=false,volunteer=false){
-   const provisional=volunteer?provisionalBadge(member):{image:'',label:''};
-   if(member.listingOnly){const label=listingLabel(member);return `<li data-honoree="${esc(member.id)}" class="honor-person-card honor-volunteer-card" tabindex="-1"><div class="honor-person-main">${provisional.image}<div><strong>${esc(member.name)}</strong>${label?`<span class="honor-card-role">${esc(label)}</span>`:''}${provisional.label}</div></div></li>`;}
-   const plan=planFor(member),service=MorothonHonorsData.contribution(member),group=MorothonHonorsData.findIn(data,member.id).group;
-   const labels=distinctions(member,group,linkedStats(member));
-   return `<li data-honoree="${esc(member.id)}" class="honor-person-card${featured?' honor-featured-card':''}"><a class="honor-person-main" href="#person/${esc(member.id)}">${plan.primaryBadgeId?badgeImg(plan.primaryBadgeId,'honor-card-medal'):provisional.image}<div><strong>${esc(member.name)}</strong><span class="honor-card-role">${esc(roleTitle(member))}</span>${featured?`<span class="honor-tenure">${service.count} utgaver · ${service.first}–${service.last}</span><p>${esc(member.reason)}</p>`:`<span class="honor-card-summary">${esc(member.reason||'')}</span>`}${provisional.label}${labels.map(label=>`<span class="honor-distinction">${esc(label)}</span>`).join('')}</div><span class="honor-open" aria-hidden="true"></span></a></li>`;
+  function card(member,featured=false){
+   const main=mainFor(member),memorial=main.badgeId==='service-memorial',memorialLead=member.id==='erling-danielsen';
+   const group=MorothonHonorsData.findIn(data,member.id).group,labels=distinctions(member,group,linkedStats(member));
+   const caption=mainCaption(member,main),image=main.badgeId?badgeImg(main.badgeId,'honor-card-medal'):'';
+   const mainNote=caption?`<span class="honor-main-caption" data-main-badge="${esc(main.badgeId)}" data-basis="${esc(main.basis)}">${esc(caption)}</span>`:'';
+   const cls=`honor-person-card${featured?' honor-featured-card':''}${member.listingOnly?' honor-volunteer-card':''}${memorialLead?' honor-memorial-lead':''}`;
+   const inner=`${image}<div><strong>${esc(member.name)}</strong><span class="honor-card-role">${esc(member.listingOnly?listingLabel(member):roleTitle(member))}</span>${featured?`<span class="honor-tenure">35 utgaver · 1992–2026</span><p>${esc(member.reason)}</p>`:!member.listingOnly?`<span class="honor-card-summary">${esc(member.reason||'')}</span>`:''}${mainNote}${labels.map(label=>`<span class="honor-distinction">${esc(label)}</span>`).join('')}</div><span class="honor-open" aria-hidden="true"></span>`;
+   return `<li data-honoree="${esc(member.id)}" class="${cls}"><a class="honor-person-main" href="#person/${esc(member.id)}">${inner}</a></li>`;
   }
   $('#honorHeading').textContent=data.narrative?.title||'De som gjør Morothon mulig ❤️';$('#honorLead').textContent=data.narrative?.lead||'';
   $('#honorThanks').textContent=data.narrative?.thanks||'';$('#honorThanks').hidden=!data.narrative?.thanks;
@@ -61,15 +65,15 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
   $('#honorTimeline').innerHTML=(data.narrative?.timeline||[]).map(item=>`<article class="timeline-chapter"><span class="timeline-year">${esc(item.year)}</span><div><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></div></article>`).join('');
   $('#honorSharedStories').innerHTML=(data.narrative?.sharedStories||[]).filter(s=>s.confirmed).map(s=>`<article class="honor-story"><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></article>`).join('');
   $('#honorClosing').textContent=data.narrative?.closing||'';
-  const serviceDrafts=MorothonBadges.list('service').filter(b=>b.displayOnHonorPage!==false);
+  const serviceDrafts=MorothonBadges.list('service').filter(b=>b.active!==false&&b.displayOnHonorPage!==false);
   const tenureDrafts=serviceDrafts.filter(b=>b.series==='dugnad').sort((a,b)=>a.milestoneEditions-b.milestoneEditions);
   const specialDrafts=serviceDrafts.filter(b=>b.series!=='dugnad');
-  const badgeMarkup=badges=>badges.map(b=>`<article>${badgeImg(b.id)}<h3>${esc(b.name)}</h3><p>${b.series==='dugnad'?'Kandidat etter '+b.milestoneEditions+' bekreftede dugnadsutgaver.':'Særskilt utmerkelse etter individuell vurdering.'} Designutkast – ikke tildelt.</p></article>`).join('');
-  $('#serviceBadges').innerHTML='<h3 class="badge-group-heading">Dugnadsmerker · 5 – 10 – 15 – 20 – 30 – 40</h3>'+badgeMarkup(tenureDrafts)+'<h3 class="badge-group-heading">Særskilt heder</h3>'+badgeMarkup(specialDrafts);
-  $('#honorSourceContent').innerHTML=`<p>Historiske roller, dokumenterte dugnadsår, anslag, forslag til merker, formelle tildelinger og utstedte diplomer holdes adskilt. Løpsstarter blir aldri dugnadsår. Foreløpige merker kan anslås fra startår, med eventuelt sluttår og kjente fravær; dette bekrefter ikke aktivitet i mellomliggende år. Eksplisitt dokumenterte årsrekker brukes uten å fylle inn antatte år. Tersklene følger merkepolicyen. Slike beregninger betyr bare at et merke kan vurderes, ikke at det er tildelt. Hedersildsjel krever særskilt vurdering. Morothons æresmerke er høyeste utmerkelse og krever egen beslutning, uavhengig av antall år. Grunnlegger er en egen historisk heder. Ingen nye tildelinger er gjennomført her.</p><p>Håkon Lohnes navn i diplomene er typografisk satt, ikke en håndskrevet originalsignatur. Dato og signatur må godkjennes ved en eventuell utdeling.</p><ul>${Object.values(data.sources||{}).map(s=>`<li><b>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`:esc(s.title)}</b><span>${esc(s.basis||'')}</span></li>`).join('')}</ul>${(data.narrative?.uncertainties||[]).map(s=>`<p>${esc(s.text)}</p>`).join('')}<details><summary>Opplysninger om personer og roller</summary>${all.map(m=>`<article><h3>${esc(m.name)}</h3><p>${(m.internalNotes||[]).map(esc).join(' ')}</p>${(m.roles||[]).map(r=>`<p>${esc(r.title)}${r.fromYear?' · fra '+r.fromYear:''}${r.note?' · '+esc(r.note):''}</p>`).join('')}${sourceLinks(m.sourceIds)}</article>`).join('')}</details><p>Resultatarkivet viser 128 registrerte deltakere i 1992. Arrangementsdatoen for 2018 er 11. november.</p>`;
+  const badgeMarkup=badges=>badges.map(b=>`<article>${badgeImg(b.id)}<h3>${esc(b.name)}</h3><p>${b.series==='dugnad'?'Kandidat etter '+b.milestoneEditions+' bekreftede dugnadsutgaver.':'Særskilt utmerkelse etter individuell vurdering.'}</p></article>`).join('');
+  $('#serviceBadges').innerHTML='<h3 class="badge-group-heading">Dugnadsmerker · 5 – 10 – 15 – 20 – 30 – 40</h3>'+badgeMarkup(tenureDrafts)+'<h3 class="badge-group-heading">Særskilt heder og minne</h3>'+badgeMarkup(specialDrafts);
+  $('#honorSourceContent').innerHTML=`<p>Historiske roller, dokumenterte dugnadsår, anslag, forslag til merker, formelle tildelinger og utstedte diplomer holdes adskilt. Løpsstarter blir aldri dugnadsår. Foreløpige merker kan anslås fra startår, med eventuelt sluttår og kjente fravær; dette bekrefter ikke aktivitet i mellomliggende år. Eksplisitt dokumenterte årsrekker brukes uten å fylle inn antatte år. Tersklene følger merkepolicyen. Slike beregninger betyr bare at et merke kan vurderes, ikke at det er tildelt. Morothons æresmerke er høyeste utmerkelse og krever egen beslutning, uavhengig av antall år. Grunnlegger er en egen historisk heder. Ingen nye tildelinger er gjennomført her.</p><p>Håkon Lohnes navn i diplomene er typografisk satt, ikke en håndskrevet originalsignatur. Dato og signatur må godkjennes ved en eventuell utdeling.</p><ul>${Object.values(data.sources||{}).map(s=>`<li><b>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`:esc(s.title)}</b><span>${esc(s.basis||'')}</span></li>`).join('')}</ul>${(data.narrative?.uncertainties||[]).map(s=>`<p>${esc(s.text)}</p>`).join('')}<details><summary>Opplysninger om personer og roller</summary>${all.map(m=>`<article><h3>${esc(m.name)}</h3><p>${(m.internalNotes||[]).map(esc).join(' ')}</p>${(m.roles||[]).map(r=>`<p>${esc(r.title)}${r.fromYear?' · fra '+r.fromYear:''}${r.note?' · '+esc(r.note):''}</p>`).join('')}${sourceLinks(m.sourceIds)}</article>`).join('')}</details><p>Resultatarkivet viser 128 registrerte deltakere i 1992. Arrangementsdatoen for 2018 er 11. november.</p>`;
   const normalize=v=>String(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('nb-NO');
   $('#honorSearch').addEventListener('input',()=>{const q=normalize($('#honorSearch').value);let count=0;for(const li of overview.querySelectorAll('[data-honoree]')){const m=MorothonHonorsData.findIn(data,li.dataset.honoree).member;li.hidden=!normalize([m.name,...m.aliases||[],m.listingOnly?listingLabel(m):roleTitle(m)].join(' ')).includes(q);if(!li.hidden)count++;}for(const group of overview.querySelectorAll('.honor-group,#honorFeatured'))group.hidden=![...group.querySelectorAll('[data-honoree]')].some(e=>!e.hidden);$('#honorSearchStatus').textContent=q?`${count} navn i oversikten`:'';});
-  function previewMarkup(options,title,cls='diploma-example'){return `<details class="${cls}"><summary>${esc(title)}</summary>${options.length>1?`<label class="honor-choice">Hovedmerke i utkastet<select aria-label="Hovedmerke i diplomutkast">${options.map(id=>`<option value="${esc(id)}">${esc(MorothonBadges.get(id).name)}</option>`).join('')}</select></label>`:''}<p class="honor-draft-notice">Diplomutkast – ikke utdelt. Dato og signatur må godkjennes før eventuell utdeling.</p><div class="honor-diploma" data-preview-title="${esc(title)} – diplomutkast"></div><p class="honor-diploma-status" role="status"></p></details><details class="honor-image-quality"><summary>Bildekvalitet i utkastet</summary><div></div></details>`;}
+  function previewMarkup(options,title,cls='diploma-example'){return `<details class="${cls}"><summary aria-label="${esc(title)}">Vis diplom</summary>${options.length>1?`<label class="honor-choice">Merke på diplomet<select aria-label="Merke på diplomet">${options.map(id=>`<option value="${esc(id)}">${esc(id==='thanks'?'Takk for innsatsen':MorothonBadges.get(id).name)}</option>`).join('')}</select></label>`:''}<p class="honor-draft-notice" hidden>Dette diplomet er ikke godkjent for endelig bruk. Utskriften merkes «UTKAST – IKKE UTDELT».</p><div class="honor-diploma" data-preview-title="${esc(title)}"></div><p class="honor-diploma-status" role="status" aria-live="polite"></p><div class="honor-print-controls"><button type="button" data-honor-print disabled>Skriv ut diplom</button><button type="button" data-honor-pdf disabled>Lagre som PDF</button></div><p class="honor-print-help">A4 liggende · skala 100 % · ingen marger · bakgrunnsgrafikk på · topp- og bunntekst av. «Lagre som PDF» åpner utskriftsdialogen; velg «Lagre som PDF» som skriver.</p></details><details class="honor-image-quality"><summary>Bildekvalitet</summary><div></div></details>`;}
   function wirePreview(container,loader,isCurrent=()=>true,eager=true){
    const details=container.querySelector('.diploma-example,.honor-example-preview'),viewport=details.querySelector('.honor-diploma');let frame,draft,render=0,disposed=false;
    const active=()=>!disposed&&isCurrent(),resize=()=>{if(active()&&frame)MorothonDiplomas.fitPreview(viewport,frame);},observer=new ResizeObserver(resize);observer.observe(viewport);
@@ -80,18 +84,41 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
      const image=images.find(i=>i.src===a.src),box=image?.getBoundingClientRect(),style=image&&doc.defaultView.getComputedStyle(image);
      const factor=image?Math.min((box.width||parseFloat(style.width))/a.width,(box.height||parseFloat(style.height))/a.height):0;
      const vector=new URL(a.src,document.baseURI).pathname.endsWith('.svg');
-     const measurement=factor>0?`${vector?'Skalerbar vektor ved':Math.floor(96/factor)+' DPI ved'} ${(a.width*factor*25.4/96).toFixed(1)} mm i dette A4-utkastet.`:'Mål kontrolleres når utkastet åpnes.';
+     const measurement=factor>0?`${vector?'Skalerbar vektor ved':Math.floor(96/factor)+' DPI ved'} ${(a.width*factor*25.4/96).toFixed(1)} mm på A4-diplomet.`:'Mål kontrolleres når diplomet åpnes.';
      return `<p><b>${esc(MorothonBadges.get(a.key).name)}</b>: ${vector?'SVG · ingen fast original-DPI':a.width+' × '+a.height+' px'} · ${measurement} ${esc([...a.issues,...a.warnings||[]].join(' '))}</p>`;
     }).join('');
    }
-   async function verify(){if(!active()||!draft||!frame?.contentDocument?.querySelector('.diploma-sheet'))return;const layout=await MorothonDiplomas.checkLayout(frame.contentDocument);if(!active())return;showQuality();details.querySelector('.honor-diploma-status').textContent=layout.ready?'A4-utkast kontrollert. Diplomutkast – ikke utdelt.':layout.failures.join(' ');}
-   async function prepare(){const token=++render;try{const next=await loader(details.querySelector('select')?.value);if(!active()||token!==render)return;draft=next;if(!frame){frame=document.createElement('iframe');frame.title=viewport.dataset.previewTitle;frame.setAttribute('sandbox','allow-same-origin');viewport.appendChild(frame);}frame.onload=async()=>{if(!active()||token!==render||frame.contentDocument?.title!==draft.filename)return;await frame.contentDocument.fonts.ready;resize();showQuality();if(details.open)await verify();};frame.srcdoc=MorothonDiplomas.documentHtml(draft);container.querySelector('.honor-image-quality div').textContent='Bildekvaliteten kontrolleres når forhåndsvisningen er klar.';}catch(e){if(active())showStatus(e);}}
-   details.querySelector('select')?.addEventListener('change',prepare);details.addEventListener('toggle',()=>{resize();if(details.open){if(!draft)prepare();else verify();}});if(eager)prepare();return ()=>{disposed=true;render++;observer.disconnect();};
+   const buttons=[...details.querySelectorAll('[data-honor-print],[data-honor-pdf]')],message=details.querySelector('.honor-diploma-status');
+   const disable=()=>buttons.forEach(b=>b.disabled=true);
+   async function verify(){
+    if(!active()||!draft||!frame?.contentDocument?.querySelector('.diploma-sheet'))return;
+    const token=render,current=draft,doc=frame.contentDocument;disable();
+    const result=await MorothonDiplomas.checkServiceDraft(current,doc);
+    if(!active()||token!==render||current!==draft||doc!==frame.contentDocument)return;
+    showQuality();details.querySelector('.honor-draft-notice').hidden=current.printMode==='final';
+    message.textContent=result.ready?result.mode==='final'?'Diplomet er kontrollert og godkjent for endelig bruk.':'Diplomet er kontrollert og klart for utskrift.':result.failures.join(' ');
+    for(const button of buttons)button.disabled=!result.ready;
+   }
+   async function prepare(){
+    const token=++render;disable();draft=null;message.textContent='Kontrollerer diplom og bildekvalitet …';
+    try{
+     const next=await loader(details.querySelector('select')?.value);if(!active()||token!==render)return;draft=next;
+     if(!frame){frame=document.createElement('iframe');frame.title=viewport.dataset.previewTitle;frame.setAttribute('sandbox','allow-same-origin allow-modals');viewport.appendChild(frame);}
+     frame.onload=async()=>{if(!active()||token!==render||frame.contentDocument?.title!==next.filename)return;await frame.contentDocument.fonts.ready;resize();showQuality();if(details.open)await verify();};
+     frame.srcdoc=MorothonDiplomas.documentHtml(next);container.querySelector('.honor-image-quality div').textContent='Bildekvaliteten kontrolleres når forhåndsvisningen er klar.';
+    }catch(e){if(active()&&token===render){disable();message.textContent='Diplomet kan ikke klargjøres: '+e.message;}}
+   }
+   for(const button of buttons)button.addEventListener('click',async()=>{
+    if(!active()||!draft||button.disabled)return;const current=draft,token=render;disable();
+    try{await MorothonDiplomas.printServiceDraft(current,frame);if(active()&&token===render)await verify();}
+    catch(e){if(active()&&token===render)message.textContent=e.message;}
+   });
+   details.querySelector('select')?.addEventListener('change',prepare);details.addEventListener('toggle',()=>{resize();if(details.open){if(!draft)prepare();else verify();}});if(eager)prepare();return ()=>{disposed=true;render++;disable();observer.disconnect();};
   }
   let exampleCleanup=[];
   function clearExamples(){exampleCleanup.forEach(dispose=>dispose());exampleCleanup=[];$('#honorExamples').replaceChildren();}
   function renderExamples(){clearExamples();
-  $('#honorExamples').innerHTML=(data.diplomaExamples||[]).map(e=>`<article class="honor-example" data-example="${esc(e.id)}"><h3>${esc(e.label)}</h3>${e.illustrative?`<p>Typeeksempel uten navngitt mottaker. ${e.contributionCount} dokumenterte dugnadsutgaver må avklares for den som eventuelt skal få diplomet.</p>`:''}${previewMarkup([],e.illustrative?'Vis utkastet for '+e.contributionCount+' dugnadsutgaver':'Vis diplomutkastet','honor-example-preview')}</article>`).join('');
+  $('#honorExamples').innerHTML=(data.diplomaExamples||[]).map(e=>`<article class="honor-example" data-example="${esc(e.id)}"><h3>${esc(e.label)}</h3>${e.illustrative?`<p>Typeeksempel uten navngitt mottaker. ${e.badgeId==='thanks'?'Uten påstand om antall dugnadsutgaver.':e.contributionCount+' dokumenterte dugnadsutgaver må avklares for den som eventuelt skal få diplomet.'}</p>`:''}${previewMarkup([],'Vis diplom for '+e.label,'honor-example-preview')}</article>`).join('');
   for(const e of data.diplomaExamples||[])exampleCleanup.push(wirePreview(overview.querySelector(`[data-example="${e.id}"]`),()=>MorothonDiplomas.serviceExample(e.id),()=>true,false));
   }
   function racingHtml(member,group){
@@ -102,24 +129,25 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
   }
   async function route(){
    const token=++sequence;cleanupProfile();status.textContent='';const inProfile=location.hash.startsWith('#person/');overview.hidden=inProfile;profile.hidden=!inProfile;$('#honorIntro').hidden=inProfile;
-   if(!inProfile){renderExamples();document.title='Menneskene bak Morothon · forhåndsvisning';if(lastProfileId){const card=overview.querySelector(`[data-honoree="${lastProfileId}"]`);(card?.querySelector('a')||card)?.focus({preventScroll:true});}return;}
+   if(!inProfile){renderExamples();document.title='Menneskene bak Morothon';if(lastProfileId){const card=overview.querySelector(`[data-honoree="${lastProfileId}"]`);(card?.querySelector('a')||card)?.focus({preventScroll:true});}return;}
    clearExamples();
    let id;try{id=decodeURIComponent(location.hash.slice(8));}catch{id='';}
    const retired=data.retiredProfiles?.find(p=>p.id===id);if(retired){profile.innerHTML=`<a href="#oversikt">← Tilbake til oversikten</a><h2 id="profileName">${esc(retired.name)}</h2><p>Denne hedersoppføringen er korrigert. Du finner menneskene bak Morothon i oversikten.</p><details><summary>Bakgrunn og kilder</summary><p>${esc(retired.message)}</p>${sourceLinks(retired.sourceIds)}</details>`;profile.focus({preventScroll:true});return;}
    try{
     const {member,group,stories,roles}=await MorothonHonorsData.find(id);if(token!==sequence)return;lastProfileId=member.id;
     if(id!==member.id)historyReplace(member.id);
-    if(member.listingOnly){
+    if(member.listingOnly&&!mainFor(member).badgeId){
      const label=listingLabel(member);document.title=`${member.name} · Menneskene bak Morothon`;profile.className='honor-profile honor-volunteer-detail';
-     profile.innerHTML=`<a href="#oversikt" class="back">← Tilbake til alle navn</a><h2 id="profileName">${esc(member.name)}</h2>${label?`<p class="profile-role">${esc(label)}</p>`:''}`;
+     profile.innerHTML=`<a href="#oversikt" class="back">← Tilbake til alle navn</a><h2 id="profileName">${esc(member.name)}</h2>${label?`<p class="profile-role">${esc(label)}</p>`:''}<section class="honor-person-diploma"><h3>En takk på papir</h3>${previewMarkup(['thanks'],'Vis diplom for '+member.name)}</section>`;
+     cleanupProfile=wirePreview(profile,()=>MorothonDiplomas.serviceDraft(member.id),()=>token===sequence,false);
      profile.focus({preventScroll:true});profile.scrollIntoView({block:'start'});return;
     }
-    const plan=planFor(member),service=MorothonHonorsData.contribution(member);
+    const plan=planFor(member),service=MorothonHonorsData.contribution(member),main=mainFor(member),options=optionsFor(member);
     const seniority=MorothonHonorsData.tenureMilestones(data,member);
     const seniorityNote=seniority.highestQualified?`<p class="honor-tenure-note">Dugnadsmilepæl til vurdering: ${seniority.highestQualified.editions} utgaver. ${seniority.next?'Neste nivå er '+seniority.next.editions+' utgaver.':''} Ikke automatisk tildelt.</p>`:'';
-    document.title=`${member.name} · Menneskene bak Morothon`;profile.className=`honor-profile${service.count===35?' honor-profile-lifelong':group.id==='founders'?' honor-profile-founder':''}`;
-    profile.innerHTML=`<a href="#oversikt" class="back">← Tilbake til alle navn</a><div class="honor-profile-header${plan.primaryBadgeId?'':' honor-profile-text-only'}"><div class="honor-profile-medals">${plan.primaryBadgeId?badgeImg(plan.primaryBadgeId,'profile-medal'):''}${plan.badgeIds.length>1?`<div class="honor-secondary-badges">${plan.badgeIds.filter(id=>id!==plan.primaryBadgeId).map(id=>badgeImg(id)).join('')}</div>`:''}</div><div><p class="eyebrow">EN DEL AV MOROTHON-HISTORIEN</p><h2 id="profileName">${esc(member.name)}</h2><p class="profile-role">${esc(roleTitle(member))}</p>${service.count===35?`<p class="honor-tenure">35 utgaver · 1992–2026</p>`:''}<p>${esc(member.reason||'')}</p>${plan.badgeIds.length?'<small class="honor-preview-marker">Merker i forhåndsvisningen</small>':''}</div></div>${stories.length?`<section aria-labelledby="storiesTitle"><h3 id="storiesTitle">Historier og minner</h3>${stories.map(s=>`<article class="honor-story">${s.title?`<h4>${esc(s.title)}</h4>`:''}<p>${esc(s.text)}</p></article>`).join('')}</section>`:''}${racingHtml(member,group)}${seniorityNote}${plan.badgeIds.length?`<section class="honor-person-diploma"><h3>En takk på papir</h3>${previewMarkup([plan.primaryBadgeId,...plan.badgeIds.filter(id=>id!==plan.primaryBadgeId)],'Vis diplomutkast for '+member.name)}</section>`:''}<details class="honor-person-sources"><summary>Bakgrunn og kilder</summary>${sourceLinks(member.sourceIds)}${(member.internalNotes||[]).map(n=>`<p>${esc(n)}</p>`).join('')}${roles.filter(r=>r.note).map(r=>`<p>${esc(r.note)}</p>`).join('')}</details>`;
-    cleanupProfile=plan.badgeIds.length?wirePreview(profile,badgeId=>MorothonDiplomas.serviceDraft(member.id,badgeId),()=>token===sequence):()=>{};
+    document.title=`${member.name} · Menneskene bak Morothon`;profile.className=`honor-profile${service.count===35?' honor-profile-lifelong':group.id==='founders'?' honor-profile-founder':''}${main.badgeId==='service-memorial'?' honor-profile-memorial':''}${member.listingOnly?' honor-volunteer-detail':''}`;
+    profile.innerHTML=`<a href="#oversikt" class="back">← Tilbake til alle navn</a><div class="honor-profile-header${main.badgeId?'':' honor-profile-text-only'}"><div class="honor-profile-medals">${main.badgeId?badgeImg(main.badgeId,'profile-medal'):''}</div><div><p class="eyebrow">EN DEL AV MOROTHON-HISTORIEN</p><h2 id="profileName">${esc(member.name)}</h2><p class="profile-role">${esc(member.listingOnly?listingLabel(member):roleTitle(member))}</p>${roles.filter(r=>r.countsForTenure===false&&r.title!==roleTitle(member)).map(r=>`<p class="profile-additional-role">${esc(r.title)}</p>`).join('')}${service.count===35?`<p class="honor-tenure">35 utgaver · 1992–2026</p>`:''}<p>${esc(member.reason||'')}</p>${main.badgeId?`<p class="honor-main-caption">${esc(mainCaption(member,main))}</p>`:''}</div></div>${stories.length?`<section aria-labelledby="storiesTitle"><h3 id="storiesTitle">Historier og minner</h3>${stories.map(s=>`<article class="honor-story">${s.title?`<h4>${esc(s.title)}</h4>`:''}<p>${esc(s.text)}</p></article>`).join('')}</section>`:''}${racingHtml(member,group)}${seniorityNote}${plan.badgeIds.includes('service-aeresmerke')?'<p class="honor-historical-label">Historisk grunnlegger. Tidligere dugnadsmilepæler er dokumentert som tekst og i diplomvalgene.</p>':''}${options.length?`<section class="honor-person-diploma"><h3>${main.badgeId==='service-memorial'?'Et minne i takknemlighet':'En takk på papir'}</h3>${previewMarkup(options,'Vis diplom for '+member.name)}</section>`:''}<details class="honor-person-sources"><summary>Bakgrunn og kilder</summary>${sourceLinks(member.sourceIds)}${(member.internalNotes||[]).map(n=>`<p>${esc(n)}</p>`).join('')}${roles.filter(r=>r.note).map(r=>`<p>${esc(r.note)}</p>`).join('')}</details>`;
+    cleanupProfile=options.length?wirePreview(profile,badgeId=>MorothonDiplomas.serviceDraft(member.id,badgeId),()=>token===sequence):()=>{};
     profile.focus({preventScroll:true});profile.scrollIntoView({block:'start'});
    }catch(e){if(token===sequence){profile.innerHTML='<a href="#oversikt">← Tilbake til alle navn</a><h2 id="profileName">Hedersprofilen finnes ikke</h2>';showStatus(e);}}
   }

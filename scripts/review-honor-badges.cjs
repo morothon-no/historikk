@@ -38,7 +38,7 @@ async function inspectVector(page,url,font){
 async function review(out=path.join(os.tmpdir(),'morothon-heder-pr16'),badgesOnly=false){
  out=path.resolve(out);await fs.mkdir(out,{recursive:true});
  const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
- const levels=[5,10,15,20,30,40],ids=[...levels.map(n=>'service-dugnad-'+n),'service-hedersildsjel','service-grunnlegger','service-aeresmerke'];
+ const levels=[5,10,15,20,30,40],ids=[...levels.map(n=>'service-dugnad-'+n),'service-grunnlegger','service-aeresmerke','service-memorial'];
  const badges=ids.map(id=>registry.badges.find(b=>b.id===id));assert.ok(badges.every(Boolean));
  const harness=await createHarness(),errors=[],vectors=[],proofs=[],views=[];
  const css='*{box-sizing:border-box}body{margin:0;padding:24px;background:#f6f3e9;color:#12343e;font:16px/1.5 Arial}h1,h2,p{text-align:center}h1{font-family:Georgia;font-weight:400}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.six{grid-template-columns:repeat(6,minmax(0,1fr))}figure{margin:0;padding:12px;background:#fffdf6;border:1px solid #d8cdb3;border-radius:12px;text-align:center}figure img{display:block;width:100%;height:345px;object-fit:contain}figcaption b{display:block;font-size:20px}figcaption small{display:block;color:#526b70}.six img{height:250px}.six b{font-size:17px}.single img{height:600px}.dark{background:#092936;color:#fff}';

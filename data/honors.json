@@ -107,13 +107,25 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "Arrangøren oppgir foreløpig periode 2014–2019. Det er ikke bekreftet at Bent-Inge deltok i alle utgavene i perioden, og perioden skal ikke automatisk telle som seks dugnadsutgaver."
+    },
+    "organizer-v35": {
+      "title": "Arrangørens V3.5-avklaringer om roller, fartstid og hovedmerker",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "V3.5-bestillingen: Finn og Kalle fra minst 2014, Bent-Inge foreløpig 2014–2019, Håkon som løpsleder uten fastsatt startår for rollen, Nils Martin som styreleder i Søgne Skiklubb. Minnestatus og anslag for Erling Danielsen (33 utgaver), Floke Bredland og Leif Wiig (minst 25 år) er oppgitt av arrangøren. Ingen formelle tildelinger."
+    },
+    "organizer-pr18-confirmed-years": {
+      "title": "Arrangørens sluttkorrigering før merge av PR #18",
+      "publisher": "Morothon",
+      "basis": "Oppgitt av arrangøren 11. november 2026: Dag Morten Frantzen har dokumenterte dugnadsår 2014–2026. Håkon Lohne har dokumenterte dugnadsår 2014, 2015 og 2017–2026, med bekreftet fravær i 2016. Erling Askildsen og Dag Morten Frantzen har også vært styreledere i Søgne Skiklubb; periode er ikke oppgitt. Styreledervervene teller ikke som dugnadsår.",
+      "date": "2026-11-11"
     }
   },
   "displayOrder": [
     "founders",
+    "memorial",
     "organizers",
-    "volunteers",
-    "memorial"
+    "volunteers"
   ],
   "retiredProfiles": [
     {
@@ -150,6 +162,14 @@
                 "organizer-v3"
               ],
               "confirmed": true
+            },
+            {
+              "title": "Tidligere styreleder i Søgne Skiklubb",
+              "confirmed": true,
+              "countsForTenure": false,
+              "sourceIds": [
+                "organizer-pr18-confirmed-years"
+              ]
             }
           ],
           "stories": [
@@ -178,15 +198,13 @@
             "status": "proposed",
             "primaryBadgeId": "service-aeresmerke",
             "badgeIds": [
-              "service-aeresmerke",
-              "service-dugnad-30",
-              "service-hedersildsjel",
-              "service-grunnlegger"
+              "service-aeresmerke"
             ],
             "sourceIds": [
               "organizer-v34",
               "organizer-aeresmerke-2026",
-              "organizer-dugnadsstige-2026"
+              "organizer-dugnadsstige-2026",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -236,7 +254,24 @@
             "sourceIds": [
               "organizer-v34"
             ]
-          }
+          },
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-aeresmerke",
+              "badgeIds": [
+                "service-aeresmerke",
+                "service-dugnad-30",
+                "service-hedersildsjel",
+                "service-grunnlegger"
+              ],
+              "sourceIds": [
+                "organizer-v34",
+                "organizer-aeresmerke-2026",
+                "organizer-dugnadsstige-2026"
+              ]
+            }
+          ]
         },
         {
           "id": "oscar-lohne",
@@ -284,15 +319,13 @@
             "status": "proposed",
             "primaryBadgeId": "service-aeresmerke",
             "badgeIds": [
-              "service-aeresmerke",
-              "service-dugnad-30",
-              "service-hedersildsjel",
-              "service-grunnlegger"
+              "service-aeresmerke"
             ],
             "sourceIds": [
               "organizer-v34",
               "organizer-aeresmerke-2026",
-              "organizer-dugnadsstige-2026"
+              "organizer-dugnadsstige-2026",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -342,7 +375,24 @@
             "sourceIds": [
               "organizer-v34"
             ]
-          }
+          },
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-aeresmerke",
+              "badgeIds": [
+                "service-aeresmerke",
+                "service-dugnad-30",
+                "service-hedersildsjel",
+                "service-grunnlegger"
+              ],
+              "sourceIds": [
+                "organizer-v34",
+                "organizer-aeresmerke-2026",
+                "organizer-dugnadsstige-2026"
+              ]
+            }
+          ]
         },
         {
           "id": "arnfinn-haverstad",
@@ -380,17 +430,30 @@
             "status": "proposed",
             "primaryBadgeId": "service-grunnlegger",
             "badgeIds": [
-              "service-grunnlegger",
-              "service-dugnadshelt"
+              "service-grunnlegger"
             ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-grunnlegger",
+              "badgeIds": [
+                "service-grunnlegger",
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
           ]
         },
         {
@@ -430,17 +493,30 @@
             "status": "proposed",
             "primaryBadgeId": "service-grunnlegger",
             "badgeIds": [
-              "service-grunnlegger",
-              "service-dugnadshelt"
+              "service-grunnlegger"
             ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-grunnlegger",
+              "badgeIds": [
+                "service-grunnlegger",
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
           ]
         },
         {
@@ -478,24 +554,37 @@
             "status": "proposed",
             "primaryBadgeId": "service-grunnlegger",
             "badgeIds": [
-              "service-grunnlegger",
-              "service-dugnadshelt"
+              "service-grunnlegger"
             ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-grunnlegger",
+              "badgeIds": [
+                "service-grunnlegger",
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
           ]
         }
       ]
     },
     {
       "id": "volunteers",
-      "badgeId": "service-dugnadshelt",
+      "badgeId": null,
       "title": "Dugnadsheltene",
       "description": "Noen har vært med lenge. Andre har kommet til underveis. Hver eneste hånd gjør en forskjell.",
       "members": [
@@ -534,12 +623,11 @@
           "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014 og for at du bidrar til å holde Morothon-tradisjonen levende.",
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": "service-dugnadshelt",
-            "badgeIds": [
-              "service-dugnadshelt"
-            ],
+            "primaryBadgeId": null,
+            "badgeIds": [],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -553,7 +641,25 @@
           ],
           "aliasIds": [
             "karl-kimestad"
-          ]
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-dugnadshelt",
+              "badgeIds": [
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "organizer-v35"
+            ]
+          }
         },
         {
           "id": "finn-lohne",
@@ -589,12 +695,11 @@
           "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014, blant annet ved drikkestasjonen på Freden. Du er med på å holde tradisjonen levende.",
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": "service-dugnadshelt",
-            "badgeIds": [
-              "service-dugnadshelt"
-            ],
+            "primaryBadgeId": null,
+            "badgeIds": [],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -602,7 +707,25 @@
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
             "Minst siden 2014; et tidligere startår er ikke bekreftet."
-          ]
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-dugnadshelt",
+              "badgeIds": [
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "organizer-v35"
+            ]
+          }
         },
         {
           "id": "dag-morten-frantzen",
@@ -623,6 +746,14 @@
                 "organizer-v3"
               ],
               "confirmed": true
+            },
+            {
+              "title": "Tidligere styreleder i Søgne Skiklubb",
+              "confirmed": true,
+              "countsForTenure": false,
+              "sourceIds": [
+                "organizer-pr18-confirmed-years"
+              ]
             }
           ],
           "stories": [
@@ -649,12 +780,11 @@
           ],
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": "service-dugnadshelt",
-            "badgeIds": [
-              "service-dugnadshelt"
-            ],
+            "primaryBadgeId": null,
+            "badgeIds": [],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -662,7 +792,41 @@
           "internalNotes": [
             "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
             "Omtalen av Langmoro i porsjoner er arrangørens humoristiske personbeskrivelse. Den er ikke en løpsprestasjon, DNF eller endring av resultatarkivet."
-          ]
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-dugnadshelt",
+              "badgeIds": [
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "organizer-v35",
+              "organizer-pr18-confirmed-years"
+            ],
+            "confirmedYears": [
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ]
+          }
         },
         {
           "id": "hakon-lohne",
@@ -674,6 +838,13 @@
             "organizer-v34-issue13-people"
           ],
           "roles": [
+            {
+              "title": "Løpsleder Morothon",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v35"
+              ]
+            },
             {
               "title": "Arrangør siden 2014",
               "fromYear": 2014,
@@ -708,19 +879,54 @@
           "runnerId": "MOR-AA6C983",
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": "service-dugnadshelt",
-            "badgeIds": [
-              "service-dugnadshelt"
-            ],
+            "primaryBadgeId": null,
+            "badgeIds": [],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
             "Svalbard-opphold i 2016, avklart i issue #11. Ingen oppgaver eller manglende løpsstarter utledes av dette."
-          ]
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": "service-dugnadshelt",
+              "badgeIds": [
+                "service-dugnadshelt"
+              ],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "organizer-v35",
+              "organizer-pr18-confirmed-years"
+            ],
+            "confirmedYears": [
+              2014,
+              2015,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "excludedYears": [
+              2016
+            ]
+          }
         }
       ]
     },
@@ -785,7 +991,15 @@
           ],
           "aliases": [
             "Bent Bakke"
-          ]
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "toYear": 2019,
+            "toYearStatus": "provisional",
+            "sourceIds": [
+              "organizer-v35"
+            ]
+          }
         }
       ],
       "sourceIds": [
@@ -804,9 +1018,10 @@
           "id": "erling-danielsen",
           "name": "Erling Danielsen",
           "status": "confirmed",
-          "reason": "Bidro fra 1992 og fram til han gikk bort. Vi minnes innsatsen med takknemlighet.",
+          "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Arrangøren anslår om lag 33 dugnadsutgaver. Vi minnes Erling og innsatsen hans med takknemlighet.",
           "sourceIds": [
-            "organizer-v34"
+            "organizer-v34",
+            "organizer-v35"
           ],
           "roles": [
             {
@@ -821,10 +1036,13 @@
           "stories": [],
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": null,
-            "badgeIds": [],
+            "primaryBadgeId": "service-memorial",
+            "badgeIds": [
+              "service-memorial"
+            ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -838,15 +1056,41 @@
           "deceased": true,
           "internalNotes": [
             "Dødsår er ikke oppgitt. Erling Danielsen er ikke Einar Danielsen."
-          ]
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": null,
+              "badgeIds": [],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "organizer-v35"
+            ]
+          },
+          "serviceEstimate": {
+            "editions": 33,
+            "qualifier": "approximately",
+            "sourceIds": [
+              "organizer-v35"
+            ],
+            "unit": "editions"
+          },
+          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
         },
         {
           "id": "floke-bredland",
           "name": "Floke Bredland",
           "status": "confirmed",
-          "reason": "Vi minnes en sentral veteran og stemmen som leste resultatlistene på banketten.",
+          "reason": "En viktig del av bankettene og det sosiale fellesskapet. Arrangøren anslår minst 25 års dugnadsinnsats. Floke gikk bort i 2024.",
           "sourceIds": [
-            "organizer-v34"
+            "organizer-v34",
+            "organizer-v35"
           ],
           "roles": [
             {
@@ -872,10 +1116,13 @@
           ],
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": null,
-            "badgeIds": [],
+            "primaryBadgeId": "service-memorial",
+            "badgeIds": [
+              "service-memorial"
+            ],
             "sourceIds": [
-              "organizer-v34"
+              "organizer-v34",
+              "organizer-v35"
             ]
           },
           "awards": [],
@@ -884,16 +1131,42 @@
           "deathYear": 2024,
           "internalNotes": [
             "Oppgitt start i 1993; eldre kilder gir ulike startår. Mulig sluttår 2017 er usikkert og vises ikke som fakta."
-          ]
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": null,
+              "badgeIds": [],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ],
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "organizer-v35"
+            ]
+          },
+          "serviceEstimate": {
+            "editions": 25,
+            "qualifier": "at-least",
+            "sourceIds": [
+              "organizer-v35"
+            ],
+            "unit": "years"
+          },
+          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
         },
         {
           "id": "leif-wiig",
           "name": "Leif Wiig",
           "status": "confirmed",
-          "reason": "Leif var en ivrig tidtaker og organisator gjennom mange år. Han gikk bort i 2023, og vi minnes innsatsen hans med takknemlighet.",
+          "reason": "En viktig kraft innen tidtaking og organisering. Arrangøren anslår minst 25 års dugnadsinnsats. Leif gikk bort i 2023.",
           "deathYear": 2023,
           "sourceIds": [
-            "organizer-honor-names-2026-11-11"
+            "organizer-honor-names-2026-11-11",
+            "organizer-v35"
           ],
           "roles": [
             {
@@ -907,14 +1180,42 @@
           "stories": [],
           "badgeProposal": {
             "status": "proposed",
-            "primaryBadgeId": null,
-            "badgeIds": [],
+            "primaryBadgeId": "service-memorial",
+            "badgeIds": [
+              "service-memorial"
+            ],
             "sourceIds": [
-              "organizer-honor-names-2026-11-11"
+              "organizer-honor-names-2026-11-11",
+              "organizer-v35"
             ]
           },
           "awards": [],
-          "issuedDiplomas": []
+          "issuedDiplomas": [],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": null,
+              "badgeIds": [],
+              "sourceIds": [
+                "organizer-honor-names-2026-11-11"
+              ]
+            }
+          ],
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "organizer-v35"
+            ]
+          },
+          "serviceEstimate": {
+            "editions": 25,
+            "qualifier": "at-least",
+            "sourceIds": [
+              "organizer-v35"
+            ],
+            "unit": "years"
+          },
+          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
         }
       ]
     }
@@ -1008,7 +1309,7 @@
     ],
     "thanks": "Takk til alle som tar en vakt, bærer en kasse eller blir igjen til siste rydderunde."
   },
-  "contentVersion": "3.4",
+  "contentVersion": "V3.5",
   "previewOnly": true,
   "awardPolicy": {
     "status": "proposed",
@@ -1053,17 +1354,21 @@
     ],
     "specialHonors": [
       {
-        "badgeId": "service-hedersildsjel",
-        "rule": "Særlig innsats; ti utgaver kan være et utgangspunkt for individuell vurdering, men er verken nødvendig eller tilstrekkelig alene. Krever særskilt vedtak."
-      },
-      {
         "badgeId": "service-grunnlegger",
         "rule": "Historisk heder for initiativtakere og grunnleggere. Krever rollebekreftelse."
       },
       {
         "badgeId": "service-aeresmerke",
         "rule": "Morothons høyeste heder. Ingen årsterskel eller automatisk tildeling. Krever egen særskilt beslutning."
+      },
+      {
+        "badgeId": "service-memorial",
+        "rule": "Personlig minneheder etter særskilt kildebelagt forslag, uten automatisk årsterskel eller tildeling."
       }
+    ],
+    "retiredBadgeIds": [
+      "service-hedersildsjel",
+      "service-dugnadshelt"
     ]
   },
   "featuredIds": [
@@ -1127,7 +1432,7 @@
     },
     {
       "id": "grunnlegger-flere",
-      "label": "Grunnlegger – med flere merker",
+      "label": "Grunnlegger – diplom",
       "personId": "arnfinn-haverstad",
       "badgeId": "service-grunnlegger"
     },
@@ -1142,7 +1447,21 @@
       "label": "Erling Askildsen – Morothons æresmerke · 35 utgaver",
       "personId": "erling-askildsen",
       "badgeId": "service-aeresmerke"
+    },
+    {
+      "id": "minnediplom",
+      "label": "For alltid en del av Morothon – minnediplom",
+      "personId": "erling-danielsen",
+      "badgeId": "service-memorial"
+    },
+    {
+      "id": "takk-for-innsatsen",
+      "label": "Takk for innsatsen – uten årsmerke",
+      "badgeId": "thanks",
+      "illustrative": true,
+      "name": "Eksempel på dugnadsperson"
     }
   ],
-  "volunteerList": "data/volunteers.json"
+  "volunteerList": "data/volunteers.json",
+  "diplomaApprovals": []
 }

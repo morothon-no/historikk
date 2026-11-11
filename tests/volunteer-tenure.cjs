@@ -80,20 +80,20 @@ test('cards display only provisional SVGs, preserve other groups and stay compac
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-provisional').count(),7);
+   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),12);
    const order=await p.locator('#volunteers [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree));
    const expectedOrder=H.sortVolunteers(H.membersFor(data,data.groups.find(g=>g.id==='volunteers')).filter(m=>!['dag-morten-frantzen','hakon-lohne'].includes(m.id))).map(m=>m.id);assert.deepEqual(order,expectedOrder);
    assert.deepEqual(await p.locator('#honorFeatured [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),['oscar-lohne','erling-askildsen','arnfinn-haverstad','helge-reisvoll','einar-danielsen']);
    assert.deepEqual(await p.locator('#memorial [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),data.groups.find(g=>g.id==='memorial').members.map(m=>m.id));
    for(const [id,count,tier]of expected){
-    const card=p.locator(`[data-honoree="${id}"]`);assert.match(await card.innerText(),new RegExp('Mulig '+tier+'-årsmerke'));assert.equal(await card.locator('img').getAttribute('src'),h.base+'/assets/medals/service/dugnad-'+tier+'.svg');
-    assert.match(await card.locator('.honor-provisional small').textContent(),/basert på startår/);assert.equal(await card.locator('.honor-provisional').getAttribute('data-basis'),'estimated');
+    const card=p.locator(`[data-honoree="${id}"]`);assert.match(await card.innerText(),new RegExp('Foreløpig '+tier+'-årsmerke'));assert.equal(await card.locator('img').getAttribute('src'),h.base+'/assets/medals/service/dugnad-'+tier+'.svg');
+    assert.match(await card.locator('.honor-main-caption').textContent(),new RegExp(count+' mulige'));assert.equal(await card.locator('.honor-main-caption').getAttribute('data-basis'),'estimated');
    }
    assert.match(await p.locator('[data-honoree="atle-aamodt"]').innerText(),/kjente fravær fratrukket/);
-   for(const id of ['kalle-kimestad','finn-lohne','oscar-lohne','erling-askildsen'])assert.equal(await p.locator(`[data-honoree="${id}"] .honor-provisional`).count(),0);
+   for(const id of ['kalle-kimestad','finn-lohne','oscar-lohne','erling-askildsen'])assert.equal(await p.locator(`[data-honoree="${id}"] img`).count(),1);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
-   const rejected=await p.evaluate(async()=>{try{await MorothonDiplomas.serviceDraft('jon-fjeld');return false;}catch{return true;}});assert.equal(rejected,true);
-   await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('A4-utkast kontrollert'));assert.equal(await p.locator('[data-honor-print],[data-honor-pdf],[data-diploma-print],[data-diploma-pdf]').count(),0);
+   const gated=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('jon-fjeld');return d.previewOnly&&!d.imageReady;});assert.equal(gated,true);
+   await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('Diplomet er kontrollert'));assert.equal(await p.locator('[data-honor-print],[data-honor-pdf],[data-diploma-print],[data-diploma-pdf]').count(),2);
    await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));assert.equal(await p.locator('a[href*="heder.html"]').count(),0);assert.deepEqual(errors,[]);
   }finally{await p.close();}
  }
@@ -109,16 +109,17 @@ test('new arranged years update estimates automatically; a future calendar row o
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
    const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load(),m=MorothonHonorsData.findIn(d,'atle-aamodt').member;let years=[];try{const h=await MorothonHistoryData.load();years=[...new Set(h.data.results.filter(r=>MorothonHistoryData.isCompletedResult(r)||['DNF','Deltatt'].includes(MorothonHistoryData.effectiveStatus(r))).map(r=>r[0]))];}catch{}return MorothonHonorsData.provisionalMilestone(d,m,years);});
    assert.equal(result.asOfYear,mode==='future'?2027:mode==='missing'?null:2026);assert.equal(result.count,mode==='future'?6:mode==='missing'?null:5);
-   if(mode==='missing'){assert.equal(await p.locator('.honor-provisional').count(),0);assert.match(await p.locator('#volunteers').innerText(),/løpshistorikken er tilgjengelig/);}
+   if(mode==='missing'){assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),0);assert.match(await p.locator('#volunteers').innerText(),/løpshistorikken er tilgjengelig/);}
   }finally{await p.close();}
  }
 });
 
 test('tenure extension changes only the authorized volunteer absence, never identities, history, official images or diploma code',async()=>{
  const base='0d11b368b6ea2866613816903fe41d34e7bac4b1';
- for(const dir of ['data/history.json','data/honors.json','data/badges.json','data/event-dates.json','assets','index.html','js/diplomas.js','css/diplomas.css']){
+ await require('./helpers/honors.cjs').assertOrdinaryDiplomaCss(root);
+ for(const dir of ['data/history.json','data/event-dates.json','assets','index.html']){
   const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');
   for(const file of files)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show',base+':'+file],{cwd:root}),file);
  }
- const original=JSON.parse(execFileSync('git',['show',base+':data/volunteers.json'],{cwd:root}));original.people.find(m=>m.id==='atle-aamodt').excludedYears=[2026];assert.deepEqual(list,original);
+ const original=JSON.parse(execFileSync('git',['show',base+':data/volunteers.json'],{cwd:root}));original.people.find(m=>m.id==='atle-aamodt').excludedYears=[2026];const n=original.people.find(p=>p.id==='nils-martin-otterdal-nilsen');Object.assign(n,{role:'Styreleder i Søgne Skiklubb',roleType:'external',sourceIds:['organizer-v34','organizer-v35']});assert.deepEqual(list,original);
 });

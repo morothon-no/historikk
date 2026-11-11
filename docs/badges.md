@@ -6,7 +6,7 @@
 
 - `assets/medals/approved/`: godkjente 5–50-merker og rekordmerket.
 - `assets/medals/watermarks/morothon-runner-approved.png`: brukerens godkjente grove løperlogo. Ingen ny glatting.
-- `assets/medals/service/`: felles dugnads-/grunnleggerbilder og SVG-kilder. Tre kategorier vises i hedersforhåndsvisningen etter V2-instruksen: Dugnadshelt, Hedersildsjel og Grunnlegger. Grunnleggerens kryssende strek ved 1992 er fjernet fra vektorkilden, og PNG-en er rendret i 2400 × 2400.
+- `assets/medals/service/`: felles dugnads-/grunnleggerbilder og SVG-kilder. V3.5 har ni aktive typer: seks dugnadsnivåer, Grunnlegger, Morothons æresmerke og For alltid en del av Morothon. Hedersildsjel og det gamle generelle Dugnadshelt-merket er utgått fra aktiv bruk; filene beholdes for historisk kompatibilitet. Grunnleggerens kryssende strek ved 1992 er fjernet fra vektorkilden, og PNG-en er rendret i 2400 × 2400.
 - `assets/medals/originals/` og `source-inventory.json`: originale, offentlige motivkilder og proveniens. Disse er bevaringsgrunnlag, ikke alternative aktive merker.
 - `assets/medals/review/cutouts/`: permanente maskebeskrivelser, RGB-verifiserte kopier av de godkjente frileggingene og native kvalitetsmålinger. Genererte alfakontrollbilder er ikke versjonert.
 

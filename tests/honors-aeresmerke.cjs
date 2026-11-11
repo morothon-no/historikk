@@ -9,10 +9,10 @@ const root=path.resolve(__dirname,'..');let h,data;
 before(async()=>{h=await createHarness();data=await readHonors();});
 after(async()=>{await h?.close();});
 
-test('aeresmerke is a separate fourth, design-only top distinction with no automatic threshold',async()=>{
+test('aeresmerke is the independent design-only top distinction with no automatic threshold',async()=>{
  const b=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
  const service=b.badges.filter(x=>x.kind==='service');
- assert.deepEqual(service.map(x=>x.id),['service-dugnadshelt','service-dugnad-5','service-dugnad-10','service-dugnad-15','service-dugnad-20','service-dugnad-30','service-dugnad-40','service-hedersildsjel','service-aeresmerke','service-grunnlegger']);
+ assert.deepEqual(service.map(x=>x.id),['service-dugnadshelt','service-dugnad-5','service-dugnad-10','service-dugnad-15','service-dugnad-20','service-dugnad-30','service-dugnad-40','service-hedersildsjel','service-aeresmerke','service-grunnlegger','service-memorial']);
  const a=service.find(b=>b.id==='service-aeresmerke');
  assert.equal(a.name,'Morothons æresmerke');
  assert.equal(a.status,'design-draft');assert.equal(a.printReady,false);
@@ -31,7 +31,7 @@ test('Oscar and Erling have only proposed highest honor, never issued awards or 
  for(const id of ['oscar-lohne','erling-askildsen']){
   const m=data.groups.flatMap(g=>g.members).find(m=>m.id===id);
   assert.ok(m);assert.equal(m.badgeProposal.primaryBadgeId,'service-aeresmerke');
-  assert.deepEqual(m.badgeProposal.badgeIds,['service-aeresmerke','service-dugnad-30','service-hedersildsjel','service-grunnlegger']);
+  assert.deepEqual(m.badgeProposal.badgeIds,['service-aeresmerke']);
   assert.equal(m.contribution.confirmedYears.length,35);
   assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
   assert.match(m.diplomaTribute,/35 utgaver/);
@@ -52,9 +52,9 @@ test('highest-honor page and each A4 preview remain visually contained and impos
     await page.locator('#profileName').waitFor();
     await page.waitForFunction(()=>document.querySelector('.profile-medal')?.complete);
     assert.match(await page.locator('.profile-medal').getAttribute('src'),/aeresmerke\.svg$/);
-    assert.equal(await page.locator('.honor-secondary-badges img').count(),3);
+    assert.equal(await page.locator('.honor-secondary-badges img').count(),0);
     await page.locator('.diploma-example>summary').click();
-    await page.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('A4-utkast kontrollert'));
+    await page.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('Diplomet er kontrollert'));
     const q=await page.evaluate(async()=>{
       const d=await MorothonDiplomas.serviceDraft(location.hash.split('/').at(-1));
       const doc=document.querySelector('.diploma-example iframe').contentDocument;
@@ -69,10 +69,10 @@ test('highest-honor page and each A4 preview remain visually contained and impos
         printed:document.querySelectorAll('[data-honor-print],[data-honor-pdf],[data-diploma-print],[data-diploma-pdf]').length};
     });
     assert.equal(q.title,'ÆRESDIPLOM');
-    assert.equal(q.secondary,3);assert.equal(q.layout,true,q.reason.join(' '));
+    assert.equal(q.secondary,0);assert.equal(q.layout,true,q.reason.join(' '));
     assert.equal(q.fit,true);assert.equal(q.preview,true);assert.equal(q.canPrint,false);
     assert.equal(q.approved,false);assert.equal(q.transparent,true);
-    assert.deepEqual(q.dims,[2400,2400]);assert.equal(q.printed,0);
+    assert.deepEqual(q.dims,[2400,2400]);assert.equal(q.printed,2);
    }
   }finally{await page.close();}
  }

@@ -70,3 +70,8 @@
    Ordinary runner diploma footer and signer's line remain unchanged. */
 .diploma-service-signoff .diploma-date{grid-template-rows:8.4mm;align-items:center}
 .diploma-service-signoff .diploma-date .diploma-handwritten{font:700 3.8mm/1.4 Arial,Helvetica,sans-serif;letter-spacing:.2mm;color:#2b4c56;white-space:normal}
+
+/* V3.5 printable service drafts only; earned runner diplomas stay unchanged. */
+.diploma-service .diploma-draft{bottom:10.5mm;font:700 2.8mm/1.25 Arial,Helvetica,sans-serif;letter-spacing:normal;color:#765629}
+/* Reserve space for font ascent/descent in word and numeric service metrics. */
+.diploma-service .diploma-metric{padding-block:1.5mm}

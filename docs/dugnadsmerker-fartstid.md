@@ -47,8 +47,9 @@ opplysninger. Ugyldige lister gir en tydelig innlastingsfeil.
   er gjennomført. `contribution()` beholder sin eksisterende dokumenterte telling.
 - Tersklene hentes fra `awardPolicy.milestones`; ingen faste merkenivåer i
   beregningsfunksjonen. Særskilte hedersmerker inngår ikke i beregningen.
-- Eksisterende merkeforslag får beholde grafikk og betydning. Automatiske
-  visningsforslag brukes på dugnadskort uten eksplisitt merkeforslag.
+- V3.5 bruker en felles prioritet for ett hovedmerke: minneforslag, æresforslag,
+  historisk Grunnlegger og deretter høyeste dugnadsnivå. Eldre merkeforslag er
+  bevart som historikk; utgåtte merker er ikke aktive valg. Se [hedersmodellen](honors.md).
 - Eksempel: «Mulig 10-årsmerke · basert på startår 2014». Seksjonsforklaringen
   presiserer at innsats i hvert mellomliggende år ikke er bekreftet.
 - Bekreftet grunnlag merkes med antall **dokumenterte utgaver**. Anslag lagres

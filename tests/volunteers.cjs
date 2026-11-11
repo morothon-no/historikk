@@ -2,6 +2,7 @@ const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {mergeVolunteers}=require('../js/honors-data.js');
+const {historicalMember}=require('./helpers/honors.cjs');
 const {createHarness}=require('../scripts/diploma-harness.cjs');
 const root=path.resolve(__dirname,'..');let h,core,list;
 before(async()=>{
@@ -19,7 +20,7 @@ test('V3.4 separate volunteer list preserves all 44 canonical identities and rem
  assert.equal(combined.volunteerList,undefined);assert.equal(core.volunteerList,'data/volunteers.json');
  const old=JSON.parse(execFileSync('git',['show','92b892a:data/honors.json'],{cwd:root}));
  for(const m of old.groups.flatMap(g=>g.members)){
-  const actual=members.find(n=>n.id===m.id);assert.ok(actual,m.id);
+  const actual=historicalMember(members.find(n=>n.id===m.id));assert.ok(actual,m.id);
   if(['anne-lene-forland-hansen','laila-endresen-skjulestad'].includes(m.id)){
    assert.equal(actual.contribution,undefined);assert.ok(actual.roles.every(r=>r.fromYear===undefined));
    assert.equal(actual.reason,null);
@@ -76,7 +77,7 @@ test('V3.4 Anne Lene and Laila have one working profile each and no visible gues
    for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad']){
     const card=p.locator(`[data-honoree="${id}"]`);assert.equal(await card.count(),1);
     assert.doesNotMatch(await card.innerText(),/2014|2016/);
-    assert.equal(await card.locator('a').count(),0);await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();
+    assert.equal(await card.locator('a').count(),1);await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();
     assert.match(p.url(),new RegExp('#person/'+id+'$'));
     assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/2014|2016/);
     assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/begynte samtidig|Historier og minner|EN DEL AV/);
@@ -100,7 +101,7 @@ test('V3.4 a new sourced volunteer is added through volunteers.json alone, while
   assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);
   const card=p.locator('[data-honoree="fixture-name"]');
   assert.equal(await card.locator('strong').textContent(),'Bare test <b>navn</b>');assert.equal(await card.locator('b').count(),0);
-  assert.equal(await card.locator('a').count(),0);await p.goto(h.base+'/heder.html#person/fixture-name');await p.locator('#profileName').waitFor();assert.equal(await p.locator('#profileName').textContent(),'Bare test <b>navn</b>');
+  assert.equal(await card.locator('a').count(),1);await p.goto(h.base+'/heder.html#person/fixture-name');await p.locator('#profileName').waitFor();assert.equal(await p.locator('#profileName').textContent(),'Bare test <b>navn</b>');
   assert.equal(await p.locator('#honorProfile .runner-profile-link,#honorProfile iframe').count(),0);
   const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return {total:d.groups.flatMap(g=>g.members).length,source:d.sources['fixture-source'].title,member:(await MorothonHonorsData.find('fixture-name')).member};});
   assert.equal(result.total,45);assert.equal(result.source,'Kilde for testnavn');assert.deepEqual(result.member.badgeProposal.badgeIds,[]);
@@ -140,12 +141,12 @@ test('Nov 2026 organizer name additions stay unique, memorial honors Leif, and n
    const member=all.find(x=>x.id===id);assert.ok(member);assert.equal(member.listingOnly,true);
    assert.deepEqual(member.badgeProposal.badgeIds,[]);assert.equal(member.contribution,undefined);
  }
- assert.equal(all.find(x=>x.id==='leif-wiig').badgeProposal.primaryBadgeId,null);
+ assert.equal(all.find(x=>x.id==='leif-wiig').badgeProposal.primaryBadgeId,'service-memorial');
  assert.equal(all.find(x=>x.id==='aud-o').name,'Aud Ovesen');assert.equal(all.find(x=>x.id==='aud-o').contribution,undefined);
  assert.ok(all.every(x=>x.awards.length===0&&x.issuedDiplomas.length===0));
 });
 
-test('Arrangørens nye dugnadsstartår og Atles fravær i 2026 gir ingen automatisk årsrekke eller merke',()=>{
+test('Arrangørens nye dugnadsstartår og Atles fravær i 2026 gir ingen bekreftet årsrekke eller formell tildeling',()=>{
  const c=mergeVolunteers(core,list),people=c.groups.flatMap(g=>g.members);
  for(const [id,year] of [['birgitte-aamodt',2022],['johannes-aamodt',2021],['atle-aamodt',2021]]){
    const m=people.find(person=>person.id===id);

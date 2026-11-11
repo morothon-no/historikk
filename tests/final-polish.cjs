@@ -67,7 +67,7 @@ test('all 5–50, record, debut and service diplomas align matching handwriting 
    const items=[{key:'record',html:MorothonDiplomas.documentHtml(record)},{key:'debut',html:MorothonDiplomas.documentHtml(await MorothonDiplomas.prepare(debut.i,'debut'))}];
    const service=await MorothonDiplomas.serviceDraft('oscar-lohne');
    // Presentation fixtures only: exercise all registered service styles without assigning honors.
-   for(const badge of MorothonBadges.list('service'))items.push({key:badge.id,html:MorothonDiplomas.documentHtml({...service,name:'Kontrollperson',roleLabel:badge.name,assetKey:badge.id,asset:await MorothonDiplomas.inspectAsset(badge.id)})});
+   for(const badge of MorothonBadges.list('service').filter(b=>b.active!==false))items.push({key:badge.id,html:MorothonDiplomas.documentHtml({...service,name:'Kontrollperson',roleLabel:badge.name,assetKey:badge.id,memorial:badge.id==='service-memorial',asset:await MorothonDiplomas.inspectAsset(badge.id)})});
    return items;
   }));
   for(const {key,html}of documents){
@@ -91,7 +91,7 @@ test('all 5–50, record, debut and service diplomas align matching handwriting 
    assert.ok(result.baselineDelta<.1,key);assert.ok(result.topDelta<.1,key);assert.ok(result.lineDelta<.1,key);assert.equal(result.aboveLines,true,key);assert.equal(result.roleBelow,true,key);assert.equal(result.lineCount,2,key);
    assert.ok(Math.abs(result.lineHeights[0]-result.lineHeights[1])<.1,key);assert.ok(Math.abs(result.lineWidths[0]-result.lineWidths[1])<.1,key);assert.equal(result.lineBorders[0],result.lineBorders[1],key);assert.deepEqual(result.lineTexts,['',''],key);assert.equal(result.layout.ready,true,`${key}: ${result.layout.failures}`);
   }
-  assert.equal(documents.length,22);
+  assert.equal(documents.length,21);
  }finally{await synthetic.close();await actual.close();}
 });
 
