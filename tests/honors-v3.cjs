@@ -32,7 +32,7 @@ test('shared rules preserve all ordinary profile years, class placements, alias 
 });
 test('V3 every linked honor card and profile works on mobile and desktop; founder distinctions are computed',async()=>{
  for(const width of [320,390,1440]){const p=await load({width});try{
-  assert.equal(await p.locator('[data-honor-group="founders"] [data-honoree]').count(),3);
+  assert.equal(await p.locator('[data-honor-group="founders"] [data-honoree]').count(),5);
   assert.match(await p.locator('[data-honoree="erling-askildsen"] .honor-distinction').textContent(),/Flest løpsdeltakelser/);assert.match(await p.locator('[data-honoree="arnfinn-haverstad"] .honor-distinction').textContent(),/Raskeste grunnlegger.*21 km/);
   for(const [id,pid]of Object.entries(links)){
    await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();assert.equal(await p.locator('#honorProfile .runner-profile-link').getAttribute('href'),'index.html#lop='+pid);assert.ok(await p.locator('#honorProfile .honor-race-metrics b').count());assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${id} at ${width}`);
