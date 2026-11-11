@@ -11,11 +11,11 @@ before(async()=>{
 });
 after(async()=>{await h?.close();});
 
-test('V3.4 separate volunteer list preserves all 43 canonical identities and removes both uncertain start years',()=>{
+test('V3.4 separate volunteer list preserves all 44 canonical identities and removes both uncertain start years',()=>{
  const combined=mergeVolunteers(core,list),members=combined.groups.flatMap(g=>g.members);
- assert.equal(list.people.filter(p=>p.id).length,30);
+ assert.equal(list.people.filter(p=>p.id).length,31);
  assert.equal(list.people.filter(p=>p.profileId).length,2);
- assert.equal(members.length,43);assert.equal(new Set(members.map(m=>m.id)).size,43);
+ assert.equal(members.length,44);assert.equal(new Set(members.map(m=>m.id)).size,44);
  assert.equal(combined.volunteerList,undefined);assert.equal(core.volunteerList,'data/volunteers.json');
  const old=JSON.parse(execFileSync('git',['show','92b892a:data/honors.json'],{cwd:root}));
  for(const m of old.groups.flatMap(g=>g.members)){
@@ -71,7 +71,7 @@ test('V3.4 Anne Lene and Laila have one working profile each and no visible gues
   const p=await h.browser.newPage({viewport:{width,height:1000}});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="anne-lene-forland-hansen"]').waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),43);
+   assert.equal(await p.locator('[data-honoree]').count(),44);
    for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad']){
     const card=p.locator(`[data-honoree="${id}"]`);assert.equal(await card.count(),1);
     assert.doesNotMatch(await card.innerText(),/2014|2016/);
@@ -95,14 +95,14 @@ test('V3.4 a new sourced volunteer is added through volunteers.json alone, while
  try{
   await p.route('**/data/volunteers.json',r=>r.fulfill({json:fixture}));
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="fixture-name"]').waitFor();
-  assert.equal(await p.locator('[data-honoree]').count(),44);
+  assert.equal(await p.locator('[data-honoree]').count(),45);
   assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);
   const card=p.locator('[data-honoree="fixture-name"]');
   assert.equal(await card.locator('strong').textContent(),'Bare test <b>navn</b>');assert.equal(await card.locator('b').count(),0);
   assert.equal(await card.locator('a').count(),0);await p.goto(h.base+'/heder.html#person/fixture-name');await p.locator('#profileName').waitFor();assert.equal(await p.locator('#profileName').textContent(),'Bare test <b>navn</b>');
   assert.equal(await p.locator('#honorProfile .runner-profile-link,#honorProfile iframe').count(),0);
   const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return {total:d.groups.flatMap(g=>g.members).length,source:d.sources['fixture-source'].title,member:(await MorothonHonorsData.find('fixture-name')).member};});
-  assert.equal(result.total,44);assert.equal(result.source,'Kilde for testnavn');assert.deepEqual(result.member.badgeProposal.badgeIds,[]);
+  assert.equal(result.total,45);assert.equal(result.source,'Kilde for testnavn');assert.deepEqual(result.member.badgeProposal.badgeIds,[]);
  }finally{await p.close();}
 });
 
@@ -111,16 +111,16 @@ test('V3.4 a failed volunteer fetch shows a clear error, never a silently incomp
  try{
   await p.route('**/data/volunteers.json',r=>r.fulfill({status:404,body:'Not found'}));
   await p.goto(h.base+'/heder.html');await p.waitForFunction(()=>document.querySelector('#honorStatus').textContent.includes('Dugnadslisten kunne ikke lastes'));
-  assert.equal(await p.locator('[data-honoree]').count(),0);
+  assert.equal(await p.locator('[data-honoree]').count(),44);
   await p.unroute('**/data/volunteers.json');
-  assert.equal(await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return d.groups.flatMap(g=>g.members).length;}),43);
+  assert.equal(await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return d.groups.flatMap(g=>g.members).length;}),44);
  }finally{await p.close();}
 });
 
 test('Nov 2026 organizer name additions stay unique, memorial honors Leif, and no award is inferred',()=>{
  const c=mergeVolunteers(core,list),all=c.groups.flatMap(g=>g.members);
- assert.equal(all.length,43);assert.equal(new Set(all.map(x=>x.id)).size,43);
- assert.equal(new Set(all.map(x=>x.name)).size,43);
+ assert.equal(all.length,44);assert.equal(new Set(all.map(x=>x.id)).size,44);
+ assert.equal(new Set(all.map(x=>x.name)).size,44);
  assert.equal(all.find(x=>x.id==='leif-wiig').deathYear,2023);
  assert.match(all.find(x=>x.id==='leif-wiig').roles[0].title,/Tidtaking/);
  for(const [id,name] of [['magne','Magne Lia'],['arnfinn-g','Arnfinn Grimestad'],['lars-aamodt','Lars Vassbotn Aamodt'],['bent-bakke','Bent-Inge Bakke']]){
@@ -131,5 +131,6 @@ test('Nov 2026 organizer name additions stay unique, memorial honors Leif, and n
    assert.deepEqual(member.badgeProposal.badgeIds,[]);assert.equal(member.contribution,undefined);
  }
  assert.equal(all.find(x=>x.id==='leif-wiig').badgeProposal.primaryBadgeId,null);
+ assert.equal(all.find(x=>x.id==='aud-o').name,'Aud Ovesen');assert.equal(all.find(x=>x.id==='aud-o').contribution,undefined);
  assert.ok(all.every(x=>x.awards.length===0&&x.issuedDiplomas.length===0));
 });

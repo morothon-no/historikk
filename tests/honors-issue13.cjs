@@ -6,10 +6,10 @@ before(async()=>{h=await createHarness();data=await readHonors();list=JSON.parse
 after(async()=>{await h?.close();});
 async function open(width=390){const p=await h.browser.newPage({viewport:{width,height:1000}});await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="christan-berthelsen"]').waitFor();return p;}
 
-test('issue #13 changes only sourced honor content: 43 identities, Christan name-only, no invented roles or participation',async()=>{
+test('issue #13 changes only sourced honor content: 44 identities, Christan name-only, no invented roles or participation',async()=>{
  const people=data.groups.flatMap(g=>g.members),byId=new Map(people.map(m=>[m.id,m]));
- assert.equal(people.length,43);assert.equal(byId.size,43);
- assert.equal(people.filter(m=>m.listingOnly).length,30);
+ assert.equal(people.length,44);assert.equal(byId.size,44);
+ assert.equal(people.filter(m=>m.listingOnly).length,31);
  for(const m of people.filter(m=>m.listingOnly)){
   const entry=list.people.find(p=>p.id===m.id);assert.ok(entry);
   assert.equal(m.reason,null);assert.deepEqual(m.stories,[]);assert.equal(m.runnerId,undefined);
@@ -39,10 +39,10 @@ test('issue #13 changes only sourced honor content: 43 identities, Christan name
 test('issue #13 renders short non-duplicated volunteer rows with only supplied details at every required width',async()=>{
  for(const width of [320,390,768,1440]){
   const p=await open(width);try{
-   assert.equal(await p.locator('[data-honoree]').count(),43);assert.equal(await p.locator('.honor-volunteer-card').count(),30);
+   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
    assert.equal(await p.locator('.honor-volunteer-card a,.honor-volunteer-card img,.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary,.honor-volunteer-card .honor-open').count(),0);
    const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:e.innerText.replace(/\s+/g,' ').trim(),height:e.getBoundingClientRect().height})));
-   assert.equal(new Set(rows.map(r=>r.id)).size,30);assert.ok(rows.every(r=>r.height<=110),JSON.stringify(rows));
+   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=110),JSON.stringify(rows));
    const row=id=>rows.find(r=>r.id===id).text;
    assert.equal(row('christan-berthelsen'),'Christan Berthelsen');assert.equal(row('lars-aamodt'),'Lars Vassbotn Aamodt');
    assert.equal(row('jon-fjeld'),'Jon Fjeld Barneløp og startpistol · fra 2014');

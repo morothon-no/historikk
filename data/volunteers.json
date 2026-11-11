@@ -105,10 +105,14 @@
     },
     {
       "id": "aud-o",
-      "name": "Aud O",
-      "nameStatus": "partial",
+      "name": "Aud Ovesen",
+      "nameStatus": "as-provided",
       "internalNotes": [
-        "Navnet er ufullstendig. Ingen utvidelse eller løperidentitet er utledet."
+        "Navnet er komplettert fra «Aud O» etter arrangørens opplysning 11. november 2026. Ingen årstall, oppgave eller løper-ID er utledet."
+      ],
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-aud-atle-2026-11-11"
       ]
     },
     {
@@ -215,6 +219,21 @@
       "sourceIds": [
         "organizer-honor-names-2026-11-11"
       ]
+    },
+    {
+      "id": "atle-aamodt",
+      "name": "Atle Aamodt",
+      "sourceIds": [
+        "organizer-aud-atle-2026-11-11"
+      ]
     }
-  ]
+  ],
+  "sources": {
+    "organizer-aud-atle-2026-11-11": {
+      "title": "Arrangørens navnrettelser – Aud Ovesen og Atle Aamodt",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Arrangøren har bekreftet at den ufullstendige oppføringen «Aud O» gjelder Aud Ovesen. Atle Aamodt oppgis som frivillig uten nærmere oppgave eller årstall. Ingen dugnadsutgaver eller merkekvalifikasjon utledes."
+    }
+  }
 }
