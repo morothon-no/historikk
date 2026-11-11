@@ -128,7 +128,7 @@ trykkgodkjenning av service-merkene, som fortsatt har registerstatus `design-dra
 
 Vanlige dugnadsnavn vedlikeholdes i **`data/volunteers.json`**, uten at arrangøren
 må redigere roller, tildelinger og diplommodeller i den omfattende hedersfilen.
-Listen har 23 enkle personposter og to referanser til Kalle/Finns eksisterende
+Listen har 31 enkle personposter og to referanser til Kalle/Finns eksisterende
 profiler. Grunnleggere, arrangører, minneprofiler og personer med egne
 merkeforslag/historikk blir liggende i `honors.json`.
 
@@ -190,7 +190,8 @@ navneavklaringer og eventuelle senere utstedelsesdatoer må godkjennes særskilt
 Hele issue #13 og alle fire kommentarer er lest. Siste presisering om minimal
 navneliste går foran tidligere forslag til lange historier for Jon og andre
 vanlige dugnadsnavn. Christan Berthelsen er lagt til med oppgitt stavemåte, uten
-oppgave, år, løperkobling eller merkeforslag. Oversikten har nå 35 unike personer.
+oppgave, år, løperkobling eller merkeforslag. Med senere kildebelagte tillegg
+har oversikten nå 44 unike personer.
 
 Vanlige `people`-poster fra `volunteers.json` blir `listingOnly` ved innlasting.
 Bare navn og eksplisitt kjent oppgave/startår vises; ingen «Dugnad»-rolle eller
