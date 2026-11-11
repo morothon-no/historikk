@@ -96,15 +96,17 @@ gir fortsatt feil i kontrollen.
 - Offisiell actionlint, JavaScript-syntaks og `git diff --check`: bestått.
 - Historikk, Enny-Karin, Jon Grindland, stafett, milepæler, løyperekorder,
   Adelskalender og vanlige løpermerker/-diplomer er bevart.
-- GitHub-resultatet for den nye committen finnes under [PR #16](https://github.com/morothon-no/historikk/pull/16/checks).
+- [GitHub Actions for kode-/testrettelsene](https://github.com/morothon-no/historikk/actions/runs/43002269282):
+  bestått, inkludert tester og bygg. Publiseringssteget er hoppet over.
+  Etterfølgende dokumentasjonsrettelser endrer ingen kode eller testfiler.
 
-**PR-status må avklares før merge:** GitHub viste PR #16 som åpen, ikke Draft.
-`gh pr ready 16 --undo --repo morothon-no/historikk` ble forsøkt, men API-et svarte
-`Post https://api.github.com/graphql: Forbidden`. Utkaststatus kunne derfor ikke
-settes automatisk. Den må settes i GitHub-grensesnittet. Ingen ny PR er opprettet.
+**PR #16 er fortsatt DRAFT.** Dette er kontrollert i GitHubs strukturerte
+PR-data (`number:16`, riktig `headSha`, `state:DRAFT`, `mergedTime:null`), både
+for innkommende og oppdatert gren. En «Open»-markør andre steder i HTML-siden
+var ikke statusen til selve PR-en. Ingen ny PR er opprettet.
 
-Teknisk kvalitetssikring er bestått. Samlet konklusjon er **IKKE KLAR FOR MERGE**
-inntil den avtalte GitHub-utkaststatusen er avklart og arrangøren har gitt sin
-endelige godkjenning. Fysisk prøvetrykk og en egen Windows/iPhone-kontroll er ikke
-utført; de godkjenningslåste hedersmerkene er fortsatt designutkast. Ingenting er
-merget, aktivert for utdeling eller publisert.
+Samlet konklusjon er **KLAR FOR MERGE – teknisk sluttkontroll bestått**.
+PR-en forblir et utkast og skal ikke flettes før arrangørens endelige godkjenning.
+Fysisk prøvetrykk og en egen Windows/iPhone-kontroll er ikke utført; hedersmerkene
+forblir godkjenningslåste designutkast. Ingen hedersdiplomer kan utstedes offentlig.
+Ingenting er merget, aktivert for utdeling eller publisert.
