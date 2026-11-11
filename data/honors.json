@@ -1294,7 +1294,7 @@
   ],
   "narrative": {
     "title": "De som gjør Morothon mulig ❤️",
-    "lead": "Før løperne får startnummer, har noen allerede vært ute i heia. De har merket stier, båret ut drikke, rigget start og mål, ordnet barneløp, hentet premier og ryddet etterpå. Ofte i regn, mørke og kulde – og uten at navnet havner på resultatlista.",
+    "lead": "Før første løper står på startstreken, har mange allerede lagt ned timevis med arbeid. Noen har vært ute i heia og merket løyper, andre har rigget start og mål, båret drikke, ordnet premier, gjort klart barneløpet og sørget for at alt er på plass.",
     "timeline": [
       {
         "year": "1992",
@@ -1380,10 +1380,11 @@
       }
     ],
     "intro": [
-      "Morothon blir ikke til av seg selv. Bak hver utgave står folk som stiller opp, år etter år, fordi de vil gi andre en opplevelse. Noen var med fra starten i 1992. Andre kom til underveis. Felles for dem er at de har gjort noe som betyr mer enn de kanskje selv tenker over.",
-      "Her vil vi løfte fram menneskene bak løpet. Ikke bare dem som står foran mikrofonen, men også dem som stiller opp tidlig, tar den siste rydderunden og sørger for at neste års Morothon kan bli minst like moro."
+      "Og når siste løper har kommet i mål, er det fortsatt noen som blir igjen. Som rydder, pakker sammen og sørger for at skogen ser ut som før vi kom.",
+      "Noen har vært med helt siden starten. Andre har kommet til underveis. Felles for dem alle er at de stiller opp, år etter år, i regn, mørke og kulde – og ofte uten å få navnet sitt på noen resultatliste."
     ],
-    "thanks": "Takk til alle som tar en vakt, bærer en kasse eller blir igjen til siste rydderunde."
+    "thanks": "Takk til alle som stiller opp, enten det er for én vakt eller et helt liv med dugnadsinnsats. Uten dere hadde det ikke vært noe Morothon. ❤️",
+    "emphasis": "Morothon handler ikke bare om dem som løper. Det handler like mye om dem som gjør det mulig å løpe."
   },
   "contentVersion": "V3.5",
   "previewOnly": true,

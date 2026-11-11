@@ -57,8 +57,9 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
    return `<li data-honoree="${esc(member.id)}" class="${cls}"><a class="honor-person-main" href="#person/${esc(member.id)}">${inner}${collection}</a></li>`;
   }
   $('#honorHeading').textContent=data.narrative?.title||'De som gjør Morothon mulig ❤️';$('#honorLead').textContent=data.narrative?.lead||'';
-  $('#honorThanks').textContent=data.narrative?.thanks||'';$('#honorThanks').hidden=!data.narrative?.thanks;
-  $('#honorIntroText').innerHTML=(data.narrative?.intro||[]).map(p=>`<p>${esc(p)}</p>`).join('');
+  $('#honorThanks').replaceChildren(Object.assign(document.createElement('em'),{textContent:data.narrative?.thanks||''}));$('#honorThanks').hidden=!data.narrative?.thanks;
+  $('#honorMessage').textContent=data.narrative?.emphasis||'';$('#honorMessage').parentElement.hidden=!data.narrative?.emphasis;
+  $('#honorIntroText').replaceChildren(...(data.narrative?.intro||[]).map(text=>Object.assign(document.createElement('p'),{textContent:text})));
   // The five founders form one historical group. Oscar and Erling are given
   // larger cards for 35 documented editions, not a different founder status.
   const featuredIds=data.featuredIds||[];
