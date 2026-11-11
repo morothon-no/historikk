@@ -144,26 +144,23 @@
     const gratitude=badgeId==='thanks';
     const badge=gratitude?{id:'thanks',name:'Takk for innsatsen',color:'#A47A46'}:MorothonBadges.get(badgeId),asset=assets.find(a=>a.key===(gratitude?'debut':badgeId));
     if(!asset)throw new Error('Diplomet mangler et hovedmerke.');
-    // Only documented volunteer editions count. For a numbered milestone the event
-    // date belongs to the Nth confirmed edition, not to printing or awarding the diploma.
+    // Registered service follows the shared tenure model. A numbered badge date
+    // belongs to its Nth registered edition, not to printing or awarding the diploma.
     // A special 35-edition tribute uses the last confirmed event, but no undated
     // honorary distinction receives an invented award date.
     const milestone=badge.series==='dugnad'?badge.milestoneEditions:null;
     const knownYears=contribution.years||[];
-    const achievementYear=!illustrative&&milestone&&knownYears.length>=milestone
-      ? knownYears[milestone-1]
-      : !illustrative&&!milestone&&contribution.count===35&&knownYears.length===35
-        ? knownYears.at(-1)
-        : null;
+    const achievementYear=!illustrative&&milestone
+      ? contribution.milestoneYears?.[milestone]??null
+      : !illustrative&&badgeId==='service-aeresmerke'&&contribution.basis==='documented'&&contribution.count===35&&knownYears.length===35?contribution.last:null;
     const eventDate=achievementYear?register.dates[String(achievementYear)]||null:null;
     const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'';
-    const earnedYears=!illustrative&&milestone&&knownYears.length>=milestone?knownYears.slice(0,milestone):null;
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name,
       roleLabel:gratitude?(member.roles||[]).filter(r=>r.confirmed).map(r=>r.title).join(' · '):badge.name,
       tribute:gratitude?'Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!':member.diplomaTribute||'',
       provisional:true,asset,assetKey:gratitude?'debut':badgeId,gratitude,printMode:'draft',
-      secondaryAssets:[],memorial:badgeId==='service-memorial',
-      contributionCount:gratitude?null:earnedYears?milestone:contribution.count||null,contributionFirst:gratitude?null:earnedYears?.[0]??contribution.first,contributionLast:gratitude?null:earnedYears?.at(-1)??contribution.last,
+      secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&MorothonBadges.get(a.key).series==='dugnad'),memorial:badgeId==='service-memorial',
+      contributionCount:contribution.count||null,contributionFirst:contribution.first??null,contributionLast:contribution.last??null,
       achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
       illustrative,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
       watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
@@ -171,22 +168,26 @@
   }
   async function serviceDraft(id = 'oscar-lohne', requestedBadgeId) {
     const data=await MorothonHonorsData.load(),{member}=await MorothonHonorsData.find(id);
-    let years=[];try{years=MorothonHonorsData.arrangedYears((await MorothonHistoryData.load()).data.results);}catch{}
-    const main=MorothonHonorsData.mainBadge(data,member,years),options=MorothonHonorsData.diplomaChoices(data,member,years);
+    let years=data.editionYears||[];try{years=MorothonHonorsData.arrangedYears((await MorothonHistoryData.load()).data.results);}catch{}
+    const profile=MorothonHonorsData.honorProfile(data,member,years),options=MorothonHonorsData.diplomaChoices(data,member,years);
     const badgeId=requestedBadgeId||options[0]||'thanks';
     if(!options.includes(badgeId)||!MorothonHonorsData.isActiveBadge(data,badgeId))throw new Error('Ingen slik aktiv hedersutmerkelse har beregningsgrunnlag for denne profilen.');
-    const milestone=badgeId!=='thanks'&&MorothonBadges.get(badgeId).series==='dugnad';
+    const badge=badgeId==='thanks'?null:MorothonBadges.get(badgeId),milestone=badge?.series==='dugnad'?badge.milestoneEditions:null;
     const selectedText=milestone?data.diplomaExamples.find(e=>e.illustrative&&e.badgeId===badgeId)?.tribute:null;
-    // A historical milestone is its own achievement, without later honorary proposals.
-    const draft=await serviceContent(selectedText?{...member,diplomaTribute:selectedText}:member,badgeId,[badgeId==='thanks'?'debut':badgeId],MorothonHonorsData.contribution(member));
-    if(milestone&&main.basis==='estimated')Object.assign(draft,{estimated:true,estimatedCount:main.count,estimatedFirst:main.fromYear,estimatedLast:main.toYear??years.at(-1),provisionalEnd:main.toYearStatus==='provisional',tribute:member.diplomaTribute||'Takk for at du gir av din tid og dine krefter til Morothon. Innsatsen og fellesskapet gjør løpet mulig.'});
+    const collection=badgeId==='thanks'?[]:profile.earnedBadgeIds.filter(id=>id!==badgeId);
+    const founder=badgeId!=='thanks'&&badgeId!=='service-grunnlegger'&&MorothonHonorsData.isFounder(data,member)?['service-grunnlegger']:[];
+    const contribution=profile.tenure;
+    // Aggregate totals have no invented annual rows or milestone date.
+    const draft=await serviceContent(selectedText?{...member,diplomaTribute:selectedText}:member,badgeId,
+      [badgeId==='thanks'?'debut':badgeId,...founder,...collection],contribution);
     return withServiceApproval(data,draft);
   }
   async function serviceExample(id) {
     const data=await MorothonHonorsData.load(),example=data.diplomaExamples?.find(e=>e.id===id);
     if(!example)throw new Error('Diplomet finnes ikke.');
     if(example.personId)return serviceDraft(example.personId,example.badgeId);
-    return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId],{count:example.contributionCount},true));
+    const collection=example.badgeId==='thanks'?[]:data.awardPolicy.milestones.filter(m=>m.minimumDocumentedEditions<=example.contributionCount&&m.badgeId!==example.badgeId).map(m=>m.badgeId);
+    return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId,...collection],{count:example.contributionCount},true));
   }
 
   // A review fingerprint covers the final composition, graphics and CSS.
@@ -207,7 +208,9 @@
     const assetSha256=diploma.asset.digest,watermarkSha256=registry.watermark.sha256;
     sheet.querySelector('.diploma-medal').setAttribute('src','asset:'+diploma.assetKey+':'+assetSha256);
     sheet.querySelector('.diploma-watermark').setAttribute('src','watermark:'+watermarkSha256);
-    const content={html:sheet.outerHTML,inlineStyles:[...dom.querySelectorAll('head style')].map(e=>e.textContent),cssSha256,assetSha256,watermarkSha256};
+    const secondarySha256=(diploma.secondaryAssets||[]).map(a=>({key:a.key,sha256:a.digest}));
+    for(const a of diploma.secondaryAssets||[])for(const image of sheet.querySelectorAll('[data-badge-key]'))if(image.dataset.badgeKey===a.key)image.setAttribute('src','asset:'+a.key+':'+a.digest);
+    const content={html:sheet.outerHTML,...(secondarySha256.length?{secondarySha256}:{}),inlineStyles:[...dom.querySelectorAll('head style')].map(e=>e.textContent),cssSha256,assetSha256,watermarkSha256};
     return {...content,contentSha256:await sha(new TextEncoder().encode(JSON.stringify(content)))};
   }
   function approvedServiceRecord(data,d,proof){
@@ -223,8 +226,8 @@
   }
   async function withServiceApproval(data,diploma){
     const proof=await serviceProof(diploma),record=approvedServiceRecord(data,diploma,proof),registry=await MorothonBadges.init();
-    diploma.contentProof={contentSha256:proof.contentSha256,cssSha256:proof.cssSha256,assetSha256:proof.assetSha256,watermarkSha256:proof.watermarkSha256};
-    if(record&&diploma.asset.ready&&registry.watermark.printReady===true){
+    diploma.contentProof={contentSha256:proof.contentSha256,cssSha256:proof.cssSha256,assetSha256:proof.assetSha256,watermarkSha256:proof.watermarkSha256,...(proof.secondarySha256?{secondarySha256:proof.secondarySha256}:{})};
+    if(record&&diploma.asset.ready&&(diploma.secondaryAssets||[]).every(a=>a.ready)&&registry.watermark.printReady===true){
       diploma.printMode='final';diploma.finalApproval={id:record.id,verified:true};
       diploma.imageReady=true;diploma.filename=diploma.filename.replace(/-diplomutkast$/,'-diplom');
     }else if(presentationRecord(data,diploma,proof)){
@@ -265,12 +268,30 @@
       const watermarkResponse=await fetch(watermark.src);if(!watermarkResponse.ok)throw new Error('Vannmerket kunne ikke lastes.');
       const watermarkBytes=await watermarkResponse.arrayBuffer(),watermarkDigest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',watermarkBytes))).map(b=>b.toString(16).padStart(2,'0')).join('');
       if(watermarkDigest!==registry.watermark.sha256)failures.push('Vannmerket samsvarer ikke med den godkjente originalen.');
+      const secondaryImages=[...doc.querySelectorAll('.diploma-service-founder img,.diploma-service-collection img')];
+      if(secondaryImages.length!==(draft.secondaryAssets||[]).length)failures.push('Medaljesamlingen samsvarer ikke med diplomgrunnlaget.');
+      for(const expected of draft.secondaryAssets||[]){
+        const matches=secondaryImages.filter(i=>i.dataset.badgeKey===expected.key),extra=await inspectAsset(expected.key);
+        if(matches.length!==1||matches[0].src!==extra.src){failures.push('En sekundærmedalje mangler eller er byttet ut.');continue;}
+        if(!extra.transparent||extra.edgeContact||!(extra.width>0&&extra.height>0))failures.push('En sekundærmedalje mangler gyldig frilagt original.');
+        const style=doc.defaultView.getComputedStyle(matches[0]);if(style.display==='none'||style.visibility!=='visible'||Number(style.opacity)<.99)failures.push('En sekundærmedalje er skjult.');
+        const box=matches[0].getBoundingClientRect();if(!box.width||!box.height)failures.push('En sekundærmedalje har ingen synlig størrelse.');
+        const dpi=Math.min(extra.width/(box.width/scale),extra.height/(box.height/scale))*96;
+        const response=await fetch(extra.src);if(!response.ok)throw new Error('Sekundærmedaljen kunne ikke lastes.');
+        const bytes=await response.arrayBuffer(),digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');
+        if(digest!==extra.digest)failures.push('En sekundærmedalje er endret siden bildekontrollen.');
+        if(new URL(extra.src).pathname.endsWith('.svg')){
+          const xml=new DOMParser().parseFromString(new TextDecoder().decode(bytes),'image/svg+xml');
+          if(xml.documentElement.localName!=='svg'||xml.querySelector('parsererror,image,script,foreignObject')||[...xml.querySelectorAll('use')].some(e=>{const ref=e.getAttribute('href')||e.getAttributeNS('http://www.w3.org/1999/xlink','href');return !ref?.startsWith('#')||!xml.getElementById(ref.slice(1));}))failures.push('En sekundærmedalje har ugyldig SVG-innhold.');
+        }else if(!Number.isFinite(dpi)||dpi<registry.minimumDpi)failures.push('En sekundærmedalje har utilstrekkelig DPI.');
+        warnings.push(...extra.issues,...extra.warnings);
+      }
       warnings.push(...asset.issues,...asset.warnings);
       const stamp=doc.querySelector('.diploma-draft'),style=stamp&&doc.defaultView.getComputedStyle(stamp),r=stamp?.getBoundingClientRect();
       if(draft.printMode==='final'){
         const data=await MorothonHonorsData.load(),proof=await serviceProof(draft,doc);
         if(!approvedServiceRecord(data,draft,proof))failures.push('Diplomet mangler særskilt godkjenning av dette innholdet for endelig bruk.');
-        if(!asset.ready||registry.watermark.printReady!==true)failures.push('Grafikken er ikke godkjent for endelig bruk.');
+        if(!asset.ready||!(await Promise.all((draft.secondaryAssets||[]).map(a=>inspectAsset(a.key)))).every(a=>a.ready)||registry.watermark.printReady!==true)failures.push('Grafikken er ikke godkjent for endelig bruk.');
         if(stamp)failures.push('Diplomet samsvarer ikke med den godkjente endelige versjonen.');
       }else if(draft.printMode==='presentation'){
         const data=await MorothonHonorsData.load(),proof=await serviceProof(draft,doc);
@@ -301,7 +322,7 @@
   function serviceSignoffHtml(d) {
     const label=d.achievementYear
       ? d.assetKey.startsWith('service-dugnad-')
-        ? 'MILEPÆL OPPNÅDD I '+d.achievementYear
+        ? 'MERKET OPPNÅDD I '+d.achievementYear
         : d.contributionCount===35 ? '35 DUGNADSUTGAVER I '+d.achievementYear : ''
       : '';
     return signoffHtml(label)
@@ -314,19 +335,22 @@
     const founder=d.assetKey==='service-grunnlegger',highest=d.assetKey==='service-aeresmerke',memorial=d.memorial===true,gratitude=d.gratitude===true,lifelong=highest&&d.contributionCount===35;
     const heading=gratitude?'TAKK FOR INNSATSEN':memorial?'MINNEDIPLOM':founder?'GRUNNLEGGERDIPLOM':highest?'ÆRESDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
     const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for tid, krefter og fellesskap. Du er med på å gjøre Morothon mulig.');
-    const secondary=[];
-    const secondaryHtml=secondary.length?`<div class="diploma-service-secondary${secondary.length>2?' diploma-service-secondary-three':''}" data-layout-check>${secondary.map(a=>`<figure data-layout-check><img src="${safe(a.src)}" alt="${safe(a.name)}"><figcaption>${safe(a.name)}</figcaption></figure>`).join('')}</div>`:`<div class="diploma-service-words" data-layout-check><b>${d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
-    const value=gratitude?'TAKK':memorial?'MINNE':d.estimated?d.estimatedCount:d.contributionCount|| (founder?'1992':'TAKK'),label=gratitude?'FOR DITT BIDRAG':memorial?'MED TAKKNEMLIGHET':d.estimated?'MULIGE DUGNADSUTGAVER':d.contributionCount?'UTGAVER MED INNSATS':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
-    const period=gratitude?'':d.estimated?`${d.estimatedFirst}–${d.estimatedLast} · anslag${d.provisionalEnd?' · foreløpig sluttår':''}`:d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
+    const founderMark=d.founderAsset?`<aside class="diploma-service-founder" data-layout-check><img data-badge-key="${safe(d.founderAsset.key)}" src="${safe(d.founderAsset.src)}" alt="Grunnlegger"><b>GRUNNLEGGER</b></aside>`:'';
+    const collection=d.collectionAssets||[];
+    const collectionHtml=`<section class="diploma-service-collection" data-layout-check aria-label="Opptjente dugnadsmerker">${collection.length?`<p>DUGNADSMERKENE · EN INNSATS Å VÆRE STOLT AV</p><div>${collection.map(a=>`<img data-badge-key="${safe(a.key)}" src="${safe(a.src)}" alt="${safe(MorothonBadges.get(a.key).name)}">`).join('')}</div>`:''}</section>`;
+    const secondaryHtml=`<div class="diploma-service-words" data-layout-check><b>${memorial?'MINNENE':d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${memorial?'OG FELLESSKAPET LEVER VIDERE':d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
+    const value=gratitude&&!d.contributionCount?'TAKK':memorial?'MINNE':d.contributionCount||(founder?'1992':'TAKK'),label=gratitude&&!d.contributionCount?'FOR DITT BIDRAG':memorial?'MED TAKKNEMLIGHET':d.contributionCount?'DUGNADSUTGAVER':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
+    const period=gratitude&&!d.contributionCount?'':d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
-      <body class="diploma-document"><article class="diploma-sheet diploma-service diploma-service-v34${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
+      <body class="diploma-document"><article class="diploma-sheet diploma-service diploma-service-v34 diploma-service-v352${collection.length?'':' diploma-service-no-collection'}${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>65?6.7:d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
       <img class="diploma-watermark" src="${safe(d.watermarkSrc)}" alt="">
-      <div class="diploma-brand" data-layout-check><b>SØGNE MOROTHON</b><span>SIDEN ${d.firstEdition}</span></div>
+      <div class="diploma-brand" data-layout-check><b>SØGNE MOROTHON</b><span>SIDEN ${d.firstEdition}</span></div>${founderMark}
       <div class="diploma-heading" data-layout-check><p>${memorial?'MINNENE OG FELLESSKAPET LEVER VIDERE':lifelong?'35 UTGAVER MED TID OG KREFTER':'FOR LØPSGLEDE OG FELLESSKAP'}</p><h1>${heading}</h1></div>
       <div class="diploma-recipient" data-layout-check><p>${memorial?'TIL MINNE OM':gratitude?'EN VARM TAKK TIL':'MED TAKK TIL'}</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
       <div class="diploma-main diploma-service-main"><div class="diploma-metric" data-layout-check><strong>${safe(value)}</strong><span>${label}</span><small>${safe(period)}</small></div><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure>${secondaryHtml}</div>
       <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
+      ${collectionHtml}
       ${serviceSignoffHtml(d)}
       ${d.printMode==='final'&&d.finalApproval?.verified===true||d.printMode==='presentation'&&d.presentationApproval?.verified===true?'':`<p class="diploma-draft" data-layout-check>${d.illustrative?'EKSEMPEL':'FORHÅNDSVISNING'}</p>`}
       </article></body></html>`;
@@ -473,9 +497,16 @@
     const parts = [...doc.querySelectorAll('.diploma-main > *')].map(bounds);
     if (parts.some(b=>outside(overflow(b,main)))) fail('Medalje og nøkkeltall passer ikke i hovedfeltet.');
     if (parts.some((b,i)=>i>0 && parts[i-1].right>b.left+tolerance)) fail('Medalje og nøkkeltall overlapper hverandre.');
-    const fields = ['.diploma-brand','.diploma-heading','.diploma-recipient','.diploma-main','.diploma-citation','.diploma-signoff'].map(selector=>doc.querySelector(selector));
+    const fields = ['.diploma-brand','.diploma-heading','.diploma-recipient','.diploma-main','.diploma-citation','.diploma-service-collection','.diploma-signoff'].map(selector=>doc.querySelector(selector)).filter(Boolean);
     for (let i=1;i<fields.length;i++) if (bounds(fields[i-1]).bottom>bounds(fields[i]).top+tolerance)
       fail(`Diplomfeltene overlapper: ${fields[i-1].className} / ${fields[i].className}`);
+    // Service-only secondary mark collision checks.
+    const founderMarker=doc.querySelector('.diploma-service-founder');
+    const intersects=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>tolerance&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>tolerance;
+    if(founderMarker){const box=contentBounds(founderMarker);for(const field of fields)if(intersects(box,contentBounds(field)))fail('Grunnleggermarkøren overlapper diplominnholdet.');}
+    const collectionImages=[...doc.querySelectorAll('.diploma-service-collection img')].map(bounds);
+    if(collectionImages.some((a,i)=>collectionImages.slice(i+1).some(b=>intersects(a,b))))fail('Dugnadsmerkene overlapper hverandre.');
+    // End service-only secondary mark collision checks.
     return { ready: failures.length===0, failures, width: paper.width, height: paper.height, tolerance, measurements };
   }
 

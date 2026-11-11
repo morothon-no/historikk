@@ -7,8 +7,8 @@ after(async()=>{await h?.close();});
 const byId=id=>H.findIn(data,id).member;
 const expected={
  'oscar-lohne':['service-aeresmerke',35],'erling-askildsen':['service-aeresmerke',35],
- 'arnfinn-haverstad':['service-grunnlegger',null],'helge-reisvoll':['service-grunnlegger',null],'einar-danielsen':['service-aeresmerke',null],
- 'erling-danielsen':['service-memorial',null],'floke-bredland':['service-memorial',25],'leif-wiig':['service-memorial',25],
+ 'arnfinn-haverstad':['service-grunnlegger',null],'helge-reisvoll':['service-grunnlegger',null],'einar-danielsen':['service-aeresmerke',33],
+ 'erling-danielsen':['service-memorial',35],'floke-bredland':['service-memorial',null],'leif-wiig':['service-memorial',null],
  'dag-morten-frantzen':['service-dugnad-10',13],'hakon-lohne':['service-dugnad-10',12],'finn-lohne':['service-dugnad-10',13],'kalle-kimestad':['service-dugnad-10',13],
  'bent-bakke':['service-dugnad-5',6],'jon-fjeld':['service-dugnad-10',13],'rune-bergjord':['service-dugnad-10',12],
  'per-sangvik':['service-dugnad-5',8],'tom-lohne':['service-dugnad-5',6],'birgitte-aamodt':['service-dugnad-5',5],'johannes-aamodt':['service-dugnad-5',6],'atle-aamodt':['service-dugnad-5',5]
@@ -16,11 +16,11 @@ const expected={
 
 test('V3.5 audits all 44 identities against the explicit main-badge priority without inventing years or awards',()=>{
  const people=data.groups.flatMap(g=>g.members),original=JSON.stringify(data);assert.equal(people.length,44);assert.equal(new Set(people.map(m=>m.id)).size,44);
- for(const m of people){const main=H.mainBadge(data,m,years);assert.deepEqual([main.badgeId,main.count],expected[m.id]||[null,null],m.id);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);assert.equal(main.automaticallyAwarded,false);}
+ for(const m of people){const main=H.mainBadge(data,m,years);assert.deepEqual([main.badgeId,main.count],expected[m.id]||[null,H.serviceTenure(data,m,years).count],m.id);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);assert.equal(main.automaticallyAwarded,false);}
  assert.equal(JSON.stringify(data),original);assert.equal(people.filter(m=>H.mainBadge(data,m,years).badgeId===null).length,24);
- for(const id of ['finn-lohne','kalle-kimestad']){assert.equal(byId(id).contribution.fromYear,2014);assert.equal(H.contribution(byId(id)).count,0);assert.equal(H.mainBadge(data,byId(id),years).basis,'estimated');}
+ for(const id of ['finn-lohne','kalle-kimestad']){assert.equal(byId(id).contribution.fromYear,2014);assert.equal(H.contribution(byId(id)).count,0);assert.equal(H.mainBadge(data,byId(id),years).basis,'registered-period');}
  const bent=H.mainBadge(data,byId('bent-bakke'),[...years,2027,2028]);assert.equal(bent.count,6);assert.equal(bent.toYear,2019);assert.equal(bent.toYearStatus,'provisional');
- for(const id of ['erling-danielsen','floke-bredland','leif-wiig']){assert.equal(byId(id).contribution?.confirmedYears,undefined);assert.equal(byId(id).contribution?.toYear,undefined);assert.deepEqual(H.diplomaChoices(data,byId(id),years),['service-memorial']);}
+ for(const id of ['erling-danielsen','floke-bredland','leif-wiig']){assert.equal(byId(id).contribution?.confirmedYears,undefined);assert.equal(byId(id).contribution?.toYear,undefined);assert.equal(H.diplomaChoices(data,byId(id),years)[0],'service-memorial');}
  assert.equal(byId('erling-danielsen').deathYear,undefined);assert.equal(data.groups.find(g=>g.id==='founders').members.length,5);
  const hakon=byId('hakon-lohne');assert.equal(hakon.roles[0].title,'Løpsleder Morothon');assert.equal(hakon.roles[0].fromYear,undefined);assert.ok(hakon.roles.some(r=>r.fromYear===2014));
  const nils=byId('nils-martin-otterdal-nilsen');assert.equal(nils.roles[0].title,'Styreleder i Søgne Skiklubb');assert.equal(nils.roles[0].countsForTenure,false);assert.equal(H.startYear(nils),null);
@@ -41,7 +41,7 @@ test('V3.5 nine active badge types coexist with unchanged retired assets and pre
  for(const dir of ['data/history.json','data/event-dates.json','assets','index.html','js/history-data.js','js/brag-card.js']){
   const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');for(const f of files)assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
  }
- const stripService=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE\n').replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOC\n').replace('serviceExample, serviceProof, checkServiceDraft, printServiceDraft,','serviceExample,');
+ const stripService=require('./helpers/honors.cjs').ordinaryDiplomaCode;
  assert.equal(stripService(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),stripService(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));
 });
 
@@ -55,7 +55,7 @@ test('V3.5 every card and profile has at most one main badge at mobile/desktop w
     const card=p.locator(`[data-honoree="${m.id}"]`),key=expected[m.id]?.[0];assert.equal(await card.locator('img').count(),key?1:0,m.id);
     if(key)assert.ok((await card.locator('img').getAttribute('src')).endsWith(registry.badges.find(b=>b.id===key).src),m.id);
    }
-   assert.match(await p.locator('[data-honoree="bent-bakke"]').innerText(),/Med da nye krefter overtok i 2014/);
+   assert.match(await p.locator('[data-honoree="bent-bakke"]').innerText(),/6 dugnadsutgaver/);
    assert.doesNotMatch(await p.locator('[data-honoree="erling-danielsen"]').innerText(),/33|null/);
    const lead=await p.locator('[data-honoree="erling-danielsen"] img').boundingBox(),other=await p.locator('[data-honoree="leif-wiig"] img').boundingBox();assert.equal(lead.width,other.width,'All three memorials have the same medal size');
    await p.locator('.honor-library>summary').click();assert.equal(await p.locator('#serviceBadges img').count(),9);assert.doesNotMatch(await p.locator('#serviceBadges').innerText(),/Hedersildsjel/);
@@ -89,10 +89,10 @@ test('V3.5 service diplomas use one active main image; memorials never address a
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
   const requests=[...data.diplomaExamples.map(e=>({example:e.id})),...['floke-bredland','leif-wiig','bent-bakke','hakon-lohne'].map(id=>({id}))];
   for(const request of requests){
-   const r=await p.evaluate(async r=>{const d=r.example?await MorothonDiplomas.serviceExample(r.example):await MorothonDiplomas.serviceDraft(r.id),f=document.createElement('iframe');f.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px';await new Promise(resolve=>{f.onload=resolve;f.srcdoc=MorothonDiplomas.documentHtml(d);document.body.appendChild(f)});try{return {layout:await MorothonDiplomas.checkLayout(f.contentDocument),key:d.assetKey,secondary:d.secondaryAssets.length,images:f.contentDocument.querySelectorAll('.diploma-medal,.diploma-service-secondary img').length,text:f.contentDocument.body.textContent,date:f.contentDocument.querySelector('.diploma-date').textContent,ready:d.imageReady,preview:d.previewOnly,memorial:d.memorial};}finally{f.remove();}},request);
-   assert.equal(r.layout.ready,true,JSON.stringify(request)+': '+r.layout.failures);assert.equal(r.images,1);assert.equal(r.secondary,0);assert.equal(r.ready,false);assert.equal(r.preview,true);assert.ok(!data.awardPolicy.retiredBadgeIds.includes(r.key));
+   const r=await p.evaluate(async r=>{const d=r.example?await MorothonDiplomas.serviceExample(r.example):await MorothonDiplomas.serviceDraft(r.id),f=document.createElement('iframe');f.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px';await new Promise(resolve=>{f.onload=resolve;f.srcdoc=MorothonDiplomas.documentHtml(d);document.body.appendChild(f)});try{return {layout:await MorothonDiplomas.checkLayout(f.contentDocument),key:d.assetKey,secondary:d.secondaryAssets.length,mainImages:f.contentDocument.querySelectorAll('.diploma-medal').length,images:f.contentDocument.querySelectorAll('.diploma-medal,.diploma-service-founder img,.diploma-service-collection img').length,text:f.contentDocument.body.textContent,date:f.contentDocument.querySelector('.diploma-date').textContent,ready:d.imageReady,preview:d.previewOnly,memorial:d.memorial};}finally{f.remove();}},request);
+   assert.equal(r.layout.ready,true,JSON.stringify(request)+': '+r.layout.failures);assert.equal(r.mainImages,1);assert.equal(r.images,1+r.secondary);assert.equal(r.ready,false);assert.equal(r.preview,true);assert.ok(!data.awardPolicy.retiredBadgeIds.includes(r.key));
    if(r.memorial){assert.match(r.text,/MINNEDIPLOM/);assert.match(r.text,/TIL MINNE OM/);assert.doesNotMatch(r.text,/TILDELES|FOR AT DU STILLER OPP/);assert.equal(r.date.trim(),'');}
-   if(request.id==='bent-bakke'){assert.match(r.text,/TAKK FOR INNSATSEN/);assert.equal(r.date.trim(),'');}
+   if(request.id==='bent-bakke'){assert.match(r.text,/DUGNADSDIPLOM/);assert.match(r.date,/2018/);}
   }
   for(const id of data.awardPolicy.retiredBadgeIds){const rejected=await p.evaluate(async id=>{try{await MorothonDiplomas.serviceDraft('oscar-lohne',id);return false;}catch{return true;}},id);assert.equal(rejected,true);}
  }finally{await p.close();}

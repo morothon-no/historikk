@@ -1,3 +1,6 @@
+> Arkivert versjonsrapport. Gjeldende beregning og personoversikt følger
+> [V3.5.2-registeret](v352-personregister.md) og [systembeskrivelsen](honors.md).
+
 # Morothon V3.5.1 – leveransekontroll
 
 Hotfix etter V3.5.1: Teksten «33 år med solid tjeneste i en rekke ulike roller»

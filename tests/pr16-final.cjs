@@ -18,11 +18,11 @@ test('PR16 histories, identities, ordinary diplomas and official originals survi
  assert.match(generator,/async function review\(out=path.join\(os.tmpdir\(\),'morothon-heder-pr16'\)/);
 });
 
-test('PR16 all documented volunteer milestone years remain historical, with no invented dates or awards',async()=>{
+test('PR16 registered totals retain historical badge years, with no invented dates or awards',async()=>{
  const h=await createHarness();try{
   const p=await h.browser.newPage(),fixture=JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8'));
-  // Expose earlier milestones only in this isolated proposal fixture. The live
-  // profiles propose 30; eligibility must not silently create additional awards.
+  // Extra proposal entries in this fixture cannot change the registered total,
+  // the historical achievement years, or the empty formal award register.
   for(const member of fixture.groups.flatMap(g=>g.members).filter(m=>['oscar-lohne','erling-askildsen'].includes(m.id)))member.badgeProposal.badgeIds.push(...[5,10,15,20].map(n=>'service-dugnad-'+n));
   await p.route('**/data/honors.json',r=>r.fulfill({json:fixture}));
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
@@ -31,7 +31,7 @@ test('PR16 all documented volunteer milestone years remain historical, with no i
     const d=await MorothonDiplomas.serviceDraft(id,'service-dugnad-'+count),doc=new DOMParser().parseFromString(MorothonDiplomas.documentHtml(d),'text/html');
     return {count:d.contributionCount,year:d.achievementYear,first:d.contributionFirst,last:d.contributionLast,date:doc.querySelector('.diploma-date').textContent.trim(),lines:doc.querySelectorAll('.diploma-date .diploma-signature-line').length,preview:d.previewOnly,ready:d.imageReady,awards:(await MorothonHonorsData.find(id)).member.awards};
    },{id,count});
-   assert.deepEqual(actual,{count,year,first:1992,last:year,date:'MILEPÆL OPPNÅDD I '+year,lines:0,preview:true,ready:false,awards:[]});
+   assert.deepEqual(actual,{count:35,year,first:1992,last:2026,date:'MERKET OPPNÅDD I '+year,lines:0,preview:true,ready:false,awards:[]});
   }
   await p.close();
  }finally{await h.close();}

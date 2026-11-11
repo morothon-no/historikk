@@ -8,7 +8,7 @@ test('professional honor overview, cards, profiles and gallery avoid redundant d
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.doesNotMatch(await p.title(),/utkast|forhåndsvisning/i);
    assert.doesNotMatch(await p.locator('body').innerText(),/utkast|ikke utdelt|under utvikling/i);
-   assert.match(await p.locator('[data-honoree="hakon-lohne"]').innerText(),/12 dugnadsutgaver · siden 2014/);
+   assert.match(await p.locator('[data-honoree="hakon-lohne"]').innerText(),/12 dugnadsutgaver · 2014–2026/);
    assert.doesNotMatch(await p.locator('[data-honoree="oscar-lohne"]').innerText(),/forslag/);
    await p.locator('.honor-diploma-examples>summary').click();
    assert.doesNotMatch(await p.locator('#honorExamples').innerText(),/utkast|ikke utdelt/i);
@@ -100,14 +100,15 @@ test('approved final printing preserves estimated volunteer years and never chan
  const p=await h.browser.newPage();try{
   const registry=JSON.parse(await fs.readFile(path.resolve(__dirname,'../data/badges.json'),'utf8')),badge=registry.badges.find(b=>b.id==='service-dugnad-10');
   const bytes=await fs.readFile(path.resolve(__dirname,'../',badge.src)),digest=require('node:crypto').createHash('sha256').update(bytes).digest('hex');
+  for(const b of registry.badges.filter(b=>b.id==='service-dugnad-5')){const bytes=await fs.readFile(path.resolve(__dirname,'../',b.src)),sha=require('node:crypto').createHash('sha256').update(bytes).digest('hex');Object.assign(b,{status:'fixture-approved',printReady:true,cropReviewed:true,reviewedSha256:sha,printApproval:{sha256:sha}});}
   Object.assign(badge,{status:'fixture-approved',printReady:true,cropReviewed:true,reviewedSha256:digest,printApproval:{sha256:digest}});
   await p.route('**/data/badges.json',r=>r.fulfill({json:registry}));
   const {id}=await approvalFixture(p,h.base,{badgeId:badge.id,estimated:true});await open(p);
-  await p.selectOption('.honor-choice select',badge.id);await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled&&document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-metric span')?.textContent==='MULIGE DUGNADSUTGAVER');
+  await p.selectOption('.honor-choice select',badge.id);await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled&&document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-metric span')?.textContent==='DUGNADSUTGAVER');
   const d=await p.evaluate(({id,badgeId})=>MorothonDiplomas.serviceDraft(id,badgeId),{id,badgeId:badge.id});
-  assert.equal(d.printMode,'final');assert.equal(d.estimated,true);assert.equal(d.estimatedCount,13);assert.equal(d.achievementYear,null);
-  assert.match(await p.frameLocator('iframe').locator('body').innerText(),/MULIGE DUGNADSUTGAVER/);
-  assert.match(await p.frameLocator('iframe').locator('body').innerText(),/anslag/);
+  assert.equal(d.printMode,'final');assert.equal(d.estimated,undefined);assert.equal(d.contributionCount,13);assert.equal(d.achievementYear,2023);
+  assert.match(await p.frameLocator('iframe').locator('body').innerText(),/DUGNADSUTGAVER/);
+  assert.doesNotMatch(await p.frameLocator('iframe').locator('body').innerText(),/anslag|MULIGE/);
   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
   const m=await p.evaluate(async id=>(await MorothonHonorsData.find(id)).member,id);
   assert.equal(m.contribution.confirmedYears,undefined);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);

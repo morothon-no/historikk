@@ -131,6 +131,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "Einar Danielsen har 33 år med solid tjeneste i en rekke ulike roller. Opplysningen er gitt av arrangøren, uten en eksakt årsrekke eller registrert utdeling."
+    },
+    "organizer-v352": {
+      "title": "Arrangørens V3.5.2-beslutning om registrert dugnadsfartstid",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-11",
+      "basis": "Registrerte start- og sluttår regnes som gjeldende dugnadshistorikk, med kjente fravær trukket fra. Eksplisitte confirmedYears er fasit. Einar Danielsen har 33 arrangørgodkjente dugnadsutgaver uten oppgitt årsrekke. Opptjente dugnadsmerker er kumulative; formell utdeling registreres ikke automatisk."
     }
   },
   "displayOrder": [
@@ -538,7 +544,8 @@
           "reason": "En av de fem som la grunnlaget for Morothon i 1992.",
           "sourceIds": [
             "organizer-v3",
-            "organizer-danielsen-estimate-correction"
+            "organizer-danielsen-estimate-correction",
+            "organizer-v352"
           ],
           "roles": [
             {
@@ -619,6 +626,19 @@
               "organizer-danielsen-estimate-correction"
             ],
             "unit": "years"
+          },
+          "contribution": {
+            "approvedTotal": {
+              "editions": 33,
+              "approved": true,
+              "asOfYear": 2026,
+              "sourceIds": [
+                "organizer-v352"
+              ]
+            },
+            "sourceIds": [
+              "organizer-v352"
+            ]
           }
         }
       ]
@@ -1530,460 +1550,1297 @@
     "einar-danielsen"
   ],
   "presentationPrintSet": {
-    "id": "v351-presentation",
+    "id": "v352-presentation",
     "scope": "presentation-only",
     "sourceIds": [
-      "organizer-v351"
+      "organizer-v352"
+    ],
+    "editionYears": [
+      1992,
+      1993,
+      1994,
+      1995,
+      1996,
+      1997,
+      1998,
+      1999,
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026
     ],
     "entries": [
       {
         "personId": "erling-askildsen",
         "badgeId": "service-aeresmerke",
-        "contentSha256": "7bebaea8c39e8e4cc2ccfbe63d16346191156331d961959f1f7a7bcae2a66f86",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "3fa17a5da48c9de633c1a5cc30ffaa093240934aa2ba1dfab6c066bb882cd365",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-askildsen",
+        "badgeId": "service-grunnlegger",
+        "contentSha256": "255061544c2d0bedb5e6236f73eb8b1dd1842ee182bb5c465792368f50739e4a",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "erling-askildsen",
         "badgeId": "service-dugnad-5",
-        "contentSha256": "0c0d9aa1d33bc870560d1232d86ed83b2f02c1c68f11b227aa1a1c07f0b720d8",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "8ec44096f141fb89079ee09b999e2ce2fcdfaf8608f85bf96de9a54a8656ec74",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "erling-askildsen",
         "badgeId": "service-dugnad-10",
-        "contentSha256": "7551e23f651a84317be60b5fb930115e5377f7f4317a7ff2161c7bbda340f138",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "dc3a24ef1758d35aaf6b13eece7db57f5dc9ca64e7e98bb2df1d0bcc6d7724ce",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "erling-askildsen",
         "badgeId": "service-dugnad-15",
-        "contentSha256": "72e414c8b241c5b866ebf4cbabc291e66b417d7293210f9e1b6c65d7c6159b38",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "ef3470eceade631635c9128e96ddefe5782578faf9c6ff532940de95658b5e96",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "erling-askildsen",
         "badgeId": "service-dugnad-20",
-        "contentSha256": "0b19fbd4c562fb4d35eb6667b743be82cbeeb4270d89efd1daa3192bbd98b9bb",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "aa27b3a6891a9d089f03d5d0bd39d12977dc028aaed662d98c45bef3da19b7c7",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "erling-askildsen",
         "badgeId": "service-dugnad-30",
-        "contentSha256": "056c555b7efdef2c11f87a39be75eb6812c44d40534698cf36685e1c7afb6294",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "b43bb09a019170979c1d130866d9df468e3a046da4f0bf78a1b50d0a0245be5c",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          }
+        ]
       },
       {
         "personId": "oscar-lohne",
         "badgeId": "service-aeresmerke",
-        "contentSha256": "9ad459067fa546d1f7676999b3a5ed0446249231b8539b7448d1cb81c67e24d7",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "e6bb0ac3eda3fafe2c667dd394d4cac3b97d4982f072d72e28146925435475aa",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "oscar-lohne",
+        "badgeId": "service-grunnlegger",
+        "contentSha256": "f62b4f7105aa99a67957d7b2682509dee7e28eb41fef69a0e028a05aaecc2e05",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "oscar-lohne",
         "badgeId": "service-dugnad-5",
-        "contentSha256": "eb37dabc829b6d19c4fde15145f16043e879425ad8b3d5bdbe0e64a7609b36f3",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "7f39bba269e3a296150d47e871ac8cf82efc0eb0883f4e330e59e0a98463b5d2",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "oscar-lohne",
         "badgeId": "service-dugnad-10",
-        "contentSha256": "84690ea74147b9c38a5b52e3353109c613c7879369c079ec52b52488a0fb91c9",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "95971ef775a941ed569b1c959146b695941865cce8cb9c7fb4df67dfea01138b",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "oscar-lohne",
         "badgeId": "service-dugnad-15",
-        "contentSha256": "46c21a5169acac9deeac0535afb50f85e1d791223db2201df625c34faf40fe16",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "788c14aa15893ab46656a6f7d02ea7bdbd1383f799ba53e6f3f938a573dedd50",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "oscar-lohne",
         "badgeId": "service-dugnad-20",
-        "contentSha256": "372be6ba9ea3a927d4def32d93bbe66720c3bba33b12c6916b00edc4932fecd2",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "9df222e635a56fbdb5e60770d6cf33a708346a44d2db022a708de23601c9345b",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
       },
       {
         "personId": "oscar-lohne",
         "badgeId": "service-dugnad-30",
-        "contentSha256": "ddf1bfa337d6f474c9cb7c5d70d5af3745a4c36d48e4083965a226710114c228",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "91a0eba6c1a396d15207a64637fab22066400f6f904a9a632c9b7f249abba703",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          }
+        ]
       },
       {
         "personId": "arnfinn-haverstad",
         "badgeId": "service-grunnlegger",
-        "contentSha256": "1c79f53b744a474cc05eac143129b5884932707eafb509f47c1679f506ce16dd",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "ff3e11b6208a7e772cc1a5a6637c685e1d1631a2c3b9cb1c011d1e9f0906657d",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "helge-reisvoll",
         "badgeId": "service-grunnlegger",
-        "contentSha256": "8c0b66577c27dee87a65d41f8c691a68c528f12f2ad5bf34a1f49c6a0fa9e69c",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "f7190229502712cf443f018d25064313226d0b922c692e7b253644223605829b",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "einar-danielsen",
         "badgeId": "service-aeresmerke",
-        "contentSha256": "a709493af5f7559e0d8db16744db2f017870bb8d4408b418f575bf2452ae6763",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "fb219cf0a2087876ae71a28d8196864034127a34ac0badfb7ce03b1018c01472",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "einar-danielsen",
+        "badgeId": "service-grunnlegger",
+        "contentSha256": "ac12e9f11bfe88e8a1a7a32d5f96f5ac1838df9dfc7b4f71a2dc814bd929f4c2",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "einar-danielsen",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "847735daeac1113c2cbe3d439dde70b7e95a3c2724cc11ff2e8461e654f69142",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "einar-danielsen",
+        "badgeId": "service-dugnad-10",
+        "contentSha256": "ce118f7986a93409c958607ec9c485602bfacd8b7a8058e90532ef58947baf5e",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "einar-danielsen",
+        "badgeId": "service-dugnad-15",
+        "contentSha256": "8e2ad52becd9c897a6cd3b52c5a15d18fffab9ccb3546e8d9c2597e5ebb5ecb3",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "einar-danielsen",
+        "badgeId": "service-dugnad-20",
+        "contentSha256": "7b127d50c455aacd87eeec79ce2d1495d46f628022e39a4e1cbe8f59609f3f63",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "einar-danielsen",
+        "badgeId": "service-dugnad-30",
+        "contentSha256": "f83f24951128cfbfbc26fca5c0192fb4d9d1e2b31b8059bfc1dd183e621534c7",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          }
+        ]
       },
       {
         "personId": "kalle-kimestad",
-        "badgeId": "thanks",
-        "contentSha256": "c49b5e24780804ce27f5995c39d9cd16912136871f923745ab59573ce2aac041",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "badgeId": "service-dugnad-10",
+        "contentSha256": "eadf9cba7ef2a844bb6b974bcd1aa687e6297b6672ff738989418da9fc12da24",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "kalle-kimestad",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "a22403929487168aabe01db5f7ea71854cdcceb305fe707e487c7fc121e7a721",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          }
+        ]
       },
       {
         "personId": "finn-lohne",
-        "badgeId": "thanks",
-        "contentSha256": "1104f32755b20932cc6b2357bc4cf17b3ddba835e0f5e04b6a49c6cfa102ba5e",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "badgeId": "service-dugnad-10",
+        "contentSha256": "f4ff81746b7a79afe122de4c7a400ae73df1e5c99084cf8ff965a9052e235f98",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "finn-lohne",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "792c14af1348e02ea8a07eb2901b82d64be2081a44c888746f538588397e6189",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          }
+        ]
       },
       {
         "personId": "dag-morten-frantzen",
         "badgeId": "service-dugnad-10",
-        "contentSha256": "b1e149e05be69a8ea9a8ed51d35a6f35ee815d6e944883e0f44a97f6121d1714",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "0f5bb2bf7ba2a4b03b81b66cdf1195b10ff10b778f989461893fe5feafa1a134",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
       },
       {
         "personId": "dag-morten-frantzen",
         "badgeId": "service-dugnad-5",
-        "contentSha256": "7e7ce8e6d0d1cce52addcc93870f1fa956665a73bdc74ac4e96374da3ead36f4",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "315b56ffa2f5764fe77fe839ee3f3b4404302c37fe44e549f82f741b1ee017d4",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          }
+        ]
       },
       {
         "personId": "hakon-lohne",
         "badgeId": "service-dugnad-10",
-        "contentSha256": "edc6cbe2dfeacd6419dcd2d6ffaa577f99a7bd328d2028f6c65e6e9b19830176",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "2a0297d9e48263802d48d68f741ae77baec1c45c8bf4378f029da0837e1107b5",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
       },
       {
         "personId": "hakon-lohne",
         "badgeId": "service-dugnad-5",
-        "contentSha256": "cae87944590a47cd563aa5b8accbcf0e42159659e1d7bc2fd887b6032f7cd7d6",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "8ef96d22a282d071d05a8e468dca6ef327e7449b11fefc32ef9f47a4819919e9",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          }
+        ]
       },
       {
         "personId": "jon-fjeld",
-        "badgeId": "thanks",
-        "contentSha256": "89e1579f0d609ff61e1c7eeeef5865be6c523d3f9a0da4a5b3e84b4fe3c50c92",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "badgeId": "service-dugnad-10",
+        "contentSha256": "7a180a2674310cf230712b8fcbf222b190090be1d81876eb2e6f6be6f8ae6e8b",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "jon-fjeld",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "799928c0e063983e3225e9d954eb8db8e1a8c539440656482b34846b0fbe0772",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          }
+        ]
       },
       {
         "personId": "rune-bergjord",
-        "badgeId": "thanks",
-        "contentSha256": "77f913331e5551cb0c4d51ca9f3fb5a2763f7f6ede40b84d460a53432047169f",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "badgeId": "service-dugnad-10",
+        "contentSha256": "687976df3f8ee4790502b4712e3de6b0bd2e10ce15251ee01b777670a16cdce8",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "rune-bergjord",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "cf2a6be8643ea9e67f4683299036e4e35a2a191fad20cfe219a32110ebdd692f",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          }
+        ]
       },
       {
         "personId": "astrid-lohne",
         "badgeId": "thanks",
-        "contentSha256": "e954a235f0edff7ecd15db9e76343ca72d452d53dc79d0ed62c55db8bf9a2f36",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "68a0fff3a8eed96b71e17fcaf40b8b52992df3a5a3b9ae3913a2ed2eb1a740f0",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "per-sangvik",
-        "badgeId": "thanks",
-        "contentSha256": "fc3d20a37956612bfde2db9c65c15b3edbb042d3ba3aba8d795fde4bc8fc9067",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "f3162e071113170dbe13289f9f8efe765a49772623d21864d138c16c9148d300",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "tom-lohne",
-        "badgeId": "thanks",
-        "contentSha256": "93666cbc913cdbc7c25cf4858205b036018aa6960217e3b725fdcceac545ed5a",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "3736dd69cde9513066d87751fa67b6fb548e40002d501816785ba88725c65094",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "joar-lohne",
         "badgeId": "thanks",
-        "contentSha256": "75844b1580d34e7706eb10993e4de92911a441992865e3fd3470877cf64d2141",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "b36617fd5d11b5cf25048d837faa1510ccb1dfec8a6810a3b1d9f348ab5ce420",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "anne-lene-forland-hansen",
         "badgeId": "thanks",
-        "contentSha256": "b0e4a2434b67c72044c47bd9948d7dae78f0fe2e5f58ac6faabf4554a06f15e0",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "4e68436c53b92b47923db9d77adf30766adf45b8d50b37ebcb9cee2059c8955a",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "birgitte-aamodt",
-        "badgeId": "thanks",
-        "contentSha256": "f3220563fcf73432a3058334efc36583c0837afca7d8bf65c30823ad95e88745",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "557c2c792caaf370cbd6d00a2ec65df4050406b404813992ef27e02b7aefcdaf",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "nils-henning-pedersen",
         "badgeId": "thanks",
-        "contentSha256": "68709db4672153aaacb529dbac1e03e98f885adec5064677c540b1601dfa3789",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "2b98798972aee394312efb01c255e43bfecc4dc59bcacc4255458708676dc6e4",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "ingvild-holmen-solvik",
         "badgeId": "thanks",
-        "contentSha256": "09507ccbd2e214437fe6dd03f2f060140f52d96d41cac678aad31e1f86ce0148",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "9cc3e8e5f2f0c4d6ee5f2db3c45287a3b4c72f0ec9db52112186d80c2ddd9a2f",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "johannes-aamodt",
-        "badgeId": "thanks",
-        "contentSha256": "cd0461f5cfb93e7688987b67cf1daab16ac2c0741f291e4dec3f678607e3dac4",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "8f3922ff2ae9c25229b9e7343d38e06159aa732f760ab6ce7ebf558ba7c1432c",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "linea-morland",
         "badgeId": "thanks",
-        "contentSha256": "30cd4ff6b613a3425c8167b371ce21c40533caf1e43ca0cfb4c4ff05917407d2",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "57f71d0de7af0ea3407c837b61796bea2d89cdfc40335e93d4fc206123ce4bb2",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "mari-melsom-kristensen",
         "badgeId": "thanks",
-        "contentSha256": "6cd7f9ea7985bc1d035faaf211d8a6879dc3fd95d6f844f3882dfe30debbab4a",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "ff91b5d8bc53c2d16d633d859f7b761edf5e68e41f5bbfb21021607ee602f056",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "nils-martin-otterdal-nilsen",
         "badgeId": "thanks",
-        "contentSha256": "ff3892cfd1f8d039a211bbc55aaaa930965ac910ffd95435a2b8f13c4e6a420f",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "3e80c5e5541857c236266e25709fc3475b3e943dc49b0727cb7e2d2c1fd8a458",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "jenny-aamodt",
         "badgeId": "thanks",
-        "contentSha256": "749b8a027c6c587b47a120d48a6a2e5b4fe7ca44c8b0f1ac23b0f9d141477c15",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "e8d61f71503f449e001a108061544c331fc9c92925a8726fe502696b761fce6d",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "ole-j-bueklev",
         "badgeId": "thanks",
-        "contentSha256": "27e720e3745ba835a6ae195667575f6bdc7727e4020b3e502f05fb816fab976a",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "9cbb41d65bbdcca31801973dc73bed394e5a2d206917ee2e13fbb75e4bfeb29d",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "trine-dybesland",
         "badgeId": "thanks",
-        "contentSha256": "5aa063a9777b3a1e0913361ab9d6d6074e31eee91d9e5f77f4952e9a6614ec68",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "4d6e9a42e6670369aedd64dc4ad657c4cc57920616da007a5838cf941bef2eaa",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "aud-o",
         "badgeId": "thanks",
-        "contentSha256": "78ce53672aedfc249951fd90918e277f354f279c19ea894906f4f8907697ad8a",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "7b4d11b7a95c3481ed5700a0552e33d71e8782455e4b0128f239df4ed34af437",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "arnfinn-g",
         "badgeId": "thanks",
-        "contentSha256": "0a79e90488a35ca29e61b3269139f2453ae56232bf85b46f7e7f4dfad908c7aa",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "5a7cf8a5451befe0f724f2fdbfc1fc35fe0b265ef7ba2a1c0750e093acd5bc5d",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "magne",
         "badgeId": "thanks",
-        "contentSha256": "0554e3fa821534ed932cd7cc370f5021872a812ca3258a036ec2ddc63ceaf4c8",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "24a208511354766e874189a91273a4ecbd6c5b24d4d7295272cbf9fe0f56340e",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "lars-aamodt",
         "badgeId": "thanks",
-        "contentSha256": "e403ad95fe11b340f0e472b544afcef282a4d0a8e4dab341d7dd6c99f6a10200",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "dd8881003097b284924c526c2165c9e6647aa6e7df0d12b0eeecf97e58b397b4",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "laila-endresen-skjulestad",
         "badgeId": "thanks",
-        "contentSha256": "96fd437d1e4f888795419265ed97d4a3fcc668b37f6ffa7ab65c64d70b6ecf5d",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "ba067a17998bffb21f060e6bb15c4d0879b84af83b042f76f2308772fe8d73e7",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "christan-berthelsen",
         "badgeId": "thanks",
-        "contentSha256": "130bf4babdddcf9b94c12de37c99986e5dd85c3c42d6d9cc6e1613fb1d540535",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "c2c97f5e87f0ae213370cf98965b739990c2512013218cf2cf5d13d39cbacb8e",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "georg-engenes",
         "badgeId": "thanks",
-        "contentSha256": "d63dbddd3a8fa52d3b9c5c043bf35272e94f34192b3b8d7fea31b5015d933af5",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "9264608a3fc8fcc7901b3e2503b1abc7b95bb1eecdb26c26ccf54f4d5e93ea39",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "trine-danielsen",
         "badgeId": "thanks",
-        "contentSha256": "02f636c5089f12c0be5758dbcc299e44aee2d8462b8727b693496cab2f777738",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "76740ffb30635de79fe011b772a7252ab045ca222db64dd3b485f671fa901b1f",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "lene-holmen-berg",
         "badgeId": "thanks",
-        "contentSha256": "0abfe84b3884f04dd61d858bc10fdbf2c93ef9e53ecb9ee8148874e4a8f8a0c1",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "a47134b2a4bea7bb2f979f3043ad32d98db086b67da4d50518d0a9515e9f11cf",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "arvid-boro",
         "badgeId": "thanks",
-        "contentSha256": "b865cf7bbcef0f3c08d7faf39935c8e5fca3aff90b98113f78784dd420a7fd88",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "dd2d5df8ecd1d8cc3f9a6f3726cafeabc033a38dcb62403873f7fa4c08816889",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "margrete-tofte",
         "badgeId": "thanks",
-        "contentSha256": "8d87053bd468ffe9e962447bad41ed20f15f88abe2e4ab466484cead96d3ba2f",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "22e590555e8768feb4ab5959f87ad8cfc7db00e958e58326e191be12d2e03d04",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "joran-eriksen",
         "badgeId": "thanks",
-        "contentSha256": "e9cd9236f3220066119ae042597e5c06824f6ff2b9b7dd98d714db7446d74404",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "2ba2cce0f706c84ff0466e674e294e8f8835902e458e1b0806d3f62cee759261",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "preben-s-dahl",
         "badgeId": "thanks",
-        "contentSha256": "cb39436e38cba08f80d5cae443c71e668f5643819683261340a3f474713d8130",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "8cfc3e33d0d846c0a640a852082c35c5ea9b73cf87c6a3d248179d023b786879",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "atle-aamodt",
-        "badgeId": "thanks",
-        "contentSha256": "fdf03550eb90f91378047c2e83f817f135fc6cfc33a64cce21d6fdd5ced8d168",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "c27178ed62f87046147f880a5a4967b1c504b77f421e8a35ce50a86f8a02accf",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "bent-bakke",
-        "badgeId": "thanks",
-        "contentSha256": "877e0f8e8b2888f764d5a7b8b20bfb99b24d5db6f056d085c190605a8fc363fd",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "c0fb2b82ab0e6cec9eb83559f0afdf3cc0f2e229eabaf6c48a68f60e990a4a1f",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "erling-danielsen",
         "badgeId": "service-memorial",
-        "contentSha256": "d7508c40c693856c50f89e7ce7c0bb94bbae5ad90af12b8608e3bb61ac1a0508",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "153a798c3ddea19555a4cffb861fcbd6dc6396d90986c87e45ef5f9e813a12a7",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "badgeId": "service-dugnad-5",
+        "contentSha256": "d72aa4b39de0f11fe33573811cd2fec0497052d8e3917da65bbdaaa2a1f71225",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "badgeId": "service-dugnad-10",
+        "contentSha256": "f26d96c9cb03369763d85ce5efcec653ea1e17fa3259a2a30529de7ae076e997",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "badgeId": "service-dugnad-15",
+        "contentSha256": "500f9c491d7b45bdafa115a7062dbb8927002eac45ec675cc3bedfce5e2341f5",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "badgeId": "service-dugnad-20",
+        "contentSha256": "377eea20576431f209a76f7c12466589b144b861f6a52d25237ae08e91425e0b",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "badgeId": "service-dugnad-30",
+        "contentSha256": "a884fcdc3c66ea6d024ac4b6b90fcbd3f7a74618be87e1f628c1fa9f058dff10",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
+        "assetSha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          }
+        ]
       },
       {
         "personId": "floke-bredland",
         "badgeId": "service-memorial",
-        "contentSha256": "70144f53b98d3b999c46e5d8525838c75de005be48b7bfba822e1e5e15891c76",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "25d3caf13c29e1c27dead3af86007f6d4ad153f063fd02d588302600c654e302",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
         "personId": "leif-wiig",
         "badgeId": "service-memorial",
-        "contentSha256": "7052e7d08282ad3f16f94f3959e56347d8c7255a6209cb06b03831df90873862",
-        "cssSha256": "d06ffb1365e4ccb063b495bb039ab2282f0db69cabc2762db0ac0fea23bac7fb",
+        "contentSha256": "6c3c2905403dcd483b39303f0053dfa8211363d770e25115cb597cd20a28b781",
+        "cssSha256": "63a97ba268bd32a5c48a0457ef454035701a33edbb9f82ad1fa43d0a5e6ce364",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       }
+    ]
+  },
+  "servicePolicy": {
+    "counting": "registered-history",
+    "sourceIds": [
+      "organizer-v352"
     ]
   }
 }

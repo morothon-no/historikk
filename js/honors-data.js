@@ -19,14 +19,12 @@
       eligible:years.length>=5||c.exception?.confirmed===true&&!!c.exception.sourceIds?.length,
       basis:years.length>=5?'documented-editions':c.exception?.confirmed===true?'explicit-decision':'not-established'};
   }
-  function tenureMilestones(data,member){
-    const documented=contribution(member),policy=data.awardPolicy?.milestones||[];
-    const qualified=policy.filter(m=>documented.count>=m.minimumDocumentedEditions)
-      .map(m=>({badgeId:m.badgeId,editions:m.minimumDocumentedEditions}));
-    const next=policy.find(m=>documented.count<m.minimumDocumentedEditions);
-    return {documentedEditions:documented.count,qualified,highestQualified:qualified.at(-1)||null,
-      next:next?{badgeId:next.badgeId,editions:next.minimumDocumentedEditions,remaining:next.minimumDocumentedEditions-documented.count}:null,
-      automaticallyAwarded:false};
+  function tenureMilestones(data,member,editionYears){
+    const tenure=serviceTenure(data,member,editionYears),count=tenure.count||0,policy=data.awardPolicy?.milestones||[];
+    const qualified=policy.filter(m=>count>=m.minimumDocumentedEditions).map(m=>({badgeId:m.badgeId,editions:m.minimumDocumentedEditions}));
+    const next=policy.find(m=>count<m.minimumDocumentedEditions);
+    return {registeredEditions:tenure.count,documentedEditions:contribution(member).count,qualified,highestQualified:qualified.at(-1)||null,
+      next:next?{badgeId:next.badgeId,editions:next.minimumDocumentedEditions,remaining:next.minimumDocumentedEditions-count}:null,automaticallyAwarded:false};
   }
   const validYear=y=>Number.isInteger(y)&&y>=1900&&y<=9999;
   function validateTenure(c){
@@ -34,6 +32,7 @@
     if(c.fromYear!==undefined&&c.toYear!==undefined&&c.toYear<c.fromYear)throw new Error('Ugyldig dugnadsperiode.');
     for(const field of ['confirmedYears','excludedYears'])if(c[field]!==undefined&&(!Array.isArray(c[field])||new Set(c[field]).size!==c[field].length||c[field].some(y=>!validYear(y))))throw new Error('Ugyldige dugnadsår.');
     if((c.confirmedYears||[]).some(y=>(c.excludedYears||[]).includes(y)||c.fromYear!==undefined&&y<c.fromYear||c.toYear!==undefined&&y>c.toYear))throw new Error('Motstridende dugnadsår.');
+    if(c.approvedTotal){const t=c.approvedTotal;if(t.approved!==true||!Number.isInteger(t.editions)||t.editions<0||!t.sourceIds?.length||t.asOfYear!==undefined&&!validYear(t.asOfYear))throw new Error('Ugyldig arrangørgodkjent samlet dugnadsantall.');}
     if(c.toYearStatus!==undefined&&(!['confirmed','provisional'].includes(c.toYearStatus)||c.toYear===undefined))throw new Error('Ugyldig status for dugnadsslutt.');
   }
   function startYear(member){
@@ -44,56 +43,59 @@
   function sortVolunteers(members){
     return [...members].sort((a,b)=>(startYear(a)??Infinity)-(startYear(b)??Infinity)||norwegianNames.compare(a.name,b.name)||norwegianNames.compare(a.id,b.id));
   }
-  // A view-only estimate. Never write inferred years into contribution(), plans,
-  // awards or diploma models. Explicit year lists are never padded with estimates.
-  function provisionalMilestone(data,member,editionYears){
-    const editions=[...new Set(editionYears.filter(validYear))].sort((a,b)=>a-b),asOfYear=editions.at(-1)??null;
-    const c=member.contribution||{},documented=contribution(member),fromYear=startYear(member);
-    const result={basis:'not-established',count:null,asOfYear,fromYear,toYear:c.toYear??null,excludedYears:[...(c.excludedYears||[])],highest:null,automaticallyAwarded:false};
-    if(asOfYear===null)return result;
-    // Being a founder in 1992 is not evidence of annual volunteer service.
-    if(!c.fromYear&&!c.confirmedYears?.length&&data.groups?.find(g=>g.id==='founders')?.members.some(m=>m.id===member.id))return result;
-    if(c.confirmedYears?.length){
-      if(!documented.years.length)return result;
-      result.basis='documented';result.count=documented.years.filter(y=>y<=asOfYear).length;
-    }else if(fromYear!==null){
-      result.basis='estimated';result.count=editions.filter(y=>y>=fromYear&&y<=Math.min(c.toYear??asOfYear,asOfYear)&&!(c.excludedYears||[]).includes(y)).length;
+  // The one registered-service calculation used by cards, profiles, diplomas
+  // and reports. Source provenance remains separate from formal issuance.
+  function serviceTenure(data,member,editionYears){
+    const editions=[...new Set((editionYears??data.editionYears??data.presentationPrintSet?.editionYears??[]).filter(validYear))].sort((a,b)=>a-b);
+    const c=member.contribution||{},asOfYear=editions.at(-1)??null;
+    const result={basis:'not-established',count:null,years:[],asOfYear,fromYear:c.fromYear??null,toYear:c.toYear??null,
+      excludedYears:[...(c.excludedYears||[])],highest:null,automaticallyAwarded:false};
+    if(Array.isArray(c.confirmedYears)&&c.sourceIds?.length){
+      result.basis='documented';result.years=[...new Set(c.confirmedYears)].filter(y=>asOfYear===null||y<=asOfYear).sort((a,b)=>a-b);result.count=result.years.length;
+    }else if(c.approvedTotal?.approved===true&&c.approvedTotal.sourceIds?.length){
+      if(asOfYear!==null&&c.approvedTotal.asOfYear>asOfYear)return result;
+      result.basis='approved-total';result.count=c.approvedTotal.editions;
+    }else if(c.fromYear!==undefined&&asOfYear!==null){
+      result.basis='registered-period';result.years=editions.filter(y=>y>=c.fromYear&&y<=Math.min(c.toYear??asOfYear,asOfYear)&&!result.excludedYears.includes(y));result.count=result.years.length;
     }
-    if(result.count!==null){
-      const highest=(data.awardPolicy?.milestones||[]).filter(m=>result.count>=m.minimumDocumentedEditions).at(-1);
-      if(highest)result.highest={badgeId:highest.badgeId,editions:highest.minimumDocumentedEditions};
-    }
+    result.first=result.years[0]??null;result.last=result.years.at(-1)??null;
+    result.fromYear=c.fromYear??result.first;
+    result.toYearStatus=c.toYearStatus||null;
+    result.milestoneYears=Object.fromEntries((data.awardPolicy?.milestones||[]).map(m=>[m.minimumDocumentedEditions,result.years[m.minimumDocumentedEditions-1]??null]));
+    if(result.count!==null){const highest=(data.awardPolicy?.milestones||[]).filter(m=>result.count>=m.minimumDocumentedEditions).at(-1);if(highest)result.highest={badgeId:highest.badgeId,editions:highest.minimumDocumentedEditions};}
     return result;
   }
+  // Backwards-compatible API name; no independent calculation.
+  const provisionalMilestone=serviceTenure;
   function arrangedYears(results){
     return [...new Set(results.filter(r=>/^(fullfort(?: |$)|dnf$|deltatt$)/.test(String(r[4]||'').toLowerCase().replaceAll('ø','o'))).map(r=>r[0]).filter(validYear))].sort((a,b)=>a-b);
   }
+  function isFounder(data,member){return !!data.groups.find(g=>g.id==='founders')?.members.some(m=>m.id===member.id&&m.status==='confirmed');}
   function mainBadge(data,member,editionYears){
-    const documented=contribution(member),estimate=provisionalMilestone(data,member,editionYears),plan=badgePlan(data,member,findIn(data,member.id)?.group||{});
-    const base={badgeId:null,basis:'not-established',count:null,fromYear:startYear(member),toYear:member.contribution?.toYear??null,toYearStatus:member.contribution?.toYearStatus||null,excludedYears:[...(member.contribution?.excludedYears||[])],status:'preliminary',automaticallyAwarded:false};
-    if(member.memorialRecognition?.badgeId==='service-memorial')return {...base,badgeId:'service-memorial',basis:'organizer-estimate',count:member.serviceEstimate?.editions??null,qualifier:member.serviceEstimate?.qualifier||null,unit:member.serviceEstimate?.unit||null,status:'proposed'};
-    if(plan.badgeIds.includes('service-aeresmerke'))return {...base,badgeId:'service-aeresmerke',basis:documented.count?'documented':'organizer-decision',count:documented.count||null,fromYear:documented.first,toYear:documented.last,status:member.plannedHonors?.some(h=>h.badgeId==='service-aeresmerke')?'planned':'proposed'};
-    if(data.groups.find(g=>g.id==='founders')?.members.some(m=>m.id===member.id&&m.status==='confirmed'))return {...base,badgeId:'service-grunnlegger',basis:'historical-role',count:null,status:'proposed'};
-    if(!estimate.highest)return base;
-    return {...base,badgeId:estimate.highest.badgeId,basis:estimate.basis,count:estimate.count,fromYear:estimate.fromYear,toYear:estimate.toYear,editions:estimate.highest.editions};
+    const tenure=serviceTenure(data,member,editionYears),plan=badgePlan(data,member,findIn(data,member.id)?.group||{});
+    const base={badgeId:null,basis:tenure.basis,count:tenure.count,fromYear:tenure.fromYear,toYear:tenure.toYear,toYearStatus:tenure.toYearStatus||null,
+      excludedYears:tenure.excludedYears,status:'earned',automaticallyAwarded:false};
+    if(member.memorialRecognition?.badgeId==='service-memorial')return {...base,badgeId:'service-memorial',status:'proposed'};
+    if(plan.badgeIds.includes('service-aeresmerke'))return {...base,badgeId:'service-aeresmerke',status:member.plannedHonors?.some(h=>h.badgeId==='service-aeresmerke')?'planned':'proposed'};
+    if(isFounder(data,member))return {...base,badgeId:'service-grunnlegger',status:'historical'};
+    return tenure.highest?{...base,badgeId:tenure.highest.badgeId,editions:tenure.highest.editions}:base;
+  }
+  function honorProfile(data,member,editionYears){
+    const tenure=serviceTenure(data,member,editionYears),main=mainBadge(data,member,editionYears);
+    const earned=(data.awardPolicy?.milestones||[]).filter(m=>tenure.count!==null&&tenure.count>=m.minimumDocumentedEditions).map(m=>m.badgeId).filter(id=>isActiveBadge(data,id));
+    const historical=isFounder(data,member)?['service-grunnlegger']:[];
+    const special=badgePlan(data,member,findIn(data,member.id)?.group||{}).badgeIds.filter(id=>!earned.includes(id));
+    return {tenure,main,earnedBadgeIds:earned,historicalBadgeIds:historical,
+      secondaryHonorIds:[...new Set([...historical,...special])].filter(id=>id!==main.badgeId&&isActiveBadge(data,id)),
+      collectionIds:earned.filter(id=>id!==main.badgeId)};
   }
   function diplomaChoices(data,member,editionYears){
-    const main=mainBadge(data,member,editionYears);
-    if(!main.badgeId)return ['thanks'];
-    if(main.badgeId==='service-memorial'||main.badgeId==='service-grunnlegger')return [main.badgeId];
-    const levels=(data.awardPolicy?.milestones||[]).filter(m=>m.minimumDocumentedEditions<=(main.count||0)).map(m=>m.badgeId);
-    return [...new Set([...(main.basis==='estimated'?['thanks']:[]),main.badgeId,...levels])].filter(id=>isActiveBadge(data,id));
+    const profile=honorProfile(data,member,editionYears);
+    return [...new Set([profile.main.badgeId||'thanks',...profile.secondaryHonorIds,...profile.earnedBadgeIds])].filter(id=>isActiveBadge(data,id));
   }
-  // Clean presentation copies are not awards. Estimated tenure never establishes
-  // eligibility for an unqualified numbered diploma.
-  function canPresent(data,member,badgeId){
+  function canPresent(data,member,badgeId,editionYears){
     if(badgeId==='thanks')return true;
-    const milestone=data.awardPolicy.milestones.find(m=>m.badgeId===badgeId);
-    if(milestone)return contribution(member).count>=milestone.minimumDocumentedEditions;
-    if(badgeId==='service-memorial')return member.memorialRecognition?.badgeId===badgeId;
-    const group=findIn(data,member.id)?.group;
-    if(badgeId==='service-grunnlegger')return group?.id==='founders'&&member.status==='confirmed';
-    return badgeId==='service-aeresmerke'&&badgePlan(data,member,group||{}).badgeIds.includes(badgeId);
+    return diplomaChoices(data,member,editionYears).includes(badgeId);
   }
   // A small, source-backed name list extends the same canonical profiles. It cannot award badges.
   function mergeVolunteers(data,list){
@@ -108,7 +110,7 @@
         (combined.sources??={})[id]=structuredClone(source);
       }
     }
-    const tenureFields=['fromYear','toYear','toYearStatus','excludedYears','confirmedYears'];
+    const tenureFields=['fromYear','toYear','toYearStatus','excludedYears','confirmedYears','approvedTotal'];
     const fields=new Set(['id','name','role','roleType',...tenureFields,'text','sourceIds','stories','nameStatus','internalNotes']);
     for(const entry of list.people){
       if(!entry||typeof entry!=='object'||Array.isArray(entry))throw new Error('Ugyldig person i dugnadslisten.');
@@ -159,7 +161,7 @@
         if(member.aliases&&(!Array.isArray(member.aliases)||member.aliases.some(v=>typeof v!=='string'||!v.trim())))throw new Error('Ugyldige navnealiaser.');
         if(member.aliasIds&&(!Array.isArray(member.aliasIds)||member.aliasIds.some(v=>!key(v))))throw new Error('Ugyldige profillenker.');
         const c=member.contribution;
-        if(c){refs(c.sourceIds);validateTenure(c);if(c.confirmedYears&&!c.sourceIds?.length)throw new Error('Ugyldige dokumenterte dugnadsår.');if(c.exception){refs(c.exception.sourceIds);if(c.exception.confirmed!==true||!c.exception.sourceIds?.length)throw new Error('Særskilt beslutning mangler kilde.');}}
+        if(c){refs(c.sourceIds);if(c.approvedTotal)refs(c.approvedTotal.sourceIds);validateTenure(c);if(c.confirmedYears&&!c.sourceIds?.length)throw new Error('Ugyldige dokumenterte dugnadsår.');if(c.exception){refs(c.exception.sourceIds);if(c.exception.confirmed!==true||!c.exception.sourceIds?.length)throw new Error('Særskilt beslutning mangler kilde.');}}
         const plan=member.badgeProposal;
         if(plan){refs(plan.sourceIds);if(plan.status!=='proposed'||!Array.isArray(plan.badgeIds)||new Set(plan.badgeIds).size!==plan.badgeIds.length||plan.badgeIds.some(id=>MorothonBadges.get(id).kind!=='service')||(plan.badgeIds.length?!plan.badgeIds.includes(plan.primaryBadgeId)||!plan.sourceIds?.length:plan.primaryBadgeId!==null))throw new Error('Ugyldig merkeforslag.');}
         for(const honor of member.plannedHonors||[]){refs(honor.sourceIds);if(honor.status!=='planned'||!validYear(honor.year)||!honor.sourceIds?.length||honor.date!==undefined||!plan?.badgeIds.includes(honor.badgeId))throw new Error('Planlagt heder krever kilde og år, uten oppdiktet utdelingsdato.');}
@@ -202,8 +204,8 @@
     const examples=new Set();for(const e of data.diplomaExamples||[]){if(!key(e.id)||examples.has(e.id)||!e.label||!isActiveBadge(data,e.badgeId)||(e.badgeId!=='thanks'&&MorothonBadges.get(e.badgeId).kind!=='service'))throw new Error('Ugyldig diplomutkast.');examples.add(e.id);if(e.personId){const found=findIn(data,e.personId);if(!found||!badgePlan(data,found.member,found.group).badgeIds.includes(e.badgeId))throw new Error('Diplomutkast mangler merkeforslag.');}else if(e.illustrative!==true||!e.name||e.badgeId!=='thanks'&&(!Number.isInteger(e.contributionCount)||e.contributionCount<1))throw new Error('Typeeksempel må være eksplisitt og uten personkobling.');}
     return data;
   }
-  async function load(){if(!pending)pending=(async()=>{await MorothonBadges.init();const r=await fetch('data/honors.json',{cache:'no-cache'});if(!r.ok)throw new Error('Navnelisten kunne ikke lastes.');let data=await r.json();if(data.volunteerList!==undefined){if(data.volunteerList!=='data/volunteers.json')throw new Error('Ugyldig dugnadslistefil.');const v=await fetch(data.volunteerList,{cache:'no-cache'});if(!v.ok)throw new Error('Dugnadslisten kunne ikke lastes.');data=mergeVolunteers(data,await v.json());}return validate(data);})().catch(e=>{pending=null;throw e;});return pending;}
+  async function load(){if(!pending)pending=(async()=>{await MorothonBadges.init();const r=await fetch('data/honors.json',{cache:'no-cache'});if(!r.ok)throw new Error('Navnelisten kunne ikke lastes.');let data=await r.json();if(data.volunteerList!==undefined){if(data.volunteerList!=='data/volunteers.json')throw new Error('Ugyldig dugnadslistefil.');const v=await fetch(data.volunteerList,{cache:'no-cache'});if(!v.ok)throw new Error('Dugnadslisten kunne ikke lastes.');data=mergeVolunteers(data,await v.json());}let editionYears=data.presentationPrintSet?.editionYears||[];try{editionYears=arrangedYears((await MorothonHistoryData.load()).data.results);}catch{}Object.defineProperty(data,'editionYears',{value:editionYears,enumerable:false});return validate(data);})().catch(e=>{pending=null;throw e;});return pending;}
   async function find(id){const data=await load(),record=findIn(data,id);if(!record)throw new Error('Hedersprofilen finnes ikke.');return {...record,stories:(record.member.stories||[]).filter(s=>s.confirmed&&hasSource(data,s)),roles:(record.member.roles||[]).filter(r=>r.confirmed&&hasSource(data,r))};}
-  const api={load,find,findIn,membersFor,validate,badgePlan,contribution,tenureMilestones,startYear,sortVolunteers,provisionalMilestone,arrangedYears,mainBadge,diplomaChoices,canPresent,isActiveBadge,mergeVolunteers};
+  const api={load,find,findIn,membersFor,validate,badgePlan,contribution,tenureMilestones,serviceTenure,honorProfile,isFounder,startYear,sortVolunteers,provisionalMilestone,arrangedYears,mainBadge,diplomaChoices,canPresent,isActiveBadge,mergeVolunteers};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else window.MorothonHonorsData=api;
 })();

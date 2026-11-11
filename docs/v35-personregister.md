@@ -1,3 +1,6 @@
+> Arkivert versjonsrapport. Gjeldende beregning og personoversikt følger
+> [V3.5.2-registeret](v352-personregister.md) og [systembeskrivelsen](honors.md).
+
 # Morothon V3.5.1 – revisjon av alle 44 personer
 
 Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, uten formell tildeling. Ukjente opplysninger er ikke fylt inn.

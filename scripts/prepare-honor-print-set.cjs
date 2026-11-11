@@ -24,7 +24,7 @@ async function prepare({write=false}={}){
    }
   }
  }finally{await h.close();}
- const set={id:'v351-presentation',scope:'presentation-only',sourceIds:['organizer-v351'],entries};
+ const set={id:'v352-presentation',scope:'presentation-only',sourceIds:['organizer-v352'],editionYears:years,entries};
  if(write){const file=path.join(root,'data/honors.json'),core=JSON.parse(await fs.readFile(file,'utf8'));core.presentationPrintSet=set;await fs.writeFile(file,JSON.stringify(core,null,2)+'\n');}
  else assert.deepEqual(set,data.presentationPrintSet,'The reviewed presentation set is stale. Inspect changes before explicitly preparing it again.');
  return {people:people.length,diplomas:entries.length,written:write};

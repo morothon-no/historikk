@@ -37,7 +37,7 @@ test('only explicitly documented volunteer editions count and determine highest 
     const known=f(data,oscar),unknown=f(data,jon);
     const test=counts=>counts.map(n=>{
       const m={contribution:{confirmedYears:Array.from({length:n},(_,i)=>1992+i),sourceIds:['organizer-v34']},awards:[],issuedDiplomas:[]};
-      return {n,...f(data,m),awards:m.awards,issued:m.issuedDiplomas};
+      return {n,...f(data,m,Array.from({length:n},(_,i)=>1992+i)),awards:m.awards,issued:m.issuedDiplomas};
     });
     const gaps=f(data,{contribution:{fromYear:2014,confirmedYears:[2014,2015,2020,2022,2026],sourceIds:['organizer-v34']}});
     return {known,unknown,gaps,checks:test([0,4,5,9,10,14,15,19,20,29,30,35,39,40])};
@@ -109,9 +109,10 @@ test('date field uses the race when the volunteer actually reached each mileston
   const [thirty,honor,erling,anonymous,unknown]=result;
   assert.deepEqual([thirty.year,thirty.eventDate,thirty.label],[2021,'2021-11-13','Søgne, 13. november 2021']);
   for(const entry of [honor,erling])assert.deepEqual([entry.year,entry.eventDate,entry.label],[2026,'2026-11-07','Søgne, 7. november 2026']);
-  for(const entry of [anonymous,unknown])assert.deepEqual([entry.year,entry.eventDate,entry.label],[null,null,'']);
+  assert.deepEqual([anonymous.year,anonymous.eventDate,anonymous.label],[null,null,'']);
+  assert.deepEqual([unknown.year,unknown.eventDate,unknown.label],[2023,'2023-11-11','Søgne, 11. november 2023']);
   for(const entry of result){
-    assert.equal(entry.htmlDate.trim(),entry.year?(entry.year===2021?'MILEPÆL OPPNÅDD I 2021':'35 DUGNADSUTGAVER I 2026'):'');
+    assert.equal(entry.htmlDate.trim(),entry.year?(entry.year===2021?'MERKET OPPNÅDD I 2021':entry.year===2023?'MERKET OPPNÅDD I 2023':'35 DUGNADSUTGAVER I 2026'):'');
     assert.equal(entry.htmlLineCount,0);
     assert.equal(entry.preview,true);assert.equal(entry.ready,false);
     assert.equal(entry.basis,entry.eventDate?'documented-race-date':'not-established');
