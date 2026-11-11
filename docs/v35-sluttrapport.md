@@ -6,10 +6,10 @@ Utgangspunkt: `main` på `8e28dd6063dda7faf48d37e4baf6e754ba41e1c8`, inkludert P
 
 - Alle **44 unike personer** er kontrollert. 20 har ett foreslått/foreløpig hovedmerke, 24 vises uten merke. Ingen personkort eller hedersprofil viser flere hovedmerker.
 - **Ni aktive merketyper**: seks dugnadsnivåer, Grunnlegger, Morothons æresmerke og det nye minnemerket. Originalene til de to utgåtte merkene beholdes, sammen med historisk kompatibilitet. Endrede gamle forslag er bevart i `previousBadgeProposals`.
-- Dag, Håkon, Finn og Kalle har 13 **mulige** utgaver fra 2014 og foreløpig Dugnadshelt (10). Bent har seks mulige utgaver innen 2014–2019; sluttåret er uttrykkelig foreløpig.
+- Dag har 13 **dokumenterte** utgaver i 2014–2026. Håkon har 12 **dokumenterte** utgaver i 2014, 2015 og 2017–2026, med bekreftet fravær i 2016. Finn og Kalle har fortsatt 13 **mulige** utgaver fra 2014. Alle fire beholder foreløpig Dugnadshelt (10). Bent har seks mulige utgaver innen 2014–2019; sluttåret er uttrykkelig foreløpig.
 - Oscar og Erling Askildsen viser bare Æresmerket som forslag og beholder sine 35 dokumenterte utgaver. De øvrige tre grunnleggerne viser bare Grunnlegger, uten anslåtte 35 dugnadsutgaver.
 - Erling Danielsen, Floke og Leif viser samme nye minnemerke. Arrangørens anslag holdes adskilt fra dokumenterte enkeltår. Minneseksjonen er flyttet etter grunnleggerne, med Erling Danielsen fremhevet.
-- Håkons hovedrolle er Løpsleder Morothon, uten et udokumentert startår for selve løpslederrollen. Nils Martins styrelederrolle gir ingen dugnadsår.
+- Håkons hovedrolle er Løpsleder Morothon, uten et udokumentert startår for selve løpslederrollen. Nils Martins styrelederrolle gir ingen dugnadsår. Dag og Erling Askildsen har tilleggsrollen «Tidligere styreleder i Søgne Skiklubb», uten oppdiktet periode og uten påvirkning på dugnadsberegningen.
 
 [Personregisteret](v35-personregister.md) inneholder vurderingen av alle 44, erstattede hovedmerker og navnene på de 25 personene som mangler startår. Joar har kjent startår, men har ikke nådd fem mulige utgaver.
 
@@ -50,8 +50,9 @@ Det rene PDF-eksemplet heter «Kontrollperson – bare testdata» og innebærer
 
 ## Tester og faktiske forhåndsvisninger
 
-- `npm test`: **162 bestått, 0 feil, 0 hoppet over**.
-- `npm run build`: bestått, 56 produksjonsfiler, innholdsversjon `e884b1f92ea7ccab`.
+- `npm test`: **164 bestått, 0 feil, 0 hoppet over**.
+- `npm run build`: bestått, 56 produksjonsfiler, innholdsversjon `c383e2a39f6b3338`.
+- Sluttkorrigeringen i PR #18 har to nye regresjoner for eksakte dokumenterte årsrekker, bekreftet fravær, udaterte styrelederroller, uendret fartstid/sortering, framtidige utgaver og synlig tilleggsrolle på mobil/PC. Historiske 10-utgaversdiplomer bruker Dags tiende dokumenterte utgave i 2023 og Håkons i 2024; dagens 13/12 utgaver overføres ikke til disse historiske diplomene.
 - Seks nye utskriftsregresjoner dekker alle 44 profiler, alle 11 gallerieksempler, faktisk PDF-tekst/A4, reelle feil, rasteroppløsning og Windows-lignende fontmåling ved 100–200 % pikseltetthet.
 - `git diff --check`, JavaScript-syntakskontroller og `actionlint`: bestått.
 - Chromium: faktiske helsidesbilder ved 1440 og 390 px, seksjonsbilder og kontroll av alle 44 kort/profiler. Ingen konsollfeil eller utilsiktet horisontal rulling i kontrollene.

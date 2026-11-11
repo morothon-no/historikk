@@ -4,15 +4,15 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 
 | Navn | Rolle | Startår / periode | Utgaver / innsats | Dokumentert / anslag | Hovedmerke | Diplomtype |
 | --- | --- | --- | --- | --- | --- | --- |
-| Erling Askildsen | Idéskaper og grunnlegger | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
+| Erling Askildsen | Idéskaper og grunnlegger · Tidligere styreleder i Søgne Skiklubb | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
 | Oscar Lohne | Grunnlegger | Fra 1992 · til 2026 | 35 utgaver | Dokumenterte enkeltår | Morothons æresmerke | Æresdiplom |
 | Arnfinn Håverstad | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
 | Helge Reisvoll | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
 | Einar Danielsen | Grunnlegger | Fra 1992 | Ikke fastsatt | Bekreftet historisk rolle | Grunnlegger | Grunnleggerdiplom |
 | Kalle Kimestad | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Finn Lohne | Dugnadshelt | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
-| Dag Morten Frantzen | Arrangør siden 2014 | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
-| Håkon Lohne | Løpsleder Morothon · Arrangør siden 2014 | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
+| Dag Morten Frantzen | Arrangør siden 2014 · Tidligere styreleder i Søgne Skiklubb | Fra 2014 | 13 utgaver | Dokumenterte enkeltår | Dugnadshelt | Dugnadsdiplom |
+| Håkon Lohne | Løpsleder Morothon · Arrangør siden 2014 | Fra 2014 · fravær 2016 | 12 utgaver | Dokumenterte enkeltår | Dugnadshelt | Dugnadsdiplom |
 | Jon Fjeld | Barneløp og startpistol | Fra 2014 | 13 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Rune Bergjord | Ikke oppgitt | Fra 2015 | 12 utgaver | Beregnet anslag, ikke bekreftet årsrekke | Dugnadshelt | Dugnadsdiplom |
 | Astrid Lohne | Løypemerking | Startår ukjent | Ikke fastsatt | Utilstrekkelig grunnlag | Ingen | Takk for innsatsen |
@@ -49,6 +49,7 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 | Floke Bredland | Banketten og fellesskapet | Startår ukjent | Minst 25 år | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
 | Leif Wiig | Tidtaking og organisering | Startår ukjent | Minst 25 år | Arrangørens anslag, uten årsrekke | For alltid en del av Morothon | Minnediplom |
 
+
 ## Manglende startår
 
 - Astrid Lohne
@@ -79,13 +80,13 @@ Alle har et personlig diplomvalg. Merker er forslag eller foreløpige nivåer, u
 
 ## Endrede hovedmerker
 
-- Dag Morten Frantzen, Håkon Lohne, Finn Lohne og Kalle Kimestad: gammelt generelt Dugnadshelt-merke erstattes av nytt Dugnadshelt (10), ut fra 13 mulige utgaver.
+- Dag Morten Frantzen, Håkon Lohne, Finn Lohne og Kalle Kimestad: gammelt generelt Dugnadshelt-merke erstattes av nytt Dugnadshelt (10). Dag har nå 13 dokumenterte utgaver, Håkon 12 dokumenterte utgaver med bekreftet fravær i 2016. Finn og Kalle har fortsatt 13 mulige utgaver.
 - Bent-Inge Bakke: foreløpig Ivrig hjelper (5), beregnet innen den foreløpige perioden 2014–2019. Seks mulige utgaver, ikke bekreftede enkeltår.
 - Oscar Lohne og Erling Askildsen: bare Morothons æresmerke som foreslått hovedmerke. Grunnleggerstatus og dokumenterte 35 utgaver bevares som fakta; tidligere merkeforslag er arkivert.
 - Arnfinn Håverstad, Helge Reisvoll og Einar Danielsen: bare Grunnlegger; ingen automatisk 35-årsberegning.
 - Erling Danielsen, Floke Bredland og Leif Wiig: bare For alltid en del av Morothon, uten årsmerker.
 - Hedersildsjel og generelt Dugnadshelt er utgått fra aktive forslag, galleri og nye diplomvalg. Originalfiler og eventuell historisk tildeling beholdes.
 
-Nils Martin Otterdal Nilsens styrelederrolle gir ingen dugnadsår. Personer uten merke beholdes; Joar Lohne har kjent startår, men har ennå ikke nådd fem mulige utgaver. Et ukjent sluttår fylles ikke inn som et faktum.
+Styrelederrollene til Nils Martin Otterdal Nilsen, Erling Askildsen og Dag Morten Frantzen gir ingen dugnadsår. De to sistnevntes tidligere styrelederverv har ingen oppgitt periode. Personer uten merke beholdes; Joar Lohne har kjent startår, men har ennå ikke nådd fem mulige utgaver. Et ukjent sluttår fylles ikke inn som et faktum.
 
 Tabellen regenereres med `node scripts/review-honors-v35.cjs /tmp/morothon-v35`.

@@ -12,6 +12,7 @@ function historicalMember(member){
  const old=baseline.groups.flatMap(g=>g.members).find(m=>m.id===copy.id);if(!old)return copy;
  if(copy.previousBadgeProposals?.length){copy.badgeProposal=copy.previousBadgeProposals[0];delete copy.previousBadgeProposals;}
  if(['dag-morten-frantzen','hakon-lohne','finn-lohne','kalle-kimestad','bent-bakke'].includes(copy.id))delete copy.contribution;
+ copy.roles=copy.roles.filter(r=>!r.sourceIds?.includes('organizer-pr18-confirmed-years'));
  if(copy.id==='hakon-lohne')copy.roles=copy.roles.filter(r=>r.title!=='Løpsleder Morothon');
  if(copy.memorialRecognition){for(const key of ['reason','sourceIds','diplomaTribute']){if(old[key]===undefined)delete copy[key];else copy[key]=old[key];}delete copy.memorialRecognition;delete copy.serviceEstimate;}
  return copy;

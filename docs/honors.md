@@ -40,8 +40,10 @@ Helge Reisvoll og Einar Danielsen. Oscar og Erling Askildsen har 35 dokumenterte
 utgaver (1992–2026) og æresmerket som forslag. De tre øvrige har Grunnlegger,
 uten å få anslått 35 dugnadsutgaver på grunnlag av grunnleggerrollen.
 
-Dag Morten Frantzen, Håkon Lohne, Finn Lohne og Kalle Kimestad har registrert
-start i 2014 og foreløpig 10-årsnivå ut fra 13 mulige utgaver til og med 2026.
+Dag Morten Frantzen har 13 dokumenterte dugnadsutgaver (2014–2026). Håkon Lohne
+har 12 dokumenterte utgaver (2014, 2015 og 2017–2026), med bekreftet fravær i 2016.
+Begge beholder foreløpig Dugnadshelt (10). Finn Lohne og Kalle Kimestad har
+registrert start i 2014 og samme foreløpige nivå ut fra 13 mulige utgaver.
 Finn og Kalle er bekreftet fra minst 2014; mellomliggende enkeltår er ikke bevist.
 Håkon vises som «Løpsleder Morothon», uten et oppfunnet startår for akkurat
 løpslederrollen. Hans arrangørhistorie fra 2014 og Svalbard-oppholdet i 2016 bevares.
@@ -52,7 +54,9 @@ gjør det tydelig at sluttåret er foreløpig. Ingen årsrekke konstrueres.
 
 Nils Martin Otterdal Nilsens rolle som styreleder i Søgne Skiklubb er registrert
 som ekstern rolle (`roleType:external`, normalisert til `countsForTenure:false`).
-Den gir verken dugnadsår eller automatisk medalje.
+Den gir verken dugnadsår eller automatisk medalje. Erling Askildsen og Dag Morten
+Frantzen har i tillegg den udaterte rollen «Tidligere styreleder i Søgne Skiklubb».
+Disse rollene har også `countsForTenure:false` og påvirker ingen dugnadsberegning.
 
 Atle Aamodt har start 2021 og `excludedYears:[2026]`. Birgitte Aamodt har start
 2022, Johannes Aamodt 2021. Anne Lene Førland-Hansen og Laila Endresen Skjulestad

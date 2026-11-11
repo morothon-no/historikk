@@ -113,6 +113,12 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "V3.5-bestillingen: Finn og Kalle fra minst 2014, Bent-Inge foreløpig 2014–2019, Håkon som løpsleder uten fastsatt startår for rollen, Nils Martin som styreleder i Søgne Skiklubb. Minnestatus og anslag for Erling Danielsen (33 utgaver), Floke Bredland og Leif Wiig (minst 25 år) er oppgitt av arrangøren. Ingen formelle tildelinger."
+    },
+    "organizer-pr18-confirmed-years": {
+      "title": "Arrangørens sluttkorrigering før merge av PR #18",
+      "publisher": "Morothon",
+      "basis": "Oppgitt av arrangøren 11. november 2026: Dag Morten Frantzen har dokumenterte dugnadsår 2014–2026. Håkon Lohne har dokumenterte dugnadsår 2014, 2015 og 2017–2026, med bekreftet fravær i 2016. Erling Askildsen og Dag Morten Frantzen har også vært styreledere i Søgne Skiklubb; periode er ikke oppgitt. Styreledervervene teller ikke som dugnadsår.",
+      "date": "2026-11-11"
     }
   },
   "displayOrder": [
@@ -156,6 +162,14 @@
                 "organizer-v3"
               ],
               "confirmed": true
+            },
+            {
+              "title": "Tidligere styreleder i Søgne Skiklubb",
+              "confirmed": true,
+              "countsForTenure": false,
+              "sourceIds": [
+                "organizer-pr18-confirmed-years"
+              ]
             }
           ],
           "stories": [
@@ -732,6 +746,14 @@
                 "organizer-v3"
               ],
               "confirmed": true
+            },
+            {
+              "title": "Tidligere styreleder i Søgne Skiklubb",
+              "confirmed": true,
+              "countsForTenure": false,
+              "sourceIds": [
+                "organizer-pr18-confirmed-years"
+              ]
             }
           ],
           "stories": [
@@ -786,7 +808,23 @@
           "contribution": {
             "fromYear": 2014,
             "sourceIds": [
-              "organizer-v35"
+              "organizer-v35",
+              "organizer-pr18-confirmed-years"
+            ],
+            "confirmedYears": [
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
             ]
           }
         },
@@ -868,7 +906,25 @@
           "contribution": {
             "fromYear": 2014,
             "sourceIds": [
-              "organizer-v35"
+              "organizer-v35",
+              "organizer-pr18-confirmed-years"
+            ],
+            "confirmedYears": [
+              2014,
+              2015,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "excludedYears": [
+              2016
             ]
           }
         }
