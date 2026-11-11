@@ -96,7 +96,13 @@
     {
       "id": "nils-martin-otterdal-nilsen",
       "name": "Nils Martin Otterdal Nilsen",
-      "nameStatus": "as-provided"
+      "nameStatus": "as-provided",
+      "role": "Styreleder i Søgne Skiklubb",
+      "roleType": "external",
+      "sourceIds": [
+        "organizer-v34",
+        "organizer-v35"
+      ]
     },
     {
       "id": "jenny-aamodt",

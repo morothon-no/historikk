@@ -65,7 +65,7 @@ test('service badges: native 2400px transparent draft assets, data-driven honore
       });
       assert.equal(result.same,true); assert.equal(result.fits,true); assert.equal(result.layout.ready,true);
       assert.ok(result.quality.every(a=>a.width===2400 && a.height===2400 && a.alpha && a.edges===0 && !a.ready && a.dpi>1000));
-      assert.deepEqual(result.statuses,Array(10).fill('design-draft'));
+      assert.deepEqual(result.statuses,Array(11).fill('design-draft'));
       assert.match(result.recipient,/Oscar Lohne/); assert.match(result.recipient,/Dag Morten Frantzen/);
       assert.match(result.recipient,/Floke|Til minne om/i);
       assert.match(result.body,/Grunnleggerne – de som startet det hele/);

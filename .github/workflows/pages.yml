@@ -45,15 +45,15 @@ jobs:
         run: npm test
       - name: Build versioned runtime package
         run: npm run build
-      - name: Render volunteer tenure review screenshots
+      - name: Render V3.5 honor review artifacts
         if: github.event_name == 'pull_request'
-        run: node scripts/review-volunteer-tenure.cjs /tmp/morothon-dugnadsmerker
-      - name: Retain volunteer tenure review screenshots
+        run: node scripts/review-honors-v35.cjs /tmp/morothon-v35
+      - name: Retain V3.5 honor review artifacts
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: morothon-dugnadsmerker-forhaandsvisning
-          path: /tmp/morothon-dugnadsmerker/
+          name: morothon-v35-forhaandsvisning
+          path: /tmp/morothon-v35/
           if-no-files-found: error
           retention-days: 14
       - name: Retain tested site artifact

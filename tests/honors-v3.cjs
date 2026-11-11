@@ -9,9 +9,9 @@ test('V3 five sourced founders, explicit runner IDs, confirmed volunteers and in
  const all=honors.groups.flatMap(g=>g.members);assert.equal(all.some(m=>m.name==='Helge Andersen'),false);assert.equal(honors.retiredProfiles[0].id,'helge-andersen');
  for(const [id,pid]of Object.entries(links))assert.equal(all.find(m=>m.id===id).runnerId,pid);
  for(const id of ['kalle-kimestad','finn-lohne']){const m=all.find(m=>m.id===id);assert.equal(m.status,'confirmed');assert.equal(m.roles[0].fromYear,2014);}
- for(const id of ['dag-morten-frantzen','hakon-lohne']){const m=all.find(m=>m.id===id);assert.equal(m.status,'provisional');assert.equal(m.roles[0].confirmed,true);assert.equal(m.roles[0].fromYear,2014);}
+ for(const id of ['dag-morten-frantzen','hakon-lohne']){const m=all.find(m=>m.id===id);assert.equal(m.status,'provisional');assert.equal(m.roles[0].confirmed,true);assert.ok(m.roles.some(r=>r.fromYear===2014));}
  assert.equal(all.find(m=>m.id==='dag-morten-frantzen').runnerId,undefined);assert.equal(all.find(m=>m.id==='bent-bakke').runnerId,undefined);assert.equal(honors.groups.find(g=>g.id==='organizers').badgeId,null);
- assert.ok(all.every(m=>(m.roles||[]).every(r=>r.sourceIds.length>0)));assert.match(all.find(m=>m.id==='hakon-lohne').roles[0].note,/Svalbard.*2016/);
+ assert.ok(all.every(m=>(m.roles||[]).every(r=>r.sourceIds.length>0)));assert.match(all.find(m=>m.id==='hakon-lohne').roles.find(r=>r.note?.includes('Svalbard')).note,/Svalbard.*2016/);
 });
 test('V3 dynamically computes controlled participation totals and exact comparable distances from the unmodified history',async()=>{
  const p=await load();try{
@@ -69,6 +69,6 @@ test('V3 all founder diplomas have short personal tributes, native medals and sa
  const d=await p.evaluate(async id=>{const doc=document.querySelector('iframe').contentDocument,m=await MorothonDiplomas.serviceDraft(id);return {name:doc.querySelector('.diploma-recipient h2').textContent,tribute:doc.querySelector('.diploma-citation').textContent,layout:await MorothonDiplomas.checkLayout(doc),src:doc.querySelector('.diploma-medal').src,expected:m.asset.src,ready:m.imageReady,preview:m.previewOnly};},member.id);
  assert.equal(d.name,member.name);assert.equal(d.tribute,member.diplomaTribute);assert.equal(d.layout.ready,true);assert.equal(d.src,d.expected);assert.equal(d.ready,false);assert.equal(d.preview,true);assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),0);assert.equal(await p.locator('iframe').getAttribute('sandbox'),'allow-same-origin');
  }
- await p.goto(h.base+'/heder.html#person/bent-bakke');await p.locator('#profileName').waitFor();assert.equal(await p.locator('.diploma-example').count(),0);assert.equal(await p.locator('.honor-no-award').count(),0);
+ await p.goto(h.base+'/heder.html#person/bent-bakke');await p.locator('#profileName').waitFor();assert.equal(await p.locator('.diploma-example').count(),1);assert.equal(await p.locator('.honor-no-award').count(),0);
  }finally{await p.close();}
 });

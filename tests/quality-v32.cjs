@@ -53,11 +53,11 @@ test('V3.2 CI runs once per PR update, tests main pushes and deploys only verifi
  assert.match(workflow,/needs: verify/);assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);for(const s of ['npm ci','npm test','npm run build','playwright install --with-deps chromium','poppler-utils','requirements-dev.txt','fetch-depth: 0'])assert.ok(workflow.includes(s),s);assert.doesNotMatch(workflow,/continue-on-error|if: always\(\)/);
   const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
   const originalRegistry=JSON.parse(execFileSync('git',['show','bb22ec8:data/badges.json'],{cwd:root}));
-  assert.equal(registry.badges.length,originalRegistry.badges.length+7,'Only seven proposed designs may extend the registry');
+  assert.equal(registry.badges.length,originalRegistry.badges.length+8,'Seven PR16 designs and one V3.5 memorial extend the registry');
   assert.deepEqual(registry.watermark,originalRegistry.watermark,'Approved watermark must remain unchanged');
   for(const original of originalRegistry.badges){
    const current={...registry.badges.find(b=>b.id===original.id)};
-   if(original.id==='service-dugnadshelt'){assert.equal(current.displayOnHonorPage,false);assert.equal(current.legacyCompatibilityOnly,true);delete current.legacyCompatibilityOnly;current.displayOnHonorPage=true;}
+   if(['service-dugnadshelt','service-hedersildsjel'].includes(original.id)){assert.equal(current.active,false);assert.equal(current.displayOnHonorPage,false);assert.equal(current.legacyCompatibilityOnly,true);delete current.active;delete current.legacyCompatibilityOnly;current.displayOnHonorPage=original.displayOnHonorPage;}
    assert.deepEqual(current,original,'Existing badge identity and source must remain unchanged: '+original.id);
   }
   const protectedFiles=['data/history.json','data/event-dates.json',originalRegistry.watermark.src,...originalRegistry.badges.flatMap(b=>[b.src,...(b.vectorSource?[b.vectorSource]:[])])];

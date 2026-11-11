@@ -477,7 +477,8 @@
       "reviewedSha256": null,
       "printReady": false,
       "displayOnHonorPage": false,
-      "legacyCompatibilityOnly": true
+      "legacyCompatibilityOnly": true,
+      "active": false
     },
     {
       "id": "service-dugnad-5",
@@ -594,7 +595,9 @@
       "cropReviewed": false,
       "reviewedSha256": null,
       "printReady": false,
-      "displayOnHonorPage": true
+      "displayOnHonorPage": false,
+      "active": false,
+      "legacyCompatibilityOnly": true
     },
     {
       "id": "service-aeresmerke",
@@ -625,6 +628,22 @@
       "reviewedSha256": null,
       "printReady": false,
       "displayOnHonorPage": true
+    },
+    {
+      "id": "service-memorial",
+      "kind": "service",
+      "name": "For alltid en del av Morothon",
+      "src": "assets/medals/service/memorial.svg",
+      "vectorSource": "assets/medals/service/memorial.svg",
+      "status": "design-draft",
+      "color": "#A47A46",
+      "widthMm": 55,
+      "heightMm": 55,
+      "cropReviewed": false,
+      "reviewedSha256": null,
+      "printReady": false,
+      "displayOnHonorPage": true,
+      "active": true
     }
   ],
   "masterSha256": "a9de9ea6bb85583d7098da0d4d78f5128095060433f324a1fb1f979eaa27d883"
