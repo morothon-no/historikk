@@ -40,7 +40,7 @@ test('PR16 milestone diplomas freeze the count, period, selected humour and actu
   }
   for(const example of honors.diplomaExamples.filter(e=>e.illustrative)){
    const d=await p.evaluate(async id=>{const d=await MorothonDiplomas.serviceExample(id);return {count:d.contributionCount,date:d.dateLabel,year:d.achievementYear,tribute:d.tribute};},example.id);
-   assert.equal(d.count,example.contributionCount);assert.equal(d.tribute,example.tribute);assert.equal(d.year,null);assert.equal(d.date,'Søgne, __________________');
+   assert.equal(d.count,example.contributionCount);assert.equal(d.tribute,example.tribute);assert.equal(d.year,null);assert.equal(d.date,'');
   }
  }finally{await p.close();}
 });

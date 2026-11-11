@@ -197,3 +197,7 @@ har ingen fast original-DPI. PDF-kontroll viser innebygde fonter og vektormerker
 de to eksisterende PNG-merkene beholder sine originale 2400 × 2400 piksler.
 Dette er teknisk dokumentasjon, ikke visuell godkjenning eller trykkgodkjenning.
 Ingen hedersdiplomknapper eller tildelinger er aktivert.
+
+### Oppnåelsesår i synlige heders- og dugnadsdiplomer (november 2026)
+
+A4-utkastene viser **bare året for dokumentert milepæl**, for eksempel «MILEPÆL OPPNÅDD I 2021» for Oscar/Erling ved 30 dugnadsutgaver. De to foreslåtte æresdiplomene viser «35 DUGNADSUTGAVER I 2026», **ikke** at Morothons æresmerke ble tildelt i 2026. Eksakt løpsdato er fortsatt dokumentert i datamodellen, men vises ikke i diplomets footer. Anonyme eksempler uten dokumentert oppnåelsesår har ingen datostrek, understrek eller plassholder. Ingen endringer på vanlige løperdiplomer eller utstedelsesstatus.

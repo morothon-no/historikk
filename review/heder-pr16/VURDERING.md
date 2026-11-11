@@ -58,3 +58,9 @@ npm run build
 ```
 
 GitHub-kontrollen for den pushede grenen vises i [Actions](https://github.com/morothon-no/historikk/actions?query=branch%3Acodex%2Fmorothon-aeresmerke-utkast). Ingen merge eller publisering skal utføres før arrangørens visuelle godkjenning.
+
+## Oppdatering etter arrangørens tilbakemelding om datostrek (11. november 2026)
+
+På heders- og dugnadsdiplomer vises heretter bare **dokumentert oppnåelsesår** uten understrek. 30-utgaversmerket: «MILEPÆL OPPNÅDD I 2021». De to æresutkastene omtaler «35 DUGNADSUTGAVER I 2026», uten å hevde at æresmerket formelt ble tildelt i 2026. Anonyme utkast uten dokumentert år viser ingen dato eller datostrek. Ordinære løperdiplomer er uendret.
+
+**Obs:** Statiske PNG/PDF-forhåndsvisninger i denne mappen ble gjengitt *før* justeringen og må regenereres fra gjeldende kode. Kjør `node scripts/review-honor-badges.cjs review/heder-pr16` før den endelige visuelle godkjenningen og fjern utdaterte binærfiler før merge.

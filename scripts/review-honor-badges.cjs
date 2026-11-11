@@ -73,7 +73,7 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
    for(const key of [...levels.map(n=>n===5?'dugnadshelt-fem':'dugnad-'+n),'oscar-30','erling-30','oscar-35','erling-35']){
     const model=await p.evaluate(async key=>{
      const d=key.endsWith('-30')&&!key.startsWith('dugnad-')?await MorothonDiplomas.serviceDraft(key.startsWith('oscar')?'oscar-lohne':'erling-askildsen','service-dugnad-30'):await MorothonDiplomas.serviceExample(key);
-     return {html:MorothonDiplomas.documentHtml(d),name:d.name,role:d.roleLabel,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,tribute:d.tribute,preview:d.previewOnly,imageReady:d.imageReady,secondary:d.secondaryAssets.map(a=>a.key)};
+     return {html:MorothonDiplomas.documentHtml(d),name:d.name,role:d.roleLabel,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,achievementYear:d.achievementYear,yearText:d.achievementYear?(d.assetKey.startsWith('service-dugnad-')?'MILEPÆL OPPNÅDD I '+d.achievementYear:'35 DUGNADSUTGAVER I '+d.achievementYear):'',tribute:d.tribute,preview:d.previewOnly,imageReady:d.imageReady,secondary:d.secondaryAssets.map(a=>a.key)};
     },key);
     assert.equal(model.preview,true);assert.equal(model.imageReady,false);
     const q=await harness.browser.newPage({viewport:{width:1123,height:794},deviceScaleFactor:300/96});
@@ -85,7 +85,7 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
     const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}});
     await fs.writeFile(path.join(out,key+'-A4-UTKAST-IKKE-UTDELT.pdf'),pdf);
     const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString();assert.match(info,/Pages:\s+1\b/);
-    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(model.name));assert.ok(text.includes(model.date));
+    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(model.name));assert.ok(text.includes(model.yearText||'Løpsleder Morothon'));assert.ok(!text.includes('__________________'));
     proofs.push({key,...model,html:undefined,layout:{ready:layout.ready,failures:layout.failures},contrasts,pdfInfo:info});await q.close();
    }
   }
@@ -96,7 +96,7 @@ async function review(out=path.join(root,'review/heder-pr16'),badgesOnly=false){
   if(!badgesOnly){
    markdown+='## Mobil og PC\n\n[Merker på mobil](merker-390.png) · [Merker på PC](merker-1440.png)\n\n![Mobilvisning](merker-390.png)\n\n';
    for(const id of ['oscar-lohne','erling-askildsen'])markdown+=`[${id}: mobil](${id}-390.png) · [PC](${id}-1440.png)\n\n`;
-   markdown+='## A4 – utkast, ikke utdelt\n\nDatoer på navngitte milepæler er løpsdatoer, ikke formelle tildelingsdatoer. Anonyme eksempler har tom dato.\n\n';
+   markdown+='## A4 – utkast, ikke utdelt\n\nNavngitte dugnadsmilepæler viser oppnåelsesåret (30: 2021, 35 utgaver: 2026), ikke en formell tildelingsdato. Anonyme eksempler har ingen dato eller strek.\n\n';
    for(const item of proofs)markdown+=`### ${item.role} · ${item.name} · ${item.count} utgaver\n\n[PDF – utkast, ikke utdelt](${item.key}-A4-UTKAST-IKKE-UTDELT.pdf)\n\n![${item.key} – utkast, ikke utdelt](${item.key}-A4-UTKAST-IKKE-UTDELT.png)\n\n`;
   }
   markdown+='## Målinger og vurdering\n\n[Maskinlesbare kilder, SHA-256, tekstgrenser og A4-resultater](kontroll.json). [Vurdering og testresultater](VURDERING.md).\n';

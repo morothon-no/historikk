@@ -38,7 +38,7 @@ Alle bilder er gjengitt direkte fra SVG-filene i denne grenen med Chromium. Inge
 
 ## A4 – utkast, ikke utdelt
 
-Datoer på navngitte milepæler er løpsdatoer, ikke formelle tildelingsdatoer. Anonyme eksempler har tom dato.
+**Obs: PNG/PDF-bildene nedenfor er fra forrige gjengivelse og må regenereres.** Diplomer skal vise bare dokumentert oppnåelsesår uten strek (30 i 2021, 35 utgaver i 2026); anonyme eksempler har ingen dato.
 
 ### Ivrig hjelper · En av Morothons dugnadshelter · 5 utgaver
 

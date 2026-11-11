@@ -65,3 +65,8 @@
 .diploma-service .diploma-heading>p,.diploma-service .diploma-recipient h3,.diploma-service .diploma-metric span,.diploma-service .diploma-service-words b{color:#765629;color:color-mix(in srgb,var(--diploma-metal) 50%,#000)}
 .diploma-service .diploma-service-secondary-three img{width:23mm;height:23mm}
 .diploma-service .diploma-service-secondary-three figcaption{font-size:2.4mm}
+
+/* Service diplomas have a milestone year, not a handwritten date field.
+   Ordinary runner diploma footer and signer's line remain unchanged. */
+.diploma-service-signoff .diploma-date{grid-template-rows:8.4mm;align-items:center}
+.diploma-service-signoff .diploma-date .diploma-handwritten{font:700 3.8mm/1.4 Arial,Helvetica,sans-serif;letter-spacing:.2mm;color:#2b4c56;white-space:normal}

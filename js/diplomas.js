@@ -155,7 +155,7 @@
         ? knownYears.at(-1)
         : null;
     const eventDate=achievementYear?register.dates[String(achievementYear)]||null:null;
-    const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'Søgne, __________________';
+    const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'';
     const earnedYears=!illustrative&&milestone&&knownYears.length>=milestone?knownYears.slice(0,milestone):null;
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name+' · diplomutkast',
       roleLabel:badge.name,tribute:member.diplomaTribute||'',provisional:true,asset,assetKey:badgeId,
@@ -189,6 +189,20 @@
     </div>`;
   }
 
+  // Volunteer diplomas show the documented milestone YEAR only. The exact race
+  // date stays in the model for provenance, and there is no invented award date.
+  // Anonymous examples have neither a year placeholder nor a date underline.
+  function serviceSignoffHtml(d) {
+    const label=d.achievementYear
+      ? d.assetKey.startsWith('service-dugnad-')
+        ? 'MILEPÆL OPPNÅDD I '+d.achievementYear
+        : d.contributionCount===35 ? '35 DUGNADSUTGAVER I '+d.achievementYear : ''
+      : '';
+    return signoffHtml(label)
+      .replace('class="diploma-signoff"', 'class="diploma-signoff diploma-service-signoff"')
+      .replace('<div class="diploma-signature-line" aria-hidden="true"></div>', '');
+  }
+
   function serviceDocumentHtml(d) {
     const css=new URL('css/diplomas.css',document.baseURI).href;
     const founder=d.assetKey==='service-grunnlegger',highest=d.assetKey==='service-aeresmerke',lifelong=(highest||d.assetKey==='service-hedersildsjel')&&d.contributionCount===35;
@@ -207,7 +221,7 @@
       <div class="diploma-recipient" data-layout-check><p>TILDELES</p><h2>${safe(d.name)}</h2><h3>${safe(d.roleLabel)}</h3></div>
       <div class="diploma-main diploma-service-main"><div class="diploma-metric" data-layout-check><strong>${safe(value)}</strong><span>${label}</span><small>${safe(period)}</small></div><figure data-layout-check><img class="diploma-medal" src="${safe(d.asset.src)}" alt="${safe(d.roleLabel)}"></figure>${secondaryHtml}</div>
       <div class="diploma-citation" data-layout-check><p class="diploma-description">${safe(tribute)}</p>${d.tribute?'':'<strong>Et varig bidrag til Morothons historie.</strong>'}</div>
-      ${signoffHtml(d.dateLabel?.startsWith('Søgne,')?d.dateLabel:'Søgne, __________________')}
+      ${serviceSignoffHtml(d)}
       </article></body></html>`;
   }
 
