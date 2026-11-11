@@ -240,6 +240,9 @@
       "fromYear": 2021,
       "internalNotes": [
         "Arrangøren bekrefter at Atle ikke bidro på dugnad i 2026. Ingen sammenhengende årsrekke eller 5-årsmerke skal utledes fra startåret 2021."
+      ],
+      "excludedYears": [
+        2026
       ]
     }
   ],

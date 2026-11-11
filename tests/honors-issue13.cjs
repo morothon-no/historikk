@@ -41,9 +41,9 @@ test('issue #13 renders short non-duplicated volunteer rows with only supplied d
  for(const width of [320,390,768,1440]){
   const p=await open(width);try{
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
-   assert.equal(await p.locator('.honor-volunteer-card a,.honor-volunteer-card img,.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary,.honor-volunteer-card .honor-open').count(),0);
-   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:e.innerText.replace(/\s+/g,' ').trim(),height:e.getBoundingClientRect().height})));
-   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=110),JSON.stringify(rows));
+   assert.equal(await p.locator('.honor-volunteer-card a,.honor-volunteer-card img:not(.honor-provisional-medal),.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary,.honor-volunteer-card .honor-open').count(),0);
+   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-provisional'),height:e.getBoundingClientRect().height})));
+   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.provisional?155:110)),JSON.stringify(rows));
    const row=id=>rows.find(r=>r.id===id).text;
    assert.equal(row('christan-berthelsen'),'Christan Berthelsen');assert.equal(row('lars-aamodt'),'Lars Vassbotn Aamodt');
    assert.equal(row('jon-fjeld'),'Jon Fjeld Barneløp og startpistol · fra 2014');
