@@ -25,7 +25,11 @@ test('issue #13 changes only sourced honor content: 43 identities, Christan name
   const n=byId.get(m.id);assert.ok(n,m.id);
   if(['dag-morten-frantzen','hakon-lohne','oscar-lohne','erling-askildsen'].includes(m.id)){
    for(const key of ['id','name','runnerId','status','roles','awards','issuedDiplomas'])assert.deepEqual(n[key],m[key],m.id+': '+key); if(!['oscar-lohne','erling-askildsen'].includes(m.id))assert.deepEqual(n.badgeProposal,m.badgeProposal);
-   for(const story of m.stories)assert.ok(n.stories.some(s=>s.text===story.text));
+   for(const story of m.stories)assert.ok(n.stories.some(s=>s.text===story.text.replaceAll('Bent Bakke','Bent-Inge Bakke')));
+  }else if(m.id==='bent-bakke'){
+    assert.equal(n.name,'Bent-Inge Bakke');assert.ok(n.aliases.includes('Bent Bakke'));
+    const normalized={...n,name:m.name,sourceIds:m.sourceIds};delete normalized.aliases;
+    assert.deepEqual(normalized,m,m.id);
   }else assert.deepEqual(n,m,m.id);
  }
  const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/event-dates.json','index.html'],{cwd:root}).toString().trim().split('\n');
