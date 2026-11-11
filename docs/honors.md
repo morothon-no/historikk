@@ -1,5 +1,9 @@
 # Menneskene bak Morothon – V3.4
 
+Ny visningsfunksjon: [fartstid og foreløpige dugnadsmerker](dugnadsmerker-fartstid.md).
+Anslag holdes separat fra de dokumenterte dugnadsårene og tildelingsmodellen
+beskrevet nedenfor; ingen tidligere merkeforslag erstattes.
+
 `heder.html` er fortsatt en skjult, direkte tilgjengelig forhåndsvisning med
 `noindex, nofollow`. Det er ikke tilgangsbeskyttelse. Ingen lenke er lagt til i
 hovednavigasjon, mobilmeny eller ordinære løperprofiler. Kampanjeideen i issue #7

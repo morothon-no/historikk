@@ -40,6 +40,11 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 /* Milestone gallery: six service stages followed by three individual honorary distinctions. */
 .badge-group-heading{grid-column:1/-1;margin:16px 0 0;font-size:22px;color:#103c49}
 .honor-tenure-note{font-size:13px;color:#4b686e;background:#f7f4e9;border-left:3px solid #b99b5d;padding:9px 12px;border-radius:3px}
+.honor-provisional-medal{width:64px;height:74px;object-fit:contain;flex-shrink:0}
+.honor-provisional{display:block;margin-top:6px;color:#526b70;font-size:11px;line-height:1.4}
+.honor-provisional>span{display:block;font-weight:700;color:#785621}
+.honor-provisional small{display:block;font-size:11px;margin-top:2px}
+.honor-group>.honor-estimate-note{font-size:12px;line-height:1.5;max-width:850px;border-left:2px solid #c7b07b;padding-left:12px}
 
 /* One unified founder section: equal founder status, with two lifelong contributors featured. */
 .honor-founders{margin:35px 0 44px;padding:28px 24px;border:1px solid #c7b07b;border-radius:18px;background:linear-gradient(180deg,#fffaf0,#f8f3e8)}
