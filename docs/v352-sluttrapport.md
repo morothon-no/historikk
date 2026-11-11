@@ -6,6 +6,10 @@ Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, basert på `main`
 
 ## Leveranse
 
+- Oversiktskortene viser nå hele merkesamlingen, med størst hovedutmerkelse,
+  separat historisk heder og en mindre dugnadsmedaljerekke. Ingen duplikater.
+  Kort og profiler påvirkes ikke av diplomvalget. Einar har fortsatt 33
+  godkjente utgaver, og Erling Danielsen får ingen automatisk sum uten sluttår.
 - Diplomvalgene er «Alle merker» og «Kun siste merke». Høyeste hovedutmerkelse
   er alltid størst. Kun samlingen av mindre dugnadsmerker endres. Æresmerke
   og separat grunnleggermarkør beholdes i begge varianter. Profilsamlingen
@@ -37,6 +41,8 @@ Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, basert på `main`
 - 36 faktiske A4-PDF/PNG, inkludert Oscar, Erling Askildsen, Einar, Dag, Håkon,
   Finn og Bent-Inge, samt øvrige grunnleggereksempler, minne- og takkekopi og
   de anonyme nivåeksemplene. Alle én liggende A4-side, ingen layoutfeil.
+- Egne kortbilder av Oscar, Erling Askildsen, Einar, Dag og Finn ved 390 og
+  1440 px, samt kontroll av medaljerekker ved 320 og 768 px.
 - Samlet sammenligningsbilde `tre-aeresdiplomer.png`, HTML-galleri,
   `kontroll.json`, `pdfinfo`, `pdffonts` og `pdfimages`-målinger.
 
@@ -77,10 +83,10 @@ levering; lokale tester alene er ikke et bevis på grønn GitHub-kjøring.
 
 ## Kontroller
 
-- `npm test`: **181 av 181 bestått**, 0 feil, 0 hoppet over.
-- Nye varianttester: 3 av 3 bestått. Berørte regresjonstester: 38 av 38 bestått.
-- `npm run build -- /workspace/review/morothon-v352-variants-build`: bestått,
-  56 produksjonsfiler, versjon `ade35b2b9848313a`.
+- `npm test`: **183 av 183 bestått**, 0 feil, 0 hoppet over.
+- Nye korttester: 2 av 2 bestått. Målrettet layout-/profilkontroll: 9 av 9 bestått.
+- `npm run build -- /workspace/review/morothon-v352-cards-build`: bestått,
+  56 produksjonsfiler, versjon `04b0f31098d372a4`.
 - `npm run diplomer:kontroll`: bestått, 44 personer / 88 valg, ingen skriving.
 - Gjengivelseskontroll: 36 ensidige A4-PDF-er, 0 konsoll-/layoutfeil;
   de tre æresdiplomene, mobilprofiler og minnekort er også visuelt kontrollert.
@@ -91,7 +97,7 @@ Ingen merge eller publisering er utført.
 
 ## Endrede filer
 
-32 filer relativt til main, inkludert den innhentede hotfixen:
+33 filer relativt til main, inkludert den innhentede hotfixen:
 
 - `.github/workflows/pages.yml`
 - `css/diplomas.css`
@@ -126,3 +132,5 @@ Ingen merge eller publisering er utført.
 - `tests/volunteer-tenure.cjs`
 
 - `tests/honor-diploma-variants.cjs`
+
+- `tests/honor-card-collections.cjs`

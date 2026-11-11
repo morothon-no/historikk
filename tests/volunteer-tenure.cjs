@@ -86,11 +86,11 @@ test('cards display only provisional SVGs, preserve other groups and stay compac
    assert.deepEqual(await p.locator('#honorFeatured [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),['oscar-lohne','erling-askildsen','einar-danielsen','arnfinn-haverstad','helge-reisvoll']);
    assert.deepEqual(await p.locator('#memorial [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),data.groups.find(g=>g.id==='memorial').members.map(m=>m.id));
    for(const [id,count,tier]of expected){
-    const card=p.locator(`[data-honoree="${id}"]`);assert.doesNotMatch(await card.innerText(),/Foreløpig|fravær fratrukket/);assert.equal(await card.locator('img').getAttribute('src'),h.base+'/assets/medals/service/dugnad-'+tier+'.svg');
+    const card=p.locator(`[data-honoree="${id}"]`);assert.doesNotMatch(await card.innerText(),/Foreløpig|fravær fratrukket/);assert.equal(await card.locator('.honor-card-medal').getAttribute('src'),h.base+'/assets/medals/service/dugnad-'+tier+'.svg');
     assert.match(await card.locator('.honor-main-caption').textContent(),new RegExp(count+' dugnadsutgaver'));assert.equal(await card.locator('.honor-main-caption').getAttribute('data-basis'),'registered-period');
    }
    assert.doesNotMatch(await p.locator('[data-honoree="atle-aamodt"]').innerText(),/kjente fravær fratrukket/);
-   for(const id of ['kalle-kimestad','finn-lohne','oscar-lohne','erling-askildsen'])assert.equal(await p.locator(`[data-honoree="${id}"] img`).count(),1);
+   for(const id of ['kalle-kimestad','finn-lohne','oscar-lohne','erling-askildsen'])assert.equal(await p.locator(`[data-honoree="${id}"] .honor-card-medal`).count(),1);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
    const gated=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('jon-fjeld');return d.previewOnly&&!d.gratitude&&d.contributionCount===13&&d.printMode==='presentation';});assert.equal(gated,true);
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('Diplomet er kontrollert'));assert.equal(await p.locator('[data-honor-print],[data-honor-pdf],[data-diploma-print],[data-diploma-pdf]').count(),2);

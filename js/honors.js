@@ -39,14 +39,22 @@ window.esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
    const section=(title,ids,cls)=>ids.length?`<section class="${cls}"><h3>${title}</h3><div>${ids.map(id=>`<figure>${badgeImg(id)}<figcaption>${esc(MorothonBadges.get(id).name)}</figcaption></figure>`).join('')}</div></section>`:'';
    return section('Historisk og særskilt heder',state.secondaryHonorIds,'honor-historic-marks')+section('Opptjente dugnadsmerker',state.collectionIds,'honor-earned-marks');
   }
+  function cardCollection(state){
+   const seen=new Set([state.main.badgeId]);
+   const unique=ids=>ids.filter(id=>{if(seen.has(id))return false;seen.add(id);return true;});
+   const honors=unique(state.secondaryHonorIds),earned=unique(state.collectionIds);
+   if(!honors.length&&!earned.length)return '';
+   const mark=id=>`<span class="honor-card-mark" data-badge-key="${esc(id)}" title="${esc(MorothonBadges.get(id).name)}">${badgeImg(id)}</span>`;
+   return `<div class="honor-card-collection" aria-label="Øvrige merker">${honors.length?`<div class="honor-card-extra-honors" aria-label="Historisk og særskilt heder">${honors.map(id=>`<span class="honor-card-honor">${mark(id)}<span>${esc(MorothonBadges.get(id).name)}</span></span>`).join('')}</div>`:''}${earned.length?`<div class="honor-card-earned" style="--honor-card-merits:${earned.length}" aria-label="Øvrige opptjente dugnadsmerker">${earned.map(mark).join('')}</div>`:''}</div>`;
+  }
   function card(member,featured=false){
-   const main=mainFor(member);
+   const state=MorothonHonorsData.honorProfile(data,member,editionYears),main=state.main,collection=cardCollection(state);
    const group=MorothonHonorsData.findIn(data,member.id).group,labels=distinctions(member,group,linkedStats(member));
    const caption=mainCaption(member,main),image=main.badgeId?badgeImg(main.badgeId,'honor-card-medal'):'';
    const mainNote=caption?`<span class="honor-main-caption" data-main-badge="${esc(main.badgeId)}" data-basis="${esc(main.basis)}">${esc(caption)}</span>`:'';
-   const cls=`honor-person-card${featured?' honor-featured-card':''}${member.listingOnly?' honor-volunteer-card':''}${data.founderSpotlightIds?.includes(member.id)?' honor-founder-honoree':''}`;
+   const cls=`honor-person-card${collection?' honor-card-with-collection':''}${featured?' honor-featured-card':''}${member.listingOnly?' honor-volunteer-card':''}${data.founderSpotlightIds?.includes(member.id)?' honor-founder-honoree':''}`;
    const inner=`${image}<div><strong>${esc(member.name)}</strong><span class="honor-card-role">${esc(member.listingOnly?listingLabel(member):roleTitle(member))}</span>${featured?`<span class="honor-tenure">35 utgaver · 1992–2026</span><p>${esc(member.reason)}</p>`:!member.listingOnly&&member.id!=='bent-bakke'?`<span class="honor-card-summary">${esc(leadText(member))}</span>`:''}${mainNote}${labels.map(label=>`<span class="honor-distinction">${esc(label)}</span>`).join('')}</div><span class="honor-open" aria-hidden="true"></span>`;
-   return `<li data-honoree="${esc(member.id)}" class="${cls}"><a class="honor-person-main" href="#person/${esc(member.id)}">${inner}</a></li>`;
+   return `<li data-honoree="${esc(member.id)}" class="${cls}"><a class="honor-person-main" href="#person/${esc(member.id)}">${inner}${collection}</a></li>`;
   }
   $('#honorHeading').textContent=data.narrative?.title||'De som gjør Morothon mulig ❤️';$('#honorLead').textContent=data.narrative?.lead||'';
   $('#honorThanks').textContent=data.narrative?.thanks||'';$('#honorThanks').hidden=!data.narrative?.thanks;

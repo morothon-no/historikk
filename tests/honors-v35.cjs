@@ -52,8 +52,8 @@ test('V3.5 every card and profile has at most one main badge at mobile/desktop w
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();assert.equal(await p.locator('[data-honoree]').count(),44);
    assert.deepEqual(await p.locator('#honorPeople>[data-honor-group]').evaluateAll(es=>es.map(e=>e.dataset.honorGroup)),['organizers','volunteers','memorial']);
    for(const m of data.groups.flatMap(g=>g.members)){
-    const card=p.locator(`[data-honoree="${m.id}"]`),key=expected[m.id]?.[0];assert.equal(await card.locator('img').count(),key?1:0,m.id);
-    if(key)assert.ok((await card.locator('img').getAttribute('src')).endsWith(registry.badges.find(b=>b.id===key).src),m.id);
+    const card=p.locator(`[data-honoree="${m.id}"]`),key=expected[m.id]?.[0];assert.equal(await card.locator('.honor-card-medal').count(),key?1:0,m.id);const state=H.honorProfile(data,m);assert.equal(await card.locator('img').count(),(key?1:0)+state.secondaryHonorIds.length+state.collectionIds.length,m.id);
+    if(key)assert.ok((await card.locator('.honor-card-medal').getAttribute('src')).endsWith(registry.badges.find(b=>b.id===key).src),m.id);
    }
    assert.match(await p.locator('[data-honoree="bent-bakke"]').innerText(),/6 dugnadsutgaver/);
    assert.doesNotMatch(await p.locator('[data-honoree="erling-danielsen"]').innerText(),/33|null/);

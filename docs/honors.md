@@ -143,3 +143,19 @@ De 88 kontrollerte oppsettene er 44 personer × to visninger. `medalDisplay`
 er `all` eller `latest`, inngår i den kontrollerte HTML-en og har egen
 kontrollsum og registeroppføring. Variantbytte kontrolleres på nytt før begge
 utskriftsknappene aktiveres. Lavere personlige hovedmerker avvises også av API-et.
+
+## Hele merkesamlingen på oversiktskortene
+
+Kortene bruker `honorProfile()` fra samme beregningsgrunnlag som detaljprofilen.
+Hovedutmerkelsen vises størst. Historisk/særskilt heder og øvrige opptjente
+dugnadsmerker vises i en egen, mindre samling under kortets hovedfelt. Samme
+merke vises aldri to ganger. Personer uten flere merker beholder det kompakte
+formatet; navnelisten får ingen nye biografiske tekster.
+
+CSS Grid tilpasser medaljerekken til kortbredden. Hovedmerke og historisk heder
+beholder størrelseshierarkiet på mobil og PC. Diplomvalget påvirker bare
+diplomet: kort og detaljprofil beholder alltid hele samlingen.
+
+Kontrollgalleriet inneholder egne kortbilder på 390 og 1440 px for Oscar Lohne,
+Erling Askildsen, Einar Danielsen, Dag Morten Frantzen og Finn Lohne, samt de tre
+æresdiplomene. Testene kontrollerer alle 44 kort ved 320/390/768/1440 px.

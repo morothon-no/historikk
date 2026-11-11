@@ -9,12 +9,14 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
  await fs.writeFile(path.join(out,'personregister.json'),JSON.stringify(rows,null,2)+'\n');
  const h=await createHarness(),errors=[],checks=[],proofs=[];
  const required=['oscar-lohne','erling-askildsen','einar-danielsen','dag-morten-frantzen','hakon-lohne','finn-lohne','bent-bakke'];
+ const cardExamples=['oscar-lohne','erling-askildsen','einar-danielsen','dag-morten-frantzen','finn-lohne'];
  try{
   const p=await h.browser.newPage({deviceScaleFactor:1.5});p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   for(const width of [390,1440]){
    await p.setViewportSize({width,height:1000});await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    for(const [name,selector]of [['oversikt','main'],['grunnleggerne','#honorFeatured'],['minne','#memorial']])await p.locator(selector).screenshot({path:path.join(out,`${name}-${width}.png`)});
+   for(const id of cardExamples)await p.locator(`[data-honoree="${id}"]`).screenshot({path:path.join(out,`${id}-kort-${width}.png`)});
    for(const id of required){await p.goto(h.base+'/heder.html#person/'+id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,rows.find(r=>r.id===id).name);await p.locator('#honorProfile').screenshot({path:path.join(out,`${id}-${width}.png`)});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     if(['dag-morten-frantzen','oscar-lohne','einar-danielsen'].includes(id)){
      await p.locator('.diploma-example>summary').click();
@@ -52,6 +54,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
   const picture=(file,label)=>`<figure><figcaption>${label}</figcaption><a href="${file}"><img src="${file}" alt="${label}"></a></figure>`;
   let html='<h1>Morothon V3.5.2 · heder gjennom årene</h1><p>Kontroll av gjeldende kode. Ingen formell utdeling registreres ved utskrift.</p><p><a href="personregister.md">Alle 44 personer</a> · <a href="kontroll.json">Kontrollmålinger</a></p><h2>De tre æresdiplomene</h2><p><a href="tre-aeresdiplomer.png">Åpne samlet sammenligningsbilde</a></p><div class="three">';
   for(const id of required.slice(0,3))html+=picture(id+'-A4.png',rows.find(r=>r.id===id).name);html+='</div>';
+  for(const id of cardExamples)html+=`<h2>${rows.find(r=>r.id===id).name} · oversiktskort</h2><div class="two">${picture(id+'-kort-1440.png','PC · hele merkesamlingen')}${picture(id+'-kort-390.png','Mobil · hele merkesamlingen')}</div>`;
   for(const name of ['oversikt','grunnleggerne','minne',...required])html+=`<h2>${name}</h2><div class="two">${picture(name+'-1440.png','PC · 1440 px')}${picture(name+'-390.png','Mobil · 390 px')}</div>`;
   for(const id of ['dag-morten-frantzen','oscar-lohne','einar-danielsen'])for(const width of [390,1440])html+=`<h2>${rows.find(r=>r.id===id).name} · ${width} px</h2><div class="two">${picture(id+'-diplom-all-'+width+'.png','Alle merker')}${picture(id+'-diplom-latest-'+width+'.png','Kun siste merke')}</div>`;
   for(const d of proofs)html+=`<h2>${d.name}</h2>${picture(d.key+'-A4.png','Liggende A4 · '+(d.medalDisplay==='latest'?'Kun siste merke · ':'Alle merker · ')+(d.mode==='presentation'?'ren presentasjonskopi':'eksempel'))}<p><a href="${d.key}-A4.pdf">Åpne faktisk A4-PDF</a></p>`;
