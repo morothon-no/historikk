@@ -131,59 +131,54 @@ tegnmålingen fra V3.1 er bevart. Lukking avslutter den pågående gjengivelsen 
 dialog ignoreres hvis dialogen allerede er åpnet igjen, og flytter ikke fokus
 fra en annen kontroll/dialog. Rask Escape/Enter avbryter dermed ikke en ny forhåndsvisning.
 
-## V3.5.1 – hedersdiplomer og kontrollerte presentasjonskopier
+## V3.5.2 – hedersdiplomer og kontrollerte presentasjonskopier
 
-Service-malen beholder liggende A4, ett hovedmerke, eksisterende originalfiler,
-vannmerke og Håkon Lohnes typografiske signatur. Ordinære løperdiplomer er uendret.
-Alle 44 personer har personlig diplom, med faktisk registrert navn.
+Ordinære løperdiplomer og deres historiske opptjeningsregler er uendret.
+Hedersdiplomer bruker `MorothonHonorsData.serviceTenure()` for alle
+registrerte summer, merkevalg og milepælsår. Se [beregningsreglene](honors.md).
 
-`serviceDraft()` bruker samme `mainBadge()` og `diplomaChoices()` som hederssiden.
-`confirmedYears` avgjør historiske milepæler: Dag ved 10 viser 2014–2023 og
-Håkon ved 10 viser 2014–2024. Oscar/Erling ved 30 viser 1992–2021. Modellene
-beholder bekreftet løpsdato, mens service-malens signoff viser milepælens år.
-Ingen faktisk utdelingsdato konstrueres. Einar har æresdiplom uten oppdiktet
-35-årsinnsats. Minnediplomer og anonyme eksempler har ingen oppdiktet dato.
+Personens samlede registrerte utgaver vises sammen med høyeste merke og
+alle tidligere opptjente nivåer. Hovedmerkets opptjeningsår er separat
+fra totalen. Godkjente samlede antall gir aldri oppdiktede enkeltår eller datoer.
+Minneprofiler uten sluttår får ikke et automatisk antall eller beregnede årsmerker.
+Personer uten særskilt heder eller kjent fartstid får «Takk for innsatsen»
+uten antall eller dato. Minneprofiler beholder minnemerket.
 
-Personer med bare anslått fartstid får «Takk for innsatsen» som standard,
-uten årsmerke, utgaveantall eller opptjeningsdato. Eksplisitt valgte anslåtte
-årsmerker beholder «MULIGE DUGNADSUTGAVER» og forbehold i en merket forhåndsvisning.
-De blir ikke rene årsmerkediplomer ved å regenerere presentasjonssettet.
+De tre æresdiplomene viser 55 mm hovedmerke, 24 mm grunnleggermarkør og fem
+20,5 mm dugnadsmerker. Alle bilder kommer fra det eksisterende asset-registeret.
+Ingen originalfiler eller godkjenningsflagg er endret.
 
-### Tre utskriftsmoduser
+`presentationPrintSet` omfatter 88 kontrollerte valg for 44 personer. Navn,
+innhold, hovedbilde, samtlige sekundærbilder, vannmerke og CSS er SHA-256-bundet.
+Bare samsvarende, teknisk kontrollerte presentasjonskopier får rene utskrifter.
+Anonyme eksempler har «EKSEMPEL» på skjerm/PDF. Andre ikke-godkjente kopier
+beholder «FORHÅNDSVISNING». Endret DOM, skjulte/byttede/manglende bilder,
+reell avkutting, overlapp, utilstrekkelig DPI eller ugyldig SVG sperrer fortsatt.
+V3.1s måling av faktisk tallblekk bevares, også i Windows-lignende fontmiljø.
 
-- `presentation`: kontrollert presentasjonskopi uten utkastmerking. Krever et
-  samsvarende innholdsfingeravtrykk i `presentationPrintSet`, et tillatt
-  person-/diplomvalg og bestått teknisk kontroll. 56 valg dekker alle 44 personer.
-- `draft` (internt navn): merket «FORHÅNDSVISNING», eller «EKSEMPEL» for anonyme
-  typeeksempler. Merkingen følger PDF og papir. Ingen generell «UTKAST»-merking.
-- `final`: særskilt godkjent endelig bruk via eksisterende `diplomaApprovals`,
-  med krav til nøyaktig innhold og godkjent grafikk. Registeret er fortsatt tomt.
+Formell tildeling (`awards`), utstedelse (`issuedDiplomas`), endelig godkjenning
+(`diplomaApprovals`) og grafikkens trykkstatus er adskilt og endres ikke ved
+visning eller utskrift. Kvalitetsvarsler bevares. Siden har ingen innlogging;
+registrerte presentasjonskopier er tilgjengelige for dem som kjenner adressen.
 
-Ingen modus oppretter `awards` eller `issuedDiplomas`, og ingen originalfil får
-ny trykkstatus. Presentasjonssettet er for gjennomgang, ikke et register over
-utdelte utmerkelser. Det kontrolleres samlet i GitHub; endret innhold eller
-CSS gjør gamle fingeravtrykk ugyldige. Ved klargjøring brukes en merket
-forhåndsvisning; ved endring av et allerede åpent dokument sperres utskrift.
+Klargjøring er eksplisitt og kjøres ikke som del av bygg:
 
-`serviceProof()` dekker navngitt innhold, år/forbehold, HTML, CSS og faktiske
-bildebytes. Verifiseringen er uavhengig av servernavn og versjonerte cache-URL-er.
-`checkServiceDraft()` gjenbruker `checkLayout()` og V3.1-målingen med synlig
-numerisk blekkhøyde. DPI måles ved faktisk utskriftsstørrelse. Fonter, manglende
-eller endrede bilder, kanter, SVG, avkutting og overlapp kontrolleres på nytt
-ved begge utskriftsknapper. Ingen toleranse er økt eller kontroll deaktivert.
+```sh
+npm run diplomer:kontroll
+npm run diplomer:klargjor # bare etter gjennomgang av endret grunnlag
+node scripts/review-honors-v352.cjs /tmp/morothon-v352
+```
 
-Originalenes design-/trykkvarsler beholdes i «Bildekvalitet». En ren
-presentasjonskopi betyr ikke at `printReady` er endret. SVG omtales som vektor,
-ikke som en oppskalert 300 DPI-original.
+PR-kontrollen lagrer faktiske mobil-/PC-bilder, A4-PDF/PNG og målinger i
+artefaktet `morothon-v352-forhaandsvisning`. Store kontrollfiler er ikke del av
+produksjonsgrenen. [Personregister](v352-personregister.md).
 
-«Lagre som PDF» bruker nettleserens utskriftsdialog. Bruk A4 liggende, skala
-100 %, null marger, bakgrunnsgrafikk på og topp-/bunntekst av.
+### To visninger, samme hovedutmerkelse
 
-Kontrollsettet oppdateres eksplisitt med `npm run diplomer:klargjor` etter
-innholdsgjennomgang; `npm run diplomer:kontroll` kontrollerer uten å endre filer.
-Dette kjøres ikke automatisk i bygg. Faktiske kontrollbilder og PDF-er kan
-regenereres med `node scripts/review-honors-v35.cjs /tmp/morothon-v351`.
-
-Hederssiden er offentlig på direkte URL. Innlogging er utsatt etter arrangørens
-avklaring. Det er ingen fri mottaker-/tittelredigering eller automatisk formell
-utstedelse. Se [hedersmodellen og avgrensningene](honors.md).
+«Alle merker» (standard) og «Kun siste merke» er to kontrollerte varianter.
+På ordinære dugnadsdiplomer forblir høyeste opptjente nivå hovedmedalje, også
+når samlingen skjules. Æresmerket og grunnleggermarkøren beholdes i begge
+varianter for æresprofilene. Hvert personlig oppsett har egen kontrollsum;
+variantens navn inngår i dokument-ID og den kontrollerte HTML-en.
+Det er ikke lenger mulig å velge et lavere nivå som personlig hovedmerke.
+Anonyme typeeksempler beholder sitt eget illustrerte merkenivå.

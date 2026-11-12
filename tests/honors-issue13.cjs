@@ -41,9 +41,9 @@ test('issue #13 renders short non-duplicated volunteer rows with only supplied d
  for(const width of [320,390,768,1440]){
   const p=await open(width);try{
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
-   assert.equal(await p.locator('.honor-volunteer-card img:not(.honor-card-medal),.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary').count(),0);
-   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),height:e.getBoundingClientRect().height})));
-   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.provisional?155:110)),JSON.stringify(rows));
+   assert.equal(await p.locator('.honor-volunteer-card:not(.honor-card-with-collection) img:not(.honor-card-medal),.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary').count(),0);
+   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),collection:!!e.querySelector('.honor-card-collection'),height:e.getBoundingClientRect().height})));
+   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.collection?205:r.provisional?155:110)),JSON.stringify(rows));
    const row=id=>rows.find(r=>r.id===id).text;
    assert.equal(row('christan-berthelsen'),'Christan Berthelsen');assert.equal(row('lars-aamodt'),'Lars Vassbotn Aamodt');
    assert.equal(row('jon-fjeld'),'Jon Fjeld Barneløp og startpistol · fra 2014');
@@ -94,20 +94,20 @@ test('issue #13 personal organizer stories stay separate from racing and all hon
  }
 });
 
-test('issue #13 quality details report the single 55mm SVG main badge for highest honor while retaining every approval warning',async()=>{
+test('issue #13 quality details report the 55mm SVG main badge and all secondary images for highest honor while retaining every approval warning',async()=>{
  for(const width of [390,1440]){
   const p=await open(width);try{
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();
    await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status')?.textContent.includes('Diplomet er kontrollert'));
    const lines=await p.locator('#honorProfile .honor-image-quality p').allTextContents();
-   assert.equal(lines.length,1);assert.match(lines[0],/Morothons æresmerke.*SVG · ingen fast original-DPI · Skalerbar vektor ved 55\.0 mm/);
+   assert.equal(lines.length,7);assert.match(lines[0],/Morothons æresmerke.*SVG · ingen fast original-DPI · Skalerbar vektor ved 55\.0 mm/);
    for(const line of lines){assert.match(line,/ikke godkjent for tildeling/);assert.match(line,/kontrolleres og godkjennes/);}
-   await p.selectOption('.honor-choice select','service-dugnad-30');
-   await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('h1')?.textContent==='DUGNADSDIPLOM');
-   await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Fredet inventar:'));
-   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),1);
+   await p.selectOption('.honor-choice select','latest');
+   await p.waitForFunction(()=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet')?.dataset.medalDisplay==='latest');
+   await p.waitForFunction(()=>document.querySelector('#honorProfile .honor-image-quality p')?.textContent.startsWith('Morothons æresmerke:'));
+   assert.equal(await p.locator('#honorProfile .honor-image-quality p').count(),2);
    assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2);
-   assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','service-dugnad-30')).imageReady),false);
+   assert.equal(await p.evaluate(async()=>(await MorothonDiplomas.serviceDraft('oscar-lohne','latest')).imageReady),false);
   }finally{await p.close();}
  }
 });

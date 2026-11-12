@@ -87,3 +87,32 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 @media(max-width:650px){.honor-founder-honoree .honor-person-main{min-height:145px;padding:14px;gap:12px}.honor-founder-honoree .honor-card-medal{width:72px;height:90px}.honor-founder-honoree strong{font-size:22px}.honor-founder-names,.honor-memorial .honor-names{grid-template-columns:1fr}.honor-memorial .honor-person-main{min-height:150px}}
 
 @media(min-width:651px) and (max-width:950px){.honor-memorial .honor-names{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* One principal award, followed by the remaining historical and service honors. */
+.honor-historic-marks,.honor-earned-marks{border-top:1px solid #d7c7a5;padding-top:18px;text-align:center}
+.honor-historic-marks>div,.honor-earned-marks>div{display:flex;justify-content:center;flex-wrap:wrap;gap:18px}
+.honor-historic-marks figure,.honor-earned-marks figure{margin:0;width:110px;text-align:center}
+.honor-historic-marks img,.honor-earned-marks img{display:block;width:96px;height:104px;object-fit:contain;margin:auto}
+.honor-historic-marks figcaption,.honor-earned-marks figcaption{font-size:12px;line-height:1.4;color:#6d552e;margin-top:7px}
+@media(max-width:650px){.honor-historic-marks>div,.honor-earned-marks>div{gap:12px}.honor-historic-marks figure,.honor-earned-marks figure{width:90px}.honor-historic-marks img,.honor-earned-marks img{width:82px;height:90px}}
+
+/* Overview cards keep the same complete collection as the profile, independent
+   of the optional collection on a diploma. Only cards with extras gain a row. */
+.honor-card-with-collection .honor-person-main{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:12px;row-gap:14px}
+.honor-card-with-collection:not(.honor-featured-card):not(.honor-founder-honoree) .honor-card-medal{width:68px;height:78px}
+.honor-featured-card.honor-card-with-collection .honor-person-main{column-gap:22px}
+.honor-card-collection{grid-column:1/-1;min-width:0;display:grid;gap:10px;border-top:1px solid #e2d5b6;padding-top:12px}
+.honor-card-extra-honors{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.honor-card-honor{display:flex;align-items:center;gap:7px;color:#785621;font-size:11px;line-height:1.4}
+.honor-card-earned{display:grid;grid-template-columns:repeat(var(--honor-card-merits),minmax(0,42px));justify-content:center;gap:8px;min-width:0}
+.honor-card-mark{display:block;min-width:0;max-width:42px}
+.honor-card-mark img{display:block;width:100%;height:auto;aspect-ratio:1/1.1;object-fit:contain}
+.honor-card-honor .honor-card-mark{width:42px;flex-shrink:0}
+@media(max-width:950px){.honor-featured-card.honor-card-with-collection .honor-person-main{column-gap:12px}}
+
+/* A readable, open introduction with a distinct message and warm closing. */
+.honor-intro-copy{max-width:720px;margin:0 auto;text-align:left;font-size:17px;line-height:1.8;color:#405c64}
+.honor-intro-copy p{margin:20px 0}
+.honor-intro-copy .honor-intro-message{color:#12343e}
+.honor-intro-copy .honor-thanks{font-family:Georgia,serif;color:#876225}
+@media(max-width:650px){.honor-intro-copy{font-size:16px;line-height:1.75}.honor-intro-copy p{margin:18px 0}}

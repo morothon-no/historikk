@@ -75,3 +75,20 @@
 .diploma-service .diploma-draft{bottom:10.5mm;font:700 2.8mm/1.25 Arial,Helvetica,sans-serif;letter-spacing:normal;color:#765629}
 /* Reserve space for font ascent/descent in word and numeric service metrics. */
 .diploma-service .diploma-metric{padding-block:1.5mm}
+
+/* V3.5.2: a composed honor certificate with room for the complete service history. */
+.diploma-service.diploma-service-v352{grid-template-rows:13mm 20mm 26mm 60mm 13mm 24mm 18.5mm}
+.diploma-service .diploma-heading{gap:1.8mm}
+.diploma-service .diploma-heading:before{margin-bottom:1mm}
+.diploma-service .diploma-heading h1{font-size:9.2mm}
+.diploma-service .diploma-heading p{font-size:2.5mm}
+.diploma-service .diploma-service-founder{position:absolute;top:24mm;right:33mm;width:24mm;display:grid;justify-items:center;gap:.8mm;text-align:center}
+.diploma-service .diploma-service-founder img{display:block;width:24mm;height:24mm;object-fit:contain}
+.diploma-service .diploma-service-founder b{font:700 2.5mm/1.2 Arial,sans-serif;letter-spacing:.2mm;color:#654c28}
+.diploma-service .diploma-service-collection{margin:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.9mm;min-height:0}
+.diploma-service .diploma-service-collection p{margin:0;font:700 2.1mm/1.2 Arial,sans-serif;letter-spacing:.45mm;color:#526e77}
+.diploma-service .diploma-service-collection>div{display:flex;justify-content:center;align-items:center;gap:5mm;max-width:100%}
+.diploma-service .diploma-service-collection img{display:block;width:20.5mm;height:20.5mm;object-fit:contain}
+.diploma-service .diploma-citation p{font-size:3.1mm;line-height:1.35}
+
+.diploma-service.diploma-service-no-collection{grid-template-rows:14mm 23mm 30mm 65mm 24mm 0mm 18.5mm}

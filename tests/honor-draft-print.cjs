@@ -19,7 +19,7 @@ async function actions(p,container=p){
 test('V3.5 all 44 people and future name-only additions have a personal diploma without invented badges, years or formal awards',()=>{
  const before=JSON.stringify(data);assert.equal(people.length,44);
  const options=people.map(m=>({m,ids:H.diplomaChoices(data,m,years),main:H.mainBadge(data,m,years)}));
- assert.equal(options.filter(r=>r.ids[0]==='thanks').length,34);
+ assert.equal(options.filter(r=>r.ids[0]==='thanks').length,24);
  for(const {m,ids,main}of options){assert.ok(ids.length,m.id);assert.equal(ids[0],main.basis==='estimated'?'thanks':main.badgeId||'thanks');assert.ok(!ids.some(id=>data.awardPolicy.retiredBadgeIds.includes(id)));assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);}
  assert.equal(JSON.stringify(data),before);
  const core=structuredClone(data),future=H.mergeVolunteers(core,{schemaVersion:1,sourceIds:['organizer-v35'],people:[{id:'future-fixture',name:'En fremtidig frivillig'}]}),member=H.findIn(future,'future-fixture').member;

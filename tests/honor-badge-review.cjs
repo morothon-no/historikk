@@ -25,16 +25,16 @@ test('PR16 all nine real vectors have unclipped, non-overlapping text in native 
  }finally{await p.close();}
 });
 
-test('PR16 milestone diplomas freeze the count, period, selected humour and actual race date without later honors',async()=>{
+test('PR16 milestone diplomas retain current registered totals, cumulative honors and the selected historical badge date',async()=>{
  const p=await h.browser.newPage();try{
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
   for(const id of ['oscar-lohne','erling-askildsen']){
    const result=await p.evaluate(async id=>{
-    const thirty=await MorothonDiplomas.serviceDraft(id,'service-dugnad-30'),honor=await MorothonDiplomas.serviceDraft(id);
+    const thirty=await MorothonDiplomas.serviceDraft(id,'latest'),honor=await MorothonDiplomas.serviceDraft(id);
     return {thirty:{count:thirty.contributionCount,first:thirty.contributionFirst,last:thirty.contributionLast,date:thirty.dateLabel,year:thirty.achievementYear,tribute:thirty.tribute,secondary:thirty.secondaryAssets.length,ready:thirty.imageReady,preview:thirty.previewOnly},honor:{count:honor.contributionCount,first:honor.contributionFirst,last:honor.contributionLast,date:honor.dateLabel,ready:honor.imageReady,preview:honor.previewOnly},source:(await MorothonHonorsData.find(id)).member.contribution.confirmedYears.length};
    },id);
-   assert.deepEqual([result.thirty.count,result.thirty.first,result.thirty.last,result.thirty.year,result.thirty.date],[30,1992,2021,2021,'Søgne, 13. november 2021']);
-   assert.equal(result.thirty.tribute,honors.diplomaExamples.find(e=>e.id==='dugnad-30').tribute);assert.match(result.thirty.tribute,/Riksantikvaren/);assert.equal(result.thirty.secondary,0);
+   assert.deepEqual([result.thirty.count,result.thirty.first,result.thirty.last,result.thirty.year,result.thirty.date],[35,1992,2026,2026,'Søgne, 7. november 2026']);
+   assert.equal(result.thirty.tribute,honors.groups.flatMap(g=>g.members).find(m=>m.id===id).diplomaTribute);assert.equal(result.thirty.secondary,1);
    assert.deepEqual([result.honor.count,result.honor.first,result.honor.last,result.honor.date],[35,1992,2026,'Søgne, 7. november 2026']);
    assert.equal(result.source,35);for(const d of [result.thirty,result.honor]){assert.equal(d.ready,false);assert.equal(d.preview,true);}
   }
@@ -49,7 +49,7 @@ test('PR16 every example describes its selected threshold, never five years for 
  const p=await h.browser.newPage();try{
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
   for(const e of honors.diplomaExamples.filter(e=>e.illustrative&&e.badgeId!=='thanks')){
-   const text=await p.locator(`[data-example="${e.id}"]`).textContent();assert.ok(text.includes(e.contributionCount+' dokumenterte dugnadsutgaver'));assert.ok(text.includes('Vis diplom'));
+   const text=await p.locator(`[data-example="${e.id}"]`).textContent();assert.ok(text.includes(e.contributionCount+' dugnadsutgaver'));assert.ok(text.includes('Vis diplom'));
   }
  }finally{await p.close();}
 });
@@ -72,9 +72,7 @@ test('PR16 legacy assets, all histories, IDs, awards and ordinary diploma implem
  const allowed=new Set([...levels.map(n=>'assets/medals/service/dugnad-'+n+'.svg'),'assets/medals/service/aeresmerke.svg','data/honors.json','data/volunteers.json','data/badges.json','heder.html']);
  for(const f of files.filter(f=>!allowed.has(f)))assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
  const originalCss=execFileSync('git',['show',base+':css/diplomas.css'],{cwd:root}).toString(),css=await fs.readFile(path.join(root,'css/diplomas.css'),'utf8');assert.ok(css.startsWith(originalCss));assert.match(css.slice(originalCss.length),/\.diploma-service /);
- const ordinary=s=>s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE-ONLY\n')
-  .replace(/  \/\/ Volunteer diplomas show the documented milestone YEAR only\.[\s\S]*?(?=  function serviceDocumentHtml)/,'')
-  .replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOCUMENT-ONLY\n').replace('serviceExample, serviceProof, checkServiceDraft, printServiceDraft,','serviceExample,');
+ const ordinary=require('./helpers/honors.cjs').ordinaryDiplomaCode;
  assert.equal(ordinary(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),ordinary(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));
  for(const b of registry.badges.filter(b=>b.kind==='service')){assert.equal(b.status,'design-draft');assert.equal(b.printReady,false);assert.equal(b.cropReviewed,false);}
  assert.ok(honors.groups.flatMap(g=>g.members).every(m=>!m.awards.length&&!m.issuedDiplomas.length));

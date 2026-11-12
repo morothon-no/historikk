@@ -1,3 +1,6 @@
+> Arkivert versjonsrapport. Gjeldende beregning og personoversikt følger
+> [V3.5.2-registeret](v352-personregister.md) og [systembeskrivelsen](honors.md).
+
 # Morothon V3.5 – historisk sluttkontroll
 
 Denne rapporten beskriver V3.5 ved PR #18. Gjeldende løsning og nyere endringer er dokumentert i [V3.5.1-rapporten](v351-sluttrapport.md).
