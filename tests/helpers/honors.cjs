@@ -16,7 +16,12 @@ function priorCorrectionMember(member){
  const current=JSON.parse(require('node:fs').readFileSync(path.resolve(__dirname,'../../data/honors.json'),'utf8'));
  const record=current.revisionHistory?.[0]?.members.find(r=>r.member.id===member.id);return record?structuredClone(record.member):structuredClone(member);
 }
-function expectedPrintMode(data,id){return data.presentationPrintSet?.pendingReviews?.some(r=>r.personId===id)?'draft':'presentation';}
+function expectedPrintMode(data,id){
+ if(data.presentationPrintSet?.pendingReviews?.some(r=>r.personId===id))return 'draft';
+ const H=require('../../js/honors-data.js'),member=H.findIn(data,id)?.member;
+ if(member){const tenure=H.serviceTenure(data,member),main=H.mainBadge(data,member),level=main.editions,year=tenure.milestoneYears?.[level];if(level&&year&&(tenure.count!==level||tenure.last!==year))return 'draft';}
+ return 'presentation';
+}
 async function preservedFile(root,file){
  const bytes=await fs.readFile(path.join(root,file));
  if(file==='data/volunteers.json'){

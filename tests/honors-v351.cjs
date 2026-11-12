@@ -58,9 +58,9 @@ test('V3.5.1 reviewed presentation set covers all 44 without promoting estimated
    try{MorothonHonorsData.validate(d);return false;}catch{return true;}
   });assert.equal(rejected,true);
   const model=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('jon-fjeld');return {mode:d.printMode,count:d.contributionCount,year:d.achievementYear,gratitude:d.gratitude};});
-  assert.deepEqual(model,{mode:'presentation',count:13,year:2023,gratitude:false});
+  assert.deepEqual(model,{mode:'draft',count:10,year:2023,gratitude:false});
   const estimated=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('jon-fjeld','service-dugnad-10');return {mode:d.printMode,estimated:d.estimated,html:MorothonDiplomas.documentHtml(d)};});
-  assert.equal(estimated.mode,'presentation');assert.equal(estimated.estimated,undefined);assert.doesNotMatch(estimated.html,/FORHÅNDSVISNING|MULIGE DUGNADSUTGAVER/);
+  assert.equal(estimated.mode,'draft');assert.equal(estimated.estimated,undefined);assert.match(estimated.html,/FORHÅNDSVISNING/);
  }finally{await p.close();}
 });
 test('V3.5.1 five genuine clean A4 PDFs retain correct recipients and historical milestones, without draft labels or invented dates',async()=>{
@@ -75,7 +75,7 @@ test('V3.5.1 five genuine clean A4 PDFs retain correct recipients and historical
     const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}}),info=execFileSync('pdfinfo',['-'],{input:pdf}).toString(),text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');
     assert.match(info,/Pages:\s+1\b/);assert.match(info,/841\.\d+ x 594|841\.\d+ x 595/);assert.ok(text.includes(member(id).name));if(expectedPrintMode(data,id)==='draft')assert.match(text,/FORHÅNDSVISNING/);else assert.doesNotMatch(text,/UTKAST|IKKE UTDELT|FORHÅNDSVISNING|EKSEMPEL/);
     if(id==='einar-danielsen'){assert.match(text,/33/);assert.doesNotMatch(text,/35|1992–2026/);}
-    if(id==='dag-morten-frantzen')assert.match(text,/2014–2026/);if(id==='hakon-lohne')assert.match(text,/2014–2026/);
+    if(id==='dag-morten-frantzen')assert.match(text,/2014–2023/);if(id==='hakon-lohne')assert.match(text,/2014–2024/);
    }finally{await q.close();}
   }
  }finally{await p.close();}

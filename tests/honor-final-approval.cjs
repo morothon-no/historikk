@@ -15,8 +15,8 @@ test('professional honor overview, cards, profiles and gallery avoid redundant d
    assert.ok((await p.locator('#honorExamples summary').allTextContents()).filter(t=>t==='Vis diplom').length>=11);
    await p.goto(h.base+'/heder.html#person/hakon-lohne');await p.locator('#profileName').waitFor();
    assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/utkast|ikke utdelt/i);await open(p);
-   assert.equal(await p.locator('.honor-draft-notice').isVisible(),false);
-   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
+   assert.equal(await p.locator('.honor-draft-notice').isVisible(),true);
+   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').textContent(),'FORHÅNDSVISNING');
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
   }finally{await p.close();}
@@ -106,11 +106,11 @@ test('approved final printing preserves estimated volunteer years and never chan
   const {id}=await approvalFixture(p,h.base,{badgeId:badge.id,estimated:true});await open(p);
   await p.selectOption('.honor-choice select','all');await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled&&document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-metric span')?.textContent==='DUGNADSUTGAVER');
   const d=await p.evaluate(({id,badgeId})=>MorothonDiplomas.serviceDraft(id,badgeId),{id,badgeId:badge.id});
-  assert.equal(d.printMode,'final');assert.equal(d.estimated,undefined);assert.equal(d.contributionCount,13);assert.equal(d.achievementYear,2023);
+  assert.equal(d.printMode,'final');assert.equal(d.estimated,undefined);assert.equal(d.contributionCount,10);assert.equal(d.achievementYear,2023);
   assert.match(await p.frameLocator('iframe').locator('body').innerText(),/DUGNADSUTGAVER/);
   assert.doesNotMatch(await p.frameLocator('iframe').locator('body').innerText(),/anslag|MULIGE/);
   assert.equal(await p.frameLocator('iframe').locator('.diploma-draft').count(),0);
   const m=await p.evaluate(async id=>(await MorothonHonorsData.find(id)).member,id);
-  assert.equal(m.contribution.confirmedYears,undefined);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
+  assert.equal(m.contribution.confirmedYears,undefined);assert.equal(await p.evaluate(async id=>{const data=await MorothonHonorsData.load();return MorothonHonorsData.serviceTenure(data,(await MorothonHonorsData.find(id)).member).count;},id),13);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
  }finally{await p.close();}
 });

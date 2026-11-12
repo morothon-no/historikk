@@ -92,7 +92,7 @@ test('cards display only provisional SVGs, preserve other groups and stay compac
    assert.doesNotMatch(await p.locator('[data-honoree="atle-aamodt"]').innerText(),/kjente fravær fratrukket/);
    for(const id of ['kalle-kimestad','finn-lohne','oscar-lohne','erling-askildsen'])assert.equal(await p.locator(`[data-honoree="${id}"] .honor-card-medal`).count(),1);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await p.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow');
-   const gated=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('jon-fjeld');return d.previewOnly&&!d.gratitude&&d.contributionCount===13&&d.printMode==='presentation';});assert.equal(gated,true);
+   const gated=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('jon-fjeld');return d.previewOnly&&!d.gratitude&&d.contributionCount===10&&d.printMode==='draft';});assert.equal(gated,true);
    await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>document.querySelector('.honor-diploma-status').textContent.includes('Diplomet er kontrollert'));assert.equal(await p.locator('[data-honor-print],[data-honor-pdf],[data-diploma-print],[data-diploma-pdf]').count(),2);
    await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));assert.equal(await p.locator('a[href*="heder.html"]').count(),0);assert.deepEqual(errors,[]);
   }finally{await p.close();}

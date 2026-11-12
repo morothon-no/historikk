@@ -53,7 +53,8 @@ test('PR18 undated chair roles remain visible supplementary roles and cannot cha
    const models=await p.evaluate(async()=>Promise.all(['dag-morten-frantzen','hakon-lohne'].map(async id=>{
     const d=await MorothonDiplomas.serviceDraft(id);return {id,count:d.contributionCount,year:d.achievementYear,estimated:d.estimated,date:d.eventDate};
    })));
-   assert.deepEqual(models.map(m=>[m.id,m.count,m.year,m.date]),[['dag-morten-frantzen',13,2023,'2023-11-11'],['hakon-lohne',12,2024,'2024-11-09']]);
+   // Cards retain current totals above; diplomas describe the ten-edition milestone.
+   assert.deepEqual(models.map(m=>[m.id,m.count,m.year,m.date]),[['dag-morten-frantzen',10,2023,'2023-11-11'],['hakon-lohne',10,2024,'2024-11-09']]);
    assert.ok(models.every(m=>!m.estimated));assert.deepEqual(errors,[]);
   }finally{await p.close();}
  }

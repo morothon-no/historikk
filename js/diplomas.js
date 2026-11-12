@@ -154,6 +154,13 @@
     const achievementYear=!illustrative&&milestone
       ? contribution.milestoneYears?.[milestone]??null
       : !illustrative&&badgeId==='service-aeresmerke'&&contribution.basis==='documented'&&contribution.count===35&&knownYears.length===35?contribution.last:null;
+    // Ordinary service diplomas describe the selected milestone, not later service.
+    // An approved aggregate without annual evidence retains its total but cannot
+    // establish a milestone period/date. Special honors retain their own totals.
+    const milestoneSnapshot=milestone&&Number.isInteger(achievementYear);
+    const displayedCount=milestoneSnapshot?milestone:contribution.count;
+    const displayedFirst=milestoneSnapshot?knownYears[0]:milestone&&!illustrative?null:contribution.first??null;
+    const displayedLast=milestoneSnapshot?achievementYear:milestone&&!illustrative?null:contribution.last??null;
     const {eventDate,label:achievementDateLabel,basis:dateBasis}=serviceAchievementDate(achievementYear,register);
     // The organizer may supply a presentation date for a special honor. This
     // never fills an unknown achievement year or writes an award/issue record.
@@ -165,7 +172,7 @@
       provisional:true,asset,assetKey:gratitude?'debut':badgeId,gratitude,printMode:'draft',
       inRemembrance:member.deceased===true||member.memorialRecognition?.badgeId==='service-memorial'||badgeId==='service-memorial',
       secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&(MorothonBadges.get(a.key).series==='dugnad'||a.key==='service-memorial')),memorial:badgeId==='service-memorial',
-      contributionCount:contribution.count||null,contributionFirst:contribution.first??null,contributionLast:contribution.last??null,
+      contributionCount:displayedCount||null,contributionFirst:displayedFirst??null,contributionLast:displayedLast,
       achievementYear,eventDate,dateBasis,handwriting,presentationDate,achievementDateLabel,
       illustrative,medalDisplay,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
       watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:presentationDateLabel||achievementDateLabel,
