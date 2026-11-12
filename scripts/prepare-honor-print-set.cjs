@@ -5,7 +5,7 @@ const H=require('../js/honors-data.js'),{readHonors}=require('../tests/helpers/h
 const root=path.resolve(__dirname,'..');
 async function prepare({write=false}={}){
  const data=await readHonors(),years=H.arrangedYears(JSON.parse(await fs.readFile(path.join(root,'data/history.json'),'utf8')).results);
- const people=data.groups.flatMap(g=>g.members),entries=[],h=await createHarness();
+ const people=data.groups.flatMap(g=>g.members),entries=[],pending=[],pendingIds=new Set((data.presentationPrintSet?.pendingReviews||[]).map(r=>r.personId)),h=await createHarness();
  try{
   const p=await h.browser.newPage();await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
   for(const member of people){
@@ -16,17 +16,20 @@ async function prepare({write=false}={}){
      const d=await MorothonDiplomas.serviceDraft(personId,badgeId,medalDisplay),f=document.createElement('iframe');
      f.style.cssText='position:fixed;left:-10000px;width:1123px;height:794px';
      await new Promise(resolve=>{f.onload=resolve;f.srcdoc=MorothonDiplomas.documentHtml(d);document.body.appendChild(f);});
-     try{await f.contentDocument.fonts.ready;await Promise.all([...f.contentDocument.images].map(i=>i.decode()));return {proof:d.contentProof,check:await MorothonDiplomas.checkServiceDraft(d,f.contentDocument),estimated:!!d.estimated};}finally{f.remove();}
+     try{await f.contentDocument.fonts.ready;await Promise.all([...f.contentDocument.images].map(i=>i.decode()));return {proof:d.contentProof,mode:d.printMode,check:await MorothonDiplomas.checkServiceDraft(d,f.contentDocument),estimated:!!d.estimated};}finally{f.remove();}
     },{personId:member.id,badgeId,medalDisplay});
     assert.equal(result.check.ready,true,member.id+': '+result.check.failures.join(' '));
     assert.equal(result.estimated,false,member.id+': estimates must not become clean numbered diplomas');
-    entries.push({personId:member.id,badgeId,medalDisplay,...result.proof});
+    if(pendingIds.has(member.id)){assert.equal(result.mode,'draft',member.id+': changed content must remain a marked preview');pending.push({personId:member.id,badgeId,medalDisplay,...result.proof});}
+    else entries.push({personId:member.id,badgeId,medalDisplay,...result.proof});
    }
   }
  }finally{await h.close();}
  const set={id:'v352-presentation',scope:'presentation-only',sourceIds:['organizer-v352'],editionYears:years,entries};
+ if(data.presentationPrintSet?.pendingReviews)set.pendingReviews=data.presentationPrintSet.pendingReviews;
+ if(write&&pending.length)throw new Error('Endrede diplomer venter på særskilt godkjenning; ingen kontrollsummer er skrevet.');
  if(write){const file=path.join(root,'data/honors.json'),core=JSON.parse(await fs.readFile(file,'utf8'));core.presentationPrintSet=set;await fs.writeFile(file,JSON.stringify(core,null,2)+'\n');}
  else assert.deepEqual(set,data.presentationPrintSet,'The reviewed presentation set is stale. Inspect changes before explicitly preparing it again.');
- return {people:people.length,diplomas:entries.length,written:write};
+ return {people:people.length,diplomas:entries.length,pendingDiplomas:pending.length,pendingPeople:[...pendingIds],written:write};
 }
 module.exports={prepare};if(require.main===module)prepare({write:process.argv.includes('--write')}).then(r=>console.log(JSON.stringify(r))).catch(e=>{console.error(e);process.exitCode=1;});

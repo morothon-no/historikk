@@ -18,10 +18,10 @@ test('V3.5.2 all overview cards show complete unique honors from the shared prof
     assert.ok(r.footer.top>=r.main.bottom+8,id+': space before the collection');
     for(const b of r.images){assert.ok(b.width>0&&b.height>0);assert.ok(r.main.width>b.width*1.3,id+': principal medal stays largest');assert.ok(b.left>=r.card.left&&b.right<=r.card.right&&b.top>=r.card.top&&b.bottom<=r.card.bottom,id+': no clipping');}
     for(let i=0;i<r.images.length;i++)for(let j=i+1;j<r.images.length;j++){const a=r.images[i],b=r.images[j];assert.ok(Math.min(a.right,b.right)<=Math.max(a.left,b.left)||Math.min(a.bottom,b.bottom)<=Math.max(a.top,b.top),id+': no overlapping medals');}
-    assert.equal(await card.locator('.honor-card-extra-honors img').count(),['oscar-lohne','erling-askildsen','einar-danielsen'].includes(id)?1:0);
+    assert.equal(await card.locator('.honor-card-extra-honors img').count(),id==='einar-danielsen'?2:['oscar-lohne','erling-askildsen'].includes(id)?1:0);
     assert.equal(await card.locator('.honor-card-earned img').count(),['dag-morten-frantzen','finn-lohne'].includes(id)?1:5);
    }
-   const memorial=p.locator('[data-honoree="erling-danielsen"]');assert.equal(await memorial.locator('img').count(),1);assert.match(await memorial.innerText(),/fra 1992/);assert.doesNotMatch(await memorial.innerText(),/35|33/);
+   const memorial=p.locator('[data-honoree="erling-danielsen"]');assert.equal(await memorial.locator('img').count(),5);assert.match(await memorial.innerText(),/siden 1992/);assert.match(await memorial.innerText(),/33 dugnadsutgaver/);
    assert.match(await p.locator('[data-honoree="einar-danielsen"]').innerText(),/33 dugnadsutgaver/);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);
   }finally{await p.close();}

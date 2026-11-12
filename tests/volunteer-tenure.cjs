@@ -17,7 +17,7 @@ test('provisional tenure: seven real people use actual editions and Atle’s sin
   assert.deepEqual(p.badgeProposal.badgeIds,[]);assert.deepEqual(p.awards,[]);assert.deepEqual(p.issuedDiplomas,[]);
  }
  assert.deepEqual(person('atle-aamodt').contribution.excludedYears,[2026]);assert.equal(JSON.stringify(data),original);
- for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad','christan-berthelsen','lars-aamodt'])assert.equal(H.provisionalMilestone(data,person(id),years).highest,null,id);
+ for(const id of ['christan-berthelsen','lars-aamodt'])assert.equal(H.provisionalMilestone(data,person(id),years).highest,null,id);
 });
 
 test('provisional tenure: end years, non-arranged gaps, exclusions, missing/future starts and changing policy are respected',()=>{
@@ -80,7 +80,7 @@ test('cards display only provisional SVGs, preserve other groups and stay compac
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),12);
+   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),15);
    const order=await p.locator('#volunteers [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree));
    const expectedOrder=H.sortVolunteers(H.membersFor(data,data.groups.find(g=>g.id==='volunteers')).filter(m=>!['dag-morten-frantzen','hakon-lohne'].includes(m.id))).map(m=>m.id);assert.deepEqual(order,expectedOrder);
    assert.deepEqual(await p.locator('#honorFeatured [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),['oscar-lohne','erling-askildsen','einar-danielsen','arnfinn-haverstad','helge-reisvoll']);
@@ -109,7 +109,7 @@ test('new arranged years update estimates automatically; a future calendar row o
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
    const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load(),m=MorothonHonorsData.findIn(d,'atle-aamodt').member;let years=[];try{const h=await MorothonHistoryData.load();years=[...new Set(h.data.results.filter(r=>MorothonHistoryData.isCompletedResult(r)||['DNF','Deltatt'].includes(MorothonHistoryData.effectiveStatus(r))).map(r=>r[0]))];}catch{}return MorothonHonorsData.provisionalMilestone(d,m,years);});
    assert.equal(result.asOfYear,mode==='future'?2027:mode==='missing'?null:2026);assert.equal(result.count,mode==='future'?6:mode==='missing'?null:5);
-   if(mode==='missing'){assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),12);assert.match(await p.locator('#honorStatus').innerText(),/Løpshistorikken er ikke tilgjengelig/);}
+   if(mode==='missing'){assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),15);assert.match(await p.locator('#honorStatus').innerText(),/Løpshistorikken er ikke tilgjengelig/);}
   }finally{await p.close();}
  }
 });
@@ -121,5 +121,5 @@ test('tenure extension changes only the authorized volunteer absence, never iden
   const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');
   for(const file of files)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show',base+':'+file],{cwd:root}),file);
  }
- const original=JSON.parse(execFileSync('git',['show',base+':data/volunteers.json'],{cwd:root}));original.people.find(m=>m.id==='atle-aamodt').excludedYears=[2026];const n=original.people.find(p=>p.id==='nils-martin-otterdal-nilsen');Object.assign(n,{role:'Styreleder i Søgne Skiklubb',roleType:'external',sourceIds:['organizer-v34','organizer-v35']});assert.deepEqual(list,original);
+ const original=JSON.parse(execFileSync('git',['show',base+':data/volunteers.json'],{cwd:root}));original.people.find(m=>m.id==='atle-aamodt').excludedYears=[2026];const n=original.people.find(p=>p.id==='nils-martin-otterdal-nilsen');Object.assign(n,{role:'Styreleder i Søgne Skiklubb',roleType:'external',sourceIds:['organizer-v34','organizer-v35']});assert.deepEqual(JSON.parse(await require('./helpers/honors.cjs').preservedFile(root,'data/volunteers.json')),original);
 });

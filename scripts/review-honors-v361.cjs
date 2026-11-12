@@ -11,7 +11,7 @@ async function open(h,stage,width){
   for(const file of ['honors.css','diplomas.css'])await p.route('**/css/'+file,r=>r.fulfill({contentType:'text/css',body:oldCss(file)}));
   const facts=JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8'));
   // Preserve the reviewed fingerprints belonging to the baseline CSS. Links do not change diploma content.
-  facts.presentationPrintSet=JSON.parse(execFileSync('git',['show',baseline+':data/honors.json'],{cwd:root})).presentationPrintSet;
+  const pending=facts.presentationPrintSet.pendingReviews||[];facts.presentationPrintSet=JSON.parse(execFileSync('git',['show',baseline+':data/honors.json'],{cwd:root})).presentationPrintSet;facts.presentationPrintSet.entries=facts.presentationPrintSet.entries.filter(e=>!pending.some(p=>p.personId===e.personId));if(pending.length)facts.presentationPrintSet.pendingReviews=pending;
   await p.route('**/data/honors.json',r=>r.fulfill({json:facts}));
  }
  await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();return p;
@@ -51,7 +51,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-v361'),{images=true}={
    next.reductionPx=Math.round(prior.height-next.height);next.reductionPercent=+(100*(prior.height-next.height)/prior.height).toFixed(1);
    if(prior.width>=1280)assert.ok(next.height<prior.height-80,prior.id+': meaningful desktop reduction');
   }
-  for(const prior of cards.filter(r=>r.stage==='before')){const next=cards.find(r=>r.stage==='after'&&r.width===prior.width);assert.equal(next.html,prior.html);assert.equal(next.box.height,prior.box.height,'Overview memorial card unchanged');}
+  for(const prior of cards.filter(r=>r.stage==='before')){const next=cards.find(r=>r.stage==='after'&&r.width===prior.width);assert.equal(next.html,prior.html);assert.ok(next.box.width>=prior.box.width,'The two remaining memorial cards share the available width');if(prior.width<=768)assert.equal(next.box.height,prior.box.height,'Memorial content remains equally compact at narrower widths');}
   for(const stage of ['before','after']){
    const p=await open(h,stage,1440);
    try{for(const id of ['oscar-lohne','erling-askildsen','einar-danielsen','arnfinn-haverstad','helge-reisvoll','dag-morten-frantzen','per-sangvik'])for(const display of ['all','latest']){

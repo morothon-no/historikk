@@ -31,7 +31,21 @@ async function review(out,beforeRoot){
    }finally{await p.close();}
   }}finally{await h.close();}
  }
- for(const before of proofs.filter(p=>p.stage==='before')){const after=proofs.find(p=>p.stage==='after'&&p.case===before.case&&p.display===before.display);for(const [i,image] of before.measurements.images.entries()){const next=after.measurements.images[i];assert.equal(next.src,image.src);if(image.founder){assert.equal(next.box.top,image.box.top);assert.equal(next.box.width,image.box.width);assert.equal(next.box.height,image.box.height);assert.ok(next.box.left<image.box.left,'V3.6.1 moves only the secondary founder marker left');}else assert.deepEqual(next,image,'Main and earned medals unchanged: '+before.case+'/'+before.display);}}
+ for(const before of proofs.filter(p=>p.stage==='before')){
+  const after=proofs.find(p=>p.stage==='after'&&p.case===before.case&&p.display===before.display);
+  const added=after.measurements.images.filter(a=>!before.measurements.images.some(b=>b.src===a.src));
+  assert.equal(added.length,before.case==='einar'?1:0);
+  if(added.length)assert.match(added[0].src,/memorial\.svg$/);
+  for(const image of before.measurements.images){
+   const next=after.measurements.images.find(a=>a.src===image.src);assert.ok(next,'Every prior official medal remains');
+   assert.equal(next.box.width,image.box.width);assert.equal(next.box.height,image.box.height);
+   if(image.founder){assert.equal(next.box.top,image.box.top);assert.ok(next.box.left<image.box.left,'V3.6.1 moves only the secondary founder marker left');}
+   else if(before.case!=='einar')assert.deepEqual(next,image,'Unchanged medals: '+before.case+'/'+before.display);
+   // Einar's new memorial mark reflows only his collection/composition. The
+   // complete live layout check above still rejects collisions and clipping.
+  }
+ }
+
  assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'kontroll.json'),JSON.stringify({proofs,errors},null,2)+'\n');
  let html='<h1>Morothon V3.5.3 – dato og navnesignatur</h1><p>Faktisk Chromium-gjengivelse. Historisk kontrollprofil er syntetiske testdata, ikke en endring i personregisteret.</p>';
  for(const c of cases)for(const display of ['all','latest']){html+=`<h2>${c.name} · ${display==='all'?'Alle merker':'Kun siste merke'}</h2><div class="pair">`;for(const stage of ['before','after']){const key=stage+'-'+c.key+'-'+display;html+=`<figure><figcaption>${stage==='before'?'Før':'Etter'}</figcaption><a href="${key}.pdf"><img src="${key}.png" alt="${stage}"></a><img src="${key}-signoff.png" alt="Signaturfelt"></figure>`;}html+='</div>';}

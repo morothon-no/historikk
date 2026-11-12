@@ -152,6 +152,12 @@
       "title": "14 løperkoblinger bekreftet av arrangøren 12. november 2026",
       "publisher": "Søgne Morothon",
       "note": "Arrangøren bekreftet uttrykkelig alle 14 forslag i V3.6-rapporten, inkludert Bent-Inge Bakke / Bent Inge Bakke (MOR-046CD37). Ingen navn, resultater eller dugnadsår endres."
+    },
+    "organizer-v361-final-corrections": {
+      "title": "Arrangørens endelige personrettelser 12. november 2026",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-12",
+      "basis": "Einar er avdød grunnlegger og far til Erling. Erling lever og har 33 godkjente dugnadsutgaver siden 1992. Anne Lene og Laila har bekreftet startår 2016. Dødsår for Einar er ikke oppgitt."
     }
   },
   "displayOrder": [
@@ -560,7 +566,8 @@
           "sourceIds": [
             "organizer-v3",
             "organizer-danielsen-estimate-correction",
-            "organizer-v352"
+            "organizer-v352",
+            "organizer-v361-final-corrections"
           ],
           "roles": [
             {
@@ -598,7 +605,8 @@
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
-            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+            "Avdød. Dødsår ikke oppgitt. Far til Erling Danielsen. Bekreftet 12. november 2026."
           ],
           "previousBadgeProposals": [
             {
@@ -653,6 +661,13 @@
             },
             "sourceIds": [
               "organizer-v352"
+            ]
+          },
+          "deceased": true,
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "organizer-v361-final-corrections"
             ]
           }
         }
@@ -1021,6 +1036,67 @@
               ]
             }
           ]
+        },
+        {
+          "id": "erling-danielsen",
+          "name": "Erling Danielsen",
+          "status": "confirmed",
+          "reason": "Sønn av grunnlegger Einar Danielsen og en av Morothons mest trofaste dugnadshelter. Med innsats helt siden 1992 og 33 dugnadsutgaver bak seg har Erling vært med på å holde tradisjonen levende gjennom generasjoner.",
+          "sourceIds": [
+            "organizer-v34",
+            "organizer-v35",
+            "organizer-danielsen-estimate-correction",
+            "organizer-v361-final-corrections"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 1992
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v361-final-corrections"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 1992,
+            "approvedTotal": {
+              "editions": 33,
+              "approved": true,
+              "asOfYear": 2026,
+              "sourceIds": [
+                "organizer-v361-final-corrections"
+              ]
+            },
+            "sourceIds": [
+              "organizer-v361-final-corrections"
+            ]
+          },
+          "deceased": false,
+          "internalNotes": [
+            "Erling lever og er sønn av grunnlegger Einar Danielsen. Tidligere feilaktig minnestatus er erstattet av arrangørens rettelse 12. november 2026; originalopplysningene ligger i revisionHistory."
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": null,
+              "badgeIds": [],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1108,68 +1184,6 @@
       "title": "Til minne om",
       "description": "Vi minnes dem som ga av tiden sin, og som fortsatt er en del av Morothon-historien.",
       "members": [
-        {
-          "id": "erling-danielsen",
-          "name": "Erling Danielsen",
-          "status": "confirmed",
-          "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
-          "sourceIds": [
-            "organizer-v34",
-            "organizer-v35",
-            "organizer-danielsen-estimate-correction"
-          ],
-          "roles": [
-            {
-              "title": "Dugnad",
-              "confirmed": true,
-              "sourceIds": [
-                "organizer-v34"
-              ],
-              "fromYear": 1992
-            }
-          ],
-          "stories": [],
-          "badgeProposal": {
-            "status": "proposed",
-            "primaryBadgeId": "service-memorial",
-            "badgeIds": [
-              "service-memorial"
-            ],
-            "sourceIds": [
-              "organizer-v34",
-              "organizer-v35"
-            ]
-          },
-          "awards": [],
-          "issuedDiplomas": [],
-          "contribution": {
-            "fromYear": 1992,
-            "sourceIds": [
-              "organizer-v34"
-            ]
-          },
-          "deceased": true,
-          "internalNotes": [
-            "Dødsår er ikke oppgitt. Erling Danielsen er ikke Einar Danielsen."
-          ],
-          "previousBadgeProposals": [
-            {
-              "status": "proposed",
-              "primaryBadgeId": null,
-              "badgeIds": [],
-              "sourceIds": [
-                "organizer-v34"
-              ]
-            }
-          ],
-          "memorialRecognition": {
-            "badgeId": "service-memorial",
-            "sourceIds": [
-              "organizer-v35"
-            ]
-          },
-          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
-        },
         {
           "id": "floke-bredland",
           "name": "Floke Bredland",
@@ -1378,11 +1392,12 @@
         ]
       },
       {
-        "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Erling Danielsens dødsår er ikke oppgitt. Minneseksjonen har tre personer: Erling Danielsen, Floke Bredland og Leif Wiig. Omtalen registrerer ingen gjennomført utdeling.",
+        "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Leif Wiig gikk bort i 2023. Einar Danielsen er avdød grunnlegger; dødsår er ikke oppgitt.",
         "sourceIds": [
           "organizer-v34",
           "organizer-honor-names-2026-11-11",
-          "organizer-v351"
+          "organizer-v351",
+          "organizer-v361-final-corrections"
         ]
       },
       {
@@ -1543,7 +1558,7 @@
     {
       "id": "minnediplom",
       "label": "For alltid en del av Morothon – minnediplom",
-      "personId": "erling-danielsen",
+      "personId": "leif-wiig",
       "badgeId": "service-memorial"
     },
     {
@@ -1738,56 +1753,6 @@
         "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "einar-danielsen",
-        "badgeId": "service-aeresmerke",
-        "medalDisplay": "all",
-        "contentSha256": "f87b895316a52bc11000e7aa8842e63d6993bfc1ffa5412cc7281876aa848283",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
-        "secondarySha256": [
-          {
-            "key": "service-grunnlegger",
-            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
-          },
-          {
-            "key": "service-dugnad-5",
-            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
-          },
-          {
-            "key": "service-dugnad-10",
-            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
-          },
-          {
-            "key": "service-dugnad-15",
-            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
-          },
-          {
-            "key": "service-dugnad-20",
-            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
-          },
-          {
-            "key": "service-dugnad-30",
-            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
-          }
-        ]
-      },
-      {
-        "personId": "einar-danielsen",
-        "badgeId": "service-aeresmerke",
-        "medalDisplay": "latest",
-        "contentSha256": "d70c66d1e275636fa06c56b7a1c4a3bcc9b57f098e2692d4eabd23243c9d7dba",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
-        "secondarySha256": [
-          {
-            "key": "service-grunnlegger",
-            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
-          }
-        ]
       },
       {
         "personId": "kalle-kimestad",
@@ -2001,24 +1966,6 @@
         "badgeId": "thanks",
         "medalDisplay": "latest",
         "contentSha256": "088532e4a5913c0d67bb78cc82eaf6c8c118eecc3d94804d5bf57b9838bdac04",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "anne-lene-forland-hansen",
-        "badgeId": "thanks",
-        "medalDisplay": "all",
-        "contentSha256": "a4f6660e13bd74fa7c40b1eea6c60db832a0f90823d9c41c7d1566ef99754a91",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "anne-lene-forland-hansen",
-        "badgeId": "thanks",
-        "medalDisplay": "latest",
-        "contentSha256": "2c92c49abbdc4357eb7bfad6c954bcc8b7f4dd4f1a4d05ca5b2a714ffed767ed",
         "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
@@ -2276,24 +2223,6 @@
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
-        "personId": "laila-endresen-skjulestad",
-        "badgeId": "thanks",
-        "medalDisplay": "all",
-        "contentSha256": "10cc6ad75cde3eb4f0b1d9b405229c6e45715f0a8511e074066a372fa88d73d1",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "laila-endresen-skjulestad",
-        "badgeId": "thanks",
-        "medalDisplay": "latest",
-        "contentSha256": "6113075ecc8b45790d79c1b55e9b43709fbbeeabc6bbfad85e8ccdeb6d9ad4f7",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
         "personId": "christan-berthelsen",
         "badgeId": "thanks",
         "medalDisplay": "all",
@@ -2474,24 +2403,6 @@
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
-        "personId": "erling-danielsen",
-        "badgeId": "service-memorial",
-        "medalDisplay": "all",
-        "contentSha256": "a8fdad39fb1cbb4b0de2f30b255007cc47153eccfe4725af304f0ddd80e658c9",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "erling-danielsen",
-        "badgeId": "service-memorial",
-        "medalDisplay": "latest",
-        "contentSha256": "55ee1bfe221d2de925ac4cd017707e84b18476d94f20979442cb34e548ebd543",
-        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
-        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
         "personId": "floke-bredland",
         "badgeId": "service-memorial",
         "medalDisplay": "all",
@@ -2526,6 +2437,152 @@
         "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      }
+    ],
+    "pendingReviews": [
+      {
+        "personId": "einar-danielsen",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "einar-danielsen",
+            "badgeId": "service-aeresmerke",
+            "medalDisplay": "all",
+            "contentSha256": "f87b895316a52bc11000e7aa8842e63d6993bfc1ffa5412cc7281876aa848283",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+            "secondarySha256": [
+              {
+                "key": "service-grunnlegger",
+                "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+              },
+              {
+                "key": "service-dugnad-5",
+                "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+              },
+              {
+                "key": "service-dugnad-10",
+                "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+              },
+              {
+                "key": "service-dugnad-15",
+                "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+              },
+              {
+                "key": "service-dugnad-20",
+                "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+              },
+              {
+                "key": "service-dugnad-30",
+                "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+              }
+            ]
+          },
+          {
+            "personId": "einar-danielsen",
+            "badgeId": "service-aeresmerke",
+            "medalDisplay": "latest",
+            "contentSha256": "d70c66d1e275636fa06c56b7a1c4a3bcc9b57f098e2692d4eabd23243c9d7dba",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+            "secondarySha256": [
+              {
+                "key": "service-grunnlegger",
+                "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "erling-danielsen",
+            "badgeId": "service-memorial",
+            "medalDisplay": "all",
+            "contentSha256": "a8fdad39fb1cbb4b0de2f30b255007cc47153eccfe4725af304f0ddd80e658c9",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          },
+          {
+            "personId": "erling-danielsen",
+            "badgeId": "service-memorial",
+            "medalDisplay": "latest",
+            "contentSha256": "55ee1bfe221d2de925ac4cd017707e84b18476d94f20979442cb34e548ebd543",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          }
+        ]
+      },
+      {
+        "personId": "anne-lene-forland-hansen",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "anne-lene-forland-hansen",
+            "badgeId": "thanks",
+            "medalDisplay": "all",
+            "contentSha256": "a4f6660e13bd74fa7c40b1eea6c60db832a0f90823d9c41c7d1566ef99754a91",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          },
+          {
+            "personId": "anne-lene-forland-hansen",
+            "badgeId": "thanks",
+            "medalDisplay": "latest",
+            "contentSha256": "2c92c49abbdc4357eb7bfad6c954bcc8b7f4dd4f1a4d05ca5b2a714ffed767ed",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          }
+        ]
+      },
+      {
+        "personId": "laila-endresen-skjulestad",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "laila-endresen-skjulestad",
+            "badgeId": "thanks",
+            "medalDisplay": "all",
+            "contentSha256": "10cc6ad75cde3eb4f0b1d9b405229c6e45715f0a8511e074066a372fa88d73d1",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          },
+          {
+            "personId": "laila-endresen-skjulestad",
+            "badgeId": "thanks",
+            "medalDisplay": "latest",
+            "contentSha256": "6113075ecc8b45790d79c1b55e9b43709fbbeeabc6bbfad85e8ccdeb6d9ad4f7",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          }
+        ]
       }
     ]
   },
@@ -2625,14 +2682,14 @@
       ]
     },
     "einar-danielsen": {
-      "shortDescription": "En av de fem som la grunnlaget for Morothon i 1992.",
+      "shortDescription": "En av de fem grunnleggerne av Morothon i 1992, og en av dem som har bidratt aller lengst. Gjennom 33 dugnadsutgaver var Einar med på å bygge en tradisjon som fortsatt samler mennesker i Søgne.",
       "stories": [
         {
-          "title": "Med fra starten",
-          "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+          "title": "Til minne om Einar",
+          "text": "Einar var med da Morothon så dagens lys i 1992. Som en av fem grunnleggere og med 33 dugnadsutgaver bak seg satte han dype spor i løpet og fellesskapet rundt det.\n\nEinar er ikke lenger blant oss, men innsatsen hans lever videre – i løypene, tradisjonen og alle menneskene som år etter år møtes på Morothon.\n\nTakk for det du var med på å skape. Du er fortsatt en del av Morothon.",
           "source": "Søgne Morothon",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v361-final-corrections"
           ],
           "confirmed": true
         }
@@ -2974,7 +3031,7 @@
       }
     },
     "erling-danielsen": {
-      "shortDescription": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
+      "shortDescription": "Sønn av grunnlegger Einar Danielsen og en av Morothons mest trofaste dugnadshelter. Med innsats helt siden 1992 og 33 dugnadsutgaver bak seg har Erling vært med på å holde tradisjonen levende gjennom generasjoner.",
       "stories": [],
       "runnerLink": {
         "runnerId": "MOR-B82F8A3",
@@ -3011,5 +3068,272 @@
         ]
       }
     }
-  }
+  },
+  "revisionHistory": [
+    {
+      "date": "2026-11-12",
+      "sourceIds": [
+        "organizer-v361-final-corrections"
+      ],
+      "supersedesCommit": "bcb6f5245db41b7896ad8837ecae4ad88cdb9703",
+      "members": [
+        {
+          "groupId": "founders",
+          "member": {
+            "id": "einar-danielsen",
+            "name": "Einar Danielsen",
+            "status": "confirmed",
+            "reason": "En av de fem som la grunnlaget for Morothon i 1992.",
+            "sourceIds": [
+              "organizer-v3",
+              "organizer-danielsen-estimate-correction",
+              "organizer-v352"
+            ],
+            "roles": [
+              {
+                "title": "Grunnlegger",
+                "fromYear": 1992,
+                "sourceIds": [
+                  "organizer-v3"
+                ],
+                "confirmed": true
+              }
+            ],
+            "stories": [
+              {
+                "title": "Med fra starten",
+                "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+                "source": "Søgne Morothon",
+                "sourceIds": [
+                  "organizer-v3"
+                ],
+                "confirmed": true
+              }
+            ],
+            "runnerId": "MOR-D48A84B",
+            "diplomaTribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+            "badgeProposal": {
+              "status": "proposed",
+              "primaryBadgeId": "service-aeresmerke",
+              "badgeIds": [
+                "service-aeresmerke"
+              ],
+              "sourceIds": [
+                "organizer-v351"
+              ]
+            },
+            "awards": [],
+            "issuedDiplomas": [],
+            "internalNotes": [
+              "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+            ],
+            "previousBadgeProposals": [
+              {
+                "status": "proposed",
+                "primaryBadgeId": "service-grunnlegger",
+                "badgeIds": [
+                  "service-grunnlegger",
+                  "service-dugnadshelt"
+                ],
+                "sourceIds": [
+                  "organizer-v34"
+                ]
+              },
+              {
+                "status": "proposed",
+                "primaryBadgeId": "service-grunnlegger",
+                "badgeIds": [
+                  "service-grunnlegger"
+                ],
+                "sourceIds": [
+                  "organizer-v34",
+                  "organizer-v35"
+                ]
+              }
+            ],
+            "plannedHonors": [
+              {
+                "badgeId": "service-aeresmerke",
+                "year": 2026,
+                "status": "planned",
+                "sourceIds": [
+                  "organizer-v351"
+                ]
+              }
+            ],
+            "serviceEstimate": {
+              "editions": 33,
+              "qualifier": "approximately",
+              "sourceIds": [
+                "organizer-danielsen-estimate-correction"
+              ],
+              "unit": "years"
+            },
+            "contribution": {
+              "approvedTotal": {
+                "editions": 33,
+                "approved": true,
+                "asOfYear": 2026,
+                "sourceIds": [
+                  "organizer-v352"
+                ]
+              },
+              "sourceIds": [
+                "organizer-v352"
+              ]
+            }
+          }
+        },
+        {
+          "groupId": "memorial",
+          "member": {
+            "id": "erling-danielsen",
+            "name": "Erling Danielsen",
+            "status": "confirmed",
+            "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
+            "sourceIds": [
+              "organizer-v34",
+              "organizer-v35",
+              "organizer-danielsen-estimate-correction"
+            ],
+            "roles": [
+              {
+                "title": "Dugnad",
+                "confirmed": true,
+                "sourceIds": [
+                  "organizer-v34"
+                ],
+                "fromYear": 1992
+              }
+            ],
+            "stories": [],
+            "badgeProposal": {
+              "status": "proposed",
+              "primaryBadgeId": "service-memorial",
+              "badgeIds": [
+                "service-memorial"
+              ],
+              "sourceIds": [
+                "organizer-v34",
+                "organizer-v35"
+              ]
+            },
+            "awards": [],
+            "issuedDiplomas": [],
+            "contribution": {
+              "fromYear": 1992,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            },
+            "deceased": true,
+            "internalNotes": [
+              "Dødsår er ikke oppgitt. Erling Danielsen er ikke Einar Danielsen."
+            ],
+            "previousBadgeProposals": [
+              {
+                "status": "proposed",
+                "primaryBadgeId": null,
+                "badgeIds": [],
+                "sourceIds": [
+                  "organizer-v34"
+                ]
+              }
+            ],
+            "memorialRecognition": {
+              "badgeId": "service-memorial",
+              "sourceIds": [
+                "organizer-v35"
+              ]
+            },
+            "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+          }
+        }
+      ],
+      "personDetails": {
+        "einar-danielsen": {
+          "shortDescription": "En av de fem som la grunnlaget for Morothon i 1992.",
+          "stories": [
+            {
+              "title": "Med fra starten",
+              "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "honorDiplomaText": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+          "diplomaDate": {
+            "date": "2026-11-07",
+            "sourceIds": [
+              "organizer-v36-einar-date"
+            ]
+          }
+        },
+        "erling-danielsen": {
+          "shortDescription": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
+          "stories": [],
+          "runnerLink": {
+            "runnerId": "MOR-B82F8A3",
+            "confirmed": true,
+            "sourceIds": [
+              "organizer-v361-confirmed-links"
+            ]
+          }
+        }
+      },
+      "volunteers": [
+        {
+          "id": "anne-lene-forland-hansen",
+          "name": "Anne Lene Førland-Hansen",
+          "role": "Drikkestasjon",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon-start"
+          ]
+        },
+        {
+          "id": "laila-endresen-skjulestad",
+          "name": "Laila Endresen Skjulestad",
+          "role": "Drikkestasjon",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon-start"
+          ]
+        }
+      ],
+      "diplomaExamples": [
+        {
+          "id": "minnediplom",
+          "label": "For alltid en del av Morothon – minnediplom",
+          "personId": "erling-danielsen",
+          "badgeId": "service-memorial"
+        }
+      ],
+      "narrativeUncertainties": [
+        {
+          "text": "Bent-Inge Bakkes avslutningsår, Kalle og Finns innsats før 2014 og oppstartsår/oppgaver for de nyere navneoppføringene er ikke fastsatt. Startår alene dokumenterer ikke innsats i alle mellomliggende utgaver.",
+          "sourceIds": [
+            "organizer-v34"
+          ]
+        },
+        {
+          "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Erling Danielsens dødsår er ikke oppgitt. Minneseksjonen har tre personer: Erling Danielsen, Floke Bredland og Leif Wiig. Omtalen registrerer ingen gjennomført utdeling.",
+          "sourceIds": [
+            "organizer-v34",
+            "organizer-honor-names-2026-11-11",
+            "organizer-v351"
+          ]
+        },
+        {
+          "text": "Aud Ovesen, Arnfinn Grimestad og Magne Lia er registrert med fullstendige navn. Andre navn beholdes slik de er oppgitt, uten gjettede personkoblinger.",
+          "sourceIds": [
+            "organizer-v34",
+            "organizer-honor-names-2026-11-11",
+            "organizer-v351"
+          ]
+        }
+      ]
+    }
+  ]
 }

@@ -21,7 +21,7 @@ test('another volunteer is rendered from data only, with escaped names/reasons a
  const copy=structuredClone(data);copy.groups.find(g=>g.id==='volunteers').members.push({id:'new-volunteer',name:'Nytt navn <b>Test</b>',status:'provisional',reason:'Tekst <img src=x onerror=alert(1)>'});
  const p=await h.browser.newPage();try{
   await p.route('**/data/honors.json',route=>route.fulfill({json:copy}));await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="new-volunteer"]').waitFor();
-  assert.equal(await p.locator('[data-honor-group="volunteers"] li').count(),34);
+  assert.equal(await p.locator('[data-honor-group="volunteers"] li').count(),35);
   assert.equal(await p.locator('[data-honoree="new-volunteer"] strong').textContent(),'Nytt navn <b>Test</b>');
   assert.equal(await p.locator('[data-honoree="new-volunteer"] img[src="x"],[data-honoree="new-volunteer"] strong b').count(),0);
  }finally{await p.close();}

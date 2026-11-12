@@ -1,6 +1,6 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs/promises'),path=require('node:path'),{execFileSync}=require('node:child_process');
-const H=require('../js/honors-data.js'),{readHonors}=require('./helpers/honors.cjs');
+const H=require('../js/honors-data.js'),{expectedPrintMode,readHonors}=require('./helpers/honors.cjs');
 const {createHarness}=require('../scripts/diploma-harness.cjs'),{installMetricFont}=require('../scripts/diploma-font-harness.cjs');
 let h,data,people,years;
 before(async()=>{h=await createHarness();data=await readHonors();people=data.groups.flatMap(g=>g.members);years=H.arrangedYears(JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8')).results);});
@@ -19,7 +19,7 @@ async function actions(p,container=p){
 test('V3.5 all 44 people and future name-only additions have a personal diploma without invented badges, years or formal awards',()=>{
  const before=JSON.stringify(data);assert.equal(people.length,44);
  const options=people.map(m=>({m,ids:H.diplomaChoices(data,m,years),main:H.mainBadge(data,m,years)}));
- assert.equal(options.filter(r=>r.ids[0]==='thanks').length,24);
+ assert.equal(options.filter(r=>r.ids[0]==='thanks').length,22);
  for(const {m,ids,main}of options){assert.ok(ids.length,m.id);assert.equal(ids[0],main.basis==='estimated'?'thanks':main.badgeId||'thanks');assert.ok(!ids.some(id=>data.awardPolicy.retiredBadgeIds.includes(id)));assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);}
  assert.equal(JSON.stringify(data),before);
  const core=structuredClone(data),future=H.mergeVolunteers(core,{schemaVersion:1,sourceIds:['organizer-v35'],people:[{id:'future-fixture',name:'En fremtidig frivillig'}]}),member=H.findIn(future,'future-fixture').member;
@@ -36,7 +36,7 @@ test('V3.5 every profile at 390/1440px opens its own checked printable draft, wi
     assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2,m.id);
     assert.equal(await p.locator('[data-honor-pdf]').isEnabled(),true,m.id);
     const r=await p.locator('iframe').evaluate(e=>({name:e.contentDocument.querySelector('.diploma-recipient h2').textContent,stamp:e.contentDocument.querySelector('.diploma-draft')?.textContent||null,images:e.contentDocument.querySelectorAll('.diploma-medal').length}));
-    assert.equal(r.name,m.name);assert.equal(r.stamp,null);assert.equal(r.images,1);
+    assert.equal(r.name,m.name);assert.equal(r.stamp,expectedPrintMode(data,m.id)==='draft'?'FORHÅNDSVISNING':null);assert.equal(r.images,1);
     assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,m.id);
     if(m.id==='christan-berthelsen'){
      assert.equal(await p.locator('.honor-profile-medals img').count(),0);
@@ -61,7 +61,7 @@ test('V3.5 every gallery example has active print/PDF controls; browser output k
    const html=await frame.getAttribute('srcdoc'),q=await h.browser.newPage();
    try{
     await q.setContent(html);await q.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()));});await q.emulateMedia({media:'print'});
-    assert.equal(await q.locator('.diploma-draft').count(),e.illustrative?1:0);
+    assert.equal(await q.locator('.diploma-draft').count(),e.illustrative||expectedPrintMode(data,e.personId)==='draft'?1:0);
     const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}}),info=execFileSync('pdfinfo',['-'],{input:pdf}).toString(),text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');
     assert.match(info,/Pages:\s+1\b/);const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.89)<.5&&Math.abs(+size[2]-595.28)<.5);
     assert.doesNotMatch(text,/UTKAST|IKKE UTDELT/);if(e.illustrative)assert.match(text,/EKSEMPEL/);assert.match(text,/Håkon Lohne/);assert.match(text,/Løpsleder · Morothon/);

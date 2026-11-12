@@ -50,8 +50,10 @@
       "name": "Anne Lene Førland-Hansen",
       "role": "Drikkestasjon",
       "sourceIds": [
-        "organizer-v34-drikkestasjon-start"
-      ]
+        "organizer-v34-drikkestasjon-start",
+        "organizer-v361-final-corrections"
+      ],
+      "fromYear": 2016
     },
     {
       "id": "birgitte-aamodt",
@@ -168,8 +170,10 @@
       "name": "Laila Endresen Skjulestad",
       "role": "Drikkestasjon",
       "sourceIds": [
-        "organizer-v34-drikkestasjon-start"
-      ]
+        "organizer-v34-drikkestasjon-start",
+        "organizer-v361-final-corrections"
+      ],
+      "fromYear": 2016
     },
     {
       "id": "christan-berthelsen",

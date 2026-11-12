@@ -11,7 +11,7 @@ test('PR16 histories, identities, ordinary diplomas and official originals survi
  const expected=JSON.parse(execFileSync('git',['show',base+':data/volunteers.json'],{cwd:root}));
  expected.people.find(p=>p.id==='atle-aamodt').excludedYears=[2026];
  const n=expected.people.find(p=>p.id==='nils-martin-otterdal-nilsen');Object.assign(n,{role:'Styreleder i Søgne Skiklubb',roleType:'external',sourceIds:['organizer-v34','organizer-v35']});
- assert.deepEqual(JSON.parse(await fs.readFile(path.join(root,'data/volunteers.json'),'utf8')),expected,'Only the authorized Atle and Nils Martin facts may extend volunteer data');
+ assert.deepEqual(JSON.parse(await require('./helpers/honors.cjs').preservedFile(root,'data/volunteers.json')),expected,'Only the authorized Atle and Nils Martin facts may extend volunteer data');
  // Temporary renders belong outside the production tree, not in the final PR.
  await assert.rejects(fs.access(path.join(root,'review/heder-pr16')),e=>e.code==='ENOENT');
  const generator=await fs.readFile(path.join(root,'scripts/review-honor-badges.cjs'),'utf8');

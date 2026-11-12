@@ -1,5 +1,5 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),{execFileSync}=require('node:child_process');
-const H=require('../js/honors-data.js'),{readHonors,assertOrdinaryDiplomaCss}=require('./helpers/honors.cjs'),{createHarness}=require('../scripts/diploma-harness.cjs');
+const H=require('../js/honors-data.js'),{expectedPrintMode,readHonors,assertOrdinaryDiplomaCss}=require('./helpers/honors.cjs'),{createHarness}=require('../scripts/diploma-harness.cjs');
 const root=path.resolve(__dirname,'..');let data,h;const cases={'oscar-lohne':35,'erling-askildsen':35,'einar-danielsen':33,'dag-morten-frantzen':13,'hakon-lohne':12,'finn-lohne':13,'kalle-kimestad':13,'bent-bakke':6,'atle-aamodt':5,'birgitte-aamodt':5,'johannes-aamodt':6};
 before(async()=>{data=await readHonors();h=await createHarness();});after(async()=>{await h?.close();});
 const member=id=>H.findIn(data,id).member;
@@ -13,9 +13,9 @@ test('V3.5.2 one registered-tenure calculation drives counts, all six cumulative
   assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
  }
  const e=member('einar-danielsen');assert.equal(e.contribution.approvedTotal.editions,33);assert.equal(e.contribution.confirmedYears,undefined);assert.deepEqual(H.serviceTenure(data,e).years,[]);assert.ok(Object.values(H.serviceTenure(data,e).milestoneYears).every(y=>y===null));
- for(const id of ['oscar-lohne','erling-askildsen','einar-danielsen']){const s=H.honorProfile(data,member(id));assert.equal(s.main.badgeId,'service-aeresmerke');assert.deepEqual(s.secondaryHonorIds,['service-grunnlegger']);assert.equal(s.collectionIds.length,5);}
+ for(const id of ['oscar-lohne','erling-askildsen','einar-danielsen']){const s=H.honorProfile(data,member(id));assert.equal(s.main.badgeId,'service-aeresmerke');assert.deepEqual(s.secondaryHonorIds,id==='einar-danielsen'?['service-grunnlegger','service-memorial']:['service-grunnlegger']);assert.equal(s.collectionIds.length,5);}
  for(const id of ['arnfinn-haverstad','helge-reisvoll']){const s=H.honorProfile(data,member(id));assert.equal(s.main.badgeId,'service-grunnlegger');assert.equal(s.tenure.count,null);assert.deepEqual(s.secondaryHonorIds,[]);}
- const erling=H.honorProfile(data,member('erling-danielsen'));assert.equal(erling.main.badgeId,'service-memorial');assert.equal(H.isFounder(data,member('erling-danielsen')),false);assert.equal(erling.tenure.count,null);assert.equal(erling.tenure.fromYear,1992);assert.deepEqual(erling.earnedBadgeIds,[]);
+ const erling=H.honorProfile(data,member('erling-danielsen'));assert.equal(erling.main.badgeId,'service-dugnad-30');assert.equal(H.isFounder(data,member('erling-danielsen')),false);assert.equal(erling.tenure.count,33);assert.equal(erling.tenure.fromYear,1992);assert.equal(erling.earnedBadgeIds.length,5);
  assert.equal(JSON.stringify(data),before);
 });
 test('V3.5.2 source priority, known absences, missing/end/future years and aggregate totals never invent annual records',()=>{
@@ -32,7 +32,7 @@ test('V3.5.2 source priority, known absences, missing/end/future years and aggre
  assert.equal(H.serviceTenure(data,member('hakon-lohne')).milestoneYears[10],2024);
 });
 test('V3.5.2 memorials never extend an unknown end year; explicit years, end years and approved totals remain authoritative',()=>{
- const original=member('erling-danielsen'),before=JSON.stringify(original),years=data.editionYears;
+ const original=require('./helpers/honors.cjs').priorCorrectionMember(member('erling-danielsen')),before=JSON.stringify(original),years=data.editionYears;
  for(const context of [years,[...years,2027]]){
   const tenure=H.serviceTenure(data,original,context);
   assert.equal(tenure.count,null);assert.equal(tenure.fromYear,1992);assert.equal(tenure.toYear,null);assert.deepEqual(tenure.years,[]);assert.equal(tenure.highest,null);
@@ -46,13 +46,13 @@ test('V3.5.2 memorials never extend an unknown end year; explicit years, end yea
   assert.equal(H.serviceTenure(data,{...fixture,contribution:{...fixture.contribution,approvedTotal:{approved:true,editions:13,sourceIds:['organizer-v352']}}}).count,13);
  }
  const grouped={...original};delete grouped.deceased;delete grouped.memorialRecognition;
- assert.equal(H.serviceTenure(data,grouped).count,null,'The memorial section also identifies a memorial profile');
+ const historic=require('./helpers/honors.cjs').beforeFinalCorrections(data);assert.equal(H.serviceTenure(historic,grouped).count,null,'The memorial section also identifies a memorial profile');
  assert.equal(H.honorProfile(data,member('einar-danielsen')).tenure.count,33);assert.equal(JSON.stringify(original),before);assert.equal(original.contribution.toYear,undefined);
 });
-test('V3.5.2 Erling memorial card, profile and actual A4 PDF preserve 1992 without an invented total or later annual medals',async()=>{
+test('V3.5.2 archived unknown-end memorial fixture preserves 1992 without an invented total or later annual medals',async()=>{
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}});try{
-   await p.goto(h.base+'/heder.html');const card=p.locator('[data-honoree="erling-danielsen"]');await card.waitFor();
+   const fixture=require('./helpers/honors.cjs').beforeFinalCorrections(await readHonors());fixture.presentationPrintSet.entries.push(...fixture.presentationPrintSet.pendingReviews.flatMap(r=>r.previousEntries));delete fixture.presentationPrintSet.pendingReviews;await p.route('**/data/honors.json',r=>r.fulfill({json:fixture}));await p.route('**/data/volunteers.json',async r=>{const v=JSON.parse(await fs.readFile(path.join(root,'data/volunteers.json'),'utf8'));for(const e of data.revisionHistory[0].volunteers)v.people[v.people.findIndex(p=>p.id===e.id)]=e;return r.fulfill({json:v});});await p.goto(h.base+'/heder.html');const card=p.locator('[data-honoree="erling-danielsen"]');await card.waitFor();
    assert.match(await card.innerText(),/fra 1992/);assert.doesNotMatch(await card.innerText(),/35|2026|33/);
    await card.locator('a').click();await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Erling Danielsen');
    assert.match(await p.locator('.honor-profile-header').innerText(),/fra 1992/);assert.doesNotMatch(await p.locator('.honor-profile-header').innerText(),/35|2026|33/);
@@ -81,8 +81,8 @@ test('V3.5.2 mobile/PC profiles and clean A4 diplomas show every earned image on
     const urls=await p.locator('#honorProfile img').evaluateAll(es=>es.map(e=>e.src));assert.equal(new Set(urls).size,urls.length,id);
     await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled);
     const result=await p.evaluate(async id=>{const d=await MorothonDiplomas.serviceDraft(id),doc=document.querySelector('iframe').contentDocument;return {count:d.contributionCount,main:d.assetKey,extra:d.secondaryAssets.map(a=>a.key),year:d.achievementYear,mode:d.printMode,layout:await MorothonDiplomas.checkLayout(doc),text:doc.body.textContent,images:[...doc.querySelectorAll('img:not(.diploma-watermark)')].map(e=>e.src)};},id);
-    assert.equal(result.count,count);assert.equal(result.main,state.main.badgeId);assert.equal(result.mode,'presentation');assert.equal(result.layout.ready,true,result.layout.failures.join(' '));
-    assert.deepEqual(result.extra,[...state.secondaryHonorIds,...state.collectionIds]);assert.equal(new Set(result.images).size,result.images.length);assert.doesNotMatch(result.text,/UTKAST|FORHÅNDSVISNING|MULIGE|anslag/i);
+    assert.equal(result.count,count);assert.equal(result.main,state.main.badgeId);assert.equal(result.mode,expectedPrintMode(data,id));assert.equal(result.layout.ready,true,result.layout.failures.join(' '));
+    assert.deepEqual(result.extra,[...state.secondaryHonorIds,...state.collectionIds]);assert.equal(new Set(result.images).size,result.images.length);if(expectedPrintMode(data,id)==='draft')assert.match(result.text,/FORHÅNDSVISNING/);else assert.doesNotMatch(result.text,/UTKAST|FORHÅNDSVISNING|MULIGE|anslag/i);
     if(id==='einar-danielsen')assert.equal(result.year,null);
     assert.equal(await p.locator('[data-honor-pdf]').isEnabled(),true);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    }
@@ -101,7 +101,7 @@ test('V3.5.2 real missing, swapped, hidden or overlapping secondary medals and f
 });
 test('V3.5.2 protects historical race data, ordinary runner diploma styling and official medal originals while keeping all 44 identities',async()=>{
  const old=JSON.parse(execFileSync('git',['show','52ead66:data/honors.json'],{cwd:root}));assert.equal(data.groups.flatMap(g=>g.members).length,44);
- for(const m of old.groups.flatMap(g=>g.members)){const now=member(m.id);for(const key of ['id','name','runnerId','roles','stories','awards','issuedDiplomas','plannedHonors'])assert.deepEqual(now[key],m[key],m.id+': '+key);}
- for(const folder of ['data/history.json','data/badges.json','data/volunteers.json','data/event-dates.json','assets','index.html','js/history-data.js','js/brag-card.js'])for(const file of execFileSync('git',['ls-tree','-r','--name-only','52ead66',folder],{cwd:root}).toString().trim().split('\n'))assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show','52ead66:'+file],{cwd:root}),file);
+ for(const m of old.groups.flatMap(g=>g.members)){const now=require('./helpers/honors.cjs').priorCorrectionMember(member(m.id));for(const key of ['id','name','runnerId','roles','stories','awards','issuedDiplomas','plannedHonors'])assert.deepEqual(now[key],m[key],m.id+': '+key);}
+ for(const folder of ['data/history.json','data/badges.json','data/volunteers.json','data/event-dates.json','assets','index.html','js/history-data.js','js/brag-card.js'])for(const file of execFileSync('git',['ls-tree','-r','--name-only','52ead66',folder],{cwd:root}).toString().trim().split('\n'))assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','52ead66:'+file],{cwd:root}),file);
  await assertOrdinaryDiplomaCss(root);assert.deepEqual(data.diplomaApprovals,[]);
 });
