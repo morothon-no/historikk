@@ -38,16 +38,51 @@ test('the report command preserves every register and result byte, rejects sourc
   await fs.rm(previous);await fs.symlink(path.join(root,'data/honors.json'),previous);await assert.rejects(scan({output:out}),/symbolsk/);assert.deepEqual(await Promise.all(files.map(hash)),before);
  }finally{await fs.rm(out,{recursive:true,force:true});}
 });
-async function until(check){const deadline=Date.now()+12000;while(Date.now()<deadline){try{if(await check())return;}catch{}await new Promise(r=>setTimeout(r,75));}throw new Error('Ventet for lenge på rapporten');}
+async function until(check,{stage='rapporten',diagnostics=()=>'',exited=()=>false}={}){
+ const deadline=Date.now()+12000;
+ while(Date.now()<deadline){
+  if(exited())throw new Error('Overvåkingen stoppet mens testen ventet på '+stage+'\n'+diagnostics());
+  try{if(await check())return;}catch(e){if(e.code!=='ENOENT')throw new Error('Feil ved kontroll av '+stage+': '+e.message+'\n'+diagnostics(),{cause:e});}
+  await new Promise(r=>setTimeout(r,75));
+ }
+ throw new Error('Ventet for lenge på '+stage+'\n'+diagnostics());
+}
 test('watch mode automatically reviews newly saved volunteers and history aliases, preserving the last report during an incomplete JSON save',async()=>{
- const dir=await fs.mkdtemp(path.join(os.tmpdir(),'runner-link-watch-')),project=path.join(dir,'project'),out=path.join(dir,'reports');await fs.mkdir(path.join(project,'data'),{recursive:true});const d=registry('Navn Uten Treff'),hist=history();await fs.writeFile(path.join(project,'data/honors.json'),JSON.stringify(d));await fs.writeFile(path.join(project,'data/history.json'),JSON.stringify(hist));await fs.writeFile(path.join(project,'data/volunteers.json'),JSON.stringify({schemaVersion:1,people:[]}));await fs.writeFile(path.join(project,'package.json'),JSON.stringify({homepage:'https://example.test/'}));
- const child=spawn(process.execPath,[path.join(root,'scripts/review-runner-links.cjs'),'--root',project,'--output',out,'--watch'],{stdio:['ignore','ignore','ignore']}),exited=new Promise(resolve=>child.once('exit',resolve)),report=()=>fs.readFile(path.join(out,'koblingsforslag.json'),'utf8');
+ const dir=await fs.mkdtemp(path.join(os.tmpdir(),'runner-link-watch-')),project=path.join(dir,'project'),out=path.join(dir,'reports');await fs.mkdir(path.join(project,'data'),{recursive:true});
+ const d=registry('Navn Uten Treff'),hist=history(),vol={schemaVersion:1,sourceIds:['qa'],people:[]};d.volunteerList='data/volunteers.json';
+ const files={core:path.join(project,'data/honors.json'),vol:path.join(project,'data/volunteers.json'),hist:path.join(project,'data/history.json')};
+ await fs.writeFile(files.core,JSON.stringify(d));await fs.writeFile(files.hist,JSON.stringify(hist));await fs.writeFile(files.vol,JSON.stringify(vol));await fs.writeFile(path.join(project,'package.json'),JSON.stringify({homepage:'https://example.test/'}));
+ const child=spawn(process.execPath,[path.join(root,'scripts/review-runner-links.cjs'),'--root',project,'--output',out,'--watch'],{stdio:['ignore','pipe','pipe']});
+ let exitState,stdout='',stderr='';const events=[];
+ const exited=new Promise(resolve=>{child.once('exit',(code,signal)=>{exitState={code,signal};resolve();});child.once('error',e=>{exitState={error:e.message};resolve();});});
+ child.stdout.on('data',b=>{stdout=(stdout+b).slice(-16000);});child.stderr.on('data',b=>{stderr=(stderr+b).slice(-16000);});
+ const readers=[child.stdout,child.stderr].map(input=>require('node:readline').createInterface({input}));
+ for(const reader of readers)reader.on('line',line=>{try{events.push(JSON.parse(line));}catch{}});
+ const diagnostics=()=>JSON.stringify({exitState,stdout,stderr}),wait=(stage,check)=>until(check,{stage,diagnostics,exited:()=>!!exitState});
+ const report=()=>fs.readFile(path.join(out,'koblingsforslag.json'),'utf8');
  try{
-  await until(async()=>JSON.parse(await report()).rows.length===1);d.groups[0].members.push({id:'registered-now',name:'Testalias Til Løper'});await fs.writeFile(path.join(project,'data/honors.json'),JSON.stringify(d));await until(async()=>JSON.parse(await report()).rows.length===2);
-  hist.aliases[pid]=['Testalias Til Løper'];await fs.writeFile(path.join(project,'data/history.json'),JSON.stringify(hist));await until(async()=>JSON.parse(await report()).rows.some(r=>r.personId==='registered-now'&&r.status==='unique'));
-  const saved=await report();await fs.writeFile(path.join(project,'data/honors.json'),'{');await new Promise(r=>setTimeout(r,850));assert.equal(await report(),saved);
-  d.groups[0].members[1].name='Anna Olsen';await fs.writeFile(path.join(project,'data/honors.json'),JSON.stringify(d));await until(async()=>JSON.parse(await report()).rows.some(r=>r.personId==='registered-now'&&r.name==='Anna Olsen'));assert.equal(d.groups[0].members[1].runnerId,undefined);
- }finally{child.kill('SIGTERM');await exited;await fs.rm(dir,{recursive:true,force:true});}
+  await wait('watch-ready',()=>events.some(e=>e.event==='watch-ready'));
+  assert.deepEqual(events.find(e=>e.event==='watch-ready').files.sort(),['history.json','honors.json','volunteers.json']);
+  // Edit immediately after readiness, without using the first report as a
+  // proxy for installed watchers or adding a startup sleep.
+  vol.people.push({id:'registered-now',name:'Testalias Til Løper'});await fs.writeFile(files.vol,JSON.stringify(vol));await wait('ny dugnadsperson',async()=>JSON.parse(await report()).rows.length===2);
+  hist.aliases[pid]=['Testalias Til Løper'];await fs.writeFile(files.hist,JSON.stringify(hist));await wait('nytt historikkalias',async()=>JSON.parse(await report()).rows.some(r=>r.personId==='registered-now'&&r.status==='unique'));
+  const saved=await report();
+  for(const [invalid,errorType]of [['{','SyntaxError'],[JSON.stringify({schemaVersion:1,people:null}),'Error']]){
+   const before=events.length;await fs.writeFile(files.vol,invalid);
+   await wait('observert feil for ugyldig JSON',()=>events.slice(before).some(e=>e.event==='watch-error'&&e.errorType===errorType));
+   assert.equal(await report(),saved,'Only a successfully parsed and validated scan may replace the report');
+  }
+  vol.people[0].name='Anna Olsen';await fs.writeFile(files.vol,JSON.stringify(vol));await wait('gjenopprettet dugnadsregister',async()=>JSON.parse(await report()).rows.some(r=>r.personId==='registered-now'&&r.name==='Anna Olsen'));
+  d.groups[0].members[0].name='Oppdatert Kildenavn';await fs.writeFile(files.core,JSON.stringify(d));await wait('oppdatert hedersregister',async()=>JSON.parse(await report()).rows.some(r=>r.personId==='anna'&&r.name==='Oppdatert Kildenavn'));
+  // Directory monitoring must survive a save implemented by rename as well.
+  hist.aliases[pid].push('Oppdatert Kildenavn');await fs.writeFile(files.hist+'.tmp',JSON.stringify(hist));await fs.rename(files.hist+'.tmp',files.hist);
+  await wait('alias lagret ved filbytte',async()=>JSON.parse(await report()).rows.some(r=>r.personId==='anna'&&r.status==='unique'));
+  assert.equal(vol.people[0].runnerId,undefined);assert.equal(d.groups[0].members[0].runnerId,undefined);
+ }finally{
+  if(!exitState)child.kill('SIGTERM');const force=setTimeout(()=>child.kill('SIGKILL'),2000);
+  try{await exited;}finally{clearTimeout(force);readers.forEach(r=>r.close());await fs.rm(dir,{recursive:true,force:true});}
+ }
 });
 test('an exact proposal stays invisible as a race identity until explicit confirmation; then card, statistics and correct runner link appear',async()=>{
  const h=await createHarness();try{

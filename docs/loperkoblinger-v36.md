@@ -6,6 +6,13 @@ navn og personopplysninger redigeres fortsatt i de eksisterende JSON-filene.
 Verktøyet søker automatisk før `npm test` og `npm run build`. For løpende
 kontroll mens registerfilene redigeres finnes en overvåkingsmodus.
 
+Overvåkingen registreres før første skann. Ved automatisering skal klienten
+vente på JSON-signalet `watch-ready`, ikke bare på at rapportfilen finnes.
+Signalet sendes etter at overvåkingen er aktiv og første skann er avsluttet.
+Katalogovervåking fanger også opp lagring som bytter JSON-filen med `rename`.
+Feil gir et strukturert `watch-error`-signal; siste gyldige rapport beholdes
+til registeret igjen kan leses og valideres.
+
 ```sh
 npm run personer:kontroller
 npm run personer:kontroller -- --watch

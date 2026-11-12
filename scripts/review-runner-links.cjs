@@ -1,5 +1,5 @@
 // Maintainer-only scan. Reports are not site assets; there is no apply/auto-link mode.
-const fs=require('node:fs/promises'),path=require('node:path'),{watchFile,unwatchFile}=require('node:fs');
+const fs=require('node:fs/promises'),path=require('node:path'),{watch}=require('node:fs');
 const {randomUUID}=require('node:crypto');
 const H=require('../js/honors-data.js'),{reviewLinks,markdown}=require('./lib/runner-link-review.cjs');
 const defaultRoot=path.resolve(__dirname,'..');
@@ -25,9 +25,26 @@ function args(argv){const options={};let watching=false;for(let i=0;i<argv.lengt
 async function main(argv=process.argv.slice(2)){
  const {options,watching}=args(argv),run=async()=>{const r=await scan(options);console.log(JSON.stringify({output:r.output,...r.report.summary,sourceWarnings:r.report.warnings.length,errors:r.errors}));return r;};
  if(!watching){const r=await run();if(r.errors)process.exitCode=1;return;}
- const files=['data/honors.json','data/volunteers.json','data/history.json'].map(f=>path.join(options.root||defaultRoot,f));let timer,running=false,pending=false;
- const update=async()=>{if(running){pending=true;return;}running=true;try{await run();}catch(e){console.error('Kontrollen feilet; siste gyldige rapport beholdes: '+e.message);}finally{running=false;if(pending){pending=false;update();}}};
- await update();for(const file of files)watchFile(file,{interval:300},()=>{clearTimeout(timer);timer=setTimeout(update,250);});
- const close=()=>{clearTimeout(timer);files.forEach(file=>unwatchFile(file));};process.once('SIGINT',close);process.once('SIGTERM',close);
+ const directory=path.join(options.root||defaultRoot,'data'),names=new Set(['honors.json','volunteers.json','history.json']);
+ let timer,running=false,pending=false,closed=false;
+ const failure=e=>console.error(JSON.stringify({event:'watch-error',errorType:e.name,message:'Kontrollen feilet; siste gyldige rapport beholdes: '+e.message}));
+ const update=async()=>{
+  if(closed)return;if(running){pending=true;return;}running=true;
+  try{do{pending=false;try{await run();}catch(e){failure(e);}}while(pending&&!closed);}finally{running=false;}
+ };
+ // A native directory watcher is active synchronously on return. Watching the
+ // directory also survives editors replacing a JSON file by atomic rename.
+ // Install it before the initial scan, so changes during that scan are queued.
+ const watcher=watch(directory,(_event,filename)=>{
+  if(closed||filename!==null&&!names.has(path.basename(String(filename))))return;
+  pending=true;clearTimeout(timer);if(!running)timer=setTimeout(update,250);
+ });
+ const close=()=>{if(closed)return;closed=true;pending=false;clearTimeout(timer);watcher.close();};
+ watcher.on('error',e=>{failure(e);close();process.exitCode=1;});
+ process.once('SIGINT',close);process.once('SIGTERM',close);
+ await update();
+ // Report existence is not a readiness contract. Consumers may edit only once
+ // this signal confirms that monitoring is installed and the first scan ended.
+ if(!closed)console.log(JSON.stringify({event:'watch-ready',directory,files:[...names]}));
 }
 module.exports={scan,args,main};if(require.main===module)main().catch(e=>{console.error(e.message);process.exitCode=1});
