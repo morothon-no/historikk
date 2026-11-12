@@ -155,15 +155,19 @@
       ? contribution.milestoneYears?.[milestone]??null
       : !illustrative&&badgeId==='service-aeresmerke'&&contribution.basis==='documented'&&contribution.count===35&&knownYears.length===35?contribution.last:null;
     const {eventDate,label:achievementDateLabel,basis:dateBasis}=serviceAchievementDate(achievementYear,register);
+    // The organizer may supply a presentation date for a special honor. This
+    // never fills an unknown achievement year or writes an award/issue record.
+    const presentationDate=!illustrative&&badgeId==='service-aeresmerke'?member.diplomaDate?.date||null:null;
+    const presentationDateLabel=presentationDate?`Søgne, ${new Intl.DateTimeFormat('nb-NO',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(presentationDate+'T12:00:00Z'))}`:'';
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name,
       roleLabel:gratitude?(member.roles||[]).filter(r=>r.confirmed).map(r=>r.title).join(' · '):badge.name,
       tribute:gratitude?'Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!':member.diplomaTribute||'',
       provisional:true,asset,assetKey:gratitude?'debut':badgeId,gratitude,printMode:'draft',
       secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&MorothonBadges.get(a.key).series==='dugnad'),memorial:badgeId==='service-memorial',
       contributionCount:contribution.count||null,contributionFirst:contribution.first??null,contributionLast:contribution.last??null,
-      achievementYear,eventDate,dateBasis,handwriting,
+      achievementYear,eventDate,dateBasis,handwriting,presentationDate,achievementDateLabel,
       illustrative,medalDisplay,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
-      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
+      watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:presentationDateLabel||achievementDateLabel,
       filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-${illustrative?'eksempel':'diplom'}-${medalDisplay}`,description:'Et personlig diplom fra Morothon.',citation:''};
   }
 
@@ -195,13 +199,12 @@
     const profile=MorothonHonorsData.honorProfile(data,member,years),options=MorothonHonorsData.diplomaChoices(data,member,years);
     const badgeId=requestedBadgeId||options[0]||'thanks';
     if(!options.includes(badgeId)||!MorothonHonorsData.isActiveBadge(data,badgeId))throw new Error('Ingen slik aktiv hedersutmerkelse har beregningsgrunnlag for denne profilen.');
-    const badge=badgeId==='thanks'?null:MorothonBadges.get(badgeId),milestone=badge?.series==='dugnad'?badge.milestoneEditions:null;
-    const selectedText=milestone?data.diplomaExamples.find(e=>e.illustrative&&e.badgeId===badgeId)?.tribute:null;
+    const selectedText=MorothonHonorsData.diplomaText(data,member,badgeId);
     const collection=badgeId==='thanks'||medalDisplay==='latest'?[]:profile.earnedBadgeIds.filter(id=>id!==badgeId);
     const founder=badgeId!=='thanks'&&badgeId!=='service-grunnlegger'&&MorothonHonorsData.isFounder(data,member)?['service-grunnlegger']:[];
     const contribution=profile.tenure;
     // Aggregate totals have no invented annual rows or milestone date.
-    const draft=await serviceContent(selectedText?{...member,diplomaTribute:selectedText}:member,badgeId,
+    const draft=await serviceContent({...member,diplomaTribute:selectedText},badgeId,
       [badgeId==='thanks'?'debut':badgeId,...founder,...collection],contribution,false,medalDisplay);
     return withServiceApproval(data,draft);
   }
@@ -210,7 +213,7 @@
     if(!example)throw new Error('Diplomet finnes ikke.');
     if(example.personId)return serviceDraft(example.personId,example.badgeId,medalDisplay);
     const collection=example.badgeId==='thanks'||medalDisplay==='latest'?[]:data.awardPolicy.milestones.filter(m=>m.minimumDocumentedEditions<=example.contributionCount&&m.badgeId!==example.badgeId).map(m=>m.badgeId);
-    return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:example.tribute},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId,...collection],{count:example.contributionCount},true,medalDisplay));
+    return withServiceApproval(data,await serviceContent({name:example.name,diplomaTribute:MorothonHonorsData.diplomaText(data,{},example.badgeId)},example.badgeId,[example.badgeId==='thanks'?'debut':example.badgeId,...collection],{count:example.contributionCount},true,medalDisplay));
   }
 
   // A review fingerprint covers the final composition, graphics and CSS.
@@ -347,7 +350,7 @@
   // Volunteer dates refer to the achieved milestone, never formal award/issue
   // dates. Unknown years have neither placeholder dates nor an empty date rule.
   function serviceSignoffHtml(d) {
-    const date=d.dateLabel||'',label=d.assetKey.startsWith('service-dugnad-')?'MERKET OPPNÅDD':'MILEPÆL OPPNÅDD';
+    const date=d.dateLabel||'',label=d.presentationDate?'UTDELINGSDATO':d.assetKey.startsWith('service-dugnad-')?'MERKET OPPNÅDD':'MILEPÆL OPPNÅDD';
     return `<div class="diploma-signoff diploma-service-signoff" data-layout-check>
       <div class="diploma-date">${date?`<span class="diploma-date-label">${label}</span>`:''}<p class="diploma-handwritten">${safe(date)}</p>${date?'<div class="diploma-signature-line" aria-hidden="true"></div>':''}</div>
       <div class="diploma-signature"><b class="diploma-handwritten">Håkon Lohne</b><div class="diploma-signature-line" aria-label="Signaturlinje"></div><span class="diploma-signature-role">Løpsleder · Morothon</span></div>

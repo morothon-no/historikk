@@ -224,3 +224,16 @@ før/etter), nærbilder av avslutningen, mobil-/PC-visning og målinger i
 med 15 registrerte testår 1996–2010. Ingen historiske personopplysninger endres.
 GitHub Actions lagrer filene som `morothon-v353-dato-signatur`; de store filene
 inngår ikke i produksjonspakken. Ordinære løperdiplomer er uendret.
+
+## V3.6 – felles nivåtekster og egne personlige ærestekster
+
+De seks dugnadsnivåene bruker nå `diplomaTexts.dugnad`, uavhengig av mottaker.
+Æresmerket bruker `personDetails[id].honorDiplomaText`, eller felles
+`diplomaTexts.honorDefault` når personlig tekst mangler. Eksisterende aktive
+ærestekster beholdes; tre nye forslag ligger separat til godkjenning.
+Se [redigeringsveiledningen](personregister-v36.md).
+
+Einar har etter ny arrangørbekreftelse utdelingsdato 7. november 2026. Denne
+vises håndskrevet med «Søgne» og etiketten «UTDELINGSDATO», adskilt fra hans
+fortsatt ukjente oppnåelsesår. V3.5.3s øvrige font- og datoregler, A4-oppsett og
+begge medaljevalg er bevart. Ingen medaljer er flyttet.

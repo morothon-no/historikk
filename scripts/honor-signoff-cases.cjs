@@ -2,7 +2,7 @@
 const cases=[
  {key:'2023',id:'dag-morten-frantzen',name:'Dag Morten Frantzen',date:'Søgne, 11. november 2023'},
  {key:'historisk-2010',id:'dag-morten-frantzen',name:'Historisk kontrollprofil',date:'Søgne, november 2010',historical:true},
- {key:'einar',id:'einar-danielsen',name:'Einar Danielsen',date:''}
+ {key:'einar',id:'einar-danielsen',name:'Einar Danielsen',date:'Søgne, 7. november 2026'}
 ];
 function historicalFixture(core){
  const data=structuredClone(core),m=data.groups.flatMap(g=>g.members).find(m=>m.id==='dag-morten-frantzen');

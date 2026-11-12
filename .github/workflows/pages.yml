@@ -52,15 +52,15 @@ jobs:
         run: npm test
       - name: Build versioned runtime package
         run: npm run build
-      - name: Render V3.5.2 honor review artifacts
+      - name: Render V3.6 honor review artifacts
         if: github.event_name == 'pull_request'
-        run: node scripts/review-honors-v352.cjs /tmp/morothon-v352
-      - name: Retain V3.5.2 honor review artifacts
+        run: node scripts/review-honors-v36.cjs /tmp/morothon-v36
+      - name: Retain V3.6 honor review artifacts
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: morothon-v352-forhaandsvisning
-          path: /tmp/morothon-v352/
+          name: morothon-v36-forhaandsvisning
+          path: /tmp/morothon-v36/
           if-no-files-found: error
           retention-days: 14
       - name: Render V3.5.3 date and signature comparison

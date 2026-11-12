@@ -137,6 +137,16 @@
       "publisher": "Søgne Morothon",
       "date": "2026-11-11",
       "basis": "Registrerte start- og sluttår regnes som gjeldende dugnadshistorikk, med kjente fravær trukket fra. Eksplisitte confirmedYears er fasit. Einar Danielsen har 33 arrangørgodkjente dugnadsutgaver uten oppgitt årsrekke. Opptjente dugnadsmerker er kumulative; formell utdeling registreres ikke automatisk."
+    },
+    "organizer-v36-runner-links": {
+      "title": "Arrangørbekreftede løperkoblinger i V3.6",
+      "publisher": "Søgne Morothon",
+      "note": "Per Sangvik, Joar Lohne, Jenny Åmodt og Ole J. Bueklev koblet til oppgitte MOR-ID-er etter arrangørens uttrykkelige bekreftelse."
+    },
+    "organizer-v36-einar-date": {
+      "title": "Einars utdelingsdato bekreftet i V3.6",
+      "publisher": "Søgne Morothon",
+      "note": "Arrangøren valgte årets løpsdato 7. november 2026 for Einars diplom. Dette fastsetter ikke oppnåelsesår for de 33 dugnadsutgavene og registrerer ingen formell utdeling."
     }
   },
   "displayOrder": [
@@ -1459,8 +1469,7 @@
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-5",
-      "contributionCount": 5,
-      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+      "contributionCount": 5
     },
     {
       "id": "dugnad-10",
@@ -1468,8 +1477,7 @@
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-10",
-      "contributionCount": 10,
-      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+      "contributionCount": 10
     },
     {
       "id": "dugnad-15",
@@ -1477,8 +1485,7 @@
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-15",
-      "contributionCount": 15,
-      "tribute": "Femten dugnadsutgaver! Noen kaller det dugnad. Vi begynner å kalle det en livsstil. Takk for trofast innsats og godt humør."
+      "contributionCount": 15
     },
     {
       "id": "dugnad-20",
@@ -1486,8 +1493,7 @@
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-20",
-      "contributionCount": 20,
-      "tribute": "Tjue utgaver! Når noe må fikses, vet vi hvem vi skal ringe. Du er en av bærebjelkene som holder Morothon på beina."
+      "contributionCount": 20
     },
     {
       "id": "dugnad-30",
@@ -1495,8 +1501,7 @@
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-30",
-      "contributionCount": 30,
-      "tribute": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats."
+      "contributionCount": 30
     },
     {
       "id": "dugnad-40",
@@ -1504,8 +1509,7 @@
       "illustrative": true,
       "name": "En av Morothons dugnadshelter",
       "badgeId": "service-dugnad-40",
-      "contributionCount": 40,
-      "tribute": "Førti dugnadsutgaver. Du er ikke bare en del av Morothon – Morothon er en del av deg. En ekte Morothon-legende!"
+      "contributionCount": 40
     },
     {
       "id": "grunnlegger-flere",
@@ -1734,7 +1738,7 @@
         "personId": "einar-danielsen",
         "badgeId": "service-aeresmerke",
         "medalDisplay": "all",
-        "contentSha256": "ddd1bf4f34cf21a7306727cbb7a702e0c490004976d06c9b2411ae2c0aa24b78",
+        "contentSha256": "3f04eb76074aab12d83f2c51e9453dbe07bf980e4682d5cef998ac5a827aa5dd",
         "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
@@ -1769,7 +1773,7 @@
         "personId": "einar-danielsen",
         "badgeId": "service-aeresmerke",
         "medalDisplay": "latest",
-        "contentSha256": "fe4b9d2a79ee4329c52f3d8891eed42727f5e4bda861046f05e501ac852c198c",
+        "contentSha256": "62fdd76eeff8fe06da7ec6a704c9d50fe63d845764ef46f16d37babf92b3e93d",
         "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
@@ -2525,5 +2529,384 @@
     "sourceIds": [
       "organizer-v352"
     ]
+  },
+  "diplomaTexts": {
+    "dugnad": {
+      "5": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon.",
+      "10": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!",
+      "15": "Femten dugnadsutgaver! Noen kaller det dugnad. Vi begynner å kalle det en livsstil. Takk for trofast innsats og godt humør.",
+      "20": "Tjue utgaver! Når noe må fikses, vet vi hvem vi skal ringe. Du er en av bærebjelkene som holder Morothon på beina.",
+      "30": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats.",
+      "40": "Førti dugnadsutgaver. Du er ikke bare en del av Morothon – Morothon er en del av deg. En ekte Morothon-legende!"
+    },
+    "honorDefault": "Med stor takknemlighet for tiden, kreftene og engasjementet du har gitt Morothon. Du har vært med på å skape løpsglede og fellesskap, og innsatsen din har satt varige spor. Takk for det du har betydd for løpet og menneskene rundt det."
+  },
+  "personDetails": {
+    "erling-askildsen": {
+      "shortDescription": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
+      "stories": [
+        {
+          "title": "En idé det ble tradisjon av",
+          "text": "Erling fikk ideen om et terrengløp der utfordringen i heiene skulle følges av kameratskap og sosialt samvær. Ideen ble starten på Søgne Morothon i 1992.",
+          "source": "Fædrelandsvennen",
+          "sourceIds": [
+            "fvn-2016"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "35 utgaver med Morothon",
+          "text": "Erling har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "confirmed": true
+        }
+      ],
+      "honorDiplomaText": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien."
+    },
+    "oscar-lohne": {
+      "shortDescription": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
+      "stories": [
+        {
+          "title": "Da nye krefter overtok",
+          "text": "Grunnleggergruppen fortsatte å bidra etter overtakelsen i 2014. Merking, rigging, drikkestasjoner og rydding var fortsatt del av den felles innsatsen.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "35 utgaver med Morothon",
+          "text": "Oscar har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v34"
+          ],
+          "confirmed": true
+        }
+      ],
+      "honorDiplomaText": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien."
+    },
+    "arnfinn-haverstad": {
+      "shortDescription": "Grunnlegger og løypeildsjel, med både praktiske bidrag og sterke løpsresultater.",
+      "stories": [
+        {
+          "title": "Løypemerking i snø og mørke",
+          "text": "Under merking av løypa gjorde tett snøvær og raskt fallende mørke situasjonen så krevende at de andre nesten måtte begynne å lete etter Arnfinn. Historien sier noe om arbeidet som måtte til før løperne kunne stille til start.",
+          "source": "Fædrelandsvennen",
+          "sourceIds": [
+            "fvn-2016"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "helge-reisvoll": {
+      "shortDescription": "En av de fem som var med på å starte Morothon.",
+      "stories": [
+        {
+          "title": "En del av grunnlaget",
+          "text": "Helge var med i grunnleggergruppen som skapte Morothon. Løpene hans forteller én del av historien; innsatsen rundt arrangementet er en annen.",
+          "source": "Fædrelandsvennen, Søgne Morothon",
+          "sourceIds": [
+            "fvn-2016",
+            "organizer-v3"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "einar-danielsen": {
+      "shortDescription": "En av de fem som la grunnlaget for Morothon i 1992.",
+      "stories": [
+        {
+          "title": "Med fra starten",
+          "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "confirmed": true
+        }
+      ],
+      "honorDiplomaText": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+      "diplomaDate": {
+        "date": "2026-11-07",
+        "sourceIds": [
+          "organizer-v36-einar-date"
+        ]
+      }
+    },
+    "kalle-kimestad": {
+      "shortDescription": "En av de trofaste dugnadsheltene, med innsats siden minst 2014.",
+      "stories": [
+        {
+          "title": "En av dem som stiller opp",
+          "text": "Kalle er en av dem som har stilt opp på dugnad siden minst 2014. Innsatsen hans er en del av fellesskapet som bærer løpet videre.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "finn-lohne": {
+      "shortDescription": "Har bidratt på dugnad siden minst 2014, blant annet på drikkestasjonen på Freden.",
+      "stories": [
+        {
+          "title": "En del av hjelpen på Freden",
+          "text": "Finn har blant annet vært med på drikkestasjonen på Freden. Siden minst 2014 har han vært en av de trofaste hjelperne rundt løpet.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v3"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "dag-morten-frantzen": {
+      "shortDescription": "Tidtaker og kreativ ildsjel i kulissene.",
+      "stories": [
+        {
+          "title": "Stafettpinnen videre",
+          "text": "Dag Morten overtok arrangøransvaret sammen med Håkon Lohne og Bent-Inge Bakke i 2014. Han har vært en av de sentrale arrangørene etter overtakelsen.",
+          "source": "Fædrelandsvennen, N247, Søgne Morothon",
+          "sourceIds": [
+            "fvn-2016",
+            "n247-2014",
+            "organizer-v3"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "Hjernen bak klokka",
+          "text": "Dag Morten er på hjemmebane med tidtaking, kreative ideer og alt det som må fungere bak kulissene. Arrangørgjengen forteller, med et smil, at han ennå ikke har tatt hele Langmoro på 20 km i ett strekk – løypa tas visst helst stykkevis og delt. Heldigvis trenger Morothon folk som får klokka til å gå like mye som folk som løper mot den.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v34-issue13-people"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "hakon-lohne": {
+      "shortDescription": "Arrangørgjengens spreke alibi – full pakke før, under og etter løpet.",
+      "stories": [
+        {
+          "title": "Tradisjonen i nye løyper",
+          "text": "Håkon tok over arrangøransvaret sammen med Dag Morten Frantzen og Bent-Inge Bakke i 2014. I 2016 var han på Svalbard. Videreføringen av Morothon er en laginnsats, med både gamle og nye krefter.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v3",
+            "organizer-v34"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "Det spreke alibiet",
+          "text": "Håkon er det spreke alibiet i arrangørgjengen. Han er kanskje enda kjappere i replikken enn i løypa. Før løpet bidrar han med løypemerking og klargjøring, underveis finner han gjerne tid til å løpe selv, og etterpå er han med på nedrigging. Noen nøyer seg med å arrangere Morothon. Håkon ser ut til å ha bestilt hele pakken.",
+          "source": "Søgne Morothon",
+          "sourceIds": [
+            "organizer-v34-issue13-people"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "jon-fjeld": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "rune-bergjord": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "astrid-lohne": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "per-sangvik": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-EEA35C7",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v36-runner-links"
+        ]
+      }
+    },
+    "tom-lohne": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "joar-lohne": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-F582406",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v36-runner-links"
+        ]
+      }
+    },
+    "anne-lene-forland-hansen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "birgitte-aamodt": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "nils-henning-pedersen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "ingvild-holmen-solvik": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "johannes-aamodt": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "linea-morland": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "mari-melsom-kristensen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "nils-martin-otterdal-nilsen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "jenny-aamodt": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-D4EBCCF",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v36-runner-links"
+        ]
+      }
+    },
+    "ole-j-bueklev": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-F1FE757",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v36-runner-links"
+        ]
+      }
+    },
+    "trine-dybesland": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "aud-o": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "arnfinn-g": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "magne": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "lars-aamodt": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "laila-endresen-skjulestad": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "christan-berthelsen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "georg-engenes": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "trine-danielsen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "lene-holmen-berg": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "arvid-boro": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "margrete-tofte": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "joran-eriksen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "preben-s-dahl": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "atle-aamodt": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "bent-bakke": {
+      "shortDescription": "Med da nye krefter overtok i 2014.",
+      "stories": [
+        {
+          "title": "Med i den nye arrangørgruppen",
+          "text": "Bent var med da arrangøransvaret ble overtatt i 2014, og bidro i noen år etterpå.",
+          "source": "N247, Søgne Morothon",
+          "sourceIds": [
+            "n247-2014",
+            "organizer-v3"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "erling-danielsen": {
+      "shortDescription": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
+      "stories": []
+    },
+    "floke-bredland": {
+      "shortDescription": "En viktig del av bankettene og det sosiale fellesskapet. Arrangøren anslår minst 25 års dugnadsinnsats. Floke gikk bort i 2024.",
+      "stories": [
+        {
+          "title": "En stemme mange husker",
+          "text": "Floke leste resultatlistene på bankettene. Også menneskene og samværet etter løpet er en del av det vi tar med oss videre.",
+          "source": "Fædrelandsvennen, N247 og Søgne Morothon",
+          "sourceIds": [
+            "fvn-2016",
+            "n247-2014",
+            "organizer-v34"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "leif-wiig": {
+      "shortDescription": "En viktig kraft innen tidtaking og organisering. Arrangøren anslår minst 25 års dugnadsinnsats. Leif gikk bort i 2023.",
+      "stories": []
+    }
   }
 }

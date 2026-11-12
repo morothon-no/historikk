@@ -116,3 +116,7 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 .honor-intro-copy .honor-intro-message{color:#12343e}
 .honor-intro-copy .honor-thanks{font-family:Georgia,serif;color:#876225}
 @media(max-width:650px){.honor-intro-copy{font-size:16px;line-height:1.75}.honor-intro-copy p{margin:18px 0}}
+
+/* V3.6: short editorial text and a compact race note, without nested links. */
+.honor-card-racing{display:block;margin-top:4px;font-size:12px;line-height:1.3;color:#526b70;overflow-wrap:anywhere}
+.honor-person-summary,.honor-story p{white-space:pre-line}

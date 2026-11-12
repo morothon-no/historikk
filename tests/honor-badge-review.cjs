@@ -40,7 +40,7 @@ test('PR16 milestone diplomas retain current registered totals, cumulative honor
   }
   for(const example of honors.diplomaExamples.filter(e=>e.illustrative&&e.badgeId!=='thanks')){
    const d=await p.evaluate(async id=>{const d=await MorothonDiplomas.serviceExample(id);return {count:d.contributionCount,date:d.dateLabel,year:d.achievementYear,tribute:d.tribute};},example.id);
-   assert.equal(d.count,example.contributionCount);assert.equal(d.tribute,example.tribute);assert.equal(d.year,null);assert.equal(d.date,'');
+   assert.equal(d.count,example.contributionCount);assert.equal(d.tribute,honors.diplomaTexts.dugnad[example.contributionCount]);assert.equal(d.year,null);assert.equal(d.date,'');
   }
  }finally{await p.close();}
 });

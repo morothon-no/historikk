@@ -99,6 +99,18 @@
   function canPresent(data,member,badgeId,editionYears){
     return diplomaChoices(data,member,editionYears).includes(badgeId);
   }
+  // One editable content record for every honoree, including name-list entries.
+  // Historical roles/years/identities stay in their original source records.
+  function personRecord(data,member){
+    const details=data.personDetails?.[member.id]||{};
+    return {...member,...details,...(details.runnerLink?{runnerId:details.runnerLink.runnerId}:{})};
+  }
+  function diplomaText(data,member,badgeId){
+    const level=data.awardPolicy.milestones.find(m=>m.badgeId===badgeId)?.minimumDocumentedEditions;
+    if(level)return data.diplomaTexts?.dugnad?.[level]??data.diplomaExamples.find(e=>e.badgeId===badgeId&&e.illustrative)?.tribute??'';
+    if(badgeId==='service-aeresmerke')return personRecord(data,member).honorDiplomaText?.trim()||data.diplomaTexts?.honorDefault||'';
+    return member.diplomaTribute||'';
+  }
   // A small, source-backed name list extends the same canonical profiles. It cannot award badges.
   function mergeVolunteers(data,list){
     if(list?.schemaVersion!==1||!Array.isArray(list.people))throw new Error('Ugyldig dugnadsliste.');
@@ -203,11 +215,28 @@
         pairs.add(pair);
       }
     }
+    if(data.diplomaTexts){
+      if(!data.diplomaTexts.dugnad||!data.diplomaTexts.honorDefault)throw new Error('Felles diplomtekster mangler.');
+      for(const text of [...milestones.map(m=>data.diplomaTexts.dugnad[m.minimumDocumentedEditions]),data.diplomaTexts.honorDefault])if(typeof text!=='string'||!text.trim()||text.length>350)throw new Error('Ugyldig felles diplomtekst.');
+    }
+    if(data.personDetails){
+      if(typeof data.personDetails!=='object'||Array.isArray(data.personDetails))throw new Error('Ugyldig personregister.');
+      const allowed=new Set(['shortDescription','stories','honorDiplomaText','runnerLink','diplomaDate']);
+      for(const [id,details]of Object.entries(data.personDetails)){
+        if(!findIn(data,id)||!details||Object.keys(details).some(k=>!allowed.has(k)))throw new Error('Ukjent person eller felt i personregisteret.');
+        if(details.shortDescription!==undefined&&(typeof details.shortDescription!=='string'||details.shortDescription.length>350))throw new Error('Ugyldig korttekst.');
+        if(details.honorDiplomaText!==undefined&&(typeof details.honorDiplomaText!=='string'||details.honorDiplomaText.length>350))throw new Error('Ugyldig personlig hederstekst.');
+        if(details.stories!==undefined&&(!Array.isArray(details.stories)||details.stories.some(s=>!s||typeof s.text!=='string'||typeof s.source!=='string'||typeof s.confirmed!=='boolean')))throw new Error('Ugyldig personlig historie.');
+        for(const story of details.stories||[]){refs(story.sourceIds);if(story.confirmed&&!hasSource(data,story))throw new Error('Personlig historie mangler kilde.');}
+        if(details.runnerLink){const link=details.runnerLink;refs(link.sourceIds);if(!/^MOR-[A-Z0-9]{7}$/.test(link.runnerId||'')||link.confirmed!==true||!link.sourceIds?.length||link.sourceIds.some(id=>!Object.hasOwn(data.sources,id)))throw new Error('Løperkobling krever eksplisitt bekreftelse og kilde.');}
+        if(details.diplomaDate){const date=details.diplomaDate;refs(date.sourceIds);const parsed=new Date(date.date+'T12:00:00Z');if(!/^\d{4}-\d{2}-\d{2}$/.test(date.date||'')||!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==date.date||!date.sourceIds?.length||date.sourceIds.some(id=>!Object.hasOwn(data.sources,id)))throw new Error('Diplomdato krever gyldig dato og kilde.');}
+      }
+    }
     const examples=new Set();for(const e of data.diplomaExamples||[]){if(!key(e.id)||examples.has(e.id)||!e.label||!isActiveBadge(data,e.badgeId)||(e.badgeId!=='thanks'&&MorothonBadges.get(e.badgeId).kind!=='service'))throw new Error('Ugyldig diplomutkast.');examples.add(e.id);if(e.personId){const found=findIn(data,e.personId);if(!found||!badgePlan(data,found.member,found.group).badgeIds.includes(e.badgeId))throw new Error('Diplomutkast mangler merkeforslag.');}else if(e.illustrative!==true||!e.name||e.badgeId!=='thanks'&&(!Number.isInteger(e.contributionCount)||e.contributionCount<1))throw new Error('Typeeksempel må være eksplisitt og uten personkobling.');}
     return data;
   }
   async function load(){if(!pending)pending=(async()=>{await MorothonBadges.init();const r=await fetch('data/honors.json',{cache:'no-cache'});if(!r.ok)throw new Error('Navnelisten kunne ikke lastes.');let data=await r.json();if(data.volunteerList!==undefined){if(data.volunteerList!=='data/volunteers.json')throw new Error('Ugyldig dugnadslistefil.');const v=await fetch(data.volunteerList,{cache:'no-cache'});if(!v.ok)throw new Error('Dugnadslisten kunne ikke lastes.');data=mergeVolunteers(data,await v.json());}let editionYears=data.presentationPrintSet?.editionYears||[];try{editionYears=arrangedYears((await MorothonHistoryData.load()).data.results);}catch{}Object.defineProperty(data,'editionYears',{value:editionYears,enumerable:false});return validate(data);})().catch(e=>{pending=null;throw e;});return pending;}
-  async function find(id){const data=await load(),record=findIn(data,id);if(!record)throw new Error('Hedersprofilen finnes ikke.');return {...record,stories:(record.member.stories||[]).filter(s=>s.confirmed&&hasSource(data,s)),roles:(record.member.roles||[]).filter(r=>r.confirmed&&hasSource(data,r))};}
-  const api={load,find,findIn,membersFor,validate,badgePlan,contribution,tenureMilestones,serviceTenure,honorProfile,isFounder,startYear,sortVolunteers,provisionalMilestone,arrangedYears,mainBadge,diplomaChoices,canPresent,isActiveBadge,mergeVolunteers};
+  async function find(id){const data=await load(),record=findIn(data,id);if(!record)throw new Error('Hedersprofilen finnes ikke.');const member=personRecord(data,record.member);return {...record,member,stories:(member.stories||[]).filter(s=>s.confirmed&&hasSource(data,s)),roles:(member.roles||[]).filter(r=>r.confirmed&&hasSource(data,r))};}
+  const api={load,find,findIn,membersFor,validate,badgePlan,contribution,tenureMilestones,serviceTenure,honorProfile,isFounder,startYear,sortVolunteers,provisionalMilestone,arrangedYears,mainBadge,diplomaChoices,canPresent,isActiveBadge,mergeVolunteers,personRecord,diplomaText};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else window.MorothonHonorsData=api;
 })();
