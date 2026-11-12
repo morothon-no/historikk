@@ -19,7 +19,7 @@ test('issue #13 changes only sourced honor content: 44 identities, Christan name
  }
  const christan=byId.get('christan-berthelsen');assert.equal(christan.name,'Christan Berthelsen');assert.deepEqual(christan.roles,[]);assert.equal(christan.contribution,undefined);
  assert.equal(byId.get('jon-fjeld').roles[0].title,'Barneløp og startpistol');assert.equal(byId.get('jon-fjeld').contribution.fromYear,2014);
- for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad'])assert.equal(byId.get(id).contribution,undefined);
+ for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad'])assert.equal(byId.get(id).contribution.fromYear,2016);
  const old=JSON.parse(execFileSync('git',['show','22bd10a:data/honors.json'],{cwd:root}));
  for(const m of old.groups.flatMap(g=>g.members)){
   const n=historicalMember(byId.get(m.id));assert.ok(n,m.id);
@@ -34,7 +34,7 @@ test('issue #13 changes only sourced honor content: 44 identities, Christan name
   }else assert.deepEqual(n,m,m.id);
  }
  const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/event-dates.json','index.html'],{cwd:root}).toString().trim().split('\n');
- for(const file of protectedFiles)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
+ for(const file of protectedFiles)assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
 });
 
 test('issue #13 renders short non-duplicated volunteer rows with only supplied details at every required width',async()=>{
@@ -42,14 +42,14 @@ test('issue #13 renders short non-duplicated volunteer rows with only supplied d
   const p=await open(width);try{
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
    assert.equal(await p.locator('.honor-volunteer-card:not(.honor-card-with-collection) img:not(.honor-card-medal),.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary').count(),0);
-   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),collection:!!e.querySelector('.honor-card-collection'),height:e.getBoundingClientRect().height})));
-   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.collection?205:r.provisional?155:110)),JSON.stringify(rows));
+   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),collection:!!e.querySelector('.honor-card-collection'),height:e.getBoundingClientRect().height,racingHeight:(()=>{const r=e.querySelector('.honor-card-racing');return r?r.getBoundingClientRect().height+parseFloat(getComputedStyle(r).marginTop)+parseFloat(getComputedStyle(r).marginBottom):0;})()})));
+   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.collection?205:r.provisional?155:110)+r.racingHeight),JSON.stringify(rows));
    const row=id=>rows.find(r=>r.id===id).text;
    assert.equal(row('christan-berthelsen'),'Christan Berthelsen');assert.equal(row('lars-aamodt'),'Lars Vassbotn Aamodt');
    assert.equal(row('jon-fjeld'),'Jon Fjeld Barneløp og startpistol · fra 2014');
    assert.equal(row('per-sangvik'),'Per Sangvik Løypemerking · fra 2019');
-   assert.equal(row('anne-lene-forland-hansen'),'Anne Lene Førland-Hansen Drikkestasjon');
-   assert.equal(row('laila-endresen-skjulestad'),'Laila Endresen Skjulestad Drikkestasjon');
+   assert.equal(row('anne-lene-forland-hansen'),'Anne Lene Førland-Hansen Drikkestasjon · fra 2016');
+   assert.equal(row('laila-endresen-skjulestad'),'Laila Endresen Skjulestad Drikkestasjon · fra 2016');
    assert.ok(await p.locator('#honorThanks').isVisible());assert.match(await p.locator('#honorThanks').innerText(),/Takk/);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await p.locator('#honorSearch').fill('startpistol');assert.equal(await p.locator('[data-honoree]:visible').getAttribute('data-honoree'),'jon-fjeld');
@@ -61,7 +61,7 @@ test('issue #13 renders short non-duplicated volunteer rows with only supplied d
 
 test('issue #13 old volunteer URLs remain minimal, return focus and never invent a story or runner profile, but offer a personal thank-you draft',async()=>{
  const p=await open();try{
-  for(const entry of list.people.filter(e=>e.id&&!['jon-fjeld','rune-bergjord','per-sangvik','tom-lohne','birgitte-aamodt','johannes-aamodt','atle-aamodt'].includes(e.id))){
+  for(const entry of list.people.filter(e=>e.id&&!['anne-lene-forland-hansen','laila-endresen-skjulestad','jon-fjeld','rune-bergjord','per-sangvik','tom-lohne','birgitte-aamodt','johannes-aamodt','atle-aamodt'].includes(e.id))){
    await p.goto(h.base+'/heder.html#person/'+entry.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,entry.name);
    const H=require('../js/honors-data.js'),record=H.personRecord(data,H.findIn(data,entry.id).member);
    assert.equal(await p.locator('#honorProfile .honor-story,#honorProfile img,#honorProfile iframe,#honorProfile>.eyebrow').count(),0);

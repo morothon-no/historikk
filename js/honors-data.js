@@ -78,8 +78,8 @@
     const tenure=serviceTenure(data,member,editionYears),plan=badgePlan(data,member,findIn(data,member.id)?.group||{});
     const base={badgeId:null,basis:tenure.basis,count:tenure.count,fromYear:tenure.fromYear,toYear:tenure.toYear,toYearStatus:tenure.toYearStatus||null,
       excludedYears:tenure.excludedYears,status:'earned',automaticallyAwarded:false};
-    if(member.memorialRecognition?.badgeId==='service-memorial')return {...base,badgeId:'service-memorial',status:'proposed'};
     if(plan.badgeIds.includes('service-aeresmerke'))return {...base,badgeId:'service-aeresmerke',status:member.plannedHonors?.some(h=>h.badgeId==='service-aeresmerke')?'planned':'proposed'};
+    if(member.memorialRecognition?.badgeId==='service-memorial')return {...base,badgeId:'service-memorial',status:'proposed'};
     if(isFounder(data,member))return {...base,badgeId:'service-grunnlegger',status:'historical'};
     return tenure.highest?{...base,badgeId:tenure.highest.badgeId,editions:tenure.highest.editions}:base;
   }
@@ -89,7 +89,7 @@
     const historical=isFounder(data,member)?['service-grunnlegger']:[];
     const special=badgePlan(data,member,findIn(data,member.id)?.group||{}).badgeIds.filter(id=>!earned.includes(id));
     return {tenure,main,earnedBadgeIds:earned,historicalBadgeIds:historical,
-      secondaryHonorIds:[...new Set([...historical,...special])].filter(id=>id!==main.badgeId&&isActiveBadge(data,id)),
+      secondaryHonorIds:[...new Set([...historical,...special,...(member.memorialRecognition?[member.memorialRecognition.badgeId]:[])])].filter(id=>id!==main.badgeId&&isActiveBadge(data,id)),
       collectionIds:earned.filter(id=>id!==main.badgeId)};
   }
   function diplomaChoices(data,member,editionYears){
@@ -208,10 +208,11 @@
     }
     if(data.presentationPrintSet){
       const set=data.presentationPrintSet,pairs=new Set();refs(set.sourceIds);
+      const pendingIds=new Set();for(const review of set.pendingReviews||[]){refs(review.sourceIds);if(!findIn(data,review.personId)||pendingIds.has(review.personId)||review.status!=='pending'||!review.sourceIds?.length||!Array.isArray(review.previousEntries))throw new Error('Ugyldig ventende diplomgjennomgang.');pendingIds.add(review.personId);}
       if(!key(set.id)||set.scope!=='presentation-only'||!set.sourceIds?.length||!Array.isArray(set.entries))throw new Error('Ugyldig presentasjonssett.');
       for(const entry of set.entries){
         const m=findIn(data,entry.personId)?.member,display=entry.medalDisplay??'all',pair=entry.personId+':'+entry.badgeId+':'+display;
-        if(!m||!['all','latest'].includes(display)||pairs.has(pair)||!canPresent(data,m,entry.badgeId)||!['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>/^[a-f0-9]{64}$/.test(entry[k]||'')))throw new Error('Presentasjonsdiplomet mangler grunnlag eller kontrollert innhold.');
+        if(!m||pendingIds.has(entry.personId)||!['all','latest'].includes(display)||pairs.has(pair)||!canPresent(data,m,entry.badgeId)||!['contentSha256','cssSha256','assetSha256','watermarkSha256'].every(k=>/^[a-f0-9]{64}$/.test(entry[k]||'')))throw new Error('Presentasjonsdiplomet mangler grunnlag eller kontrollert innhold.');
         pairs.add(pair);
       }
     }

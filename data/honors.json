@@ -147,6 +147,17 @@
       "title": "Einars utdelingsdato bekreftet i V3.6",
       "publisher": "Søgne Morothon",
       "note": "Arrangøren valgte årets løpsdato 7. november 2026 for Einars diplom. Dette fastsetter ikke oppnåelsesår for de 33 dugnadsutgavene og registrerer ingen formell utdeling."
+    },
+    "organizer-v361-confirmed-links": {
+      "title": "14 løperkoblinger bekreftet av arrangøren 12. november 2026",
+      "publisher": "Søgne Morothon",
+      "note": "Arrangøren bekreftet uttrykkelig alle 14 forslag i V3.6-rapporten, inkludert Bent-Inge Bakke / Bent Inge Bakke (MOR-046CD37). Ingen navn, resultater eller dugnadsår endres."
+    },
+    "organizer-v361-final-corrections": {
+      "title": "Arrangørens endelige personrettelser 12. november 2026",
+      "publisher": "Søgne Morothon",
+      "date": "2026-11-12",
+      "basis": "Einar er avdød grunnlegger og far til Erling. Erling lever og har 33 godkjente dugnadsutgaver siden 1992. Anne Lene og Laila har bekreftet startår 2016. Dødsår for Einar er ikke oppgitt."
     }
   },
   "displayOrder": [
@@ -555,7 +566,8 @@
           "sourceIds": [
             "organizer-v3",
             "organizer-danielsen-estimate-correction",
-            "organizer-v352"
+            "organizer-v352",
+            "organizer-v361-final-corrections"
           ],
           "roles": [
             {
@@ -593,7 +605,8 @@
           "awards": [],
           "issuedDiplomas": [],
           "internalNotes": [
-            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+            "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026",
+            "Avdød. Dødsår ikke oppgitt. Far til Erling Danielsen. Bekreftet 12. november 2026."
           ],
           "previousBadgeProposals": [
             {
@@ -648,6 +661,13 @@
             },
             "sourceIds": [
               "organizer-v352"
+            ]
+          },
+          "deceased": true,
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "organizer-v361-final-corrections"
             ]
           }
         }
@@ -1016,6 +1036,67 @@
               ]
             }
           ]
+        },
+        {
+          "id": "erling-danielsen",
+          "name": "Erling Danielsen",
+          "status": "confirmed",
+          "reason": "Sønn av grunnlegger Einar Danielsen og en av Morothons mest trofaste dugnadshelter. Med innsats helt siden 1992 og 33 dugnadsutgaver bak seg har Erling vært med på å holde tradisjonen levende gjennom generasjoner.",
+          "sourceIds": [
+            "organizer-v34",
+            "organizer-v35",
+            "organizer-danielsen-estimate-correction",
+            "organizer-v361-final-corrections"
+          ],
+          "roles": [
+            {
+              "title": "Dugnad",
+              "confirmed": true,
+              "sourceIds": [
+                "organizer-v34"
+              ],
+              "fromYear": 1992
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "organizer-v361-final-corrections"
+            ]
+          },
+          "awards": [],
+          "issuedDiplomas": [],
+          "contribution": {
+            "fromYear": 1992,
+            "approvedTotal": {
+              "editions": 33,
+              "approved": true,
+              "asOfYear": 2026,
+              "sourceIds": [
+                "organizer-v361-final-corrections"
+              ]
+            },
+            "sourceIds": [
+              "organizer-v361-final-corrections"
+            ]
+          },
+          "deceased": false,
+          "internalNotes": [
+            "Erling lever og er sønn av grunnlegger Einar Danielsen. Tidligere feilaktig minnestatus er erstattet av arrangørens rettelse 12. november 2026; originalopplysningene ligger i revisionHistory."
+          ],
+          "previousBadgeProposals": [
+            {
+              "status": "proposed",
+              "primaryBadgeId": null,
+              "badgeIds": [],
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1103,68 +1184,6 @@
       "title": "Til minne om",
       "description": "Vi minnes dem som ga av tiden sin, og som fortsatt er en del av Morothon-historien.",
       "members": [
-        {
-          "id": "erling-danielsen",
-          "name": "Erling Danielsen",
-          "status": "confirmed",
-          "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
-          "sourceIds": [
-            "organizer-v34",
-            "organizer-v35",
-            "organizer-danielsen-estimate-correction"
-          ],
-          "roles": [
-            {
-              "title": "Dugnad",
-              "confirmed": true,
-              "sourceIds": [
-                "organizer-v34"
-              ],
-              "fromYear": 1992
-            }
-          ],
-          "stories": [],
-          "badgeProposal": {
-            "status": "proposed",
-            "primaryBadgeId": "service-memorial",
-            "badgeIds": [
-              "service-memorial"
-            ],
-            "sourceIds": [
-              "organizer-v34",
-              "organizer-v35"
-            ]
-          },
-          "awards": [],
-          "issuedDiplomas": [],
-          "contribution": {
-            "fromYear": 1992,
-            "sourceIds": [
-              "organizer-v34"
-            ]
-          },
-          "deceased": true,
-          "internalNotes": [
-            "Dødsår er ikke oppgitt. Erling Danielsen er ikke Einar Danielsen."
-          ],
-          "previousBadgeProposals": [
-            {
-              "status": "proposed",
-              "primaryBadgeId": null,
-              "badgeIds": [],
-              "sourceIds": [
-                "organizer-v34"
-              ]
-            }
-          ],
-          "memorialRecognition": {
-            "badgeId": "service-memorial",
-            "sourceIds": [
-              "organizer-v35"
-            ]
-          },
-          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
-        },
         {
           "id": "floke-bredland",
           "name": "Floke Bredland",
@@ -1373,11 +1392,12 @@
         ]
       },
       {
-        "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Erling Danielsens dødsår er ikke oppgitt. Minneseksjonen har tre personer: Erling Danielsen, Floke Bredland og Leif Wiig. Omtalen registrerer ingen gjennomført utdeling.",
+        "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Leif Wiig gikk bort i 2023. Einar Danielsen er avdød grunnlegger; dødsår er ikke oppgitt.",
         "sourceIds": [
           "organizer-v34",
           "organizer-honor-names-2026-11-11",
-          "organizer-v351"
+          "organizer-v351",
+          "organizer-v361-final-corrections"
         ]
       },
       {
@@ -1538,7 +1558,7 @@
     {
       "id": "minnediplom",
       "label": "For alltid en del av Morothon – minnediplom",
-      "personId": "erling-danielsen",
+      "personId": "leif-wiig",
       "badgeId": "service-memorial"
     },
     {
@@ -1602,8 +1622,8 @@
         "personId": "erling-askildsen",
         "badgeId": "service-aeresmerke",
         "medalDisplay": "all",
-        "contentSha256": "81aca4a647076521981468b70190eef67ca53b5fe79983d7e5ed1418d35bb1e6",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "fb0f32e921e1e303ba2a29f8e23312e3387558cedf72ff245ae6d52b287a3bb6",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1637,8 +1657,8 @@
         "personId": "erling-askildsen",
         "badgeId": "service-aeresmerke",
         "medalDisplay": "latest",
-        "contentSha256": "f476e466ce27a723f14ed90c31848a83ba3446e58e82b98f3b40b4dd62771cdb",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "248816360621b7f6bdb161942c82ee8877f3379def4a9d83a8efcd59b0ae0c30",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1652,8 +1672,8 @@
         "personId": "oscar-lohne",
         "badgeId": "service-aeresmerke",
         "medalDisplay": "all",
-        "contentSha256": "2443bedb47b8d7e9faac9eea45ba224316f315d68854bae4c138bf1f47031ab9",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "eecd1c447f4d00960395593a67f0f0378d43d20a2dc10058dd8e9d1904e9619b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1687,8 +1707,8 @@
         "personId": "oscar-lohne",
         "badgeId": "service-aeresmerke",
         "medalDisplay": "latest",
-        "contentSha256": "0b28e25fab8aaa8f8efa06a328c90da8ca3dfad5706957768786b1442d3ff737",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "0b5cf61538268c4e1dd3c7a9c95b0c02daaaa88003558c8bb5f948f7a2777efb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1702,8 +1722,8 @@
         "personId": "arnfinn-haverstad",
         "badgeId": "service-grunnlegger",
         "medalDisplay": "all",
-        "contentSha256": "32f33c2727f9e8c69d29b72c876a4e3604bffded3e05eeb1e8660ac33b751db4",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "f77e9bc0574f2fa930821f60ed6484bc089840c7274745ce86b54ca8595a8dff",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1711,8 +1731,8 @@
         "personId": "arnfinn-haverstad",
         "badgeId": "service-grunnlegger",
         "medalDisplay": "latest",
-        "contentSha256": "d563689cbe4b84b6d8a033f8a3faa8e96ab84ccc3014fa92d6ef6f04f592c432",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "1aa0da62bd601f1a1fbbe5b8aa9c52199ed519e73d1804fa55ef9ad08e972f39",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1720,8 +1740,8 @@
         "personId": "helge-reisvoll",
         "badgeId": "service-grunnlegger",
         "medalDisplay": "all",
-        "contentSha256": "1dbb89aa211a98db88b97c9eb855edbe45e9774635a1b0b5589f8019fd9ab9ff",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "e01a4e6425917007a2e6245c790092b18d202c1be0afadc37b70c5d2c1abba7c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1729,67 +1749,17 @@
         "personId": "helge-reisvoll",
         "badgeId": "service-grunnlegger",
         "medalDisplay": "latest",
-        "contentSha256": "1e3dd75f841678edb071552f0d26ad51b92701e9f2c04270037f6da659194129",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "09618c7ef4365c7009c931aad73267500b14741405bb536fb92465eadc28672c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "einar-danielsen",
-        "badgeId": "service-aeresmerke",
-        "medalDisplay": "all",
-        "contentSha256": "3f04eb76074aab12d83f2c51e9453dbe07bf980e4682d5cef998ac5a827aa5dd",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
-        "secondarySha256": [
-          {
-            "key": "service-grunnlegger",
-            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
-          },
-          {
-            "key": "service-dugnad-5",
-            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
-          },
-          {
-            "key": "service-dugnad-10",
-            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
-          },
-          {
-            "key": "service-dugnad-15",
-            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
-          },
-          {
-            "key": "service-dugnad-20",
-            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
-          },
-          {
-            "key": "service-dugnad-30",
-            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
-          }
-        ]
-      },
-      {
-        "personId": "einar-danielsen",
-        "badgeId": "service-aeresmerke",
-        "medalDisplay": "latest",
-        "contentSha256": "62fdd76eeff8fe06da7ec6a704c9d50fe63d845764ef46f16d37babf92b3e93d",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
-        "secondarySha256": [
-          {
-            "key": "service-grunnlegger",
-            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
-          }
-        ]
       },
       {
         "personId": "kalle-kimestad",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "all",
-        "contentSha256": "6e7c44644fe010f0a852fb1fcfb595830820a975d9ab7464c78a6e0373d173b5",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "ed23352751b73aacb2de01a3bc0bb7a8b1a54fe583e86a66f5531ff68455e53c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1803,8 +1773,8 @@
         "personId": "kalle-kimestad",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "latest",
-        "contentSha256": "b2aa76218189082638b6d99212330a1f2257025264f7bf151e11512196fb0c07",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "09b28b3fdd5186244ea4cb175edc3e9d484ea71ddf3337b2bbbbe75984482f41",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1812,8 +1782,8 @@
         "personId": "finn-lohne",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "all",
-        "contentSha256": "7e730c22db7bf6b253f48920d91436e6c02f624194d85320f324410dcde3fb0f",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "97603f90fefac19f28d2452ed0a5bcfcd423cdf5d41b0148eee7df6df0e07871",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1827,8 +1797,8 @@
         "personId": "finn-lohne",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "latest",
-        "contentSha256": "b637c134256ad28f25c1cd73fc58dc001e860c98db56d39604b3d2372ef30731",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "b65240787b6958f91976fa511f9663b8570946a317f77d0ae50ec4e273e44091",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1836,8 +1806,8 @@
         "personId": "dag-morten-frantzen",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "all",
-        "contentSha256": "05a7e6c0e56590f0999da599f017de30aaffbbde813e9f04f7a13e1b7dc27dde",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "3e46ba9be3b88949253c3cbd99f0ff94ab357ae2b7ca5ed137785397c72c326c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1851,8 +1821,8 @@
         "personId": "dag-morten-frantzen",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "latest",
-        "contentSha256": "7c58b2aa54fc9aea4579c3bd22e689131209504b30ad8693f6624a8e9610b54e",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "7ed851568ce257dc798879761f64e2c205caa7adf0262351447f2d0e0f94616f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1860,8 +1830,8 @@
         "personId": "hakon-lohne",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "all",
-        "contentSha256": "f0acf2cbfbb26edd7067761e8d094d69753d1f2c4f56d5ae8fe8fa10056a842d",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "cd6eb64af78039fb6e2e60fce5f0a890e647b2efa26910b2473697a7f23f207c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1875,8 +1845,8 @@
         "personId": "hakon-lohne",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "latest",
-        "contentSha256": "682c7ef9c9eaad5d945407f7533755a03ca50a5f31812cd0cbeba65047fbdb84",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "10215505811c464038d75b0615412a0c77cbd3f617c5428890b0b5840e4fca16",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1884,8 +1854,8 @@
         "personId": "jon-fjeld",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "all",
-        "contentSha256": "06c0ad1d77c223f099cb4062a978d9423901ac0ad5422bc066a00cb74ef1d15d",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "2651ecd870bff570d12c717ede1ab41721cb4be0739d9cd241f02cfc8c2b3a90",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1899,8 +1869,8 @@
         "personId": "jon-fjeld",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "latest",
-        "contentSha256": "335bebd7fe9a529484aded2df7ae880d6efb15d91a2fb27576be49a3e9118d7f",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "fceab083814a5cfef0bd4c921e742d80b483a33ccdca1a54a718d13b05edfd8a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1908,8 +1878,8 @@
         "personId": "rune-bergjord",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "all",
-        "contentSha256": "6f0ece0dcceb2ff2e821c2207fb91397e8d7d46372e00f591eb372c3283fd7ca",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "58af62749fab3c61c8354fa202a3724dadf8a7743ccd6147144fa5a895534974",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
         "secondarySha256": [
@@ -1923,8 +1893,8 @@
         "personId": "rune-bergjord",
         "badgeId": "service-dugnad-10",
         "medalDisplay": "latest",
-        "contentSha256": "e02b1301eda9093fdc205717a7879ddc0d9e8f4ae4dc9f9b9352a5a894ab23b3",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "c9ed7bfa83766ee738448627632cd67fe879e7468e4ea5ae1668c0d8cc7a1442",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1932,8 +1902,8 @@
         "personId": "astrid-lohne",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "ad7e87ae08347b6709d4d84ca99f0efa1e5a384b4a7a5a43d2f5ab973b318150",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "a8ae71574146ea1312de85944a6309c33c9193d9e60f1a93f33d6a778428ee5b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1941,8 +1911,8 @@
         "personId": "astrid-lohne",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "9b55032afdca98dc60b9da9419124eded15eb111683938fda4eddf989c576c4e",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "838379243aa274b88c1c864eb9bfca2e4139746a8d7acb30f69c1e868e84f0b3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1950,8 +1920,8 @@
         "personId": "per-sangvik",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "all",
-        "contentSha256": "f1688ee8ece42e6edc24d33765f9a051977be0af58eca8910ac87d67618502c6",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "50bd7486dfdfede3cb96cb636b3ac125a7ae7b20d0fe543eaaa86126d43a4121",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1959,8 +1929,8 @@
         "personId": "per-sangvik",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "latest",
-        "contentSha256": "7442743437e6bb161c65c331814b8474f9d8b6b12fc0696bfa07489d06df1343",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "965431be3e121beb1dbed8e9936aa02d05d910c990a71f25f2085cd23c335367",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1968,8 +1938,8 @@
         "personId": "tom-lohne",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "all",
-        "contentSha256": "c0e596b635003decc3e0f607ee802f73a70ab6e2f76e82ea75b92cf391661008",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "9af3c99b308ffe4dbba9880a1b76853ee53fb5c32485f5a803f39fcedcb85512",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1977,8 +1947,8 @@
         "personId": "tom-lohne",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "latest",
-        "contentSha256": "86f3d38454ad0ae4f87370c7dda9a434f21b720c6468a5fabbcc80be259e4920",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "abff58798ebcbe1fe39284f512ca00e008146269e9a73875df4779f4353b2810",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1986,8 +1956,8 @@
         "personId": "joar-lohne",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "ed2c65761712dc9e103123b7c06cbae29fd6996398c9b3e2594ddc2962b4919e",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d8c474d958a82a6648726bd402c6f1388eae60ffec19566fb8e9ca3d737b8c94",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -1995,26 +1965,8 @@
         "personId": "joar-lohne",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "c5f769bf9378ea0a684f9fa8f28a379536cd978c4d16fdf979a7e34051700413",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "anne-lene-forland-hansen",
-        "badgeId": "thanks",
-        "medalDisplay": "all",
-        "contentSha256": "63f57e37c0088f2692cb1b9ca062a8bbc2068293d138f2a470abe2ed57ced72e",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "anne-lene-forland-hansen",
-        "badgeId": "thanks",
-        "medalDisplay": "latest",
-        "contentSha256": "7fe62c0a49e7af8ecfe8630f4ea0281efc2e49a3782d5e459319fe6ca305c6d5",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "088532e4a5913c0d67bb78cc82eaf6c8c118eecc3d94804d5bf57b9838bdac04",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2022,8 +1974,8 @@
         "personId": "birgitte-aamodt",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "all",
-        "contentSha256": "4db617ce03632748a5920e08276295ec84b3021522b2ab5ea96c637d4aaf9b67",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "f1f40c905f20df97b2f95d83a9006ae8f09d46cae0e9bbd594f6e3554003ef44",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2031,8 +1983,8 @@
         "personId": "birgitte-aamodt",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "latest",
-        "contentSha256": "ee61a96eb8c06f3df937d5ed5b4f53c80611c99a653c550a84b17775151352b0",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "ba5f7060bc392ec29d66a469304f2843c876117b9d48409ffc9df3835d86f910",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2040,8 +1992,8 @@
         "personId": "nils-henning-pedersen",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "1076728f25f44c26521b7f93651a63be8954b3bd067223925a4bf7eb1924ee0c",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "f6a1c03352f754e7697ef6dd550073363ba0f41e8faae39d19c0c199f1a4130e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2049,8 +2001,8 @@
         "personId": "nils-henning-pedersen",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "b41d9cee308aff984a776e594a1dfaba48cbba9804b1ceee010d0c4761124b02",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "51898df6de83b53cee833628208c75e10ac1153a1f46aef9b5b81fea7a8fb296",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2058,8 +2010,8 @@
         "personId": "ingvild-holmen-solvik",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "2e2d6ead6b7748106a55007de0907f2350a88b71ac17c9c912d4ec77e3777858",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "b8244d1887757590db5291dddfb9373a06efbf05f82a95ac4ed2d673c248f2a1",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2067,8 +2019,8 @@
         "personId": "ingvild-holmen-solvik",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "c5d4c65e6ed333dcc31a4d8b382dcf9f27fe553dac3f275d1e7621de8c0476b0",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "e779b10fb2d62178ab483974b7e10b83f05dfbe6930592056d9a7a15cee1b169",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2076,8 +2028,8 @@
         "personId": "johannes-aamodt",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "all",
-        "contentSha256": "818031032db294f7337baa4e9b0b5874f2ab5a1792f604f96a977e2e71348ff4",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "7d7a5bd24646a4dfb0d27a83125cc734c470e09422a23d79cc2992069f9a9c76",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2085,8 +2037,8 @@
         "personId": "johannes-aamodt",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "latest",
-        "contentSha256": "ae54b2ee4db029f7bb7f7755b210deac3ad9444d528b0cdda3e346bac5ae5130",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d513803877dd9db03488b3ee212ead08403a64358f8a872e64df310fb46a7ac8",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2094,8 +2046,8 @@
         "personId": "linea-morland",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "279d4b8baf44d54f629c33e544019a81197027bb95f78f3ea8fed9d3eeafdd98",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "f3a864f75d0188086da20aef8853736e517d50fd019b9935193e402fcb69125a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2103,8 +2055,8 @@
         "personId": "linea-morland",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "99f10ce6f56f8e1bc47636426b20b03a22f7a0b960d9f4465e29b0dd7214e5ba",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "44172cd0dfb7dd3e1248719accd906a16782e1a4c60ace021416be89e4fc2776",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2112,8 +2064,8 @@
         "personId": "mari-melsom-kristensen",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "d263d1e16f585708d94286ccba31c06ac6349ad88d483be93e715e583de04c4b",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "0788a06c36961c52066db4e32f54e20633814a105bb7e4adea9784a2cc0e2c87",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2121,8 +2073,8 @@
         "personId": "mari-melsom-kristensen",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "8e669753931083e6394c4ee518e28a4567a0f5357b45ffa762c250c5e08c2058",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "15cf9e69119254dced2f6363639d53e819245d5a123c841d23bcb1d412cc9ca9",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2130,8 +2082,8 @@
         "personId": "nils-martin-otterdal-nilsen",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "51c997b09cb011c4590a10fb45356a2a00295b87d5b0db98b5c83ca7a77bbf01",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "0b3587bb85656911761f7000bbe9845c2c0f3d0f1f6bb496878d9329c9503e4e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2139,8 +2091,8 @@
         "personId": "nils-martin-otterdal-nilsen",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "e867424e305654b23961317e284916025d4349f0a9af4b25bd1b8dd28d61e029",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "32c0d843607aaba658b69913b767a6ca4b4f30c4460376cd568c90e40995bf05",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2148,8 +2100,8 @@
         "personId": "jenny-aamodt",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "8da2a5024f3ab4e80416c89a63acd3368f919ffdefd3d5a69324305dce0cbca0",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "cf1c54f6116879f564f2838f64a6042047cf22833a13bebf78ffadc67a1c276c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2157,8 +2109,8 @@
         "personId": "jenny-aamodt",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "dc874d0dc5bcb3d9657a72f76b7681895e7c94547e560da8988a1941575b31d0",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "da4b1f03f1151f5a6670e70f246eae8c5af0a8458369598534e9d7467fc5a991",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2166,8 +2118,8 @@
         "personId": "ole-j-bueklev",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "891a37ab83c8aa35995fd506f11840fc3531a9468cecbd6614c319f009766cdd",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "91dc0ba182b03ec8459c1a2e7564b19b41374b6154143ea980c11f4469cd68dd",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2175,8 +2127,8 @@
         "personId": "ole-j-bueklev",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "0477b6e0a055cd78e16af3ef987d2083259b2a79e6f8cb8edd51062344e798c0",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "db5c683fbcd3ae438c55202b333e1eb0ef00268fd2aa5b27dbf6a08aa41e17cb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2184,8 +2136,8 @@
         "personId": "trine-dybesland",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "2e6ad0c76b8c26cdfcfa4d8791e83eda9a755fd9f5242767c895fe372e9b04cb",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "26ac521b39519eaf49a75e2ec9519ea1ad6c3c1d686986b2b729220f6c6d7b89",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2193,8 +2145,8 @@
         "personId": "trine-dybesland",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "a652d5430ab1427c4da7daf2b2b048d2c1c69c619b935fdb016fe81a3e9f95c2",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "ca35ef9fa910e137ddfa625c5c0883aa91ff150c1a5394a6eb4032fd010ca2b4",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2202,8 +2154,8 @@
         "personId": "aud-o",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "a7c51b9623a875752b4979d7698d829bcc3d9396f156dd2379bf4528a2b87988",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "f541c02386a994579541c1c3f5da311d004d0f450370b9e716ebd31de9f5216f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2211,8 +2163,8 @@
         "personId": "aud-o",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "8e3b3bf635d820c6e7c5c6b633b3a6c0e3b9ba31af7dabe42b68ceed5a7fad67",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "ddd6ab6cf9c801514af07e4f2ffd0731be61b4d3fe4a0c7883baa28c340146ed",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2220,8 +2172,8 @@
         "personId": "arnfinn-g",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "94f67ebb4b054f9cbfec18ce8e16c78513910130a86483183a130640e2fe06be",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "2211781169c8ff7ba952de73f5995146380e5d1eb0e32c7a43e7e2b6420ba17f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2229,8 +2181,8 @@
         "personId": "arnfinn-g",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "d2da0ccb124f8083fa81e839856a15e3742507255379388797132379c8201723",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "5fedeacdbb220523628123b882a25983702e72a300bef484b7c3ec34a026ac10",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2238,8 +2190,8 @@
         "personId": "magne",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "aed7ac48afa79fe04aefac492d9d49a4e8a526b25150252aa7f40e16f491f3d5",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d8508304904bc2054a09295ad750dd931a1099b2e0d561c9fc83b73b4dc47ce7",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2247,8 +2199,8 @@
         "personId": "magne",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "39af124166b980c3bf4822c153edca743474ab1d29ca5bff3143eac595c6ba74",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "50ba54e8b7eb79896ede87ba5f3b653d708b784631f5e8e5f192be5ccb85ced0",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2256,8 +2208,8 @@
         "personId": "lars-aamodt",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "867a908f37be0bd9bb2cfdf4a25fe887fd94ba74ffd8af391a47ae63035686ca",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d0889649922418020a40961e729f7775749cfaab9d4d084f8ce10257053f762d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2265,26 +2217,8 @@
         "personId": "lars-aamodt",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "b5cb89eca5ff1c2e3967538c1d78473e2a0ef440efe95b413d08954035acd755",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "laila-endresen-skjulestad",
-        "badgeId": "thanks",
-        "medalDisplay": "all",
-        "contentSha256": "75efb2461e69c911501472745ddde07124df495993b514359282f4c7846d6bee",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "laila-endresen-skjulestad",
-        "badgeId": "thanks",
-        "medalDisplay": "latest",
-        "contentSha256": "d741b309341bdc7dbaf1a76200e9b34610000d85ae8a2b655943fe53ed308e60",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "00a738176a9cb95e592d2490208415373cd24bf64749f3da9293ad402ef1cb16",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2292,8 +2226,8 @@
         "personId": "christan-berthelsen",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "4e2537117cb160d1fcb2fb9e7401fc1120214edbf03035fba39b7be22d63d0ed",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "543acd8d578d83fd95f0bce212d4081c2c504f2bd77e3b3ed5fabed1e1211f43",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2301,8 +2235,8 @@
         "personId": "christan-berthelsen",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "7e6eed3c5512d63b376700ca4a6e54917619819668d610f07ef8c6a7915fe491",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "cd2065f6106bfc802d74694b362a104fd8016556b5968e292bb588cda96ef21f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2310,8 +2244,8 @@
         "personId": "georg-engenes",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "32af97b4885dbb8a9b328cfb8de3d9b5afec94c8a1491c95822642a586f21ead",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "9f9cac2d3c56e7bfb82eb30f1e8f790368e9fb6c36d1f0f712637378d1ce9959",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2319,8 +2253,8 @@
         "personId": "georg-engenes",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "3bda2b24b47c0bcab2095edf2ee40fbb56dbf8ca937bb11893d14f95d4a92d60",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "ae0c4b438a561c287e474a26a7b0dce94fdd755d96c65db730e3648e82708ba9",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2328,8 +2262,8 @@
         "personId": "trine-danielsen",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "b1bb7b689a4123a198b9e4428e0fb2adc26c888799ff8717f0730262fb1db105",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "c27c8191fe90e9abe651333dfabdbd42581cced34704657d47d24506496555ad",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2337,8 +2271,8 @@
         "personId": "trine-danielsen",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "0f7f211340c04ff1f53c77b564be059e0330bccbbf7eaf0c4945a4f032500f23",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "6e2d11ad4c0a27f1dccfbeca44a13e44ed21593f28a11a3516a77fe9a56fa299",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2346,8 +2280,8 @@
         "personId": "lene-holmen-berg",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "3f6d9f17ea9b7a3bbeed9726f9196503311224e5cff00038ed0cc9474ad828ef",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d8f9319018f82e02294ea7595ca3ec46740235bcf5771429c1fa489680a3a94c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2355,8 +2289,8 @@
         "personId": "lene-holmen-berg",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "da3cd9f1a18c15de43594ae343ce39a34352774da4e8388964bf3abba67eb843",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "956b60b7d759721790b3ed32080a14019e0d1913bf4e6c25a3cd5c0fa9b5413d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2364,8 +2298,8 @@
         "personId": "arvid-boro",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "55b062168af8e4147b50507b94ad30dc0b7e77922d0f3555a8826f8bbaba2343",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "78d813ecbb4bf6f74d6791ac004906bf055900932594702ca1ac82d0fdf94967",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2373,8 +2307,8 @@
         "personId": "arvid-boro",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "29684859866e151ca4e93259aee0c14f1278f3027b2266dd2f62ca6d9b722076",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "303ee457ef850105aea434fded76d69d43756f3c6d59932a30b44e33bbcc8e32",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2382,8 +2316,8 @@
         "personId": "margrete-tofte",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "568f19d4370f11428c1a8a422f8bdc13bbf6fc472eefb8d25281c76e30205fcf",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "8aabe616bdb20060999c021b209e247fe4dc5022d9bdfea32c43fb6905ec55f3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2391,8 +2325,8 @@
         "personId": "margrete-tofte",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "c690d6c7748e8a2449417e52ca01df3be35c7c61f1bd67c300a9b6d210921ee6",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "ac39b87821d1960ed11de6a29c4283afd62d5e3b455401469570a6be0bee667f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2400,8 +2334,8 @@
         "personId": "joran-eriksen",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "519df15ab2952850122a57edae519f5c36cbc063aac86a87a55bfc6379c63df1",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "485578e5c8ac2211d97ffe3527a0489da8e2d5bd8557eb85e63caaa2109b2a6c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2409,8 +2343,8 @@
         "personId": "joran-eriksen",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "d4c1bc79f4f96bc049d35179e47ab65a030ca5797dc2015ec01510f85b83e1a0",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "757b3250e1ed673e30a1cf84a6f801c96e63b2d55114020671b23f5bea22d43c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2418,8 +2352,8 @@
         "personId": "preben-s-dahl",
         "badgeId": "thanks",
         "medalDisplay": "all",
-        "contentSha256": "93ffdef1fd5bfdac25bd6b7dbac4e7bb8670357e4612d2cddb2a8f7b5241c98b",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "37feed1b6f2226b9181b765d2cb5e96aa61eaa303437fca27e47b6b3ee183fe5",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2427,8 +2361,8 @@
         "personId": "preben-s-dahl",
         "badgeId": "thanks",
         "medalDisplay": "latest",
-        "contentSha256": "eb75c64684a8c084537f60d734978d26e4a8f112c0f27e497c9a869ef8b7f17a",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d019a6aac3589dd80644534e7e709e78ee59573eb6cf485ca25bfaf7178786b5",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2436,8 +2370,8 @@
         "personId": "atle-aamodt",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "all",
-        "contentSha256": "cd97719ec00f9095b4eafbca3f7a7f2e6938ba4e22fefe0a1c19dedfc37ce31c",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "7c619749417590dd52e630ec0a8122dc3f39aa8d94bba4e9f3d43da90c8ccaca",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2445,8 +2379,8 @@
         "personId": "atle-aamodt",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "latest",
-        "contentSha256": "1788a66fa65bf444918c98e8fbb6af0cb776a65af7bff87f9a631aaf0b5e5b66",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "161a0c19991839ab77ff21002e7794548864dc8236eb6fdc9635b9461e42108d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2454,8 +2388,8 @@
         "personId": "bent-bakke",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "all",
-        "contentSha256": "d2242875e6c91ce92fb445cfa5555e5f802785f100f8fd9e41da4d8f732cf410",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "cceee7578c0e96cab24e3037808737198188dbb6bcf92c73007235d341fc3ce7",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2463,35 +2397,17 @@
         "personId": "bent-bakke",
         "badgeId": "service-dugnad-5",
         "medalDisplay": "latest",
-        "contentSha256": "26c45446b1cdb6cc8e576819688774983358e390721d9139f79b28232548b5ac",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "e5d0d8df277ce0a72d5df5e144f36be2e6126bd887a496a4fba70946ba368090",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
       {
-        "personId": "erling-danielsen",
-        "badgeId": "service-memorial",
-        "medalDisplay": "all",
-        "contentSha256": "f767be068cb9db1c10e77f79a70f2b56fdc322b5bc919eb1b43635186348ced8",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
-        "personId": "erling-danielsen",
-        "badgeId": "service-memorial",
-        "medalDisplay": "latest",
-        "contentSha256": "d6a99931a79da53434dbc54cf553b016daad16713f45121857d26e0c37503169",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
-        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
-        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
-      },
-      {
         "personId": "floke-bredland",
         "badgeId": "service-memorial",
         "medalDisplay": "all",
-        "contentSha256": "4672c00e90b8343239910c545f34c89a05bedb2d66eec38fb293fb6cd297f3ec",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "f6d03c47aa7369ffbb7bb1992977d98468004a52883f5a82a1adef33a1fce038",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2499,8 +2415,8 @@
         "personId": "floke-bredland",
         "badgeId": "service-memorial",
         "medalDisplay": "latest",
-        "contentSha256": "3a9ae432ebb50812059234beb13f4b699a6b8a3dfa418f726fbcd85fa06ce19d",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "9b2cb88be028941519a77fe0a451cacc5bbf52cb05be731bbbd94dbaf2fea057",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2508,8 +2424,8 @@
         "personId": "leif-wiig",
         "badgeId": "service-memorial",
         "medalDisplay": "all",
-        "contentSha256": "95c913cfe7ed1be689e84dfe20ca4895e5b1eecdbf0ce5f7b4130b6859fa79dc",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "72a8addd70647997d48043ffd828149ae61b2ae5b7fc8e08fd96f9512167149a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
       },
@@ -2517,10 +2433,156 @@
         "personId": "leif-wiig",
         "badgeId": "service-memorial",
         "medalDisplay": "latest",
-        "contentSha256": "268e3f3c3171ffd07a731429035f53a0a3b2d471e7492b0d7539d0d0ce267288",
-        "cssSha256": "29a4481403b012a81497cf884d5fa2ed52298ec52074672b7aa3e4805540aabf",
+        "contentSha256": "d34e628e34a2be5c3abe412c1094bf47a688edc9c2c840281796253ae405e89e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
         "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
         "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      }
+    ],
+    "pendingReviews": [
+      {
+        "personId": "einar-danielsen",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "einar-danielsen",
+            "badgeId": "service-aeresmerke",
+            "medalDisplay": "all",
+            "contentSha256": "f87b895316a52bc11000e7aa8842e63d6993bfc1ffa5412cc7281876aa848283",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+            "secondarySha256": [
+              {
+                "key": "service-grunnlegger",
+                "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+              },
+              {
+                "key": "service-dugnad-5",
+                "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+              },
+              {
+                "key": "service-dugnad-10",
+                "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+              },
+              {
+                "key": "service-dugnad-15",
+                "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+              },
+              {
+                "key": "service-dugnad-20",
+                "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+              },
+              {
+                "key": "service-dugnad-30",
+                "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+              }
+            ]
+          },
+          {
+            "personId": "einar-danielsen",
+            "badgeId": "service-aeresmerke",
+            "medalDisplay": "latest",
+            "contentSha256": "d70c66d1e275636fa06c56b7a1c4a3bcc9b57f098e2692d4eabd23243c9d7dba",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+            "secondarySha256": [
+              {
+                "key": "service-grunnlegger",
+                "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "personId": "erling-danielsen",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "erling-danielsen",
+            "badgeId": "service-memorial",
+            "medalDisplay": "all",
+            "contentSha256": "a8fdad39fb1cbb4b0de2f30b255007cc47153eccfe4725af304f0ddd80e658c9",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          },
+          {
+            "personId": "erling-danielsen",
+            "badgeId": "service-memorial",
+            "medalDisplay": "latest",
+            "contentSha256": "55ee1bfe221d2de925ac4cd017707e84b18476d94f20979442cb34e548ebd543",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          }
+        ]
+      },
+      {
+        "personId": "anne-lene-forland-hansen",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "anne-lene-forland-hansen",
+            "badgeId": "thanks",
+            "medalDisplay": "all",
+            "contentSha256": "a4f6660e13bd74fa7c40b1eea6c60db832a0f90823d9c41c7d1566ef99754a91",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          },
+          {
+            "personId": "anne-lene-forland-hansen",
+            "badgeId": "thanks",
+            "medalDisplay": "latest",
+            "contentSha256": "2c92c49abbdc4357eb7bfad6c954bcc8b7f4dd4f1a4d05ca5b2a714ffed767ed",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          }
+        ]
+      },
+      {
+        "personId": "laila-endresen-skjulestad",
+        "status": "pending",
+        "sourceIds": [
+          "organizer-v361-final-corrections"
+        ],
+        "reason": "Endret persongrunnlag eller medaljekombinasjon krever ny visuell godkjenning.",
+        "previousEntries": [
+          {
+            "personId": "laila-endresen-skjulestad",
+            "badgeId": "thanks",
+            "medalDisplay": "all",
+            "contentSha256": "10cc6ad75cde3eb4f0b1d9b405229c6e45715f0a8511e074066a372fa88d73d1",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          },
+          {
+            "personId": "laila-endresen-skjulestad",
+            "badgeId": "thanks",
+            "medalDisplay": "latest",
+            "contentSha256": "6113075ecc8b45790d79c1b55e9b43709fbbeeabc6bbfad85e8ccdeb6d9ad4f7",
+            "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+            "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+            "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+          }
+        ]
       }
     ]
   },
@@ -2620,14 +2682,14 @@
       ]
     },
     "einar-danielsen": {
-      "shortDescription": "En av de fem som la grunnlaget for Morothon i 1992.",
+      "shortDescription": "En av de fem grunnleggerne av Morothon i 1992, og en av dem som har bidratt aller lengst. Gjennom 33 dugnadsutgaver var Einar med på å bygge en tradisjon som fortsatt samler mennesker i Søgne.",
       "stories": [
         {
-          "title": "Med fra starten",
-          "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+          "title": "Til minne om Einar",
+          "text": "Einar var med da Morothon så dagens lys i 1992. Som en av fem grunnleggere og med 33 dugnadsutgaver bak seg satte han dype spor i løpet og fellesskapet rundt det.\n\nEinar er ikke lenger blant oss, men innsatsen hans lever videre – i løypene, tradisjonen og alle menneskene som år etter år møtes på Morothon.\n\nTakk for det du var med på å skape. Du er fortsatt en del av Morothon.",
           "source": "Søgne Morothon",
           "sourceIds": [
-            "organizer-v3"
+            "organizer-v361-final-corrections"
           ],
           "confirmed": true
         }
@@ -2719,15 +2781,36 @@
     },
     "jon-fjeld": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-EFAFF95",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "rune-bergjord": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-45DF0B4",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "astrid-lohne": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-3CBFFC3",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "per-sangvik": {
       "shortDescription": "",
@@ -2742,7 +2825,14 @@
     },
     "tom-lohne": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-BE568A1",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "joar-lohne": {
       "shortDescription": "",
@@ -2765,7 +2855,14 @@
     },
     "nils-henning-pedersen": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-000B270",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "ingvild-holmen-solvik": {
       "shortDescription": "",
@@ -2773,7 +2870,14 @@
     },
     "johannes-aamodt": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-FB68447",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "linea-morland": {
       "shortDescription": "",
@@ -2781,7 +2885,14 @@
     },
     "mari-melsom-kristensen": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-B42530E",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "nils-martin-otterdal-nilsen": {
       "shortDescription": "",
@@ -2827,7 +2938,14 @@
     },
     "lars-aamodt": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-D4F55FF",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "laila-endresen-skjulestad": {
       "shortDescription": "",
@@ -2847,11 +2965,25 @@
     },
     "lene-holmen-berg": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-830D9E6",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "arvid-boro": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-5F10796",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "margrete-tofte": {
       "shortDescription": "",
@@ -2859,7 +2991,14 @@
     },
     "joran-eriksen": {
       "shortDescription": "",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-5F72D06",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "preben-s-dahl": {
       "shortDescription": "",
@@ -2882,11 +3021,25 @@
           ],
           "confirmed": true
         }
-      ]
+      ],
+      "runnerLink": {
+        "runnerId": "MOR-046CD37",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "erling-danielsen": {
-      "shortDescription": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
-      "stories": []
+      "shortDescription": "Sønn av grunnlegger Einar Danielsen og en av Morothons mest trofaste dugnadshelter. Med innsats helt siden 1992 og 33 dugnadsutgaver bak seg har Erling vært med på å holde tradisjonen levende gjennom generasjoner.",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-B82F8A3",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     },
     "floke-bredland": {
       "shortDescription": "En viktig del av bankettene og det sosiale fellesskapet. Arrangøren anslår minst 25 års dugnadsinnsats. Floke gikk bort i 2024.",
@@ -2906,7 +3059,281 @@
     },
     "leif-wiig": {
       "shortDescription": "En viktig kraft innen tidtaking og organisering. Arrangøren anslår minst 25 års dugnadsinnsats. Leif gikk bort i 2023.",
-      "stories": []
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-88334F0",
+        "confirmed": true,
+        "sourceIds": [
+          "organizer-v361-confirmed-links"
+        ]
+      }
     }
-  }
+  },
+  "revisionHistory": [
+    {
+      "date": "2026-11-12",
+      "sourceIds": [
+        "organizer-v361-final-corrections"
+      ],
+      "supersedesCommit": "bcb6f5245db41b7896ad8837ecae4ad88cdb9703",
+      "members": [
+        {
+          "groupId": "founders",
+          "member": {
+            "id": "einar-danielsen",
+            "name": "Einar Danielsen",
+            "status": "confirmed",
+            "reason": "En av de fem som la grunnlaget for Morothon i 1992.",
+            "sourceIds": [
+              "organizer-v3",
+              "organizer-danielsen-estimate-correction",
+              "organizer-v352"
+            ],
+            "roles": [
+              {
+                "title": "Grunnlegger",
+                "fromYear": 1992,
+                "sourceIds": [
+                  "organizer-v3"
+                ],
+                "confirmed": true
+              }
+            ],
+            "stories": [
+              {
+                "title": "Med fra starten",
+                "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+                "source": "Søgne Morothon",
+                "sourceIds": [
+                  "organizer-v3"
+                ],
+                "confirmed": true
+              }
+            ],
+            "runnerId": "MOR-D48A84B",
+            "diplomaTribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+            "badgeProposal": {
+              "status": "proposed",
+              "primaryBadgeId": "service-aeresmerke",
+              "badgeIds": [
+                "service-aeresmerke"
+              ],
+              "sourceIds": [
+                "organizer-v351"
+              ]
+            },
+            "awards": [],
+            "issuedDiplomas": [],
+            "internalNotes": [
+              "Bekreftet av arrangøren i V3-bestillingen, 10. november 2026"
+            ],
+            "previousBadgeProposals": [
+              {
+                "status": "proposed",
+                "primaryBadgeId": "service-grunnlegger",
+                "badgeIds": [
+                  "service-grunnlegger",
+                  "service-dugnadshelt"
+                ],
+                "sourceIds": [
+                  "organizer-v34"
+                ]
+              },
+              {
+                "status": "proposed",
+                "primaryBadgeId": "service-grunnlegger",
+                "badgeIds": [
+                  "service-grunnlegger"
+                ],
+                "sourceIds": [
+                  "organizer-v34",
+                  "organizer-v35"
+                ]
+              }
+            ],
+            "plannedHonors": [
+              {
+                "badgeId": "service-aeresmerke",
+                "year": 2026,
+                "status": "planned",
+                "sourceIds": [
+                  "organizer-v351"
+                ]
+              }
+            ],
+            "serviceEstimate": {
+              "editions": 33,
+              "qualifier": "approximately",
+              "sourceIds": [
+                "organizer-danielsen-estimate-correction"
+              ],
+              "unit": "years"
+            },
+            "contribution": {
+              "approvedTotal": {
+                "editions": 33,
+                "approved": true,
+                "asOfYear": 2026,
+                "sourceIds": [
+                  "organizer-v352"
+                ]
+              },
+              "sourceIds": [
+                "organizer-v352"
+              ]
+            }
+          }
+        },
+        {
+          "groupId": "memorial",
+          "member": {
+            "id": "erling-danielsen",
+            "name": "Erling Danielsen",
+            "status": "confirmed",
+            "reason": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
+            "sourceIds": [
+              "organizer-v34",
+              "organizer-v35",
+              "organizer-danielsen-estimate-correction"
+            ],
+            "roles": [
+              {
+                "title": "Dugnad",
+                "confirmed": true,
+                "sourceIds": [
+                  "organizer-v34"
+                ],
+                "fromYear": 1992
+              }
+            ],
+            "stories": [],
+            "badgeProposal": {
+              "status": "proposed",
+              "primaryBadgeId": "service-memorial",
+              "badgeIds": [
+                "service-memorial"
+              ],
+              "sourceIds": [
+                "organizer-v34",
+                "organizer-v35"
+              ]
+            },
+            "awards": [],
+            "issuedDiplomas": [],
+            "contribution": {
+              "fromYear": 1992,
+              "sourceIds": [
+                "organizer-v34"
+              ]
+            },
+            "deceased": true,
+            "internalNotes": [
+              "Dødsår er ikke oppgitt. Erling Danielsen er ikke Einar Danielsen."
+            ],
+            "previousBadgeProposals": [
+              {
+                "status": "proposed",
+                "primaryBadgeId": null,
+                "badgeIds": [],
+                "sourceIds": [
+                  "organizer-v34"
+                ]
+              }
+            ],
+            "memorialRecognition": {
+              "badgeId": "service-memorial",
+              "sourceIds": [
+                "organizer-v35"
+              ]
+            },
+            "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+          }
+        }
+      ],
+      "personDetails": {
+        "einar-danielsen": {
+          "shortDescription": "En av de fem som la grunnlaget for Morothon i 1992.",
+          "stories": [
+            {
+              "title": "Med fra starten",
+              "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+              "source": "Søgne Morothon",
+              "sourceIds": [
+                "organizer-v3"
+              ],
+              "confirmed": true
+            }
+          ],
+          "honorDiplomaText": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+          "diplomaDate": {
+            "date": "2026-11-07",
+            "sourceIds": [
+              "organizer-v36-einar-date"
+            ]
+          }
+        },
+        "erling-danielsen": {
+          "shortDescription": "Med på dugnad fra 1992 og en av dem som har bidratt aller lengst. Vi minnes Erling og innsatsen hans med takknemlighet.",
+          "stories": [],
+          "runnerLink": {
+            "runnerId": "MOR-B82F8A3",
+            "confirmed": true,
+            "sourceIds": [
+              "organizer-v361-confirmed-links"
+            ]
+          }
+        }
+      },
+      "volunteers": [
+        {
+          "id": "anne-lene-forland-hansen",
+          "name": "Anne Lene Førland-Hansen",
+          "role": "Drikkestasjon",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon-start"
+          ]
+        },
+        {
+          "id": "laila-endresen-skjulestad",
+          "name": "Laila Endresen Skjulestad",
+          "role": "Drikkestasjon",
+          "sourceIds": [
+            "organizer-v34-drikkestasjon-start"
+          ]
+        }
+      ],
+      "diplomaExamples": [
+        {
+          "id": "minnediplom",
+          "label": "For alltid en del av Morothon – minnediplom",
+          "personId": "erling-danielsen",
+          "badgeId": "service-memorial"
+        }
+      ],
+      "narrativeUncertainties": [
+        {
+          "text": "Bent-Inge Bakkes avslutningsår, Kalle og Finns innsats før 2014 og oppstartsår/oppgaver for de nyere navneoppføringene er ikke fastsatt. Startår alene dokumenterer ikke innsats i alle mellomliggende utgaver.",
+          "sourceIds": [
+            "organizer-v34"
+          ]
+        },
+        {
+          "text": "Floke Bredland: oppgitt startår 1993, mens eldre kilder spriker. Mulig sluttår 2017 er usikkert. Dødsår 2024 er oppgitt. Erling Danielsens dødsår er ikke oppgitt. Minneseksjonen har tre personer: Erling Danielsen, Floke Bredland og Leif Wiig. Omtalen registrerer ingen gjennomført utdeling.",
+          "sourceIds": [
+            "organizer-v34",
+            "organizer-honor-names-2026-11-11",
+            "organizer-v351"
+          ]
+        },
+        {
+          "text": "Aud Ovesen, Arnfinn Grimestad og Magne Lia er registrert med fullstendige navn. Andre navn beholdes slik de er oppgitt, uten gjettede personkoblinger.",
+          "sourceIds": [
+            "organizer-v34",
+            "organizer-honor-names-2026-11-11",
+            "organizer-v351"
+          ]
+        }
+      ]
+    }
+  ]
 }

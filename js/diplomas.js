@@ -163,7 +163,8 @@
       roleLabel:gratitude?(member.roles||[]).filter(r=>r.confirmed).map(r=>r.title).join(' · '):badge.name,
       tribute:gratitude?'Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!':member.diplomaTribute||'',
       provisional:true,asset,assetKey:gratitude?'debut':badgeId,gratitude,printMode:'draft',
-      secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&MorothonBadges.get(a.key).series==='dugnad'),memorial:badgeId==='service-memorial',
+      inRemembrance:member.deceased===true||member.memorialRecognition?.badgeId==='service-memorial'||badgeId==='service-memorial',
+      secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&(MorothonBadges.get(a.key).series==='dugnad'||a.key==='service-memorial')),memorial:badgeId==='service-memorial',
       contributionCount:contribution.count||null,contributionFirst:contribution.first??null,contributionLast:contribution.last??null,
       achievementYear,eventDate,dateBasis,handwriting,presentationDate,achievementDateLabel,
       illustrative,medalDisplay,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
@@ -205,7 +206,7 @@
     const contribution=profile.tenure;
     // Aggregate totals have no invented annual rows or milestone date.
     const draft=await serviceContent({...member,diplomaTribute:selectedText},badgeId,
-      [badgeId==='thanks'?'debut':badgeId,...founder,...collection],contribution,false,medalDisplay);
+      [badgeId==='thanks'?'debut':badgeId,...founder,...profile.secondaryHonorIds.filter(id=>id==='service-memorial'),...collection],contribution,false,medalDisplay);
     return withServiceApproval(data,draft);
   }
   async function serviceExample(id, medalDisplay='all') {
@@ -361,11 +362,11 @@
     const css=new URL('css/diplomas.css',document.baseURI).href;
     const founder=d.assetKey==='service-grunnlegger',highest=d.assetKey==='service-aeresmerke',memorial=d.memorial===true,gratitude=d.gratitude===true,lifelong=highest&&d.contributionCount===35;
     const heading=gratitude?'TAKK FOR INNSATSEN':memorial?'MINNEDIPLOM':founder?'GRUNNLEGGERDIPLOM':highest?'ÆRESDIPLOM':lifelong?'HEDERSDIPLOM':'DUGNADSDIPLOM';
-    const tribute=d.tribute||(founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for tid, krefter og fellesskap. Du er med på å gjøre Morothon mulig.');
+    const tribute=d.tribute||(d.inRemembrance?'Med takknemlighet for tid, krefter og fellesskap. Innsatsen lever videre i Morothons historie.':founder?'Med takk og heder til en av Morothons grunnleggere.':'Med takk for tid, krefter og fellesskap. Du er med på å gjøre Morothon mulig.');
     const founderMark=d.founderAsset?`<aside class="diploma-service-founder" data-layout-check><img data-badge-key="${safe(d.founderAsset.key)}" src="${safe(d.founderAsset.src)}" alt="Grunnlegger"><b>GRUNNLEGGER</b></aside>`:'';
     const collection=d.collectionAssets||[];
-    const collectionHtml=`<section class="diploma-service-collection" data-layout-check aria-label="Opptjente dugnadsmerker">${collection.length?`<p>DUGNADSMERKENE · EN INNSATS Å VÆRE STOLT AV</p><div>${collection.map(a=>`<img data-badge-key="${safe(a.key)}" src="${safe(a.src)}" alt="${safe(MorothonBadges.get(a.key).name)}">`).join('')}</div>`:''}</section>`;
-    const secondaryHtml=`<div class="diploma-service-words" data-layout-check><b>${memorial?'MINNENE':d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${memorial?'OG FELLESSKAPET LEVER VIDERE':d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
+    const collectionHtml=`<section class="diploma-service-collection" data-layout-check aria-label="${collection.some(a=>a.key==='service-memorial')?'Merker og minne':'Opptjente dugnadsmerker'}">${collection.length?`<p>${collection.some(a=>a.key==='service-memorial')?'MERKER OG MINNE · MED TAKKNEMLIGHET':'DUGNADSMERKENE · EN INNSATS Å VÆRE STOLT AV'}</p><div>${collection.map(a=>`<img data-badge-key="${safe(a.key)}" src="${safe(a.src)}" alt="${safe(MorothonBadges.get(a.key).name)}">`).join('')}</div>`:''}</section>`;
+    const secondaryHtml=`<div class="diploma-service-words" data-layout-check><b>${memorial?'MINNENE':d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${memorial?'OG FELLESSKAPET LEVER VIDERE':d.inRemembrance?'FOR INNSATSEN DU GA':d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
     const value=gratitude&&!d.contributionCount?'TAKK':memorial?'MINNE':d.contributionCount||(founder?'1992':'TAKK'),label=gratitude&&!d.contributionCount?'FOR DITT BIDRAG':memorial?'MED TAKKNEMLIGHET':d.contributionCount?'DUGNADSUTGAVER':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
     const period=gratitude&&!d.contributionCount?'':d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
     return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><style data-service-handwriting>${d.handwriting}</style><link rel="stylesheet" href="${safe(css)}"></head>

@@ -73,6 +73,28 @@ jobs:
           path: /tmp/morothon-v36/
           if-no-files-found: error
           retention-days: 14
+      - name: Render V3.6.1 profile and founder-marker comparison
+        if: github.event_name == 'pull_request'
+        run: node scripts/review-honors-v361.cjs /tmp/morothon-v361
+      - name: Retain V3.6.1 profile and diploma comparison
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-v361-profiler-diplomer
+          path: /tmp/morothon-v361/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Render final V3.6.1 person and diploma corrections
+        if: github.event_name == 'pull_request'
+        run: node scripts/review-honors-final-v361.cjs /tmp/morothon-v361-final
+      - name: Retain final V3.6.1 person and diploma corrections
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-v361-sluttkontroll
+          path: /tmp/morothon-v361-final/
+          if-no-files-found: error
+          retention-days: 14
       - name: Render V3.5.3 date and signature comparison
         if: github.event_name == 'pull_request'
         run: |

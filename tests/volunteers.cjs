@@ -20,7 +20,7 @@ test('V3.4 separate volunteer list preserves all 44 canonical identities and rem
  assert.equal(combined.volunteerList,undefined);assert.equal(core.volunteerList,'data/volunteers.json');
  const old=JSON.parse(execFileSync('git',['show','92b892a:data/honors.json'],{cwd:root}));
  for(const m of old.groups.flatMap(g=>g.members)){
-  const actual=historicalMember(members.find(n=>n.id===m.id));assert.ok(actual,m.id);
+  const actual=historicalMember(require('./helpers/honors.cjs').beforeFinalCorrections(combined).groups.flatMap(g=>g.members).find(n=>n.id===m.id));assert.ok(actual,m.id);
   if(['anne-lene-forland-hansen','laila-endresen-skjulestad'].includes(m.id)){
    assert.equal(actual.contribution,undefined);assert.ok(actual.roles.every(r=>r.fromYear===undefined));
    assert.equal(actual.reason,null);
@@ -68,7 +68,7 @@ test('V3.4 ordinary names require sources, cannot add awards or runner IDs, and 
  }
 });
 
-test('V3.4 Anne Lene and Laila have one working profile each and no visible guessed start on mobile or desktop',async()=>{
+test('V3.4 Anne Lene and Laila have one working profile each and the newly confirmed start on mobile or desktop',async()=>{
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}});
   try{
@@ -76,12 +76,12 @@ test('V3.4 Anne Lene and Laila have one working profile each and no visible gues
    assert.equal(await p.locator('[data-honoree]').count(),44);
    for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad']){
     const card=p.locator(`[data-honoree="${id}"]`);assert.equal(await card.count(),1);
-    assert.doesNotMatch(await card.innerText(),/2014|2016/);
+    assert.match(await card.innerText(),/fra 2016/);
     assert.equal(await card.locator('a').count(),1);await p.goto(h.base+'/heder.html#person/'+id);await p.locator('#profileName').waitFor();
     assert.match(p.url(),new RegExp('#person/'+id+'$'));
-    assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/2014|2016/);
-    assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/begynte samtidig|Historier og minner|EN DEL AV/);
-    assert.equal(await p.locator('#honorProfile .honor-profile-medals img').count(),0);
+    assert.match(await p.locator('#honorProfile').innerText(),/2016/);
+    assert.doesNotMatch(await p.locator('#honorProfile').innerText(),/begynte samtidig|Historier og minner/);
+    assert.equal(await p.locator('#honorProfile .honor-profile-medals img').count(),1);
     assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     await p.keyboard.press('Escape');await p.locator('#honorOverview').waitFor({state:'visible'});
    }

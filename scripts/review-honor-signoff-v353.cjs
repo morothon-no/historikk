@@ -18,7 +18,7 @@ async function review(out,beforeRoot){
      const key=stage+'-'+c.key+'-'+display;
      await q.locator('.diploma-sheet').screenshot({path:path.join(out,key+'.png')});
      await q.locator('.diploma-signoff').screenshot({path:path.join(out,key+'-signoff.png')});
-     const measurements=await q.evaluate(()=>{const e=document.querySelector('.diploma-date p'),b=document.querySelector('.diploma-signature b'),s=getComputedStyle(e),t=getComputedStyle(b);const r=document.createRange();r.selectNodeContents(e);return {date:e.textContent,dateFont:s.fontFamily,signatureFont:t.fontFamily,dateColor:s.color,signatureColor:t.color,dateLines:[...r.getClientRects()].filter(r=>r.width>0).length,images:[...document.querySelectorAll('.diploma-medal,.diploma-service-founder img,.diploma-service-collection img')].map(e=>({src:new URL(e.src).pathname,box:e.getBoundingClientRect().toJSON()}))};});
+     const measurements=await q.evaluate(()=>{const e=document.querySelector('.diploma-date p'),b=document.querySelector('.diploma-signature b'),s=getComputedStyle(e),t=getComputedStyle(b);const r=document.createRange();r.selectNodeContents(e);return {date:e.textContent,dateFont:s.fontFamily,signatureFont:t.fontFamily,dateColor:s.color,signatureColor:t.color,dateLines:[...r.getClientRects()].filter(r=>r.width>0).length,images:[...document.querySelectorAll('.diploma-medal,.diploma-service-founder img,.diploma-service-collection img')].map(e=>({src:new URL(e.src).pathname,founder:!!e.closest('.diploma-service-founder'),box:e.getBoundingClientRect().toJSON()}))};});
      if(stage==='after'){assert.equal(measurements.dateFont,measurements.signatureFont);assert.equal(measurements.dateColor,measurements.signatureColor);assert.equal(measurements.dateLines,c.date?1:0);}
      const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}});await fs.writeFile(path.join(out,key+'.pdf'),pdf);
      const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString(),fonts=execFileSync('pdffonts',['-'],{input:pdf}).toString(),text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');
@@ -31,7 +31,21 @@ async function review(out,beforeRoot){
    }finally{await p.close();}
   }}finally{await h.close();}
  }
- for(const before of proofs.filter(p=>p.stage==='before')){const after=proofs.find(p=>p.stage==='after'&&p.case===before.case&&p.display===before.display);assert.deepEqual(after.measurements.images,before.measurements.images,'Medal placement unchanged: '+before.case+'/'+before.display);}
+ for(const before of proofs.filter(p=>p.stage==='before')){
+  const after=proofs.find(p=>p.stage==='after'&&p.case===before.case&&p.display===before.display);
+  const added=after.measurements.images.filter(a=>!before.measurements.images.some(b=>b.src===a.src));
+  assert.equal(added.length,before.case==='einar'?1:0);
+  if(added.length)assert.match(added[0].src,/memorial\.svg$/);
+  for(const image of before.measurements.images){
+   const next=after.measurements.images.find(a=>a.src===image.src);assert.ok(next,'Every prior official medal remains');
+   assert.equal(next.box.width,image.box.width);assert.equal(next.box.height,image.box.height);
+   if(image.founder){assert.equal(next.box.top,image.box.top);assert.ok(next.box.left<image.box.left,'V3.6.1 moves only the secondary founder marker left');}
+   else if(before.case!=='einar')assert.deepEqual(next,image,'Unchanged medals: '+before.case+'/'+before.display);
+   // Einar's new memorial mark reflows only his collection/composition. The
+   // complete live layout check above still rejects collisions and clipping.
+  }
+ }
+
  assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'kontroll.json'),JSON.stringify({proofs,errors},null,2)+'\n');
  let html='<h1>Morothon V3.5.3 – dato og navnesignatur</h1><p>Faktisk Chromium-gjengivelse. Historisk kontrollprofil er syntetiske testdata, ikke en endring i personregisteret.</p>';
  for(const c of cases)for(const display of ['all','latest']){html+=`<h2>${c.name} · ${display==='all'?'Alle merker':'Kun siste merke'}</h2><div class="pair">`;for(const stage of ['before','after']){const key=stage+'-'+c.key+'-'+display;html+=`<figure><figcaption>${stage==='before'?'Før':'Etter'}</figcaption><a href="${key}.pdf"><img src="${key}.png" alt="${stage}"></a><img src="${key}-signoff.png" alt="Signaturfelt"></figure>`;}html+='</div>';}

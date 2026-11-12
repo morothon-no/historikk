@@ -34,7 +34,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
     await new Promise(resolve=>{f.onload=resolve;f.srcdoc=MorothonDiplomas.documentHtml(d);document.body.appendChild(f)});
     try{const check=await MorothonDiplomas.checkServiceDraft(d,f.contentDocument);return {html:MorothonDiplomas.documentHtml(d),name:d.name,count:d.contributionCount,mode:d.printMode,medalDisplay:d.medalDisplay,main:d.assetKey,extras:d.secondaryAssets.map(a=>a.key),check};}finally{f.remove();}
    },r);
-   assert.equal(model.check.ready,true,r.key+': '+model.check.failures);if(r.id)assert.equal(model.mode,'presentation',r.id);
+   assert.equal(model.check.ready,true,r.key+': '+model.check.failures);if(r.id)assert.equal(model.mode,require('../tests/helpers/honors.cjs').expectedPrintMode(data,r.id),r.id);
    const q=await h.browser.newPage({viewport:{width:1123,height:794},deviceScaleFactor:300/96});try{
     await q.setContent(model.html);await q.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode()))});await q.addScriptTag({url:h.base+'/js/diplomas.js'});
     const layout=await q.evaluate(()=>MorothonDiplomas.checkLayout(document));assert.equal(layout.ready,true,r.key+': '+layout.failures);
@@ -45,7 +45,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
     const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}});await fs.writeFile(path.join(out,r.key+'-A4.pdf'),pdf);
     const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString(),text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');
     assert.match(info,/Pages:\s+1\b/);const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.89)<.5&&Math.abs(+size[2]-595.28)<.5);
-    assert.ok(text.includes(model.name));assert.doesNotMatch(text,/UTKAST|FORHÅNDSVISNING|MULIGE DUGNADSUTGAVER/);if(r.example)assert.match(text,/EKSEMPEL/);else assert.doesNotMatch(text,/EKSEMPEL/);
+    assert.ok(text.includes(model.name));if(model.mode==='draft')assert.match(text,r.example?/EKSEMPEL/:/FORHÅNDSVISNING/);else assert.doesNotMatch(text,/UTKAST|FORHÅNDSVISNING|MULIGE DUGNADSUTGAVER/);if(r.example)assert.match(text,/EKSEMPEL/);else assert.doesNotMatch(text,/EKSEMPEL/);
     proofs.push({key:r.key,name:model.name,count:model.count,mode:model.mode,medalDisplay:model.medalDisplay,main:model.main,extras:model.extras,images,layoutReady:true,pdfInfo:info,fonts:execFileSync('pdffonts',['-'],{input:pdf}).toString(),pdfImages:execFileSync('pdfimages',['-list','-'],{input:pdf}).toString()});
    }finally{await q.close();}
   }

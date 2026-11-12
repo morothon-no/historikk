@@ -106,3 +106,30 @@ ett usikkert forslag og 18 uten treff. Ingen nye koblinger er lagret.
 Rapporten har ingen feil i de eksisterende koblingene. Tallene over er et
 øyeblikksbilde; kommandoen beregner rapporten fra den til enhver tid gjeldende
 historikk- og registerfilen.
+
+## V3.6.1 – uttrykkelig bekreftelse av de 14 forslagene
+
+Arrangøren har bekreftet samtlige 14 forslag i den første rapporten, også
+Bent-Inge Bakke → Bent Inge Bakke (`MOR-046CD37`). De er nå registrert i
+`personDetails.runnerLink`, med kilde `organizer-v361-confirmed-links`.
+Dette endrer ingen navn, aliaser, resultater, dugnadsår eller tildelinger.
+Gjeldende rapport har 26 bekreftede koblinger, 18 uten treff og ingen
+ubekreftede forslag eller koblingsfeil. Fremtidige forslag krever fortsatt
+uttrykkelig identitetsbekreftelse.
+
+| Hedersnavn | Bekreftet løper-ID |
+| --- | --- |
+| Arvid Borø | `MOR-5F10796` |
+| Astrid Lohne | `MOR-3CBFFC3` |
+| Bent-Inge Bakke | `MOR-046CD37` |
+| Erling Danielsen | `MOR-B82F8A3` |
+| Johannes Aamodt | `MOR-FB68447` |
+| Jon Fjeld | `MOR-EFAFF95` |
+| Jøran Eriksen | `MOR-5F72D06` |
+| Lars Vassbotn Aamodt | `MOR-D4F55FF` |
+| Leif Wiig | `MOR-88334F0` |
+| Lene Holmen Berg | `MOR-830D9E6` |
+| Mari Melsom Kristensen | `MOR-B42530E` |
+| Nils Henning Pedersen | `MOR-000B270` |
+| Rune Bergjord | `MOR-45DF0B4` |
+| Tom Lohne | `MOR-BE568A1` |

@@ -85,7 +85,7 @@
 .diploma-service .diploma-heading:before{margin-bottom:1mm}
 .diploma-service .diploma-heading h1{font-size:9.2mm}
 .diploma-service .diploma-heading p{font-size:2.5mm}
-.diploma-service .diploma-service-founder{position:absolute;top:24mm;right:33mm;width:24mm;display:grid;justify-items:center;gap:.8mm;text-align:center}
+.diploma-service .diploma-service-founder{position:absolute;top:24mm;left:33mm;width:24mm;display:grid;justify-items:center;gap:.8mm;text-align:center}
 .diploma-service .diploma-service-founder img{display:block;width:24mm;height:24mm;object-fit:contain}
 .diploma-service .diploma-service-founder b{font:700 2.5mm/1.2 Arial,sans-serif;letter-spacing:.2mm;color:#654c28}
 .diploma-service .diploma-service-collection{margin:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.9mm;min-height:0}
