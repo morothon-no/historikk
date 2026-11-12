@@ -23,12 +23,15 @@ function historicalMember(member){
 async function assertOrdinaryDiplomaCss(root){
  const assert=require('node:assert/strict'),{execFileSync}=require('node:child_process');
  const original=execFileSync('git',['show','8e28dd6:css/diplomas.css'],{cwd:root}).toString(),current=await fs.readFile(path.join(root,'css/diplomas.css'),'utf8');
- assert.ok(current.startsWith(original),'All existing diploma styles are preserved verbatim');
- const added=current.slice(original.length).replace(/\/\*[\s\S]*?\*\//g,'').trim();
- for(const rule of added.split('}').filter(s=>s.trim()))assert.ok(/^\.diploma-service(?:[ .:#])/.test(rule.trim()),'New styles are scoped only to service drafts');
+ // V3.5.3 replaces only the two service footer rules at the end of this baseline.
+ // Everything before that footer remains byte-identical, including runner styles.
+ const preserved=original.slice(0,original.indexOf('/* Service diplomas have a milestone year,'));
+ assert.ok(preserved.length>10000&&current.startsWith(preserved),'All ordinary diploma styles are preserved verbatim');
+ const added=current.slice(preserved.length).replace(/\/\*[\s\S]*?\*\//g,'').trim();
+ for(const rule of added.split('}').filter(s=>s.trim()))assert.ok(/^\.diploma-service(?:[ .:#]|-signoff[ .:#])/.test(rule.trim()),'New styles are scoped only to service diplomas');
 }
 function ordinaryDiplomaCode(s){return s.replace(/  async function serviceContent\([\s\S]*?(?=  function signoffHtml)/,'SERVICE\n')
- .replace(/  \/\/ Volunteer diplomas show the documented milestone YEAR only\.[\s\S]*?(?=  function serviceDocumentHtml)/,'')
+ .replace(/  \/\/ Volunteer (?:diplomas show the documented milestone YEAR only\.|dates refer to the achieved milestone,)[\s\S]*?(?=  function serviceDocumentHtml)/,'')
  .replace(/  function serviceDocumentHtml\([\s\S]*?(?=  function documentHtml)/,'SERVICE-DOC\n')
  .replace(/    \/\/ Service-only secondary mark collision checks\.[\s\S]*?    \/\/ End service-only secondary mark collision checks\.\n/,'')
  .replace(",'.diploma-service-collection'",'').replace('.map(selector=>doc.querySelector(selector)).filter(Boolean)','.map(selector=>doc.querySelector(selector))')

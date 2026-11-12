@@ -64,7 +64,7 @@ test('V3.5 every gallery example has active print/PDF controls; browser output k
     assert.equal(await q.locator('.diploma-draft').count(),e.illustrative?1:0);
     const pdf=await q.pdf({format:'A4',landscape:true,preferCSSPageSize:true,printBackground:true,margin:{top:0,right:0,bottom:0,left:0}}),info=execFileSync('pdfinfo',['-'],{input:pdf}).toString(),text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');
     assert.match(info,/Pages:\s+1\b/);const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.89)<.5&&Math.abs(+size[2]-595.28)<.5);
-    assert.doesNotMatch(text,/UTKAST|IKKE UTDELT/);if(e.illustrative)assert.match(text,/EKSEMPEL/);assert.match(text,/Håkon Lohne/);assert.match(text,/Løpsleder Morothon/);
+    assert.doesNotMatch(text,/UTKAST|IKKE UTDELT/);if(e.illustrative)assert.match(text,/EKSEMPEL/);assert.match(text,/Håkon Lohne/);assert.match(text,/Løpsleder · Morothon/);
     if(e.badgeId==='thanks'){assert.match(text,/TAKK FOR INNSATSEN/);assert.doesNotMatch(text,/MILEPÆL OPPNÅDD|MULIGE DUGNADSUTGAVER|\? dugnadsutgaver/);}
     if(e.badgeId==='service-memorial'){assert.match(text,/TIL MINNE OM/);assert.doesNotMatch(text,/TILDELES/);}
    }finally{await q.close();}

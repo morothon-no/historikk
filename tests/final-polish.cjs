@@ -81,13 +81,11 @@ test('all 5–50, record, debut and service diplomas align matching handwriting 
      return {name:name.textContent,role:role.textContent,nameFont:style(name).font,dateFont:style(date).font,nameColor:style(name).color,dateColor:style(date).color,roleFont:style(role).fontFamily,roleSize:parseFloat(style(role).fontSize),nameSize:parseFloat(style(name).fontSize),baselineDelta:Math.abs(baseline(date)-baseline(name)),topDelta:Math.abs(box(date).top-box(name).top),aboveLines:isService?box(name).bottom<=box(lines[0]).top:box(date).bottom<=box(lines[0]).top&&box(name).bottom<=box(lines[1]).top,roleBelow:box(role).top>=box(lines.at(-1)).bottom,lineCount:lines.length,lineDelta:lines.length>1?Math.abs(box(lines[0]).top-box(lines[1]).top):0,lineHeights:lines.map(e=>box(e).height),lineWidths:lines.map(e=>box(e).width),lineBorders:lines.map(e=>style(e).borderBottom),lineTexts:lines.map(e=>e.textContent),layout:await MorothonDiplomas.checkLayout(doc)};
     }finally{frame.remove();}
    },html);
-   assert.equal(result.name,'Håkon Lohne',key);assert.equal(result.role,'Løpsleder Morothon',key);
+   assert.equal(result.name,'Håkon Lohne',key);assert.equal(result.role,key.startsWith('service-')?'Løpsleder · Morothon':'Løpsleder Morothon',key);
    if(key.startsWith('service-')){
-    assert.equal(result.lineCount,1,key);assert.equal(result.aboveLines,true,key);assert.equal(result.roleBelow,true,key);
-    assert.match(result.dateFont,/Arial/,key);assert.equal(result.layout.ready,true,`${key}: ${result.layout.failures}`);
-    continue;
-   }
-   assert.match(result.nameFont,/Z003.*cursive/,key);assert.equal(result.nameFont,result.dateFont,key);assert.equal(result.nameColor,result.dateColor,key);assert.match(result.roleFont,/Arial/,key);assert.ok(result.roleSize<result.nameSize,key);
+    assert.match(result.nameFont,/Morothon Caveat/,key);
+   }else assert.match(result.nameFont,/Z003.*cursive/,key);
+   assert.equal(result.nameFont,result.dateFont,key);assert.equal(result.nameColor,result.dateColor,key);assert.match(result.roleFont,/Arial/,key);assert.ok(result.roleSize<result.nameSize,key);
    assert.ok(result.baselineDelta<.1,key);assert.ok(result.topDelta<.1,key);assert.ok(result.lineDelta<.1,key);assert.equal(result.aboveLines,true,key);assert.equal(result.roleBelow,true,key);assert.equal(result.lineCount,2,key);
    assert.ok(Math.abs(result.lineHeights[0]-result.lineHeights[1])<.1,key);assert.ok(Math.abs(result.lineWidths[0]-result.lineWidths[1])<.1,key);assert.equal(result.lineBorders[0],result.lineBorders[1],key);assert.deepEqual(result.lineTexts,['',''],key);assert.equal(result.layout.ready,true,`${key}: ${result.layout.failures}`);
   }

@@ -81,7 +81,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-heder-pr16'),badgesOnl
    for(const key of [...levels.map(n=>n===5?'dugnadshelt-fem':'dugnad-'+n),'oscar-30','erling-30','oscar-35','erling-35']){
     const model=await p.evaluate(async key=>{
      const d=key.endsWith('-30')&&!key.startsWith('dugnad-')?await MorothonDiplomas.serviceDraft(key.startsWith('oscar')?'oscar-lohne':'erling-askildsen','service-dugnad-30'):await MorothonDiplomas.serviceExample(key);
-     return {html:MorothonDiplomas.documentHtml(d),name:d.name,role:d.roleLabel,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,achievementYear:d.achievementYear,yearText:d.achievementYear?(d.assetKey.startsWith('service-dugnad-')?'MILEPÆL OPPNÅDD I '+d.achievementYear:'35 DUGNADSUTGAVER I '+d.achievementYear):'',tribute:d.tribute,preview:d.previewOnly,imageReady:d.imageReady,secondary:d.secondaryAssets.map(a=>a.key)};
+     return {html:MorothonDiplomas.documentHtml(d),name:d.name,role:d.roleLabel,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,achievementYear:d.achievementYear,yearText:d.dateLabel||'',tribute:d.tribute,preview:d.previewOnly,imageReady:d.imageReady,secondary:d.secondaryAssets.map(a=>a.key)};
     },key);
     assert.equal(model.preview,true);assert.equal(model.imageReady,false);
     const q=await harness.browser.newPage({viewport:{width:1123,height:794},deviceScaleFactor:300/96});
@@ -95,9 +95,9 @@ async function review(out=path.join(os.tmpdir(),'morothon-heder-pr16'),badgesOnl
     await fs.writeFile(path.join(out,key+'-A4-UTKAST-IKKE-UTDELT.pdf'),pdf);
     const info=execFileSync('pdfinfo',['-'],{input:pdf}).toString();assert.match(info,/Pages:\s+1\b/);
     const size=info.match(/Page size:\s+([\d.]+) x ([\d.]+)/);assert.ok(size&&Math.abs(+size[1]-841.8898)<.5&&Math.abs(+size[2]-595.2756)<.5,key+': landscape A4');
-    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(model.name));assert.ok(text.includes(model.yearText||'Løpsleder Morothon'));assert.ok(!text.includes('__________________'));
-    const signoff=await q.locator('.diploma-service-signoff').evaluate(e=>({date:e.querySelector('.diploma-date').textContent.trim(),dateLines:e.querySelectorAll('.diploma-date .diploma-signature-line').length,signature:e.querySelector('.diploma-signature b').textContent,role:e.querySelector('.diploma-signature-role').textContent}));
-    assert.deepEqual(signoff,{date:model.yearText,dateLines:0,signature:'Håkon Lohne',role:'Løpsleder Morothon'});
+    const text=execFileSync('pdftotext',['-','-'],{input:pdf}).toString().replace(/\s+/g,' ');assert.ok(text.includes(model.name));assert.ok(text.includes(model.yearText||'Løpsleder · Morothon'));assert.ok(!text.includes('__________________'));
+    const signoff=await q.locator('.diploma-service-signoff').evaluate(e=>({date:e.querySelector('.diploma-date p').textContent.trim(),dateLines:e.querySelectorAll('.diploma-date .diploma-signature-line').length,signature:e.querySelector('.diploma-signature b').textContent,role:e.querySelector('.diploma-signature-role').textContent}));
+    assert.deepEqual(signoff,{date:model.yearText,dateLines:model.yearText?1:0,signature:'Håkon Lohne',role:'Løpsleder · Morothon'});
     assert.ok(!/tildelt i|utdelt i|utstedt i/i.test(text));
     proofs.push({key,...model,html:undefined,layout:{ready:layout.ready,failures:layout.failures},contrasts,pdfInfo:info});await q.close();
    }

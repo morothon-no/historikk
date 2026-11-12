@@ -140,7 +140,7 @@
 
   async function serviceContent(member, badgeId, ids, contribution, illustrative=false, medalDisplay='all') {
     if(!['all','latest'].includes(medalDisplay))throw new Error('Ukjent medaljevisning.');
-    const [badges,register]=await Promise.all([MorothonBadges.init(),eventDates()]);
+    const [badges,register,handwriting]=await Promise.all([MorothonBadges.init(),eventDates(),serviceHandwriting()]);
     const assets=await Promise.all(ids.map(inspectAsset));
     const gratitude=badgeId==='thanks';
     const badge=gratitude?{id:'thanks',name:'Takk for innsatsen',color:'#A47A46'}:MorothonBadges.get(badgeId),asset=assets.find(a=>a.key===(gratitude?'debut':badgeId));
@@ -154,18 +154,39 @@
     const achievementYear=!illustrative&&milestone
       ? contribution.milestoneYears?.[milestone]??null
       : !illustrative&&badgeId==='service-aeresmerke'&&contribution.basis==='documented'&&contribution.count===35&&knownYears.length===35?contribution.last:null;
-    const eventDate=achievementYear?register.dates[String(achievementYear)]||null:null;
-    const achievementDateLabel=eventDate?dateLabel(achievementYear,register):'';
+    const {eventDate,label:achievementDateLabel,basis:dateBasis}=serviceAchievementDate(achievementYear,register);
     return {name:member.name,honoreeId:member.id||null,type:'service',tier:'service',title:badge.name,
       roleLabel:gratitude?(member.roles||[]).filter(r=>r.confirmed).map(r=>r.title).join(' · '):badge.name,
       tribute:gratitude?'Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!':member.diplomaTribute||'',
       provisional:true,asset,assetKey:gratitude?'debut':badgeId,gratitude,printMode:'draft',
       secondaryAssets:assets.filter(a=>a.key!==asset.key),founderAsset:assets.find(a=>a.key==='service-grunnlegger'&&a.key!==asset.key)||null,collectionAssets:assets.filter(a=>a.key!==asset.key&&MorothonBadges.get(a.key).series==='dugnad'),memorial:badgeId==='service-memorial',
       contributionCount:contribution.count||null,contributionFirst:contribution.first??null,contributionLast:contribution.last??null,
-      achievementYear,eventDate,dateBasis:eventDate?'documented-race-date':'not-established',
+      achievementYear,eventDate,dateBasis,handwriting,
       illustrative,medalDisplay,imageReady:false,previewOnly:true,color:badge.color,firstEdition:1992,editionNumber:null,
       watermarkSrc:new URL(badges.watermark.src,document.baseURI).href,dateLabel:achievementDateLabel,
       filename:`${member.id||'fem-dugnadsaar'}-${badge.id}-${illustrative?'eksempel':'diplom'}-${medalDisplay}`,description:'Et personlig diplom fra Morothon.',citation:''};
+  }
+
+  // Service-only font, distributed under SIL OFL 1.1. The verified bytes travel
+  // inside the document so iframe/PDF rendering never depends on system fonts.
+  async function serviceHandwriting() {
+    if(!serviceHandwriting.pending)serviceHandwriting.pending=(async()=>{
+      const response=await fetch(new URL('assets/fonts/caveat-regular-latin.woff',document.baseURI).href,{cache:'no-cache'});
+      if(!response.ok)throw new Error('Håndskriftfonten kunne ikke lastes.');
+      const bytes=await response.arrayBuffer();
+      const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');
+      if(digest!=='870c4d48b7667f3345bbb30a532c85da8368dcc2b7e2f84f215cd136cf87c0d9')throw new Error('Håndskriftfonten samsvarer ikke med den kontrollerte filen.');
+      return `@font-face{font-family:'Morothon Caveat';font-style:normal;font-weight:400;font-display:block;src:url(data:font/woff;base64,${btoa(Array.from(new Uint8Array(bytes),b=>String.fromCharCode(b)).join(''))}) format('woff')}`;
+    })().catch(error=>{serviceHandwriting.pending=null;throw error;});
+    return serviceHandwriting.pending;
+  }
+  function serviceAchievementDate(year,register) {
+    if(!Number.isInteger(year))return {eventDate:null,label:'',basis:'not-established'};
+    const eventDate=register.dates[String(year)]||null;
+    if(eventDate)return {eventDate,label:dateLabel(year,register),basis:'documented-race-date'};
+    // November is explicitly requested for historical milestones without a day.
+    // Future years without a registry entry retain only the known year.
+    return {eventDate:null,label:`Søgne, ${year<2014?'november ':''}${year}`,basis:year<2014?'historical-month-year':'documented-year'};
   }
   async function serviceDraft(id = 'oscar-lohne', requestedBadgeId, medalDisplay='all') {
     if(['all','latest'].includes(requestedBadgeId)){medalDisplay=requestedBadgeId;requestedBadgeId=undefined;}
@@ -251,6 +272,8 @@
       if(!draft.illustrative){const data=await MorothonHonorsData.load(),m=MorothonHonorsData.findIn(data,draft.honoreeId)?.member;
         if(!m||!MorothonHonorsData.canPresent(data,m,draft.gratitude?'thanks':draft.assetKey))failures.push('Diplomet må bruke profilens høyeste hovedutmerkelse.');}
       layout=await checkLayout(doc);failures.push(...layout.failures);
+      const handwriting=[...doc.fonts].find(face=>face.family.replace(/["']/g,'')==='Morothon Caveat');
+      if(handwriting?.status!=='loaded')failures.push('Diplomets innebygde håndskriftfont er ikke lastet.');
       const registry=await MorothonBadges.init(),asset=await inspectAsset(draft.assetKey),settings=MorothonBadges.get(draft.assetKey);
       const medal=doc.querySelector('.diploma-medal'),watermark=doc.querySelector('.diploma-watermark');
       if(doc.querySelector('link[rel="stylesheet"]')?.href!==new URL('css/diplomas.css',document.baseURI).href)failures.push('Diplomet bruker ikke det kontrollerte stilarket.');
@@ -321,18 +344,14 @@
     </div>`;
   }
 
-  // Volunteer diplomas show the documented milestone YEAR only. The exact race
-  // date stays in the model for provenance, and there is no invented award date.
-  // Anonymous examples have neither a year placeholder nor a date underline.
+  // Volunteer dates refer to the achieved milestone, never formal award/issue
+  // dates. Unknown years have neither placeholder dates nor an empty date rule.
   function serviceSignoffHtml(d) {
-    const label=d.achievementYear
-      ? d.assetKey.startsWith('service-dugnad-')
-        ? 'MERKET OPPNÅDD I '+d.achievementYear
-        : d.contributionCount===35 ? '35 DUGNADSUTGAVER I '+d.achievementYear : ''
-      : '';
-    return signoffHtml(label)
-      .replace('class="diploma-signoff"', 'class="diploma-signoff diploma-service-signoff"')
-      .replace('<div class="diploma-signature-line" aria-hidden="true"></div>', '');
+    const date=d.dateLabel||'',label=d.assetKey.startsWith('service-dugnad-')?'MERKET OPPNÅDD':'MILEPÆL OPPNÅDD';
+    return `<div class="diploma-signoff diploma-service-signoff" data-layout-check>
+      <div class="diploma-date">${date?`<span class="diploma-date-label">${label}</span>`:''}<p class="diploma-handwritten">${safe(date)}</p>${date?'<div class="diploma-signature-line" aria-hidden="true"></div>':''}</div>
+      <div class="diploma-signature"><b class="diploma-handwritten">Håkon Lohne</b><div class="diploma-signature-line" aria-label="Signaturlinje"></div><span class="diploma-signature-role">Løpsleder · Morothon</span></div>
+    </div>`;
   }
 
   function serviceDocumentHtml(d) {
@@ -346,7 +365,7 @@
     const secondaryHtml=`<div class="diploma-service-words" data-layout-check><b>${memorial?'MINNENE':d.contributionCount?'TAKK':'FELLESSKAP'}</b><span>${memorial?'OG FELLESSKAPET LEVER VIDERE':d.contributionCount?'FOR AT DU STILLER OPP':'MOROTHON BLIR TIL SAMMEN'}</span></div>`;
     const value=gratitude&&!d.contributionCount?'TAKK':memorial?'MINNE':d.contributionCount||(founder?'1992':'TAKK'),label=gratitude&&!d.contributionCount?'FOR DITT BIDRAG':memorial?'MED TAKKNEMLIGHET':d.contributionCount?'DUGNADSUTGAVER':founder?'DER HISTORIEN BEGYNTE':'FOR TID OG KREFTER';
     const period=gratitude&&!d.contributionCount?'':d.contributionFirst&&d.contributionLast?`${d.contributionFirst}–${d.contributionLast}`:d.illustrative?`${d.contributionCount||'?'} dugnadsutgaver · typeeksempel`:'';
-    return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><link rel="stylesheet" href="${safe(css)}"></head>
+    return `<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${safe(d.filename)}</title><style>@page{size:A4 landscape;margin:0}</style><style data-service-handwriting>${d.handwriting}</style><link rel="stylesheet" href="${safe(css)}"></head>
       <body class="diploma-document"><article data-medal-display="${d.medalDisplay}" class="diploma-sheet diploma-service diploma-service-v34 diploma-service-v352${collection.length?'':' diploma-service-no-collection'}${lifelong?' diploma-service-lifelong':''}" style="--diploma-metal:${d.color};--diploma-image-width:${d.asset.boxWidthMm}mm;--diploma-image-height:${d.asset.boxHeightMm}mm;--diploma-name-size:${d.name.length>65?6.7:d.name.length>38?8:d.name.length>26?9:12.3}mm" aria-label="Diplom til ${safe(d.name)}">
       <span class="diploma-corner corner-tl" aria-hidden="true"></span><span class="diploma-corner corner-tr" aria-hidden="true"></span><span class="diploma-corner corner-bl" aria-hidden="true"></span><span class="diploma-corner corner-br" aria-hidden="true"></span>
       <img class="diploma-watermark" src="${safe(d.watermarkSrc)}" alt="">
