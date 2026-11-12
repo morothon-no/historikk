@@ -110,6 +110,17 @@ jobs:
           path: /tmp/morothon-v353/
           if-no-files-found: error
           retention-days: 14
+      - name: Render V3.6.2 historical service diploma comparison
+        if: github.event_name == 'pull_request'
+        run: node scripts/review-service-milestones-v362.cjs /tmp/morothon-v362
+      - name: Retain V3.6.2 historical service diploma comparison
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-v362-dugnadsdiplomer
+          path: /tmp/morothon-v362/
+          if-no-files-found: error
+          retention-days: 14
       - name: Retain tested site artifact
         uses: actions/upload-artifact@v4
         with:

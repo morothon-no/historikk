@@ -12,7 +12,7 @@ test('V3.5.2 both diploma variants have separate reviewed fingerprints for all 4
     assert.equal(d.assetKey,expected==='thanks'?'debut':expected);assert.equal(d.medalDisplay,display);assert.equal(d.printMode,expectedPrintMode(data,m.id),m.id+': '+display);
     assert.deepEqual(d.collectionAssets.map(a=>a.key),[...state.secondaryHonorIds.filter(id=>id==='service-memorial'),...(display==='all'?state.collectionIds:[])]);
     assert.equal(!!d.founderAsset,state.secondaryHonorIds.includes('service-grunnlegger'));
-    if(expectedPrintMode(data,m.id)==='presentation')assert.ok(data.presentationPrintSet.entries.some(e=>e.personId===m.id&&e.badgeId===expected&&e.medalDisplay===display&&e.contentSha256===d.contentProof.contentSha256));else assert.ok(!data.presentationPrintSet.entries.some(e=>e.personId===m.id));pair.push(d.contentProof.contentSha256);
+    if(expectedPrintMode(data,m.id)==='presentation')assert.ok(data.presentationPrintSet.entries.some(e=>e.personId===m.id&&e.badgeId===expected&&e.medalDisplay===display&&e.contentSha256===d.contentProof.contentSha256));else assert.ok(!data.presentationPrintSet.entries.some(e=>e.personId===m.id&&e.medalDisplay===display&&e.contentSha256===d.contentProof.contentSha256));pair.push(d.contentProof.contentSha256);
    }
    assert.notEqual(pair[0],pair[1]);assert.deepEqual(m.awards,[]);assert.deepEqual(m.issuedDiplomas,[]);
   }
@@ -51,12 +51,13 @@ test('V3.5.2 mobile/PC switches only the smaller collection, preserves profile m
  }
 });
 test('V3.5.2 variant approval cannot be swapped, duplicated or used to print a lower principal medal',async()=>{
+ // Atle's five-edition composition is unchanged and still approved.
  const duplicate=structuredClone(data);duplicate.presentationPrintSet.entries.push(structuredClone(duplicate.presentationPrintSet.entries[0]));
  const p=await h.browser.newPage();try{
-  await p.goto(h.base+'/heder.html#person/dag-morten-frantzen');await p.locator('#profileName').waitFor();
+  await p.goto(h.base+'/heder.html#person/atle-aamodt');await p.locator('#profileName').waitFor();
   assert.equal(await p.evaluate(d=>{try{MorothonHonorsData.validate(d);return false;}catch{return true;}},duplicate),true);
   await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled);
-  const invalid=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('dag-morten-frantzen');d.medalDisplay='latest';return MorothonDiplomas.checkServiceDraft(d,document.querySelector('iframe').contentDocument);});
+  const invalid=await p.evaluate(async()=>{const d=await MorothonDiplomas.serviceDraft('atle-aamodt');d.medalDisplay='latest';return MorothonDiplomas.checkServiceDraft(d,document.querySelector('iframe').contentDocument);});
   assert.equal(invalid.ready,false);assert.match(invalid.failures.join(' '),/utskriftssett/);
   assert.equal(H.serviceTenure(data,H.findIn(data,'erling-danielsen').member).count,33);assert.equal(H.serviceTenure(data,H.findIn(data,'einar-danielsen').member).count,33);
  }finally{await p.close();}
