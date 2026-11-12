@@ -1,11 +1,22 @@
 # Morothon V3.5.2 – leveransekontroll
 
-Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, basert på `main`
-`52ead6641bb39b31c889cafec6d4533d81d03d29`. Danielsen-hotfixen
-`8300890`, som ikke var flettet inn i main, er tatt inn som `f68f05a`; ingen endringer i nyere main er overskrevet.
+Arbeidsgren: `codex/morothon-v3-5-2-dugnadsheder`, eksisterende PR #21.
+Oppdatert `main` `135bfc12f70c0d5219024783acde6d5f686e7433` er integrert med
+merge-commit `eb384e4`. De seks konfliktene gjaldt hotfixen fra PR #20 i
+`data/honors.json`, `docs/honors.md`, `js/honors.js`, `tests/danielsen-hotfix.cjs`,
+`tests/helpers/honors.cjs` og `tests/honors-v35.cjs`.
+
+Originalen `8300890` og den tidligere cherry-picken `f68f05a` har identisk
+patch-ID `78c37b56a25ed56318ad8f24e0a43e7b045e3a78`. Hotfixen er derfor ikke
+påført på nytt. V3.5.2s videreutvikling er beholdt, med kildeopplysninger én
+gang, Einar med 33 godkjente utgaver og Erling Danielsen uten automatisk sum.
+Ingen andre endringer på main er overskrevet.
 
 ## Leveranse
 
+- Ny godkjent introduksjon som fem synlige avsnitt, hovedbudskap i `<strong>`
+  og siste avsnitt i `<em>`. Teksten settes med DOM-elementer og `textContent`,
+  uten HTML-innsetting. Innledningen er kontrollert ved 320/390/1440 px.
 - Oversiktskortene viser nå hele merkesamlingen, med størst hovedutmerkelse,
   separat historisk heder og en mindre dugnadsmedaljerekke. Ingen duplikater.
   Kort og profiler påvirkes ikke av diplomvalget. Einar har fortsatt 33
@@ -83,13 +94,15 @@ levering; lokale tester alene er ikke et bevis på grønn GitHub-kjøring.
 
 ## Kontroller
 
-- `npm test`: **183 av 183 bestått**, 0 feil, 0 hoppet over.
+- `npm test`: **183 av 183 bestått**, 0 feil og 0 hoppet over etter integrasjonen med PR #20.
 - Nye korttester: 2 av 2 bestått. Målrettet layout-/profilkontroll: 9 av 9 bestått.
-- `npm run build -- /workspace/review/morothon-v352-cards-build`: bestått,
-  56 produksjonsfiler, versjon `04b0f31098d372a4`.
+- `npm run build -- /workspace/review/morothon-pr21-build`: bestått,
+  56 produksjonsfiler, versjon `b578edc8b46f9195`.
 - `npm run diplomer:kontroll`: bestått, 44 personer / 88 valg, ingen skriving.
 - Gjengivelseskontroll: 36 ensidige A4-PDF-er, 0 konsoll-/layoutfeil;
   de tre æresdiplomene, mobilprofiler og minnekort er også visuelt kontrollert.
+- Ny introduksjon: fem avsnitt kontrollert ved 320/390/1440 px, fet/kursiv
+  formatering, ingen horisontal rulling og HTML-lignende innhold gjengitt som tekst.
 - `actionlint .github/workflows/pages.yml` og `git diff --check`: bestått.
 
 GitHub Actions må fullføres på PR-en; dette er rapporterte lokale resultater.
@@ -97,7 +110,7 @@ Ingen merge eller publisering er utført.
 
 ## Endrede filer
 
-33 filer relativt til main, inkludert den innhentede hotfixen:
+33 filer relativt til oppdatert main:
 
 - `.github/workflows/pages.yml`
 - `css/diplomas.css`
@@ -110,15 +123,17 @@ Ingen merge eller publisering er utført.
 - `docs/v351-sluttrapport.md`
 - `docs/v352-personregister.md`
 - `docs/v352-sluttrapport.md`
+- `heder.html`
 - `js/diplomas.js`
 - `js/honors-data.js`
 - `js/honors.js`
 - `scripts/prepare-honor-print-set.cjs`
-- `scripts/review-honors-v35.cjs`
 - `scripts/review-honors-v352.cjs`
 - `tests/danielsen-hotfix.cjs`
 - `tests/helpers/honors.cjs`
 - `tests/honor-badge-review.cjs`
+- `tests/honor-card-collections.cjs`
+- `tests/honor-diploma-variants.cjs`
 - `tests/honor-draft-print.cjs`
 - `tests/honor-final-approval.cjs`
 - `tests/honors-dugnadsmilepaeler.cjs`
@@ -130,7 +145,3 @@ Ingen merge eller publisering er utført.
 - `tests/pr16-final.cjs`
 - `tests/pr18-confirmed-years.cjs`
 - `tests/volunteer-tenure.cjs`
-
-- `tests/honor-diploma-variants.cjs`
-
-- `tests/honor-card-collections.cjs`
