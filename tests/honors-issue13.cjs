@@ -42,8 +42,8 @@ test('issue #13 renders short non-duplicated volunteer rows with only supplied d
   const p=await open(width);try{
    assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
    assert.equal(await p.locator('.honor-volunteer-card:not(.honor-card-with-collection) img:not(.honor-card-medal),.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary').count(),0);
-   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),collection:!!e.querySelector('.honor-card-collection'),height:e.getBoundingClientRect().height})));
-   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.collection?205:r.provisional?155:110)),JSON.stringify(rows));
+   const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),collection:!!e.querySelector('.honor-card-collection'),height:e.getBoundingClientRect().height,racingHeight:(()=>{const r=e.querySelector('.honor-card-racing');return r?r.getBoundingClientRect().height+parseFloat(getComputedStyle(r).marginTop)+parseFloat(getComputedStyle(r).marginBottom):0;})()})));
+   assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.collection?205:r.provisional?155:110)+r.racingHeight),JSON.stringify(rows));
    const row=id=>rows.find(r=>r.id===id).text;
    assert.equal(row('christan-berthelsen'),'Christan Berthelsen');assert.equal(row('lars-aamodt'),'Lars Vassbotn Aamodt');
    assert.equal(row('jon-fjeld'),'Jon Fjeld Barneløp og startpistol · fra 2014');

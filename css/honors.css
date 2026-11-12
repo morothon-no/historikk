@@ -120,3 +120,49 @@ section{margin:35px 0}#honorFeatured>h2,#honorFeatured>p,#honoreeTitle{text-alig
 /* V3.6: short editorial text and a compact race note, without nested links. */
 .honor-card-racing{display:block;margin-top:4px;font-size:12px;line-height:1.3;color:#526b70;overflow-wrap:anywhere}
 .honor-person-summary,.honor-story p{white-space:pre-line}
+
+/* V3.6.1: compact detail profiles; overview cards and certificate layouts are separate. */
+#honorProfile>section{margin:22px 0}
+#honorProfile h3{margin:0 0 12px}
+#honorProfile p:empty{margin:0}
+#honorProfile .honor-story{padding:12px 0}
+#honorProfile .honor-story h4{margin-bottom:7px}
+#honorProfile .honor-racing{padding-top:18px}
+#honorProfile .honor-racing>.eyebrow{margin:0 0 5px}
+#honorProfile .honor-person-sources{margin-top:16px}
+#honorProfile .diploma-example{margin:10px 0}
+#honorProfile .honor-choice{margin:8px 0}
+#honorProfile .honor-choice select{min-height:44px}
+#honorProfile .honor-print-controls{margin:10px 0}
+@media(min-width:651px){
+ #honorProfile{padding:24px;margin:22px auto}
+ #honorProfile:has(.honor-racing){max-width:1080px}
+ #honorProfile .honor-profile-header{grid-template-columns:180px minmax(0,1fr);gap:20px;margin-top:8px}
+ #honorProfile .profile-medal{height:180px}
+ #honorProfile h2{font-size:36px;margin:6px 0}
+ #honorProfile .honor-profile-header p{margin:7px 0;line-height:1.55}
+ #honorProfile .honor-historic-marks,#honorProfile .honor-earned-marks{padding-top:14px}
+ #honorProfile .honor-historic-marks>div,#honorProfile .honor-earned-marks>div{gap:12px}
+ #honorProfile .honor-historic-marks figure,#honorProfile .honor-earned-marks figure{width:102px}
+ #honorProfile .honor-historic-marks img,#honorProfile .honor-earned-marks img{height:96px}
+ #honorProfile .honor-race-metrics{margin:14px auto;gap:12px}
+ #honorProfile .honor-race-metrics>div{padding:14px}
+ #honorProfile .honor-best-result{padding:12px 10px}
+ #honorProfile .honor-best-result strong{font-size:24px;margin:5px 0}
+ #honorProfile .honor-podiums li{padding:8px 0;gap:10px}
+}
+@media(min-width:951px){
+ #honorProfile>section{margin:18px 0}
+ #honorProfile .honor-profile-header{grid-template-columns:200px minmax(0,1fr);gap:24px}
+ #honorProfile .profile-medal{height:200px}
+ #honorProfile.honor-profile-lifelong .honor-profile-header{grid-template-columns:220px minmax(0,1fr)}
+ #honorProfile.honor-profile-lifelong .profile-medal{height:220px}
+ #honorProfile .honor-racing{padding-top:16px}
+ #honorProfile .honor-story p{margin:8px 0}
+}
+@media(max-width:650px){
+ #honorProfile>section{margin:26px 0}
+ #honorProfile .honor-profile-header{gap:12px;margin-top:12px}
+ #honorProfile .profile-medal{height:210px}
+ #honorProfile .honor-race-metrics{margin:16px auto}
+}
