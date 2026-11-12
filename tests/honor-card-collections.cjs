@@ -5,8 +5,8 @@ const examples=['oscar-lohne','erling-askildsen','einar-danielsen','dag-morten-f
 test('V3.5.2 all overview cards show complete unique honors from the shared profile, with a dominant main medal and unclipped mobile/desktop rows',async()=>{
  for(const width of [320,390,768,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});try{
-   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();assert.equal(await p.locator('[data-honoree]').count(),44);
-   for(const m of data.groups.flatMap(g=>g.members)){
+   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();assert.equal(await p.locator('[data-honoree]').count(),43);
+   for(const m of require('./helpers/honors.cjs').visibleMembers(data)){
     const state=H.honorProfile(data,m),card=p.locator(`[data-honoree="${m.id}"]`),expected=[state.main.badgeId,...state.secondaryHonorIds,...state.collectionIds].filter(Boolean);
     const images=await card.locator('img').evaluateAll(es=>es.map(e=>({src:e.src,alt:e.alt,loaded:e.complete&&e.naturalWidth>0,primary:e.classList.contains('honor-card-medal')})));
     assert.equal(images.length,expected.length,m.id);assert.equal(new Set(images.map(i=>i.src)).size,images.length,m.id);assert.ok(images.every(i=>i.loaded&&i.alt));
@@ -21,7 +21,7 @@ test('V3.5.2 all overview cards show complete unique honors from the shared prof
     assert.equal(await card.locator('.honor-card-extra-honors img').count(),id==='einar-danielsen'?2:['oscar-lohne','erling-askildsen'].includes(id)?1:0);
     assert.equal(await card.locator('.honor-card-earned img').count(),['dag-morten-frantzen','finn-lohne'].includes(id)?1:5);
    }
-   const memorial=p.locator('[data-honoree="erling-danielsen"]');assert.equal(await memorial.locator('img').count(),5);assert.match(await memorial.innerText(),/siden 1992/);assert.match(await memorial.innerText(),/33 dugnadsutgaver/);
+   assert.equal(await p.locator('[data-honoree="erling-danielsen"]').count(),0);
    assert.match(await p.locator('[data-honoree="einar-danielsen"]').innerText(),/33 dugnadsutgaver/);
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);
   }finally{await p.close();}

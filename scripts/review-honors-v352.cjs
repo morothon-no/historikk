@@ -1,5 +1,5 @@
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict'),os=require('node:os');
-const {execFileSync}=require('node:child_process'),{createHarness}=require('./diploma-harness.cjs'),{readHonors}=require('../tests/helpers/honors.cjs'),H=require('../js/honors-data.js');
+const {execFileSync}=require('node:child_process'),{createHarness}=require('./diploma-harness.cjs'),{readHonors,visibleMembers}=require('../tests/helpers/honors.cjs'),H=require('../js/honors-data.js');
 async function review(out=path.join(os.tmpdir(),'morothon-v352')){
  await fs.mkdir(out,{recursive:true});const data=await readHonors(),people=data.groups.flatMap(g=>g.members),registry=JSON.parse(await fs.readFile(path.resolve(__dirname,'../data/badges.json'),'utf8'));
  const badgeName=id=>id==='thanks'?'Takk for innsatsen':registry.badges.find(b=>b.id===id).name;
@@ -14,7 +14,7 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
   const p=await h.browser.newPage({deviceScaleFactor:1.5});p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   for(const width of [390,1440]){
    await p.setViewportSize({width,height:1000});await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   assert.equal(await p.locator('[data-honoree]').count(),visibleMembers(data).length);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    for(const [name,selector]of [['innledning','#honorIntro'],['oversikt','main'],['grunnleggerne','#honorFeatured'],['minne','#memorial']])await p.locator(selector).screenshot({path:path.join(out,`${name}-${width}.png`)});
    for(const id of cardExamples)await p.locator(`[data-honoree="${id}"]`).screenshot({path:path.join(out,`${id}-kort-${width}.png`)});
    for(const id of required){await p.goto(h.base+'/heder.html#person/'+id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,rows.find(r=>r.id===id).name);await p.locator('#honorProfile').screenshot({path:path.join(out,`${id}-${width}.png`)});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -23,10 +23,10 @@ async function review(out=path.join(os.tmpdir(),'morothon-v352')){
      for(const display of ['all','latest']){await p.selectOption('[data-medal-display]',display);await p.waitForFunction(display=>document.querySelector('iframe')?.contentDocument?.querySelector('.diploma-sheet')?.dataset.medalDisplay===display&&!document.querySelector('[data-honor-print]')?.disabled,display);await p.locator('.honor-person-diploma').screenshot({path:path.join(out,`${id}-diplom-${display}-${width}.png`)});}
     }
    }
-   checks.push({width,people:44,horizontalOverflow:false});
+   checks.push({width,people:visibleMembers(data).length,horizontalOverflow:false});
   }
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
-  const requests=[...required,...['arnfinn-haverstad','helge-reisvoll','christan-berthelsen','erling-danielsen']].map(id=>({id,key:id}));
+  const requests=[...required,...['arnfinn-haverstad','helge-reisvoll','christan-berthelsen','erling-danielsen']].filter(id=>H.isVisibleOnHonorPage(data,id)).map(id=>({id,key:id}));
   requests.push(...data.diplomaExamples.filter(e=>e.illustrative).map(e=>({example:e.id,key:e.id})));
   for(const r of requests.flatMap(r=>['all','latest'].map(display=>({...r,display,key:r.key+(display==='latest'?'-latest':'')})))){
    const model=await p.evaluate(async r=>{

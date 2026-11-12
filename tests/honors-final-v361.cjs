@@ -21,7 +21,7 @@ test('Final V3.6.1 corrections preserve all 44 identities, all 26 links and the 
 test('Final V3.6.1 hides all source UI and notes on overview, every current profile and retired routes at four screen widths while validating sources',async()=>{
  const h=await createHarness(),data=await readHonors(),errors=[];try{for(const width of [390,768,1280,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}});p.on('pageerror',e=>errors.push(e.message));try{
-   for(const id of [null,...data.groups.flatMap(g=>g.members).map(m=>m.id),...(data.retiredProfiles||[]).map(r=>r.id)]){
+   for(const id of [null,...require('./helpers/honors.cjs').visibleMembers(data).map(m=>m.id),...(data.retiredProfiles||[]).map(r=>r.id)]){
     await p.goto(h.base+'/heder.html'+(id?'#person/'+id:''));if(id)await p.locator('#profileName').waitFor();else{await p.locator('[data-honoree]').first().waitFor();const heights=await p.locator('#memorial [data-honoree]').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().height));assert.equal(heights.length,2);assert.equal(heights[0],heights[1]);}
     assert.equal(await p.locator('#honorSources,#honorSourceContent,.honor-person-sources,.honor-source').count(),0);
     const content=await p.locator(id?'#honorProfile':'#honorOverview').textContent();assert.doesNotMatch(content,/Bakgrunn og kilder|organizer-v\d|sourceIds|internalNotes|data\/volunteers\.json|data\/honors\.json/);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

@@ -80,9 +80,9 @@ test('cards display only provisional SVGs, preserve other groups and stay compac
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),15);
+   assert.equal(await p.locator('[data-honoree]').count(),43);assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),14);
    const order=await p.locator('#volunteers [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree));
-   const expectedOrder=H.sortVolunteers(H.membersFor(data,data.groups.find(g=>g.id==='volunteers')).filter(m=>!['dag-morten-frantzen','hakon-lohne'].includes(m.id))).map(m=>m.id);assert.deepEqual(order,expectedOrder);
+   const expectedOrder=H.sortVolunteers(H.membersFor(data,data.groups.find(g=>g.id==='volunteers')).filter(m=>H.isVisibleOnHonorPage(data,m.id)&&!['dag-morten-frantzen','hakon-lohne'].includes(m.id))).map(m=>m.id);assert.deepEqual(order,expectedOrder);
    assert.deepEqual(await p.locator('#honorFeatured [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),['oscar-lohne','erling-askildsen','einar-danielsen','arnfinn-haverstad','helge-reisvoll']);
    assert.deepEqual(await p.locator('#memorial [data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree)),data.groups.find(g=>g.id==='memorial').members.map(m=>m.id));
    for(const [id,count,tier]of expected){
@@ -109,7 +109,7 @@ test('new arranged years update estimates automatically; a future calendar row o
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();
    const result=await p.evaluate(async()=>{const d=await MorothonHonorsData.load(),m=MorothonHonorsData.findIn(d,'atle-aamodt').member;let years=[];try{const h=await MorothonHistoryData.load();years=[...new Set(h.data.results.filter(r=>MorothonHistoryData.isCompletedResult(r)||['DNF','Deltatt'].includes(MorothonHistoryData.effectiveStatus(r))).map(r=>r[0]))];}catch{}return MorothonHonorsData.provisionalMilestone(d,m,years);});
    assert.equal(result.asOfYear,mode==='future'?2027:mode==='missing'?null:2026);assert.equal(result.count,mode==='future'?6:mode==='missing'?null:5);
-   if(mode==='missing'){assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),15);assert.match(await p.locator('#honorStatus').innerText(),/Løpshistorikken er ikke tilgjengelig/);}
+   if(mode==='missing'){assert.equal(await p.locator('[data-main-badge^="service-dugnad-"]').count(),14);assert.match(await p.locator('#honorStatus').innerText(),/Løpshistorikken er ikke tilgjengelig/);}
   }finally{await p.close();}
  }
 });

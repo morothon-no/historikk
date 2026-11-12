@@ -40,7 +40,7 @@ test('issue #13 changes only sourced honor content: 44 identities, Christan name
 test('issue #13 renders short non-duplicated volunteer rows with only supplied details at every required width',async()=>{
  for(const width of [320,390,768,1440]){
   const p=await open(width);try{
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
+   assert.equal(await p.locator('[data-honoree]').count(),43);assert.equal(await p.locator('.honor-volunteer-card').count(),31);
    assert.equal(await p.locator('.honor-volunteer-card:not(.honor-card-with-collection) img:not(.honor-card-medal),.honor-volunteer-card p,.honor-volunteer-card .honor-card-summary').count(),0);
    const rows=await p.locator('.honor-volunteer-card').evaluateAll(es=>es.map(e=>({id:e.dataset.honoree,text:[e.querySelector('strong').textContent,e.querySelector('.honor-card-role')?.textContent].filter(Boolean).join(' '),provisional:!!e.querySelector('.honor-main-caption'),collection:!!e.querySelector('.honor-card-collection'),height:e.getBoundingClientRect().height,racingHeight:(()=>{const r=e.querySelector('.honor-card-racing');return r?r.getBoundingClientRect().height+parseFloat(getComputedStyle(r).marginTop)+parseFloat(getComputedStyle(r).marginBottom):0;})()})));
    assert.equal(new Set(rows.map(r=>r.id)).size,31);assert.ok(rows.every(r=>r.height<=(r.collection?205:r.provisional?155:110)+r.racingHeight),JSON.stringify(rows));

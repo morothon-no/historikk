@@ -25,12 +25,12 @@ test('V3.5 all 44 people and future name-only additions have a personal diploma 
  const core=structuredClone(data),future=H.mergeVolunteers(core,{schemaVersion:1,sourceIds:['organizer-v35'],people:[{id:'future-fixture',name:'En fremtidig frivillig'}]}),member=H.findIn(future,'future-fixture').member;
  assert.deepEqual(H.diplomaChoices(future,member,years),['thanks']);assert.equal(H.startYear(member),null);assert.deepEqual(member.awards,[]);
 });
-test('V3.5 every profile at 390/1440px opens its own checked printable draft, with no duplicate medals or horizontal overflow',async()=>{
+test('V3.5 every visible profile at 390/1440px opens its own checked printable draft, with no duplicate medals or horizontal overflow',async()=>{
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
-   for(const m of people){
+   for(const m of people.filter(m=>H.isVisibleOnHonorPage(data,m.id))){
     await p.evaluate(id=>location.hash='person/'+id,m.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,m.name);
     await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled);
     assert.equal(await p.locator('[data-honor-print],[data-honor-pdf]').count(),2,m.id);

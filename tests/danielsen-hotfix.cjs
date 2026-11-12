@@ -22,20 +22,19 @@ test('Danielsen hotfix moves only the sourced estimate and removes its incorrect
  for(const file of ['honors.md','v35-personregister.md','v35-sluttrapport.md','v351-sluttrapport.md'])assert.doesNotMatch(await fs.readFile(path.join(root,'docs',file),'utf8'),/Erlings anslag|Erling Danielsens om lag 33|Erling Danielsen[^\n|]*\|[^\n]*Om lag 33/);
 });
 
-test('Danielsen hotfix shows the newly confirmed 33 editions on both Einar and Erling at mobile/desktop widths; both marked diploma previews retain the correct identities and printable content',async()=>{
+test('Danielsen hotfix preserves Einars 33 editions and marked diploma on mobile/desktop while Erling remains only in the internal registry',async()=>{
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="einar-danielsen"]').waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);
+   assert.equal(await p.locator('[data-honoree]').count(),43);
    assert.match(await p.locator('[data-honoree="einar-danielsen"]').innerText(),/33 dugnadsutgaver/);
    assert.doesNotMatch(await p.locator('#memorial').innerText(),/33|null|undefined/);
-   assert.match(await p.locator('[data-honoree="erling-danielsen"]').innerText(),/siden 1992.*33 dugnadsutgaver/s);
-   for(const id of ['einar-danielsen','erling-danielsen']){
+   assert.equal(await p.locator('[data-honoree="erling-danielsen"]').count(),0);
+   for(const id of ['einar-danielsen']){
     await p.goto(h.base+'/heder.html#person/'+id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,H.findIn(data,id).member.name);
     const header=await p.locator('.honor-profile-header').innerText();
     if(id==='einar-danielsen'){assert.match(header,/33 dugnadsutgaver/);assert.doesNotMatch(header,/anslag|anslår|rundt|om lag/i);assert.match(header,/Grunnlegger/);assert.match(header,/planlagt i 2026/);}
-    else{assert.match(header,/33 dugnadsutgaver/);assert.match(header,/siden 1992.*33 dugnadsutgaver/s);}
     await p.locator('.diploma-example>summary').click();await p.waitForFunction(()=>!document.querySelector('[data-honor-print]')?.disabled);
     const model=await p.evaluate(async id=>{const d=await MorothonDiplomas.serviceDraft(id);return {mode:d.printMode,proof:d.contentProof.contentSha256,text:document.querySelector('iframe').contentDocument.body.textContent};},id);
     assert.equal(model.mode,'draft');assert.ok(!data.presentationPrintSet.entries.some(e=>e.personId===id));assert.ok(data.presentationPrintSet.pendingReviews.some(e=>e.personId===id));
