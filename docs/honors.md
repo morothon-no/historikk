@@ -159,3 +159,11 @@ diplomet: kort og detaljprofil beholder alltid hele samlingen.
 Kontrollgalleriet inneholder egne kortbilder på 390 og 1440 px for Oscar Lohne,
 Erling Askildsen, Einar Danielsen, Dag Morten Frantzen og Finn Lohne, samt de tre
 æresdiplomene. Testene kontrollerer alle 44 kort ved 320/390/768/1440 px.
+
+## V3.6 – felles redigering av persontekster
+
+Korttekst, lange historier, personlige ærestekster og uttrykkelig bekreftede
+løperkoblinger vedlikeholdes nå for alle 44 i `data/honors.json.personDetails`.
+Se [redigeringsveiledning og datoforklaring](personregister-v36.md). De gamle
+kildepostene og deres identiteter beholdes. Nye personlige ærestekster må
+fortsatt godkjennes; forslagene er foreløpig bare dokumentasjon/kontroll-PDF-er.

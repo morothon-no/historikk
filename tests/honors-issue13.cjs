@@ -63,8 +63,11 @@ test('issue #13 old volunteer URLs remain minimal, return focus and never invent
  const p=await open();try{
   for(const entry of list.people.filter(e=>e.id&&!['jon-fjeld','rune-bergjord','per-sangvik','tom-lohne','birgitte-aamodt','johannes-aamodt','atle-aamodt'].includes(e.id))){
    await p.goto(h.base+'/heder.html#person/'+entry.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,entry.name);
-   assert.equal(await p.locator('#honorProfile .honor-story,#honorProfile .honor-racing,#honorProfile img,#honorProfile iframe,#honorProfile .eyebrow').count(),0);
-   assert.ok(await p.locator('#honorProfile').evaluate(e=>e.getBoundingClientRect().height<500));
+   const H=require('../js/honors-data.js'),record=H.personRecord(data,H.findIn(data,entry.id).member);
+   assert.equal(await p.locator('#honorProfile .honor-story,#honorProfile img,#honorProfile iframe,#honorProfile>.eyebrow').count(),0);
+   assert.equal(await p.locator('#honorProfile .honor-racing').count(),record.runnerId?1:0);
+   if(record.runnerId)assert.equal(await p.locator('#honorProfile .primary-runner-link').getAttribute('href'),'index.html#lop='+record.runnerId);
+   else assert.ok(await p.locator('#honorProfile').evaluate(e=>e.getBoundingClientRect().height<500));
    assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await p.keyboard.press('Escape');await p.locator('#honorOverview').waitFor({state:'visible'});
    assert.equal(await p.evaluate(()=>document.activeElement.closest('[data-honoree]')?.dataset.honoree),entry.id);

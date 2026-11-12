@@ -1,0 +1,21 @@
+{
+  "status": "awaiting-organizer-approval",
+  "note": "Kun forslag til gjennomgang. Ikke koblet til aktive persontekster eller utskriftssett.",
+  "proposals": [
+    {
+      "personId": "oscar-lohne",
+      "text": "Oscar, du har vært med fra den første starten i 1992 og bidratt gjennom alle 35 utgavene fram til 2026. Med tid, krefter og utholdenhet har du vært med på å holde Morothon levende. Takk for at du har gitt både løpet og fellesskapet en historie å være stolt av.",
+      "sourceIds": ["organizer-v3", "organizer-v34"]
+    },
+    {
+      "personId": "erling-askildsen",
+      "text": "Erling, ideen din ble til Morothon i 1992. Som grunnlegger og bidragsyter gjennom alle 35 utgavene har du vært med på å gi ideen liv, år etter år. Takk for løpet, kameratskapet og minnene som stadig nye løpere får ta del i.",
+      "sourceIds": ["fvn-2016", "organizer-v34"]
+    },
+    {
+      "personId": "einar-danielsen",
+      "text": "Einar, du var en av dem som la grunnlaget for Morothon i 1992. Gjennom 33 års solid tjeneste i en rekke ulike roller har du gitt et varig bidrag til tradisjonen og fellesskapet. Med Morothons æresmerke takker vi deg for innsatsen og for alt du har vært med på å gjøre mulig.",
+      "sourceIds": ["organizer-v3", "organizer-danielsen-estimate-correction", "organizer-v352"]
+    }
+  ]
+}

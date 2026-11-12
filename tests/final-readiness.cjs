@@ -35,7 +35,7 @@ test('honor profile routes: Oscar is a documented founder, provisional volunteer
  }
 });
 test('profiles display only confirmed sourced stories; individual identities and unknown honor IDs are not guessed',async()=>{
- const data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));data.groups[0].members.find(m=>m.id==='oscar-lohne').stories=[{title:'Kontrollert testhistorie',text:'Kun testdata.',source:'Testkilde',confirmed:true},{title:'Ubekreftet',text:'Skal ikke vises.',source:'',confirmed:false}];
+ const data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/honors.json'),'utf8'));data.personDetails['oscar-lohne'].stories=[{title:'Kontrollert testhistorie',text:'Kun testdata.',source:'Testkilde',confirmed:true},{title:'Ubekreftet',text:'Skal ikke vises.',source:'',confirmed:false}];
  const p=await h.browser.newPage();try{
   await p.route('**/data/honors.json',r=>r.fulfill({json:data}));await p.goto(h.base+'/heder.html#person/oscar-lohne');await p.locator('#profileName').waitFor();assert.match(await p.locator('#honorProfile .honor-story').textContent(),/Kun testdata/);assert.doesNotMatch(await p.locator('#honorProfile').textContent(),/Skal ikke vises/);
   await p.evaluate(()=>location.hash='#person/unknown');await p.waitForFunction(()=>document.querySelector('#profileName')?.textContent==='Hedersprofilen finnes ikke');

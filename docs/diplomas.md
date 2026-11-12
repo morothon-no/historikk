@@ -182,3 +182,58 @@ varianter for æresprofilene. Hvert personlig oppsett har egen kontrollsum;
 variantens navn inngår i dokument-ID og den kontrollerte HTML-en.
 Det er ikke lenger mulig å velge et lavere nivå som personlig hovedmerke.
 Anonyme typeeksempler beholder sitt eget illustrerte merkenivå.
+
+## V3.5.3 – håndskrevet sted/dato og typografisk navnesignatur
+
+Bare hedersdiplomenes avslutning er endret. «Søgne, …» og «Håkon Lohne» bruker
+samme Caveat Regular, samme størrelse (6,7 mm), linjehøyde (8,4 mm) og blå
+blekkfarge. Dato og navn ligger i like gridrader over like, tynne streker.
+«Løpsleder · Morothon» står i mindre Arial under høyre strek. Dette er
+navnet satt med en offentlig font, ikke en etterligning av en ekte signatur.
+
+- Kjent milepælsår med registrert arrangementsdato: `Søgne, 11. november 2023`.
+- Før 2014 uten registrert dag: `Søgne, november 2010`, etter arrangørens regel.
+- Kjent år fra 2014 uten registrert dato (for eksempel fremtidige registre):
+  bare `Søgne, [år]`, inntil datoen er lagt inn. Ingen dag eller måned gjettes.
+- Ukjent milepælsår: tomt felt uten etikett eller datostrek. Dette gjelder
+  blant annet Einar Danielsens godkjente total på 33 dugnadsutgaver.
+
+Oppnåelsesåret beregnes fortsatt fra riktig N-te dugnadsutgave. En formell
+utdelings- eller utstedelsesdato erstatter aldri oppnåelsesdatoen. Den særskilte
+35-utgaversomtalen for Oscar og Erling Askildsen beholder sin dokumenterte
+2026-milepæl; dette registrerer ingen formell tildelingsdato for æresmerket.
+
+Fonten ligger i `assets/fonts/`, med SIL OFL 1.1-lisens og dokumentert kilde.
+Verifiserte fontbytes bygges inn i hedersdiplomets HTML og inngår dermed i
+innholdskontrollsummen. Ingen systemfont eller ekstern fonttjeneste er nødvendig.
+Manglende/endret font, foreldet innholdskontrollsum og reell overflyt sperrer
+fortsatt utskrift. De 88 presentasjonskontrollsummene er eksplisitt regenerert;
+`awards`, `issuedDiplomas`, `diplomaApprovals` og merkeoriginaler er uendret.
+
+Før-/etter-kontroll:
+
+```sh
+# Før: bygg et rent uttrekk av V3.5.2 / commit 3e45c8b til /tmp/morothon-v353-before.
+node scripts/review-honor-signoff-v353.cjs /tmp/morothon-v353 /tmp/morothon-v353-before
+npm run diplomer:kontroll
+```
+
+Kontrollen gir 12 liggende A4-PDF-er og PNG-er (tre tilfeller × to varianter ×
+før/etter), nærbilder av avslutningen, mobil-/PC-visning og målinger i
+`kontroll.json`. 2010-eksemplet er en tydelig navngitt, syntetisk kontrollprofil
+med 15 registrerte testår 1996–2010. Ingen historiske personopplysninger endres.
+GitHub Actions lagrer filene som `morothon-v353-dato-signatur`; de store filene
+inngår ikke i produksjonspakken. Ordinære løperdiplomer er uendret.
+
+## V3.6 – felles nivåtekster og egne personlige ærestekster
+
+De seks dugnadsnivåene bruker nå `diplomaTexts.dugnad`, uavhengig av mottaker.
+Æresmerket bruker `personDetails[id].honorDiplomaText`, eller felles
+`diplomaTexts.honorDefault` når personlig tekst mangler. Eksisterende aktive
+ærestekster beholdes; tre nye forslag ligger separat til godkjenning.
+Se [redigeringsveiledningen](personregister-v36.md).
+
+Einar har etter ny arrangørbekreftelse utdelingsdato 7. november 2026. Denne
+vises håndskrevet med «Søgne» og etiketten «UTDELINGSDATO», adskilt fra hans
+fortsatt ukjente oppnåelsesår. V3.5.3s øvrige font- og datoregler, A4-oppsett og
+begge medaljevalg er bevart. Ingen medaljer er flyttet.

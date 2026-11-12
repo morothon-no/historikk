@@ -112,8 +112,8 @@ test('date field uses the race when the volunteer actually reached each mileston
   assert.deepEqual([anonymous.year,anonymous.eventDate,anonymous.label],[null,null,'']);
   assert.deepEqual([unknown.year,unknown.eventDate,unknown.label],[2023,'2023-11-11','Søgne, 11. november 2023']);
   for(const entry of result){
-    assert.equal(entry.htmlDate.trim(),entry.year?(entry.year===2021?'MERKET OPPNÅDD I 2021':entry.year===2023?'MERKET OPPNÅDD I 2023':'35 DUGNADSUTGAVER I 2026'):'');
-    assert.equal(entry.htmlLineCount,0);
+    assert.equal(entry.htmlDate.trim(),entry.label);
+    assert.equal(entry.htmlLineCount,entry.label?1:0);
     assert.equal(entry.preview,true);assert.equal(entry.ready,false);
     assert.equal(entry.basis,entry.eventDate?'documented-race-date':'not-established');
     assert.doesNotMatch(entry.label,/utstedt|utskriftsdato|10\. november 2026/i);
