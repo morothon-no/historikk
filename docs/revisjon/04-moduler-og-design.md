@@ -11,6 +11,7 @@ Målbildet konkretiserer A-01–A-04 og I-03. Én kodebase skal produsere forskj
 | M-03 · forbedring · middels | Farger/typografi ligger i inline-CSS, fire CSS-filer og canvas-tegning. SVG/PDF har også egne fargefelt. Ett fargebytte er ikke én innstilling. | Semantiske designtokens som deles med DOM, canvas og dokumentmaler; få godkjente temaer. Arrangøren trenger ikke redigere CSS. | Middels: Morothons godkjente utskriftsuttrykk må fryses som referanse | 5–10 pd for første temaoppsett | M-01; visuelle referanser |
 | M-04 · styrke med utvidelsesbehov · lav nå | `badges.js`/`data/badges.json` samler 23 oppføringer: ti løpermerker, ett rekordmerke, ett debutmotiv og elleve serviceoppføringer, hvorav to er utgått. Kildehash og kvalitetsstatus er konkrete. | Behold ett register; skill identitet, kvalifikasjonspolicy, offentlig webvariant og kontrollert trykkoriginal. Bevar historiske motiver og gamle dokumentreferanser. | Høy ved automatisk bildebytte eller tap av kvalitet/alpha | 2–4 pd for generell kontrakt, ikke redesign | Rettigheter, S-01, mal-/assetversjoner |
 | M-05 · produktbehov · middels | Dagens data kan redigeres uten HTML for flere hederstekster, men ikke alle navigasjons-, profil-, rekord- og diplomvalg. | Enkle skjemaer over konfigurasjonen, med validering og forhåndsvisning. Ikke et fritt CMS eller opplastbar kundekode. | Middels: dårlig schema kan gjøre editoren kompleks | 4–8 pd for grunnleggende profil/tema, del av adminpilot | I-04; avklart produktomfang |
+| M-06 · nytt arrangørbehov · høy verdi | `diplomas.js` åpner én mottaker om gangen. Kontrollskriptene kan generere mange enkeltfiler, men er ikke en privat diplomadministrasjon eller en samlet utskriftsjobb. | Gjenbruk modell/maler i en kontrollert jobb med mottakerutvalg, historiske prestasjoner, forhåndsvisning, samlet A4-PDF og alternativ ZIP. | Høy ved ugyldige godkjenninger, feil historisk nivå eller kontroll av bare første side | 8–14 pd inkrement, C1 i 07; felles admin/motor telles i D1/D2 | Privat administrasjon, prestasjonssnapshot, per-variant kontrollporter; I-06 for automatisk kandidatforslag |
 
 ## Modulkontrakter
 
@@ -75,3 +76,47 @@ Kontrollerte trykkfiler må beholde hash, transparens, kanter, størrelsesgrunnl
 ## Produktakseptanse
 
 En ny arrangør opprettes med data, manifest og assets, uten endring i motorfiler. Grunnpakken kan bygges uten Heder og uten tilgang til hedersregisteret. En fargeendring slår gjennom i profil, skrytekort og forhåndsvisning via tokens, men krever ny kontroll av berørte dokumentmaler. En feil modulkonfigurasjon gir en forståelig valideringsfeil før publisering. Løperens opptjeningsinformasjon er identisk mellom profil, kort og diplomgrunnlag selv om layoutene er ulike.
+
+## Masseutskrift av diplomer
+
+Dette er et løsningsforslag, ikke en funksjon som er lagt til. Arrangøren får en egen **privat diplomadministrasjon**. Den offentlige nettsiden trenger ingen ny adminlenke eller åpen PDF-utsteder. Dagens skjulte Heder-side og `noindex` er ikke tilgangsbeskyttelse; heller ikke kontrollskriptenes testserver er et ferdig administrasjonssystem.
+
+### Utvalg og samlet kontroll
+
+Søk på navn og filtrer på merke, oppnåelsesår, konkurranse og utskriftsstatus. Konkurransefilteret gjelder løpsprestasjoner; dugnadsinnsats får et eget scope, ikke en oppdiktet løpsdistanse. Velg enkeltpersoner eller alle kvalifiserte innen et nivå. Tilby navn, nivå, år og startnummer som sorteringsnøkler, med norsk navnesortering og naturlig startnummersortering der mulig. Startnummer er tekst og hentes fra valgt utgave; personer uten nummer sorteres forutsigbart uten å få et konstruert nummer.
+
+Velg først **prestasjonen**: høyeste oppnådde merke eller et bestemt historisk merke. Velg deretter **medaljevisning**: «Kun siste merke» eller «Alle merker». Dette er ulike valg. Et historisk 10-merke viser 10, riktig opptjeningsperiode og dato, selv om personen nå har 13 utgaver. Samlingen kan bare inneholde tidligere merker opptjent senest ved den valgte prestasjonen, ikke fremtidige merker. Utvalget påvirker ikke personkort og profiler.
+
+Jobben får ett element per mottaker, prestasjon og variant. Like elementer dedupliseres; to bevisst valgte, forskjellige historiske merker for én person kan gi to sider. En samlet forhåndsvisning viser sidene i valgt rekkefølge og en separat statusrapport: grunnlag, dato/presisjon, hoved-/sekundærmerker, godkjenningsstatus, asset-/font-/layoutkontroll og eventuelle feil. Sortering og filter må gjenspeiles i PDF/ZIP-manifestet.
+
+### Gjenbruk og nødvendige utvidelser
+
+| Eksisterende kode/regel | Gjenbruk | Nødvendig ny funksjon |
+| --- | --- | --- |
+| `diplomas.js:choices/model/prepare` | Løperens historiske merkevalg, navn, opptjening, dato, mal og bildekontroll | Mottakerutvalg og én frosset jobbmodell over samme funksjoner |
+| `serviceDraft`, `honorProfile`, `serviceTenure` | Heder-grunnlag, særutmerkelser, faktiske perioder, medaljevalg og V3.6.2s historiske nivåinformasjon | Eksplisitt historisk Heder-prestasjon når arrangøren velger et tidligere dugnadsmerke |
+| `canPresent` og godkjenningsregisteret | Nåværende krav om profilens høyeste hovedutmerkelse og innholdsspesifikke godkjenninger | Eget kontrollert historisk scope med kvalifikasjonsbevis og ny godkjenning per variant; dagens sperre må ikke bare fjernes |
+| `checkLayout` og kvalitetskontroller | Faktiske font-/asset-/DPI-/sidekontroller | Isolert kontroll av **hver side**, også siste side; dagens `querySelector('.diploma-sheet')` er ikke kontroll av en hel samling |
+| Playwright-/Chromium-kontrollskript | Låst nettleser, fontinnbygging og A4-rendering | Avgrenset produksjonsarbeider, sammenslåing/ZIP, jobblogg, fremdrift og feilrapport |
+
+Æresmerker, grunnleggermerker og minneprofiler beholder særreglene. Einars særskilte utdelingsdato 7. november 2026 må ikke forveksles med et ukjent historisk opptjeningsår. En godkjent total uten enkeltår gir ikke lov til å gjette dato for et valgt historisk merke; elementet krever avklaring eller en godkjent variant uten ukjent dato. Erling Danielsen skal ikke kunne velges fra det skjulte Heder-registeret i vanlig produksjon; dette hindrer ikke et ordinært løperdiplom fra den uendrede Adelskalenderen.
+
+### Rendering, PDF og ZIP
+
+Anbefalt første løsning: en lokal eller kundedriftet, privat arbeider bruker samme diplommotor i Chromium. Den rendrer én isolert dokumentkontekst per element, venter på bilder/fonter og kjører alle kontrollene før én liggende A4-side produseres. Slå deretter de verifiserte enkeltsidene sammen til én PDF med bevart vektorgrafikk og innebygde fonter. Vurder et PDF-bibliotek eller et tilgjengelig verktøy som `pdfunite` med lisens-/distribusjonskontroll før valg; dette oppdraget legger ikke til avhengigheter.
+
+Kontroller sluttfilen: N valgte diplomer gir N sider i riktig rekkefølge, alle 297 × 210 mm, ingen blanke ekstra sider, avkutting eller feil font. Statusrapporten er en egen fil, ikke en forside som bryter «én side per diplom». Alternativ ZIP inneholder de samme enkelt-PDF-ene og et manifest, med unike, rensede filnavn basert på jobb-ID/element-ID; navn alene kan kollidere eller gi utrygge filstier. Én stor DOM med kopiert HTML er mindre egnet som første løsning på grunn av ID-kollisjoner, CSS-lekkasje og risiko for å kontrollere bare første side.
+
+Bruk begrenset parallellitet, eksempelvis én–to Chromium-kontekster, med fremdrift, avbryt og gjenoppta på samme snapshot. Mål 25 og 100 sider før lovet kapasitet; dagens testgallerier dokumenterer ikke ytelsen til en ny samlet PDF-funksjon. Ingen ubegrenset nettleserforking. Samme jobbmodell og rendering skal virke lokalt ved selvdrift og bak autentisering i en driftet tjeneste, uten nødvendig ekstern PDF-tjeneste.
+
+### Godkjenning og produksjonsstatus
+
+Hvert element bindes til person, prestasjon/scope, variant, data-/policy-/mal-/assetversjon og innholdshash. Ren produksjon krever en **fortsatt gyldig godkjenning for akkurat dette innholdet** og beståtte kvalitets-/layoutporter. En godkjenning av én side eller av «Alle merker» godkjenner ikke resten eller «Kun siste merke». Manglende godkjenning vises eksplisitt; en separat, tydelig merket kontroll-PDF kan tilbys dersom de øvrige sikkerhetsportene består. Ingen generell masseknapp som godkjenner alle dokumenter.
+
+En feil stopper produksjonsjobben som standard. Operatøren kan eksplisitt velge bort feilende elementer og lage en ny, rapportert jobb; ingen stille hopping over sider. Datakorreksjon, tilbakekalt godkjenning eller endrede personvernvalg gjør berørte, uferdige jobber utdaterte. Ny produksjonsnedlasting krever oppdatert kontroll. Allerede utstedte dokumenter bevares som egne historiske poster, ikke overskrives stille.
+
+Skill mellom generert, lastet ned og **operatørbekreftet utskrevet**, med tidspunkt og eventuell grunn til ny utskrift. `afterprint` kan ikke bevise at papir faktisk kom ut. Utdelt premie, vedtatt utmerkelse og formelt utstedt diplom er separate hendelser med egne fullmakter. En vellykket PDF-jobb skal aldri automatisk skrive til `awards` eller `issuedDiplomas`.
+
+### Tidlig Morothon-pilot
+
+Et avgrenset første steg kan bygges før hele plattformen er generalisert: privat lokal mottakerliste, eksisterende historiske løpermerker og Heders nåværende hovedutmerkelser, begge medaljevalg, statusrapport og samlet kontrollert PDF. Dette delsteget anslås til **4–7 pd av C1s 8–14 pd**, forutsatt de felles sikkerhets-/jobbkontraktene i D1/D2. Spesifikke historiske Heder-merker krever den nye scope-/godkjenningsmodellen før de tilbys. Full C1 inkluderer dette, ZIP og alle utvalgs-/sorteringskrav. Se [akseptansekriteriene](07-forbedringsplan.md#akseptansekriterier-for-arrangørflyten); piloten er ikke hele leveransen.

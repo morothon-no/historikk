@@ -1,47 +1,46 @@
 # Morothon – ledelsesoppsummering
 
-**Revisjon av main `53f8f50`, 12. november 2026.** Dette er analyse og planlegging. Resultater, navn, identiteter, regler, grafikk og design er ikke endret. Les detaljene i [arkitektur](01-arkitektur.md), [beregninger](02-beregninger.md), [modell/import](03-datamodell-og-import.md), [moduler/design](04-moduler-og-design.md), [drift/sikkerhet](05-drift-og-sikkerhet.md), [produkt/salg](06-produkt-og-salg.md) og [forbedringsplan](07-forbedringsplan.md).
+**Main `53f8f50`, revidert 12. november og supplert 13. november 2026.** Siste `main` er kontrollert og uendret. Dette er analyse og planlegging; kode, data, navn, ID-er, regler, medaljer og design er bevart. Les [arkitektur](01-arkitektur.md), [beregninger/dokumentasjonsavvik](02-beregninger.md), [modell/import](03-datamodell-og-import.md), [moduler/diplomer](04-moduler-og-design.md), [drift/sikkerhet](05-drift-og-sikkerhet.md), [produkt/salg](06-produkt-og-salg.md) og [forbedringsplan](07-forbedringsplan.md).
 
 ## Konklusjon
 
-Morothon har en funksjonsrik og godt verifisert referanseløsning. Den kan realistisk utvikles til et kommersielt produkt, men er **ikke en ferdig generell arrangørplattform i dag**. Den enkleste veien er å beholde den statiske offentlige nettsiden, trekke ut en felles beregningsmotor og bygge en kontrollert import-/administrasjonsflyt rundt den. Målingene begrunner ikke en full omskriving, en database på lesesiden eller et nytt frontend-rammeverk nå.
+Morothon er en godt verifisert referanseløsning med et realistisk produktpotensial, men **ikke en ferdig generell arrangørplattform**. Behold den statiske offentlige nettsiden og dagens personlige uttrykk. Trekk ut felles regler og bygg privat arrangøradministrasjon rundt dem. Målingene begrunner ikke full omskriving, lesedatabase eller nytt frontend-rammeverk nå.
+
+Den viktigste nye verdien er én praktisk arbeidsflyt: **startliste → betinget merkeprognose og premiebehov → resultatavstemming og faktiske kandidater → kontrollert diplomproduksjon**. Ingen påmelding teller automatisk som deltakelse, og ingen kvalifikasjon eller PDF betyr formell utdeling.
 
 ## Det som bør beholdes
 
-- Den personlige Morothon-presentasjonen, historiske rettelser og de kontrollerte identitetene.
-- Ett merkeregister, faktiske kvalitets-/DPI-opplysninger og dokumentkontroll som oppdager endret innhold, manglende grafikk og reell avkutting.
-- Historiske opptjeningsår, lojalitetsperioder og skillet mellom dugnad, løp, kvalifisering og formell tildeling.
-- Statisk drift, få produksjonsavhengigheter, deterministisk bygg og publisering av samme verifiserte artefakt.
-- Regresjonsgrunnlaget som sikrer at tidligere rettelser ikke forsvinner.
+- Historiske rettelser, stabile identiteter, Morothon-presentasjonen og godkjente medaljemotiver.
+- Ett merkeregister, faktiske kvalitets-/DPI-opplysninger og innholds-/font-/layoutkontroller.
+- Historiske opptjeningstidspunkter og skillet mellom dugnad, løp, kvalifikasjon og utdeling.
+- Statisk drift, få produksjonsavhengigheter, deterministisk bygg og regresjonsgrunnlaget.
 
 ## Viktigste funn
 
-**1. Intern informasjon følger med den offentlige pakken.** Byggeren kopierer hele hedersregisteret, også revisjonshistorikk, interne notater og skjulte profiler. En lokal HTTP-kontroll bekreftet dette. UI-skjuling og `noindex` gjør ikke JSON privat. Før ekstern kommersiell bruk bør offentlig eksport skilles fra privat administrativ sannhet. Dette krever en beslutning om hvilke opplysninger som faktisk skal publiseres; revisjonen sletter eller flytter ingen data.
+**Offentlig og privat må skilles.** Byggeren kopierer hele hedersregisteret, også intern historikk og skjulte profiler, til den offentlige pakken. Lokal HTTP-kontroll bekreftet tilgjengeligheten. UI-skjuling og `noindex` gjør ikke JSON privat. Tillatte eksportfelt må avklares; revisjonen sletter eller flytter ingenting.
 
-**2. Én konkret statusfeil er påvist.** En eksisterende 2007-rad med «Disket» i tidsfeltet og «Fullført» i statusfeltet tolkes og vises som fullført. Den får ikke tidsplassering eller rekord fordi tiden er ugyldig, men statusvisningen er feil og raden bidrar i summert fullført distanse. Dette bør håndteres separat med arrangøravklaring. I tillegg er ulike stafett-tellinger, svake tidsgrenser og ugyldige ID-er gjenskapt i syntetiske data. Disse er import-/produktkontraktsrisikoer, ikke bevis for at dagens totalsummer generelt er gale.
+**Én eksisterende statusfeil er påvist.** En 2007-rad med «Disket» i tidsfeltet og rå status «Fullført» vises som fullført og bidrar med 14 km i fullført distanse. Den får ikke tidsplassering eller rekord. Rettelsen krever arrangøravklaring, særlig om DQ skal telle som deltakelse. Stafett-/tids-/ID-avvik er dessuten gjenskapt i syntetiske data; dette beviser ikke at dagens totalsummer generelt er gale.
 
-**3. Den største tekniske gjelden er koblingene.** `index.html` er omtrent 348 kB, med rundt 101 kB inline-CSS og 111 kB inline-JS. Flere eksterne moduler er avhengige av globale funksjoner fra denne siden. År er i praksis utgave-ID; 2014, løpsnavn, distanser, norske tekster og kundespesifikke diplomvalg er skrevet inn flere steder. Det hindrer trygg gjenbruk mer enn det hindrer dagens drift. Gjelden er håndterbar for ett arrangement, men betydelig ved generalisering. Omfanget i planen er ikke bare «opprydding»: import og administrasjon er også ny produktfunksjonalitet.
+**Koblingene hemmer gjenbruk.** `index.html` er omtrent 348 kB, med rundt 101 kB inline-CSS og 111 kB inline-JS. Eksterne moduler bruker globale funksjoner; år fungerer som utgave-ID og Morothon-regler er skrevet flere steder. En generell motor må skille starter, tellende utgaver, år, sesonger og fullføringer. Karusellregler skal ikke gjenbruke årstelling ukritisk.
 
-**4. Testene er verdifulle, men dyrere og mer kundebundne enn nødvendig.** 215 av 215 tester bestod. Testpakken tok ca. 6 min 50 s lokalt; fem ekstra PR-gallerier la til ca. 3 min 15 s og 94 PDF-filer. Dette er før installasjon/opplasting og er ikke målt GitHub-fakturering. En tidligere endring som skjulte én person berørte 24 filer, mye på grunn av faste personantall og gamle kontrollgallerier. Innfør hurtig-, funksjonell-, visuell- og full kontroll uten å svekke data- eller trykksikkerheten.
+**Testene gir trygghet, men koster vedlikehold.** Den opprinnelige kontrollen gav **215/215 bestått**, ca. 6 min 50 s lokalt. Fem ekstra PR-gallerier la til ca. 3 min 15 s og 94 PDF-er, før installasjon/opplasting. Dette er ikke målt GitHub-fakturering. Innfør fire testnivåer og færre historiske gallerier uten å svekke kontrollportene.
 
-**5. Import, enkel administrasjon og overtakelse må bli hovedproduktet.** Det finnes ingen generell EQ Timing-import, innlogget redigering eller ferdig kundeadministrasjon. Kunden kan teknisk selvdrifte den statiske løsningen allerede, men må bruke utviklerverktøy for vanlige oppdateringer. En lokal eller driftet liten administrasjonsløsning kan dekke dette uten å erstatte den offentlige nettsiden.
+**Veiledningen henger etter.** `docs/honors.md` har avvik om synlige personer, Erling Danielsen, Anne Lene/Lailas startår og historiske dugnadsdiplomer. Det er 44 interne registreringer, **43 synlige**. Ny skrivebeskyttet diplomkontroll gir **60 rene + 28 ventende varianter internt**, 60 + 26 i synlig utvalg. Ventende varianter trenger fortsatt merking; det betyr ikke at alle forhåndsvisninger er utskriftsblokkert. Avvik og anbefalt opprydding er dokumentert i 02; personopplysninger og godkjenninger er urørt.
 
-## Målingene setter størrelsen på problemet
+## De nye arrangørverktøyene
 
-Dagens fil har 2 643 personer og 6 914 resultatrader. Kontrollene gav fortsatt 398 deltakere, 195 debutanter og 22 nye merker i 2026, korrekt rekordsett og riktig historisk sølvdiplom. De nåværende personenes deltakelsesår hadde ingen avvik mot profilens beregnede total.
+**Masseutskrift:** privat mottakerutvalg med søk/filter, historisk merkevalg, begge medaljevisninger, sortering, samlet forhåndsvisning/statusrapport og én liggende A4-side per diplom i samlet PDF, alternativt enkeltfiler i ZIP. Gjenbruk maler og beregninger, men kontroller hver side og hver variant. Historiske Heder-valg krever et nytt eksplisitt scope; dagens høyeste-merke-sperre må ikke bare fjernes. Generert, utskrevet og utdelt holdes adskilt.
 
-Lokal bildeberedskap var omkring 0,7 s. En syntetisk volumtest med 110 624 rader brukte ca. 4,3 s og omtrent 47 MiB V8-heap; søk og milepæler begynte da å gi lengre hovedtrådarbeid. Med strupet nettverk ble all bildeberedskap langt tregere. Dette er laboratorietester, ikke produksjons-LCP eller måling på en fysisk telefon. Optimaliser bilder, indekser og beregning før backend innføres av ytelsesgrunner.
+**Merkeprognose og premieliste:** EQ Timing først, med felles adapter-/identitetsregister og versjonerte startlister. «9 tidligere → mulig 10. deltakelse → Sølv» er betinget. Oppdateringer, strykninger og usikre navn gir diff/kontroll, aldri fiktive resultater. CSV, ekte XLSX, PDF og valgfri pakkeliste bruker samme rapportgrunnlag. Resultatimport avstemmer faktiske oppnåelser før endelig premieliste og foreslått diplomjobb.
 
-## Produkt og leveranse
+En tidlig, avgrenset Morothon-pilot kan gjenbruke dagens motor/maler før hele plattformen er generalisert. Begge verktøyene skal fungere i privat driftet administrasjon og ved komplett selvdrift. De er **ikke implementert** i denne leveransen.
 
-Tilby én kodebase med Adelskalender som kjerne, Pluss med merker/diplomer/deling, valgfri Heder og eget karusell-/sammenlagttillegg. Selvdrift er en leveranseform med kode, verktøy, dokumentasjon og eksport – ikke en separat kundegren. Behold eierskap til fellesproduktet som utgangspunkt; kildekodelevering innebærer ikke automatisk eksklusiv overdragelse. Rettigheter til kode, resultater, logoer, medaljer og tredjepartsressurser må avklares før salg. Ingen pris eller full juridisk godkjenning kan utledes av repositoryet.
+## Prioritering, omfang og produkt
 
-## Anbefalt prioritering av de første fem utviklingsoppgavene
+Første fem oppgaver: **1)** offentlig/privat datagrense, **2)** validering/status, **3)** målrettede testnivåer, **4)** Morothon-pilot for masseutskrift, **5)** startliste/prognose/resultatavstemming og diplomflyt. Nødvendige delkontrakter fra felles motor/import trekkes frem til pilotene; full generell plattform bygges trinnvis.
 
-1. **Skill offentlig dataprojeksjon fra privat historikk og administrasjon.**
-2. **Etabler validering og entydige statusregler**, inkludert kontrollert håndtering av den dokumenterte diskvalifikasjonsfeilen.
-3. **Del testene i fire nivåer**, med små generiske kontraktssett og færre gjentatte historiske gallerier.
-4. **Trekk ut felles motor og generell utgavemodell**, med Morothon-adapter som bevarer dagens oppførsel.
-5. **Lever EQ-import og enkel administrasjon som pilot**, med diff, manuelle korreksjoner, identitetsgodkjenning og separat publisering.
+Planen i 07 skiller **A kritisk**, **B vedlikehold**, **C arrangørverktøy** og **D produktplattform**. Opprinnelig A+B+D var **41–75 persondager**. Nye C1/C2 gir **20–34 pd** ekstra, samlet **61–109 pd**, omtrent 12–22 netto personuker eller 15–31 med foreløpig buffer. Felles motor, import, identitet og admin telles bare én gang. Delpilotene er delmengder; juridisk arbeid, omfattende datavask og komplett SaaS er utenfor.
 
-Grovt nettoomfang for disse fem er 41–75 persondager, med betydelig usikkerhet; juridisk arbeid og omfattende datavask kommer utenom. Godkjenn retning og avgrensning før implementering. Ingen merge eller publisering inngår i revisjonsleveransen.
+Én kodebase kan tilbys som Adelskalender, Pluss med merker/prognose/diplomer, valgfri Heder og karuselltillegg. Selvdrift er en leveranseform, ikke en kundegren. Rettigheter til kode, data, fonter og grafikk må avklares før salg; betalingsvilje er ikke undersøkt.
+
+De opprinnelige målingene gjenbrukes på identisk runtime: 2 643 personer, 6 914 rader og korrekte 2026-kontrolltall/rekorder. De dokumenterer dagens løsning, ikke de foreslåtte funksjonene. Godkjenn plan og avgrensning før implementering; ingen merge eller publisering inngår.

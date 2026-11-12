@@ -101,13 +101,29 @@ Start med administrator, redaktør og publiserer/leser bare der behovet finnes. 
 | Heder, roller, historier og minneomtaler | Egne skjemaer med separat privat kilde og offentlig tekst; ingen utmerkelse tildeles automatisk |
 | Forhåndsvise, publisere eller angre | Eget publiseringssteg mot forventet revisjon, låste releasepakker og gjenoppretting som respekterer skjuling/personvern |
 
-Dette er ønsket administrativt omfang, ikke funksjoner som allerede finnes. Første pilot i oppgave 5 avgrenses til de vanligste oppgavene. I en flerbrukervariant kan administrator styre tilganger, redaktør lage forslag, publiserer godkjenne release og en valgfri intern leser se kontrollgrunnlag. Offentlig lesetilgang gir ingen slik privat leserrettighet.
+Dette er ønsket administrativt omfang, ikke funksjoner som allerede finnes. Felles import/admin ligger i D2 i 07; C1/C2 prøver avgrensede arrangørverktøy på dette grunnlaget. I en flerbrukervariant kan administrator styre tilganger, redaktør lage forslag, publiserer godkjenne release og en valgfri intern leser se kontrollgrunnlag. Offentlig lesetilgang gir ingen slik privat leserrettighet.
 
 Komplett overlevering må inkludere kildekode og versjon, avhengighets-/lisensoversikt, installasjonsoppskrift, test- og backupkommandoer, eksempelkonfigurasjon uten hemmeligheter, importadaptere/mappinger, migreringer, administratoroppretting, offentlig og privat dataeksport, assets/fonter, godkjennings-/utstedelseshistorikk og driftsrunbook. En statisk `_site` alene er ikke nok til å oppdatere eller gjenopprette hele løsningen.
 
 Referansetester bør leveres med godkjente, versjonerte fixturer, slik at kunden ikke må hente bestemte gamle Morothon-commits for å teste sin egen installasjon. Privat transport/lagring og backup må sikres med nødvendige tilganger, HTTPS og passende kryptering; nøkler og gjenopprettingsansvar må kunne overtas av kundens IT-leverandør.
 
 Backup bør følge en avtalt RPO/RTO, eksempelvis daglig privat backup og dokumentert gjenoppretting innen én arbeidsdag for en liten arrangør; dette er et forslag, ikke dagens SLA. Ta også kopi før import/release. Test restore til et isolert miljø, med samme pinned verktøykjede og innholdsmanifest. Git er nyttig versjonshistorikk, men erstatter ikke private kilder, driftshemmeligheter og testet restore. Ved flytting skal kunden kunne bytte domene, lagring og kontoer uten personlige Codex-/ChatGPT-/leverandørnøkler.
+
+### Nye arrangørverktøy – samme sikkerhetsgrense
+
+Startlister, identitetsforslag, interne premie-/pakkelister og PDF-jobber lagres privat med arrangør- og jobbavgrensning. Importfiler minimeres og har avtalt bevaring; eventuelle fødselsdatoer/kontaktdata som finnes i en leverandøreksport skal ikke automatisk følge med prognose, offentlig profil eller PDF. Offentlig resultatpublisering er en separat kontrollert eksport. Tilgangen må kontrolleres også ved jobbstatus, gjenoppta, PDF-/ZIP-nedlasting og gamle lenker, ikke bare ved åpning av administrasjonssiden.
+
+En lokal pilot kan bruke én operatør under OS-kontoen og en loopback-tjeneste med privat sesjon, kontrollert origin/CSRF og avgrenset filtilgang. Ikke bind en testserver med rå prosjektfiler til et offentlig grensesnitt. Driftet flerbrukerutgave trenger autentisering og serverkontroll av arrangør/rolle på hver operasjon. Samme kontrakter og kontrollporter gjelder i begge leveranseformer; frontend-flagg, `noindex` og hemmelig URL er utilstrekkelig.
+
+Filopplasting trenger størrelses-/formatgrenser og trygg parsing; CSV/XLSX-eksport må håndtere formelinjisering, og ZIP-filnavn må være unike og uten stitraversering. Rendering bruker kontrollerte maler, lokale/registrerte assets og fonter fremfor kundelevert JavaScript eller vilkårlige nettressurser. Låste avhengigheter og lisensoversikt omfatter også eventuell PDF-sammenslåing og regnearkeksport. Nye biblioteker er ikke valgt eller installert i denne revisjonen.
+
+Prognosen har ingen skriveadgang til resultat- eller tildelingsregisteret. Endelig premieliste krever godkjent faktisk resultatgrunnlag; overføring til diplomjobb gir ingen utstedelsesrett. Hver side må bestå gjeldende innholds-, bilde-, font- og layoutporter. Reell feil på én side skal ikke skjules av at resten ser riktige ut. Separate merkede kontrollsett kan ikke blandes inn i en ren produksjonsfil uten at operatøren ser statusen.
+
+Jobbens snapshot og godkjenninger må sjekkes før produksjonsnedlasting, også etter endret historikk, tilbakekalling eller offentlig fjerning. Logg generering og operatørens bekreftelse av utskrift separat; nettleserhendelsen `afterprint` beviser ikke utskrevet papir eller utdeling. Fastsett oppbevaring/tilgang for ferdige PDF-er og gamle startlister, med kontrollert sletting og backup. Dette utvider S-01/S-03/S-07; det er ikke et ekstra uavhengig sikkerhetsbudsjett.
+
+Nye funksjoner er ikke implementert eller ytelsestestet. Tidligere 215 tester, nettleser-/A4-målinger og 94 PDF-er ovenfor gjelder eksisterende main, ikke en fremtidig masseutskrifts- eller startlistemodul. Dokumentasjonstilleggets nye kontroller og avvik er beskrevet i [02](02-beregninger.md#dokumentasjon-mot-siste-main--tillegg-13-november-2026).
+
+Sluttkontroll av tillegget: nytt `npm run build -- <tom kontrollmappe>` bestod med **58 filer og `a58062f7c89c96df`**; alle byggefiler er sammenlignet byte for byte med det opprinnelige sluttbygget. Alle sporede filer utenfor `docs/revisjon/` er identiske med hentet `origin/main`. Lokale dokumentlenker/overskriftsankre, JSON-eksempler, kodeblokker og `git diff --check` er kontrollert uten feil. Ingen nye godkjenninger, publisering eller implementerte arrangørfunksjoner inngår.
 
 ## Målevedlegg og reproduksjon
 

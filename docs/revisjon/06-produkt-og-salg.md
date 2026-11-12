@@ -6,28 +6,38 @@ Løsningen kan realistisk bli et gjenbrukbart produkt, men er i dag en sterk ref
 
 Den største kommersielle mangelen er daglig vedlikehold uten programmering. Flere medaljer eller et nytt frontend-rammeverk løser ikke import, navnekonflikter, kildekorreksjoner og trygg publisering. Prioriter derfor import-/godkjenningsflyt og enkel administrasjon før flere dekorative moduler. Betalingsvilje, salgsvolum og faktisk supportbelastning er **ikke undersøkt**; produktpakkene under er hypoteser som må prøves med pilotkunder.
 
+Tillegget 13. november knytter to nye behov til samme produktløfte: **startliste → betinget merkeprognose og premiebehov → godkjente resultater og endelig premieliste → kontrollert diplomjobb**. En mulig kundes ønske er et nyttig pilotsignal, ikke dokumentasjon på betalende etterspørsel. Morothon kan teste arbeidsflyten før hele flerarrangørplattformen er ferdig.
+
 ## Funn
 
 | ID / type / alvorlighet | Fil/modul og faktisk observasjon | Anbefalt løsning og forventet effekt | Gjennomføringsrisiko | Omfang | Avhengigheter |
 | --- | --- | --- | --- | --- | --- |
 | P-01 · rettighetsavklaring · høy før eksternt salg | Ingen generell `LICENSE`/rettighetsoverdragelse ble funnet i repositoryroten. `private: true` i `package.json` er ikke en lisens. Fontlisens og avhengighetslisenser finnes, men er ikke en samlet kommersiell rettighetskjede. | Avklar eierskap/bidragsrettigheter, resultatdatabruk, merkevare og asset-rettigheter før lisensiering. Skill fellesprodukt fra kundens data. | Høy hvis avtaler antas å finnes eller produktet selges med andres motiver | 2–5 tekniske pd for oversikt; juridisk arbeid utenfor estimatet | Eiere/bidragsytere og juridisk rådgiver |
 | P-02 · produktgap · høy | README og scripts krever filredigering, Git og teknisk oppsett. Ingen kundestyrt import-/publiseringsflate finnes. | Pilotér selvbetjent oppdatering, med opplasting, avstemming, forhåndsvisning og separat publisering. Reduser avhengighet til utvikleren. | Middels–høy: supportbehov kan bli større enn antatt | 15–25 pd for første avgrensede import/adminpilot | I-01–I-04, S-01/S-03 |
-| P-03 · strategisk risiko · høy ved kundespredning | Navn/regler/design er tett knyttet til Morothon; en enkel kopi skaper fort en kodegren per kunde. | Én versjonert motor med data/config/modulmanifest per arrangør. Selg konfigurasjon, innføring og drift, ikke kodeforker som standard. | Middels: for bredt generisk produkt før pilot er også kostbart | 16–30 pd for motor/modell, samme arbeid som oppgave 4; ikke et tillegg | To ulike pilotbehov og kompatibilitetsregler |
+| P-03 · strategisk risiko · høy ved kundespredning | Navn/regler/design er tett knyttet til Morothon; en enkel kopi skaper fort en kodegren per kunde. | Én versjonert motor med data/config/modulmanifest per arrangør. Selg konfigurasjon, innføring og drift, ikke kodeforker som standard. | Middels: for bredt generisk produkt før pilot er også kostbart | 16–30 pd for motor/modell, samme arbeid som D1 i 07; ikke et tillegg | To ulike pilotbehov og kompatibilitetsregler |
 | P-04 · økonomisk usikkerhet · middels | Ingen dokumenterte volum-, SLA-, support- eller salgsforutsetninger foreligger. | Mål innføringsarbeid, årlig support, datarydding og trafikk per pilot før prissetting. | Lav teknisk, høy kommersiell hvis bindinger loves for tidlig | 2–4 pd teknisk kartlegging + pilot-/salgsarbeid | Pilotavtaler, driftsleverandør og valgt lisens |
 
 ## Foreslåtte pakker
 
 | Pakke | Kundeverdi | Avgrensning |
 | --- | --- | --- |
-| 1 – Adelskalender | Historisk arkiv, søk, profiler, statistikk, rangering og løyperekorder | Må inkludere en trygg måte å oppdatere data på; ingen «grunnpakke» som krever Codex for hvert år. |
-| 2 – Adelskalender Pluss | Merker, lojalitet, milepæler, diplomer, skrytekort og sammenligning | Bruker samme motor; dokumentgodkjenning og kvalitet må være forklart. |
-| 3 – Komplett | Pluss + Heder og utvidet administrasjon | Heder har egne datarettigheter og publiseringsvalg; formelle vedtak krever egen handling. |
+| 1 – Adelskalender | Historisk arkiv, søk, profiler, statistikk, rangering og løyperekorder | Trygg oppdatering med felles import-/identitetsadministrasjon; grunnleggende startliste-/resultatmapping er infrastruktur, ikke en separat kodebase. Ingen avhengighet av Codex for hvert år. |
+| 2 – Adelskalender Pluss | Merker, lojalitet, milepæler, diplomer, skrytekort, sammenligning, **Merkeprognose og premieliste** og masseutskrift av løperdiplomer | Samme motor og admin; betinget prognose skilles fra faktisk kvalifikasjon, dokumentkontroll fra utdeling. |
+| 3 – Komplett | Pluss + valgfri Heder med dugnadsgrunnlag og Heder-masseutskrift | Egne datarettigheter, historiske prestasjonsscope og publiseringsvalg; formelle vedtak krever egen handling. |
 | Tillegg – Karusell og sammenlagt | Flere runder, sesong, beste N, poeng og sammenlagtplass | Skal kunne brukes uten Heder og uten at et årlig løp må konfigurere en poengmotor. |
 | Leveransevalg – Selvdrift | Kildekode, verktøy, dokumentasjon, dataflytting og drift hos kunden | Dette er en leveranseform for valgte moduler, ikke en annen kodebase. |
 
 Temaer, eksport og tilgjengelighet bør være gode i alle pakker. Korrekte identiteter, dataportabilitet, sikkerhet og backup er ikke premiumfunksjoner. Unngå å gjøre et lite årlig løp avhengig av komplisert sesongoppsett.
 
 Begrens første pilot til én årlig arrangør i tillegg til Morothon, og ett lite serieeksempel med flere runder samme år. Det tester om koden faktisk er generell. Markedsnavnene på mulige pilotarrangementer er eksempler, ikke dokumenterte kunder eller bekreftede avtaler.
+
+En årlig arrangør skal kunne bruke startlisteprognose uten poengmotor eller Heder. En bedriftskarusell bruker de samme verktøyene med utgave-/sesongpolicy, ikke Morothons årstelling. Et Heder-diplom kommer fra separat dokumentert dugnadsinnsats; det blir ikke generert av at en person står på startlisten. PDF-masseproduksjon må fungere både i den driftede administrasjonen og lokalt ved selvdrift, uten nødvendig ekstern utskriftstjeneste.
+
+### Tidlig pilot og salgbar avgrensning
+
+Tilby først en avgrenset prøve med eksisterende Morothon-maler og privat lokal administrasjon: kontrollert mottakerutvalg og samlet PDF, deretter én kjent EQ-startliste med betingede merker, CSV/PDF-premierapport og avstemming mot godkjente resultater. Dette kan gi praktisk verdi før hele modellen generaliseres. Fullt produkt inkluderer også historiske Heder-valg, ekte XLSX, ZIP og generelle telleenheter; delpiloten skal ikke markedsføres som om disse er ferdige.
+
+Mål tidsbruk på identitetsavklaring, endringer før start, feil/overskudd i premieplan, resultatrekonsiliering og diplomproduksjon, samt om arrangøren klarer dette uten kodehjelp. Kontroller endelig utlevert antall separat fra forventet premiebehov. En publikumsside med synlig utskriftsknapp er ikke i seg selv en privat arrangøradministrasjon.
 
 ## Driftet tjeneste og komplett overtakelse
 
@@ -70,5 +80,7 @@ Ingen salgspriser fastsettes i revisjonen. Bruk følgende kostnadsmodell før ti
 Båndbredde kan estimeres som besøk × faktisk overførte byte, med målte cache-/komprimeringsforhold; lokal ukomprimert trafikk er ikke en produksjonsfaktura. Offentlig statisk drift kan være rimelig, men administrasjon, private kilder, restore, kontosikkerhet og support er fortsatt arbeid. Selvdrift fjerner ikke kostnaden ved installasjon, opplæring og videre vedlikehold – den flytter deler av den til kunden.
 
 Arbeidsanslagene i [07](07-forbedringsplan.md) forutsetter utviklere som kjenner JavaScript og databehandling, pilotfiler med brukstillatelse og gjenbruk av dagens design. Juridisk arbeid, omfattende historisk datavask, nye medaljemotiver, leverandørintegrasjoner uten kjente filformater og markedsføring er ikke inkludert. Ikke gi fastpris for «alle EQ Timing-filer» før representative filer er sett.
+
+Masseutskrift C1 er anslått til **8–14 pd** og startliste/prognose/avstemming C2 til **12–20 pd**, inkrementelt rundt det delte grunnlaget. Samlet plan øker fra **41–75 til 61–109 pd**, ikke med en ny komplett import- og adminløsning for hver modul. Tidlige delpiloter er 4–7 og 6–10 pd **innenfor** C1/C2, med nødvendig arbeid trukket frem fra D1/D2. Tilgangs-/import-/motoranslag fra I-04, S-03 og P-02 legges ikke på nytt oppå dette. Se regnskap, avhengigheter og buffer i 07; avansert SaaS, selvdriftspakking og poengmotor må avgrenses separat.
 
 Mål pilotene på tid fra fil til kontrollert release, antall manuelle konflikter, supporttimer, om arrangøren klarer neste oppdatering selv, og om en annen IT-leverandør kan installere/gjenopprette uten oss. Disse er bedre kommersielle beslutningspunkter enn antall funksjonsknapper.
