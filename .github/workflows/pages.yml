@@ -52,6 +52,16 @@ jobs:
         run: npm test
       - name: Build versioned runtime package
         run: npm run build
+      - name: Retain runner identity review
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-v36-loperkoblinger
+          path: |
+            .review/runner-links/koblingsforslag.md
+            .review/runner-links/koblingsforslag.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Render V3.6 honor review artifacts
         if: github.event_name == 'pull_request'
         run: node scripts/review-honors-v36.cjs /tmp/morothon-v36

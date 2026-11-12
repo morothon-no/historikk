@@ -86,9 +86,9 @@ Store bilder/PDF-er lagres utenfor produksjonsgrenen og kan regenereres.
 - Tidligere minimalprofiltest: oppdatert for uttrykkelig bekreftede koblinger;
   ukoblede personer beholder små profiler uten oppdiktet løperhistorikk.
 - `npm run diplomer:kontroll`: 44 personer, 88 gyldige valg, ingen skriving.
-- `npm run build`: 58 filer, versjon `e7a29492f2133e7b`.
+- `npm run build`: 58 filer, versjon `756cf2d0dd469b24`.
 - Workflow-YAML, Node-syntaks og `git diff --check`: kontrollert.
-- Samlet `npm test`: **193 av 193 bestått**, 0 feil, 0 hoppet over.
+- Samlet `npm test`: **201 av 201 bestått**, 0 feil, 0 hoppet over.
 
 Nettleser- og PDF-kontrollene er kjørt med Chromium og Poppler på Linux, med
 responsive mobil-/PC-bredder og eksisterende Windows-fontregresjoner.
@@ -117,3 +117,33 @@ lokale testresultater med en GitHub-kjøring. Ikke merge uten gjennomgang.
 - `tests/honors-issue13.cjs`
 - `tests/honors-v34.cjs`
 - `tests/honors-v36.cjs`
+
+## Tillegg – automatiske koblingsforslag
+
+Koblingskontrollen kjører automatisk før tester og bygg, og kan overvåke
+registerfilene under redigering. Den bruker navn, registrerte aliaser og
+kanoniske ID-er. Entydige navn gir forslag, tvetydige/usikre navn krever
+manuell kontroll. Ingen forslag lagres som permanente koblinger automatisk.
+Se [vedlikeholdsveiledningen](loperkoblinger-v36.md).
+
+Første rapport: 12 eksisterende bekreftelser, 13 entydige forslag, ett usikkert
+forslag og 18 uten treff. Ingen nye koblinger er lagt inn. Kandidat- og
+deltakelsesstatistikk beregnes fra gjeldende historikk, ikke hardkodede tall.
+Registre, historiske data, merker og diplomkontrollsummer er uendret av tillegget.
+Rapportene ligger utenfor produksjonspakken og lastes opp separat i Actions.
+
+Åtte nye regresjoner dekker aliaser, videresendinger, tvetydige navn, usikker
+stavemåte, ufullstendige navn, feil i bekreftelser, senere rapporter,
+registrering/filovervåking, eksplisitt godkjenning og nye løpsresultater.
+Nettlesertestene bekrefter at nye DNF-resultater og kanoniske videresendinger
+oppdaterer løpsstatistikk/kort/lenker på mobil og PC. DNS og doble starter
+samme år gir ikke flere deltakelsesår. Bekreftede dugnadsår forblir uendret.
+
+Tilleggets sluttkontroll: **201/201 tester**, 0 feil, produksjonsbygg (58 filer)
+og 88 gyldige diplomkontrollsummer. De 13 entydige og det ene usikre treffet
+er fortsatt bare forslag. Ingen register- eller historikkfiler er endret.
+
+Tilleggets filer: `.github/workflows/pages.yml`, `.gitignore`, `package.json`,
+`scripts/review-runner-links.cjs`, `scripts/lib/runner-link-review.cjs`,
+`tests/runner-link-review.cjs`, `docs/loperkoblinger-v36.md` og oppdaterte
+`docs/personregister-v36.md` / `docs/v36-sluttrapport.md`.

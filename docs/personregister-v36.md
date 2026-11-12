@@ -95,3 +95,11 @@ Klargjøring skjer ikke automatisk ved bygg. De 88 presentasjonsvariantene er
 separate fra formell tildeling, utstedelse og endelig grafikkgodkjenning.
 Bildekvalitetsvarsler, fontkontroll, A4-/overlappkontroll og øvrige sperrer
 beholdes. Ordinære løperdiplomer og medaljeoriginaler er uendret.
+
+## Automatisk navne- og aliaskontroll ved vedlikehold
+
+`npm test` og `npm run build` kjører nå en skrivebeskyttet kontroll mot
+historikkens navn, aliaser og videresendte person-ID-er. Bruk
+`npm run personer:kontroller -- --watch` for rapportoppdatering ved lagring
+mens registeret redigeres. Treff er forslag og registrerer ingen identitet.
+Se [rapport, bekreftelsesflyt og sammenligning med forrige rapport](loperkoblinger-v36.md).
