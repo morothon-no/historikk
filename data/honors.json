@@ -176,6 +176,9 @@
       ]
     }
   ],
+  "hiddenProfileIds": [
+    "erling-danielsen"
+  ],
   "groups": [
     {
       "id": "founders",

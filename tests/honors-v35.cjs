@@ -49,17 +49,17 @@ test('V3.5 every card and profile has at most one main badge at mobile/desktop w
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
-   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();assert.equal(await p.locator('[data-honoree]').count(),44);
+   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="oscar-lohne"]').waitFor();assert.equal(await p.locator('[data-honoree]').count(),43);
    assert.deepEqual(await p.locator('#honorPeople>[data-honor-group]').evaluateAll(es=>es.map(e=>e.dataset.honorGroup)),['organizers','volunteers','memorial']);
-   for(const m of data.groups.flatMap(g=>g.members)){
+   for(const m of require('./helpers/honors.cjs').visibleMembers(data)){
     const card=p.locator(`[data-honoree="${m.id}"]`),key=expected[m.id]?.[0];assert.equal(await card.locator('.honor-card-medal').count(),key?1:0,m.id);const state=H.honorProfile(data,m);assert.equal(await card.locator('img').count(),(key?1:0)+state.secondaryHonorIds.length+state.collectionIds.length,m.id);
     if(key)assert.ok((await card.locator('.honor-card-medal').getAttribute('src')).endsWith(registry.badges.find(b=>b.id===key).src),m.id);
    }
    assert.match(await p.locator('[data-honoree="bent-bakke"]').innerText(),/6 dugnadsutgaver/);
-   assert.match(await p.locator('[data-honoree="erling-danielsen"]').innerText(),/33 dugnadsutgaver/);
+   assert.equal(await p.locator('[data-honoree="erling-danielsen"]').count(),0);
    const lead=await p.locator('[data-honoree="floke-bredland"] img').boundingBox(),other=await p.locator('[data-honoree="leif-wiig"] img').boundingBox();assert.equal(lead.width,other.width,'All three memorials have the same medal size');
    await p.locator('.honor-library>summary').click();assert.equal(await p.locator('#serviceBadges img').count(),9);assert.doesNotMatch(await p.locator('#serviceBadges').innerText(),/Hedersildsjel/);
-   for(const m of data.groups.flatMap(g=>g.members)){
+   for(const m of require('./helpers/honors.cjs').visibleMembers(data)){
     await p.goto(h.base+'/heder.html#person/'+m.id);await p.waitForFunction(name=>document.querySelector('#profileName')?.textContent===name,m.name);
     assert.equal(await p.locator('.honor-profile-medals img').count(),expected[m.id]?1:0,m.id);assert.equal(await p.locator('.honor-secondary-badges img').count(),0);
     assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,m.id);

@@ -4,6 +4,7 @@ const {mergeVolunteers}=require('../../js/honors-data.js');
 // The archive is independently compared against bcb6f52 in the final V3.6.1 tests.
 function beforeFinalCorrections(data){
  const copy=structuredClone(data),revision=copy.revisionHistory?.find(r=>r.supersedesCommit==='bcb6f5245db41b7896ad8837ecae4ad88cdb9703');
+ delete copy.hiddenProfileIds; // Historical snapshots predate the display-only exclusion.
  if(!revision)return copy;
  for(const record of revision.members){for(const g of copy.groups)g.members=g.members.filter(m=>m.id!==record.member.id);const group=copy.groups.find(g=>g.id===record.groupId);if(record.member.id==='erling-danielsen')group.members.unshift(structuredClone(record.member));else group.members.push(structuredClone(record.member));}
  for(const entry of revision.volunteers){const m=copy.groups.flatMap(g=>g.members).find(m=>m.id===entry.id);if(m){delete m.contribution;m.roles.forEach(r=>delete r.fromYear);m.sourceIds=entry.sourceIds;if(m.badgeProposal)m.badgeProposal.sourceIds=entry.sourceIds;m.roles.forEach(r=>r.sourceIds=entry.sourceIds);}}
@@ -71,4 +72,5 @@ function ordinaryDiplomaCode(s){return s.replace(/  async function serviceConten
  .replace(/    \/\/ Service-only secondary mark collision checks\.[\s\S]*?    \/\/ End service-only secondary mark collision checks\.\n/,'')
  .replace(",'.diploma-service-collection'",'').replace('.map(selector=>doc.querySelector(selector)).filter(Boolean)','.map(selector=>doc.querySelector(selector))')
  .replace('serviceExample, serviceProof, checkServiceDraft, printServiceDraft,','serviceExample,');}
-module.exports={readHonors,historicalMember,assertOrdinaryDiplomaCss,ordinaryDiplomaCode,beforeFinalCorrections,priorCorrectionMember,expectedPrintMode,preservedFile};
+function visibleMembers(data){return data.groups.flatMap(g=>g.members).filter(m=>require('../../js/honors-data.js').isVisibleOnHonorPage(data,m.id));}
+module.exports={visibleMembers,readHonors,historicalMember,assertOrdinaryDiplomaCss,ordinaryDiplomaCode,beforeFinalCorrections,priorCorrectionMember,expectedPrintMode,preservedFile};

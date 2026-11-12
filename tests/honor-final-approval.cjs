@@ -6,7 +6,7 @@ test('professional honor overview, cards, profiles and gallery avoid redundant d
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}});try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.doesNotMatch(await p.title(),/utkast|forhåndsvisning/i);
+   assert.equal(await p.locator('[data-honoree]').count(),43);assert.doesNotMatch(await p.title(),/utkast|forhåndsvisning/i);
    assert.doesNotMatch(await p.locator('body').innerText(),/utkast|ikke utdelt|under utvikling/i);
    assert.match(await p.locator('[data-honoree="hakon-lohne"]').innerText(),/12 dugnadsutgaver · 2014–2026/);
    assert.doesNotMatch(await p.locator('[data-honoree="oscar-lohne"]').innerText(),/forslag/);

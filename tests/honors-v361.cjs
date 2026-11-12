@@ -24,10 +24,10 @@ test('V3.6.1 persists exactly the fourteen explicitly confirmed identities witho
  const restored=require('./helpers/honors.cjs').beforeFinalCorrections(current);for(const id of Object.keys(confirmed))delete restored.personDetails[id].runnerLink;delete restored.sources['organizer-v361-confirmed-links'];delete restored.presentationPrintSet;delete prior.presentationPrintSet;assert.deepEqual(restored,prior,'No other registry facts changed');
  const einar=H.findIn(data,'einar-danielsen').member,erling=H.findIn(data,'erling-danielsen').member;assert.equal(H.serviceTenure(data,einar).count,33);assert.equal(H.serviceTenure(data,erling).count,33);assert.equal(current.personDetails['einar-danielsen'].diplomaDate.date,'2026-11-07');
 });
-test('V3.6.1 all fourteen confirmed links appear on cards and correct profiles at mobile and PC widths',async()=>{
+test('V3.6.1 confirmed links remain recorded and visible cards open the correct runner profiles on mobile and PC',async()=>{
  const h=await createHarness(),data=await readHonors();try{
   for(const width of [390,1440]){const p=await h.browser.newPage({viewport:{width,height:1000}});try{
-   for(const [id,runnerId]of Object.entries(confirmed)){
+   for(const [id,runnerId]of Object.entries(confirmed).filter(([id])=>H.isVisibleOnHonorPage(data,id))){
     await p.goto(h.base+'/heder.html');await p.locator(`[data-honoree="${id}"]`).waitFor();const card=p.locator(`[data-honoree="${id}"]`),match=(await card.locator('.honor-card-racing').innerText()).match(/(\d+) løpsdeltakelser/);assert.ok(match,id);
     await card.locator('a').click();await p.locator('#profileName').waitFor();assert.equal(await p.locator('.primary-runner-link').getAttribute('href'),'index.html#lop='+runnerId);assert.equal(await p.locator('.honor-race-metrics b').first().textContent(),match[1]);assert.equal(await p.locator('#profileName').textContent(),H.findIn(data,id).member.name);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    }

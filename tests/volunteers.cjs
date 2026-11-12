@@ -73,7 +73,7 @@ test('V3.4 Anne Lene and Laila have one working profile each and the newly confi
   const p=await h.browser.newPage({viewport:{width,height:1000}});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="anne-lene-forland-hansen"]').waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);
+   assert.equal(await p.locator('[data-honoree]').count(),43);
    for(const id of ['anne-lene-forland-hansen','laila-endresen-skjulestad']){
     const card=p.locator(`[data-honoree="${id}"]`);assert.equal(await card.count(),1);
     assert.match(await card.innerText(),/fra 2016/);
@@ -97,7 +97,7 @@ test('V3.4 a new sourced volunteer is added through volunteers.json alone, while
  try{
   await p.route('**/data/volunteers.json',r=>r.fulfill({json:fixture}));
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree="fixture-name"]').waitFor();
-  assert.equal(await p.locator('[data-honoree]').count(),45);
+  assert.equal(await p.locator('[data-honoree]').count(),44); // 43 visible people plus the fixture.
   assert.equal(await p.locator('[data-honoree="oscar-lohne"]').count(),1);
   const card=p.locator('[data-honoree="fixture-name"]');
   assert.equal(await card.locator('strong').textContent(),'Bare test <b>navn</b>');assert.equal(await card.locator('b').count(),0);
@@ -123,7 +123,7 @@ test('V3.4 a failed volunteer fetch shows a clear error, never a silently incomp
   await p.unroute('**/data/volunteers.json');
   assert.equal(await p.evaluate(async()=>{const d=await MorothonHonorsData.load();return d.groups.flatMap(g=>g.members).length;}),44);
   await p.reload();await p.locator('[data-honoree="oscar-lohne"]').waitFor();
-  assert.equal(await p.locator('[data-honoree]').count(),44);
+  assert.equal(await p.locator('[data-honoree]').count(),43);
   assert.doesNotMatch(await p.locator('#honorStatus').textContent(),/kunne ikke lastes/);
  }finally{await p.close();}
 });

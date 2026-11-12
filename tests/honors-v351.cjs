@@ -23,12 +23,12 @@ test('V3.5.1 planned founder honor never fabricates tenure, an award date or an 
  for(const file of ['data/history.json','data/volunteers.json','data/badges.json','data/event-dates.json','index.html','js/history-data.js','js/brag-card.js'])assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','41f5e45:'+file],{cwd:root}),file);
  await require('./helpers/honors.cjs').assertOrdinaryDiplomaCss(root);assert.deepEqual(data.diplomaApprovals,[]);
 });
-test('V3.5.1 44 unique cards have three founder sizes, equal memorials last, warm concise language and hidden navigation on mobile/PC',async()=>{
+test('V3.5.1 43 visible cards and 44 retained identities have three founder sizes, equal memorials last, warm concise language and hidden navigation on mobile/PC',async()=>{
  for(const width of [390,1440]){
   const p=await h.browser.newPage({viewport:{width,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   try{
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
-   assert.equal(await p.locator('[data-honoree]').count(),44);assert.equal(new Set(await p.locator('[data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree))).size,44);
+   assert.equal(await p.locator('[data-honoree]').count(),43);assert.equal(new Set(await p.locator('[data-honoree]').evaluateAll(es=>es.map(e=>e.dataset.honoree))).size,43);
    assert.deepEqual(await p.locator('#honorPeople>[data-honor-group]').evaluateAll(es=>es.map(e=>e.dataset.honorGroup)),['organizers','volunteers','memorial']);
    const boxes=await p.locator('[data-honoree]').evaluateAll(es=>Object.fromEntries(es.map(e=>[e.dataset.honoree,{height:e.getBoundingClientRect().height,medal:e.querySelector('img')?.getBoundingClientRect().width}])));
    assert.ok(boxes['oscar-lohne'].height>boxes['einar-danielsen'].height);assert.ok(boxes['erling-askildsen'].height>boxes['einar-danielsen'].height);
