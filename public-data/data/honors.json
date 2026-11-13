@@ -1,0 +1,2444 @@
+{
+  "schemaVersion": 1,
+  "displayOrder": [
+    "founders",
+    "organizers",
+    "volunteers",
+    "memorial"
+  ],
+  "retiredProfiles": [
+    {
+      "id": "helge-andersen",
+      "name": "Helge Andersen",
+      "message": "Oppføringen er korrigert."
+    }
+  ],
+  "groups": [
+    {
+      "id": "founders",
+      "badgeId": "service-grunnlegger",
+      "title": "Grunnleggerne fra 1992",
+      "description": "Fem mennesker var med på å starte Morothon i 1992. Oscar og Erling møter du øverst; her er de tre andre i grunnleggergruppen.",
+      "members": [
+        {
+          "id": "erling-askildsen",
+          "name": "Erling Askildsen",
+          "status": "confirmed",
+          "reason": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "roles": [
+            {
+              "title": "Idéskaper og grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Tidligere styreleder i Søgne Skiklubb",
+              "confirmed": true,
+              "countsForTenure": false,
+              "sourceIds": [
+                "evidence-ac41ce23cdb0bf8f1644"
+              ]
+            }
+          ],
+          "stories": [
+            {
+              "title": "En idé det ble tradisjon av",
+              "text": "Erling fikk ideen om et terrengløp der utfordringen i heiene skulle følges av kameratskap og sosialt samvær. Ideen ble starten på Søgne Morothon i 1992.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "35 utgaver med Morothon",
+              "text": "Erling har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-604a77aa284e4da23d23"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-5ACFAA4",
+          "diplomaTribute": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-aeresmerke",
+            "badgeIds": [
+              "service-aeresmerke"
+            ],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-9c700f437d3e1daf1d1f",
+              "evidence-32ea9d90fd5c0b1081a8",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "contribution": {
+            "confirmedYears": [
+              1992,
+              1993,
+              1994,
+              1995,
+              1996,
+              1997,
+              1998,
+              1999,
+              2000,
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006,
+              2007,
+              2008,
+              2009,
+              2010,
+              2011,
+              2012,
+              2013,
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "allEditions": true,
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23"
+            ]
+          }
+        },
+        {
+          "id": "oscar-lohne",
+          "name": "Oscar Lohne",
+          "status": "confirmed",
+          "reason": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Da nye krefter overtok",
+              "text": "Grunnleggergruppen fortsatte å bidra etter overtakelsen i 2014. Merking, rigging, drikkestasjoner og rydding var fortsatt del av den felles innsatsen.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "35 utgaver med Morothon",
+              "text": "Oscar har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-604a77aa284e4da23d23"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-87AA561",
+          "diplomaTribute": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-aeresmerke",
+            "badgeIds": [
+              "service-aeresmerke"
+            ],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-9c700f437d3e1daf1d1f",
+              "evidence-32ea9d90fd5c0b1081a8",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "contribution": {
+            "confirmedYears": [
+              1992,
+              1993,
+              1994,
+              1995,
+              1996,
+              1997,
+              1998,
+              1999,
+              2000,
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006,
+              2007,
+              2008,
+              2009,
+              2010,
+              2011,
+              2012,
+              2013,
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "allEditions": true,
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23"
+            ]
+          }
+        },
+        {
+          "id": "arnfinn-haverstad",
+          "name": "Arnfinn Håverstad",
+          "status": "confirmed",
+          "reason": "Grunnlegger og løypeildsjel, med både praktiske bidrag og sterke løpsresultater.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Løypemerking i snø og mørke",
+              "text": "Under merking av løypa gjorde tett snøvær og raskt fallende mørke situasjonen så krevende at de andre nesten måtte begynne å lete etter Arnfinn. Historien sier noe om arbeidet som måtte til før løperne kunne stille til start.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-A4F1F02",
+          "diplomaTribute": "Du var med på å legge grunnlaget for Morothon, både som grunnlegger og løypeildsjel. Med takk for engasjementet bak tradisjonen og innsatsen ute i heiene.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-grunnlegger",
+            "badgeIds": [
+              "service-grunnlegger"
+            ],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          }
+        },
+        {
+          "id": "helge-reisvoll",
+          "name": "Helge Reisvoll",
+          "status": "confirmed",
+          "reason": "En av de fem som var med på å starte Morothon.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "En del av grunnlaget",
+              "text": "Helge var med i grunnleggergruppen som skapte Morothon. Løpene hans forteller én del av historien; innsatsen rundt arrangementet er en annen.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-AD182FF",
+          "diplomaTribute": "Du var med på å skape en lokal tradisjon for utfordringer, løpsglede og fellesskap. Med takk for grunnlaget du la sammen med de andre ildsjelene.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-grunnlegger",
+            "badgeIds": [
+              "service-grunnlegger"
+            ],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          }
+        },
+        {
+          "id": "einar-danielsen",
+          "name": "Einar Danielsen",
+          "status": "confirmed",
+          "reason": "En av de fem som la grunnlaget for Morothon i 1992.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-0771b7a986df36c5eb7a",
+            "evidence-bcf003004c05a5008853",
+            "evidence-ac68d3fef8698b977328"
+          ],
+          "roles": [
+            {
+              "title": "Grunnlegger",
+              "fromYear": 1992,
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Med fra starten",
+              "text": "Einar Danielsen var en av grunnleggerne. Han hører med i fortellingen om dem som gjorde Morothon til en lokal tradisjon.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-D48A84B",
+          "diplomaTribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-aeresmerke",
+            "badgeIds": [
+              "service-aeresmerke"
+            ],
+            "sourceIds": [
+              "evidence-60603ca6928f70521ac0"
+            ]
+          },
+          "plannedHonors": [
+            {
+              "badgeId": "service-aeresmerke",
+              "year": 2026,
+              "status": "planned",
+              "sourceIds": [
+                "evidence-60603ca6928f70521ac0"
+              ]
+            }
+          ],
+          "contribution": {
+            "approvedTotal": {
+              "editions": 33,
+              "approved": true,
+              "asOfYear": 2026,
+              "sourceIds": [
+                "evidence-bcf003004c05a5008853"
+              ]
+            },
+            "sourceIds": [
+              "evidence-bcf003004c05a5008853"
+            ]
+          },
+          "deceased": true,
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "evidence-ac68d3fef8698b977328"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "volunteers",
+      "badgeId": null,
+      "title": "Dugnadsheltene",
+      "description": "Noen har vært med lenge. Andre har kommet til underveis. Hver eneste hånd gjør en forskjell.",
+      "members": [
+        {
+          "id": "kalle-kimestad",
+          "name": "Kalle Kimestad",
+          "status": "confirmed",
+          "reason": "En av de trofaste dugnadsheltene, med innsats siden minst 2014.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "roles": [
+            {
+              "title": "Dugnadshelt",
+              "fromYear": 2014,
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "En av dem som stiller opp",
+              "text": "Kalle er en av dem som har stilt opp på dugnad siden minst 2014. Innsatsen hans er en del av fellesskapet som bærer løpet videre.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-C65968C",
+          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014 og for at du bidrar til å holde Morothon-tradisjonen levende.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "aliases": [
+            "Karl Kimestad"
+          ],
+          "aliasIds": [
+            "karl-kimestad"
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          }
+        },
+        {
+          "id": "finn-lohne",
+          "name": "Finn Lohne",
+          "status": "confirmed",
+          "reason": "Har bidratt på dugnad siden minst 2014, blant annet på drikkestasjonen på Freden.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "roles": [
+            {
+              "title": "Dugnadshelt",
+              "fromYear": 2014,
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "En del av hjelpen på Freden",
+              "text": "Finn har blant annet vært med på drikkestasjonen på Freden. Siden minst 2014 har han vært en av de trofaste hjelperne rundt løpet.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-3FAED73",
+          "diplomaTribute": "Med takk for dugnadsinnsatsen minst siden 2014, blant annet ved drikkestasjonen på Freden. Du er med på å holde tradisjonen levende.",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          }
+        },
+        {
+          "id": "dag-morten-frantzen",
+          "name": "Dag Morten Frantzen",
+          "status": "provisional",
+          "reason": "Tidtaker og kreativ ildsjel i kulissene.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-d6141846828236562803"
+          ],
+          "roles": [
+            {
+              "title": "Arrangør siden 2014",
+              "fromYear": 2014,
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-c2100884cff7d48c1441",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Tidligere styreleder i Søgne Skiklubb",
+              "confirmed": true,
+              "countsForTenure": false,
+              "sourceIds": [
+                "evidence-ac41ce23cdb0bf8f1644"
+              ]
+            }
+          ],
+          "stories": [
+            {
+              "title": "Stafettpinnen videre",
+              "text": "Dag Morten overtok arrangøransvaret sammen med Håkon Lohne og Bent-Inge Bakke i 2014. Han har vært en av de sentrale arrangørene etter overtakelsen.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-c2100884cff7d48c1441",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Hjernen bak klokka",
+              "text": "Dag Morten er på hjemmebane med tidtaking, kreative ideer og alt det som må fungere bak kulissene. Arrangørgjengen forteller, med et smil, at han ennå ikke har tatt hele Langmoro på 20 km i ett strekk – løypa tas visst helst stykkevis og delt. Heldigvis trenger Morothon folk som får klokka til å gå like mye som folk som løper mot den.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d6141846828236562803"
+              ],
+              "confirmed": true
+            }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92",
+              "evidence-ac41ce23cdb0bf8f1644"
+            ],
+            "confirmedYears": [
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ]
+          }
+        },
+        {
+          "id": "hakon-lohne",
+          "name": "Håkon Lohne",
+          "status": "provisional",
+          "reason": "Arrangørgjengens spreke alibi – full pakke før, under og etter løpet.",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-d6141846828236562803"
+          ],
+          "roles": [
+            {
+              "title": "Løpsleder Morothon",
+              "confirmed": true,
+              "sourceIds": [
+                "evidence-bdb17c4794deea2dad92"
+              ]
+            },
+            {
+              "title": "Arrangør siden 2014",
+              "fromYear": 2014,
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32",
+                "evidence-60603ca6928f70521ac0"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Tradisjonen i nye løyper",
+              "text": "Håkon tok over arrangøransvaret sammen med Dag Morten Frantzen og Bent-Inge Bakke i 2014. I 2016 var han på Svalbard. Videreføringen av Morothon er en laginnsats, med både gamle og nye krefter.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-7055fa6cf91a03556f32",
+                "evidence-604a77aa284e4da23d23"
+              ],
+              "confirmed": true
+            },
+            {
+              "title": "Det spreke alibiet",
+              "text": "Håkon er det spreke alibiet i arrangørgjengen. Han er kanskje enda kjappere i replikken enn i løypa. Før løpet bidrar han med løypemerking og klargjøring, underveis finner han gjerne tid til å løpe selv, og etterpå er han med på nedrigging. Noen nøyer seg med å arrangere Morothon. Håkon ser ut til å ha bestilt hele pakken.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d6141846828236562803"
+              ],
+              "confirmed": true
+            }
+          ],
+          "runnerId": "MOR-AA6C983",
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "contribution": {
+            "fromYear": 2014,
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92",
+              "evidence-ac41ce23cdb0bf8f1644"
+            ],
+            "confirmedYears": [
+              2014,
+              2015,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2022,
+              2023,
+              2024,
+              2025,
+              2026
+            ],
+            "excludedYears": [
+              2016
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "organizers",
+      "badgeId": null,
+      "title": "De tok stafettpinnen videre",
+      "description": "Dag Morten Frantzen, Håkon Lohne og Bent-Inge Bakke overtok arrangøransvaret i 2014. De endret løypene, samlet start og mål ved Søgne Stadion og videreutviklet distansene for ungdom, mosjonister og konkurranseløpere. Det sportslige nivået ble løftet, mens kameratskapet og moroa skulle leve videre.",
+      "memberRefs": [
+        "dag-morten-frantzen",
+        "hakon-lohne"
+      ],
+      "members": [
+        {
+          "id": "bent-bakke",
+          "name": "Bent-Inge Bakke",
+          "status": "confirmed",
+          "reason": "Med da nye krefter tok over i 2014. Foreløpig dugnadsperiode: 2014–2019 (enkeltår ennå ikke bekreftet).",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-488a1d1821070b695281",
+            "evidence-755a79b5d8e8c647a5f1"
+          ],
+          "roles": [
+            {
+              "title": "Arrangør fra 2014",
+              "fromYear": 2014,
+              "sourceIds": [
+                "evidence-c2100884cff7d48c1441",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "stories": [
+            {
+              "title": "Med i den nye arrangørgruppen",
+              "text": "Bent var med da arrangøransvaret ble overtatt i 2014, og bidro i noen år etterpå.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-c2100884cff7d48c1441",
+                "evidence-7055fa6cf91a03556f32"
+              ],
+              "confirmed": true
+            }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": null,
+            "badgeIds": [],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23"
+            ]
+          },
+          "aliases": [
+            "Bent Bakke"
+          ],
+          "contribution": {
+            "fromYear": 2014,
+            "toYear": 2019,
+            "toYearStatus": "provisional",
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          }
+        }
+      ],
+      "sourceIds": [
+        "evidence-d88c29a42e09364a5a88",
+        "evidence-c2100884cff7d48c1441",
+        "evidence-7055fa6cf91a03556f32"
+      ]
+    },
+    {
+      "id": "memorial",
+      "badgeId": null,
+      "title": "Til minne om",
+      "description": "Vi minnes dem som ga av tiden sin, og som fortsatt er en del av Morothon-historien.",
+      "members": [
+        {
+          "id": "floke-bredland",
+          "name": "Floke Bredland",
+          "status": "confirmed",
+          "reason": "En viktig del av bankettene og det sosiale fellesskapet. Arrangøren anslår minst 25 års dugnadsinnsats. Floke gikk bort i 2024.",
+          "sourceIds": [
+            "evidence-604a77aa284e4da23d23",
+            "evidence-bdb17c4794deea2dad92"
+          ],
+          "roles": [
+            {
+              "title": "Banketten og fellesskapet",
+              "confirmed": true,
+              "sourceIds": [
+                "evidence-604a77aa284e4da23d23"
+              ]
+            }
+          ],
+          "stories": [
+            {
+              "title": "En stemme mange husker",
+              "text": "Floke leste resultatlistene på bankettene. Også menneskene og samværet etter løpet er en del av det vi tar med oss videre.",
+              "source": "Publiseringsgrunnlag",
+              "sourceIds": [
+                "evidence-d88c29a42e09364a5a88",
+                "evidence-c2100884cff7d48c1441",
+                "evidence-604a77aa284e4da23d23"
+              ],
+              "confirmed": true
+            }
+          ],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-memorial",
+            "badgeIds": [
+              "service-memorial"
+            ],
+            "sourceIds": [
+              "evidence-604a77aa284e4da23d23",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "deceased": true,
+          "deathYear": 2024,
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+        },
+        {
+          "id": "leif-wiig",
+          "name": "Leif Wiig",
+          "status": "confirmed",
+          "reason": "En viktig kraft innen tidtaking og organisering. Arrangøren anslår minst 25 års dugnadsinnsats. Leif gikk bort i 2023.",
+          "deathYear": 2023,
+          "sourceIds": [
+            "evidence-488a1d1821070b695281",
+            "evidence-bdb17c4794deea2dad92"
+          ],
+          "roles": [
+            {
+              "title": "Tidtaking og organisering",
+              "confirmed": true,
+              "sourceIds": [
+                "evidence-488a1d1821070b695281"
+              ]
+            }
+          ],
+          "stories": [],
+          "badgeProposal": {
+            "status": "proposed",
+            "primaryBadgeId": "service-memorial",
+            "badgeIds": [
+              "service-memorial"
+            ],
+            "sourceIds": [
+              "evidence-488a1d1821070b695281",
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "memorialRecognition": {
+            "badgeId": "service-memorial",
+            "sourceIds": [
+              "evidence-bdb17c4794deea2dad92"
+            ]
+          },
+          "diplomaTribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+        }
+      ]
+    }
+  ],
+  "narrative": {
+    "title": "De som gjør Morothon mulig ❤️",
+    "lead": "Før første løper står på startstreken, har mange allerede lagt ned timevis med arbeid. Noen har vært ute i heia og merket løyper, andre har rigget start og mål, båret drikke, ordnet premier, gjort klart barneløpet og sørget for at alt er på plass.",
+    "timeline": [
+      {
+        "year": "1992",
+        "title": "Begynnelsen",
+        "text": "Erling Askildsen fikk ideen om et terrengløp med fysisk utfordring, kameratskap og fest. Sammen med andre ildsjeler skapte han Søgne Morothon. Allerede i 1992 stilte 128 deltakere til start. Langmoro hadde 44 deltakere, som ble fraktet med buss til starten ved Ytre Solås. Første del av løypa hadde innslag av orientering. Etterpå var det bankett på Heimklang med mat, musikk, premier og sosialt samvær."
+      },
+      {
+        "year": "1992–2013",
+        "title": "En lokal tradisjon",
+        "text": "Krevende traseer, vekslende vær og orienteringsinnslag ga løperne historier å ta med seg hjem. Løypeanalyser, banketter og mye frivillig innsats gjorde løpet til en lokal tradisjon."
+      },
+      {
+        "year": "2014",
+        "title": "Et nytt kapittel",
+        "text": "Dag Morten Frantzen, Håkon Lohne og Bent-Inge Bakke overtok arrangøransvaret. Start og mål ble samlet ved Søgne Stadion, løypene ble endret og distansene videreutviklet. Ungdom, mosjonister og konkurranseløpere fikk flere muligheter til å være med."
+      },
+      {
+        "year": "2014–2026",
+        "title": "Tradisjonen lever videre",
+        "text": "De opprinnelige ildsjelene fortsatte å bidra med blant annet merking, rigging, drikkestasjoner og rydding. Nye arrangører utviklet løpet videre, samtidig som den opprinnelige ideen om kameratskap og moro fikk leve."
+      }
+    ],
+    "closing": "Løperne får tiden sin. Dugnadsfolket gir oss løpet.",
+    "sharedStories": [
+      {
+        "title": "Orientering før målstreken",
+        "text": "I de første årene inneholdt løpet også orientering. Det var ikke alltid deltakerne havnet akkurat der de hadde tenkt. Veien til mål kunne derfor gi mer enn bare en sluttid.",
+        "confirmed": true
+      },
+      {
+        "title": "Premietrekning med lave skap",
+        "text": "På banketten ble premietrekningen etter hvert flyttet fra bakrommet. De lavthengende skapene hadde satt sine spor i form av blåmerker. Også det praktiske arbeidet rundt festen fikk sin egen løypejustering.",
+        "confirmed": true
+      }
+    ],
+    "intro": [
+      "Og når siste løper har kommet i mål, er det fortsatt noen som blir igjen. Som rydder, pakker sammen og sørger for at skogen ser ut som før vi kom.",
+      "Noen har vært med helt siden starten. Andre har kommet til underveis. Felles for dem alle er at de stiller opp, år etter år, i regn, mørke og kulde – og ofte uten å få navnet sitt på noen resultatliste."
+    ],
+    "thanks": "Takk til alle som stiller opp, enten det er for én vakt eller et helt liv med dugnadsinnsats. Uten dere hadde det ikke vært noe Morothon. ❤️",
+    "emphasis": "Morothon handler ikke bare om dem som løper. Det handler like mye om dem som gjør det mulig å løpe."
+  },
+  "contentVersion": "V3.5",
+  "previewOnly": true,
+  "awardPolicy": {
+    "status": "proposed",
+    "minimumDocumentedEditions": 5,
+    "explicitExceptionPossible": true,
+    "roleDoesNotAward": true,
+    "diplomaRequiresFormalAward": true,
+    "milestones": [
+      {
+        "badgeId": "service-dugnad-5",
+        "minimumDocumentedEditions": 5,
+        "rule": "Kandidat til «Ivrig hjelper» etter minst 5 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-10",
+        "minimumDocumentedEditions": 10,
+        "rule": "Kandidat til «Dugnadshelt» etter minst 10 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-15",
+        "minimumDocumentedEditions": 15,
+        "rule": "Kandidat til «Trofast ildsjel» etter minst 15 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-20",
+        "minimumDocumentedEditions": 20,
+        "rule": "Kandidat til «Bærebjelke» etter minst 20 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-30",
+        "minimumDocumentedEditions": 30,
+        "rule": "Kandidat til «Fredet inventar» etter minst 30 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
+      },
+      {
+        "badgeId": "service-dugnad-40",
+        "minimumDocumentedEditions": 40,
+        "rule": "Kandidat til «Morothon-legende» etter minst 40 dokumenterte dugnadsutgaver. Ingen automatisk tildeling."
+      }
+    ],
+    "specialHonors": [
+      {
+        "badgeId": "service-grunnlegger",
+        "rule": "Historisk heder for initiativtakere og grunnleggere. Krever rollebekreftelse."
+      },
+      {
+        "badgeId": "service-aeresmerke",
+        "rule": "Morothons høyeste heder. Ingen årsterskel eller automatisk tildeling. Krever egen særskilt beslutning."
+      },
+      {
+        "badgeId": "service-memorial",
+        "rule": "Personlig minneheder etter særskilt kildebelagt forslag, uten automatisk årsterskel eller tildeling."
+      }
+    ],
+    "retiredBadgeIds": [
+      "service-hedersildsjel",
+      "service-dugnadshelt"
+    ]
+  },
+  "featuredIds": [
+    "oscar-lohne",
+    "erling-askildsen"
+  ],
+  "diplomaExamples": [
+    {
+      "id": "dugnadshelt-fem",
+      "label": "Ivrig hjelper – 5 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-5",
+      "contributionCount": 5
+    },
+    {
+      "id": "dugnad-10",
+      "label": "Dugnadshelt – 10 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-10",
+      "contributionCount": 10
+    },
+    {
+      "id": "dugnad-15",
+      "label": "Trofast ildsjel – 15 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-15",
+      "contributionCount": 15
+    },
+    {
+      "id": "dugnad-20",
+      "label": "Bærebjelke – 20 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-20",
+      "contributionCount": 20
+    },
+    {
+      "id": "dugnad-30",
+      "label": "Fredet inventar – 30 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-30",
+      "contributionCount": 30
+    },
+    {
+      "id": "dugnad-40",
+      "label": "Morothon-legende – 40 dugnadsutgaver (illustrasjon)",
+      "illustrative": true,
+      "name": "En av Morothons dugnadshelter",
+      "badgeId": "service-dugnad-40",
+      "contributionCount": 40
+    },
+    {
+      "id": "grunnlegger-flere",
+      "label": "Grunnlegger – diplom",
+      "personId": "arnfinn-haverstad",
+      "badgeId": "service-grunnlegger"
+    },
+    {
+      "id": "oscar-35",
+      "label": "Oscar Lohne – Morothons æresmerke · 35 utgaver",
+      "personId": "oscar-lohne",
+      "badgeId": "service-aeresmerke"
+    },
+    {
+      "id": "erling-35",
+      "label": "Erling Askildsen – Morothons æresmerke · 35 utgaver",
+      "personId": "erling-askildsen",
+      "badgeId": "service-aeresmerke"
+    },
+    {
+      "id": "einar-aeresmerke-2026",
+      "label": "Einar Danielsen – Morothons æresmerke",
+      "personId": "einar-danielsen",
+      "badgeId": "service-aeresmerke"
+    },
+    {
+      "id": "minnediplom",
+      "label": "For alltid en del av Morothon – minnediplom",
+      "personId": "leif-wiig",
+      "badgeId": "service-memorial"
+    },
+    {
+      "id": "takk-for-innsatsen",
+      "label": "Takk for innsatsen – uten årsmerke",
+      "badgeId": "thanks",
+      "illustrative": true,
+      "name": "Eksempel på dugnadsperson"
+    }
+  ],
+  "volunteerList": "data/volunteers.json",
+  "diplomaApprovals": [],
+  "founderSpotlightIds": [
+    "einar-danielsen"
+  ],
+  "presentationPrintSet": {
+    "id": "v352-presentation",
+    "scope": "presentation-only",
+    "sourceIds": [
+      "evidence-bcf003004c05a5008853"
+    ],
+    "editionYears": [
+      1992,
+      1993,
+      1994,
+      1995,
+      1996,
+      1997,
+      1998,
+      1999,
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026
+    ],
+    "entries": [
+      {
+        "personId": "erling-askildsen",
+        "badgeId": "service-aeresmerke",
+        "medalDisplay": "all",
+        "contentSha256": "fb0f32e921e1e303ba2a29f8e23312e3387558cedf72ff245ae6d52b287a3bb6",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "erling-askildsen",
+        "badgeId": "service-aeresmerke",
+        "medalDisplay": "latest",
+        "contentSha256": "248816360621b7f6bdb161942c82ee8877f3379def4a9d83a8efcd59b0ae0c30",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          }
+        ]
+      },
+      {
+        "personId": "oscar-lohne",
+        "badgeId": "service-aeresmerke",
+        "medalDisplay": "all",
+        "contentSha256": "eecd1c447f4d00960395593a67f0f0378d43d20a2dc10058dd8e9d1904e9619b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      {
+        "personId": "oscar-lohne",
+        "badgeId": "service-aeresmerke",
+        "medalDisplay": "latest",
+        "contentSha256": "0b5cf61538268c4e1dd3c7a9c95b0c02daaaa88003558c8bb5f948f7a2777efb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          }
+        ]
+      },
+      {
+        "personId": "arnfinn-haverstad",
+        "badgeId": "service-grunnlegger",
+        "medalDisplay": "all",
+        "contentSha256": "f77e9bc0574f2fa930821f60ed6484bc089840c7274745ce86b54ca8595a8dff",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "arnfinn-haverstad",
+        "badgeId": "service-grunnlegger",
+        "medalDisplay": "latest",
+        "contentSha256": "1aa0da62bd601f1a1fbbe5b8aa9c52199ed519e73d1804fa55ef9ad08e972f39",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "helge-reisvoll",
+        "badgeId": "service-grunnlegger",
+        "medalDisplay": "all",
+        "contentSha256": "e01a4e6425917007a2e6245c790092b18d202c1be0afadc37b70c5d2c1abba7c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "helge-reisvoll",
+        "badgeId": "service-grunnlegger",
+        "medalDisplay": "latest",
+        "contentSha256": "09618c7ef4365c7009c931aad73267500b14741405bb536fb92465eadc28672c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "kalle-kimestad",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "all",
+        "contentSha256": "ed23352751b73aacb2de01a3bc0bb7a8b1a54fe583e86a66f5531ff68455e53c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "kalle-kimestad",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "latest",
+        "contentSha256": "09b28b3fdd5186244ea4cb175edc3e9d484ea71ddf3337b2bbbbe75984482f41",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "finn-lohne",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "all",
+        "contentSha256": "97603f90fefac19f28d2452ed0a5bcfcd423cdf5d41b0148eee7df6df0e07871",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "finn-lohne",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "latest",
+        "contentSha256": "b65240787b6958f91976fa511f9663b8570946a317f77d0ae50ec4e273e44091",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "dag-morten-frantzen",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "all",
+        "contentSha256": "3e46ba9be3b88949253c3cbd99f0ff94ab357ae2b7ca5ed137785397c72c326c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "dag-morten-frantzen",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "latest",
+        "contentSha256": "7ed851568ce257dc798879761f64e2c205caa7adf0262351447f2d0e0f94616f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "hakon-lohne",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "all",
+        "contentSha256": "cd6eb64af78039fb6e2e60fce5f0a890e647b2efa26910b2473697a7f23f207c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "hakon-lohne",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "latest",
+        "contentSha256": "10215505811c464038d75b0615412a0c77cbd3f617c5428890b0b5840e4fca16",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "jon-fjeld",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "all",
+        "contentSha256": "2651ecd870bff570d12c717ede1ab41721cb4be0739d9cd241f02cfc8c2b3a90",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "jon-fjeld",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "latest",
+        "contentSha256": "fceab083814a5cfef0bd4c921e742d80b483a33ccdca1a54a718d13b05edfd8a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "rune-bergjord",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "all",
+        "contentSha256": "58af62749fab3c61c8354fa202a3724dadf8a7743ccd6147144fa5a895534974",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      {
+        "personId": "rune-bergjord",
+        "badgeId": "service-dugnad-10",
+        "medalDisplay": "latest",
+        "contentSha256": "c9ed7bfa83766ee738448627632cd67fe879e7468e4ea5ae1668c0d8cc7a1442",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "astrid-lohne",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "a8ae71574146ea1312de85944a6309c33c9193d9e60f1a93f33d6a778428ee5b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "astrid-lohne",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "838379243aa274b88c1c864eb9bfca2e4139746a8d7acb30f69c1e868e84f0b3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "per-sangvik",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "all",
+        "contentSha256": "50bd7486dfdfede3cb96cb636b3ac125a7ae7b20d0fe543eaaa86126d43a4121",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "per-sangvik",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "latest",
+        "contentSha256": "965431be3e121beb1dbed8e9936aa02d05d910c990a71f25f2085cd23c335367",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "tom-lohne",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "all",
+        "contentSha256": "9af3c99b308ffe4dbba9880a1b76853ee53fb5c32485f5a803f39fcedcb85512",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "tom-lohne",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "latest",
+        "contentSha256": "abff58798ebcbe1fe39284f512ca00e008146269e9a73875df4779f4353b2810",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "joar-lohne",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "d8c474d958a82a6648726bd402c6f1388eae60ffec19566fb8e9ca3d737b8c94",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "joar-lohne",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "088532e4a5913c0d67bb78cc82eaf6c8c118eecc3d94804d5bf57b9838bdac04",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "birgitte-aamodt",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "all",
+        "contentSha256": "f1f40c905f20df97b2f95d83a9006ae8f09d46cae0e9bbd594f6e3554003ef44",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "birgitte-aamodt",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "latest",
+        "contentSha256": "ba5f7060bc392ec29d66a469304f2843c876117b9d48409ffc9df3835d86f910",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "nils-henning-pedersen",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "f6a1c03352f754e7697ef6dd550073363ba0f41e8faae39d19c0c199f1a4130e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "nils-henning-pedersen",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "51898df6de83b53cee833628208c75e10ac1153a1f46aef9b5b81fea7a8fb296",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "ingvild-holmen-solvik",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "b8244d1887757590db5291dddfb9373a06efbf05f82a95ac4ed2d673c248f2a1",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "ingvild-holmen-solvik",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "e779b10fb2d62178ab483974b7e10b83f05dfbe6930592056d9a7a15cee1b169",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "johannes-aamodt",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "all",
+        "contentSha256": "7d7a5bd24646a4dfb0d27a83125cc734c470e09422a23d79cc2992069f9a9c76",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "johannes-aamodt",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "latest",
+        "contentSha256": "d513803877dd9db03488b3ee212ead08403a64358f8a872e64df310fb46a7ac8",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "linea-morland",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "f3a864f75d0188086da20aef8853736e517d50fd019b9935193e402fcb69125a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "linea-morland",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "44172cd0dfb7dd3e1248719accd906a16782e1a4c60ace021416be89e4fc2776",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "mari-melsom-kristensen",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "0788a06c36961c52066db4e32f54e20633814a105bb7e4adea9784a2cc0e2c87",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "mari-melsom-kristensen",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "15cf9e69119254dced2f6363639d53e819245d5a123c841d23bcb1d412cc9ca9",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "nils-martin-otterdal-nilsen",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "0b3587bb85656911761f7000bbe9845c2c0f3d0f1f6bb496878d9329c9503e4e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "nils-martin-otterdal-nilsen",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "32c0d843607aaba658b69913b767a6ca4b4f30c4460376cd568c90e40995bf05",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "jenny-aamodt",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "cf1c54f6116879f564f2838f64a6042047cf22833a13bebf78ffadc67a1c276c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "jenny-aamodt",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "da4b1f03f1151f5a6670e70f246eae8c5af0a8458369598534e9d7467fc5a991",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "ole-j-bueklev",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "91dc0ba182b03ec8459c1a2e7564b19b41374b6154143ea980c11f4469cd68dd",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "ole-j-bueklev",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "db5c683fbcd3ae438c55202b333e1eb0ef00268fd2aa5b27dbf6a08aa41e17cb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "trine-dybesland",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "26ac521b39519eaf49a75e2ec9519ea1ad6c3c1d686986b2b729220f6c6d7b89",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "trine-dybesland",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "ca35ef9fa910e137ddfa625c5c0883aa91ff150c1a5394a6eb4032fd010ca2b4",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "aud-o",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "f541c02386a994579541c1c3f5da311d004d0f450370b9e716ebd31de9f5216f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "aud-o",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "ddd6ab6cf9c801514af07e4f2ffd0731be61b4d3fe4a0c7883baa28c340146ed",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "arnfinn-g",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "2211781169c8ff7ba952de73f5995146380e5d1eb0e32c7a43e7e2b6420ba17f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "arnfinn-g",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "5fedeacdbb220523628123b882a25983702e72a300bef484b7c3ec34a026ac10",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "magne",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "d8508304904bc2054a09295ad750dd931a1099b2e0d561c9fc83b73b4dc47ce7",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "magne",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "50ba54e8b7eb79896ede87ba5f3b653d708b784631f5e8e5f192be5ccb85ced0",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "lars-aamodt",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "d0889649922418020a40961e729f7775749cfaab9d4d084f8ce10257053f762d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "lars-aamodt",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "00a738176a9cb95e592d2490208415373cd24bf64749f3da9293ad402ef1cb16",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "christan-berthelsen",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "543acd8d578d83fd95f0bce212d4081c2c504f2bd77e3b3ed5fabed1e1211f43",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "christan-berthelsen",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "cd2065f6106bfc802d74694b362a104fd8016556b5968e292bb588cda96ef21f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "georg-engenes",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "9f9cac2d3c56e7bfb82eb30f1e8f790368e9fb6c36d1f0f712637378d1ce9959",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "georg-engenes",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "ae0c4b438a561c287e474a26a7b0dce94fdd755d96c65db730e3648e82708ba9",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "trine-danielsen",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "c27c8191fe90e9abe651333dfabdbd42581cced34704657d47d24506496555ad",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "trine-danielsen",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "6e2d11ad4c0a27f1dccfbeca44a13e44ed21593f28a11a3516a77fe9a56fa299",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "lene-holmen-berg",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "d8f9319018f82e02294ea7595ca3ec46740235bcf5771429c1fa489680a3a94c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "lene-holmen-berg",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "956b60b7d759721790b3ed32080a14019e0d1913bf4e6c25a3cd5c0fa9b5413d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "arvid-boro",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "78d813ecbb4bf6f74d6791ac004906bf055900932594702ca1ac82d0fdf94967",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "arvid-boro",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "303ee457ef850105aea434fded76d69d43756f3c6d59932a30b44e33bbcc8e32",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "margrete-tofte",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "8aabe616bdb20060999c021b209e247fe4dc5022d9bdfea32c43fb6905ec55f3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "margrete-tofte",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "ac39b87821d1960ed11de6a29c4283afd62d5e3b455401469570a6be0bee667f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "joran-eriksen",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "485578e5c8ac2211d97ffe3527a0489da8e2d5bd8557eb85e63caaa2109b2a6c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "joran-eriksen",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "757b3250e1ed673e30a1cf84a6f801c96e63b2d55114020671b23f5bea22d43c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "preben-s-dahl",
+        "badgeId": "thanks",
+        "medalDisplay": "all",
+        "contentSha256": "37feed1b6f2226b9181b765d2cb5e96aa61eaa303437fca27e47b6b3ee183fe5",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "preben-s-dahl",
+        "badgeId": "thanks",
+        "medalDisplay": "latest",
+        "contentSha256": "d019a6aac3589dd80644534e7e709e78ee59573eb6cf485ca25bfaf7178786b5",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "atle-aamodt",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "all",
+        "contentSha256": "7c619749417590dd52e630ec0a8122dc3f39aa8d94bba4e9f3d43da90c8ccaca",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "atle-aamodt",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "latest",
+        "contentSha256": "161a0c19991839ab77ff21002e7794548864dc8236eb6fdc9635b9461e42108d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "bent-bakke",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "all",
+        "contentSha256": "cceee7578c0e96cab24e3037808737198188dbb6bcf92c73007235d341fc3ce7",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "bent-bakke",
+        "badgeId": "service-dugnad-5",
+        "medalDisplay": "latest",
+        "contentSha256": "e5d0d8df277ce0a72d5df5e144f36be2e6126bd887a496a4fba70946ba368090",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "floke-bredland",
+        "badgeId": "service-memorial",
+        "medalDisplay": "all",
+        "contentSha256": "f6d03c47aa7369ffbb7bb1992977d98468004a52883f5a82a1adef33a1fce038",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "floke-bredland",
+        "badgeId": "service-memorial",
+        "medalDisplay": "latest",
+        "contentSha256": "9b2cb88be028941519a77fe0a451cacc5bbf52cb05be731bbbd94dbaf2fea057",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "leif-wiig",
+        "badgeId": "service-memorial",
+        "medalDisplay": "all",
+        "contentSha256": "72a8addd70647997d48043ffd828149ae61b2ae5b7fc8e08fd96f9512167149a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      {
+        "personId": "leif-wiig",
+        "badgeId": "service-memorial",
+        "medalDisplay": "latest",
+        "contentSha256": "d34e628e34a2be5c3abe412c1094bf47a688edc9c2c840281796253ae405e89e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      }
+    ]
+  },
+  "diplomaTexts": {
+    "dugnad": {
+      "5": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon.",
+      "10": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!",
+      "15": "Femten dugnadsutgaver! Noen kaller det dugnad. Vi begynner å kalle det en livsstil. Takk for trofast innsats og godt humør.",
+      "20": "Tjue utgaver! Når noe må fikses, vet vi hvem vi skal ringe. Du er en av bærebjelkene som holder Morothon på beina.",
+      "30": "Tretti utgaver med Morothon. Du har vært med så lenge at vi vurderer å søke Riksantikvaren om fredning! Takk for en helt uvurderlig innsats.",
+      "40": "Førti dugnadsutgaver. Du er ikke bare en del av Morothon – Morothon er en del av deg. En ekte Morothon-legende!"
+    },
+    "honorDefault": "Med stor takknemlighet for tiden, kreftene og engasjementet du har gitt Morothon. Du har vært med på å skape løpsglede og fellesskap, og innsatsen din har satt varige spor. Takk for det du har betydd for løpet og menneskene rundt det."
+  },
+  "personDetails": {
+    "erling-askildsen": {
+      "shortDescription": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
+      "stories": [
+        {
+          "title": "En idé det ble tradisjon av",
+          "text": "Erling fikk ideen om et terrengløp der utfordringen i heiene skulle følges av kameratskap og sosialt samvær. Ideen ble starten på Søgne Morothon i 1992.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d88c29a42e09364a5a88"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "35 utgaver med Morothon",
+          "text": "Erling har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "confirmed": true
+        }
+      ],
+      "honorDiplomaText": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien."
+    },
+    "oscar-lohne": {
+      "shortDescription": "Med fra starten – og med på å holde Morothon levende gjennom alle 35 utgavene fra 1992 til 2026.",
+      "stories": [
+        {
+          "title": "Da nye krefter overtok",
+          "text": "Grunnleggergruppen fortsatte å bidra etter overtakelsen i 2014. Merking, rigging, drikkestasjoner og rydding var fortsatt del av den felles innsatsen.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "35 utgaver med Morothon",
+          "text": "Oscar har bidratt gjennom alle 35 utgavene, fra den første i 1992 til utgaven i 2026. Det er en innsats bak løpet som betyr mer enn en resultatliste kan fortelle.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "confirmed": true
+        }
+      ],
+      "honorDiplomaText": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien."
+    },
+    "arnfinn-haverstad": {
+      "shortDescription": "Grunnlegger og løypeildsjel, med både praktiske bidrag og sterke løpsresultater.",
+      "stories": [
+        {
+          "title": "Løypemerking i snø og mørke",
+          "text": "Under merking av løypa gjorde tett snøvær og raskt fallende mørke situasjonen så krevende at de andre nesten måtte begynne å lete etter Arnfinn. Historien sier noe om arbeidet som måtte til før løperne kunne stille til start.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d88c29a42e09364a5a88"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "helge-reisvoll": {
+      "shortDescription": "En av de fem som var med på å starte Morothon.",
+      "stories": [
+        {
+          "title": "En del av grunnlaget",
+          "text": "Helge var med i grunnleggergruppen som skapte Morothon. Løpene hans forteller én del av historien; innsatsen rundt arrangementet er en annen.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d88c29a42e09364a5a88",
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "einar-danielsen": {
+      "shortDescription": "En av de fem grunnleggerne av Morothon i 1992, og en av dem som har bidratt aller lengst. Gjennom 33 dugnadsutgaver var Einar med på å bygge en tradisjon som fortsatt samler mennesker i Søgne.",
+      "stories": [
+        {
+          "title": "Til minne om Einar",
+          "text": "Einar var med da Morothon så dagens lys i 1992. Som en av fem grunnleggere og med 33 dugnadsutgaver bak seg satte han dype spor i løpet og fellesskapet rundt det.\n\nEinar er ikke lenger blant oss, men innsatsen hans lever videre – i løypene, tradisjonen og alle menneskene som år etter år møtes på Morothon.\n\nTakk for det du var med på å skape. Du er fortsatt en del av Morothon.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-ac68d3fef8698b977328"
+          ],
+          "confirmed": true
+        }
+      ],
+      "honorDiplomaText": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre.",
+      "diplomaDate": {
+        "date": "2026-11-07",
+        "sourceIds": [
+          "evidence-ac1d2c083de7a327b041"
+        ]
+      }
+    },
+    "kalle-kimestad": {
+      "shortDescription": "En av de trofaste dugnadsheltene, med innsats siden minst 2014.",
+      "stories": [
+        {
+          "title": "En av dem som stiller opp",
+          "text": "Kalle er en av dem som har stilt opp på dugnad siden minst 2014. Innsatsen hans er en del av fellesskapet som bærer løpet videre.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "finn-lohne": {
+      "shortDescription": "Har bidratt på dugnad siden minst 2014, blant annet på drikkestasjonen på Freden.",
+      "stories": [
+        {
+          "title": "En del av hjelpen på Freden",
+          "text": "Finn har blant annet vært med på drikkestasjonen på Freden. Siden minst 2014 har han vært en av de trofaste hjelperne rundt løpet.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "dag-morten-frantzen": {
+      "shortDescription": "Tidtaker og kreativ ildsjel i kulissene.",
+      "stories": [
+        {
+          "title": "Stafettpinnen videre",
+          "text": "Dag Morten overtok arrangøransvaret sammen med Håkon Lohne og Bent-Inge Bakke i 2014. Han har vært en av de sentrale arrangørene etter overtakelsen.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d88c29a42e09364a5a88",
+            "evidence-c2100884cff7d48c1441",
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "Hjernen bak klokka",
+          "text": "Dag Morten er på hjemmebane med tidtaking, kreative ideer og alt det som må fungere bak kulissene. Arrangørgjengen forteller, med et smil, at han ennå ikke har tatt hele Langmoro på 20 km i ett strekk – løypa tas visst helst stykkevis og delt. Heldigvis trenger Morothon folk som får klokka til å gå like mye som folk som løper mot den.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d6141846828236562803"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "hakon-lohne": {
+      "shortDescription": "Arrangørgjengens spreke alibi – full pakke før, under og etter løpet.",
+      "stories": [
+        {
+          "title": "Tradisjonen i nye løyper",
+          "text": "Håkon tok over arrangøransvaret sammen med Dag Morten Frantzen og Bent-Inge Bakke i 2014. I 2016 var han på Svalbard. Videreføringen av Morothon er en laginnsats, med både gamle og nye krefter.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-7055fa6cf91a03556f32",
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "confirmed": true
+        },
+        {
+          "title": "Det spreke alibiet",
+          "text": "Håkon er det spreke alibiet i arrangørgjengen. Han er kanskje enda kjappere i replikken enn i løypa. Før løpet bidrar han med løypemerking og klargjøring, underveis finner han gjerne tid til å løpe selv, og etterpå er han med på nedrigging. Noen nøyer seg med å arrangere Morothon. Håkon ser ut til å ha bestilt hele pakken.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d6141846828236562803"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "jon-fjeld": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-EFAFF95",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "rune-bergjord": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-45DF0B4",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "astrid-lohne": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-3CBFFC3",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "per-sangvik": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-EEA35C7",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-0a193252cf6ca35c5270"
+        ]
+      }
+    },
+    "tom-lohne": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-BE568A1",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "joar-lohne": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-F582406",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-0a193252cf6ca35c5270"
+        ]
+      }
+    },
+    "anne-lene-forland-hansen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "birgitte-aamodt": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "nils-henning-pedersen": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-000B270",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "ingvild-holmen-solvik": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "johannes-aamodt": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-FB68447",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "linea-morland": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "mari-melsom-kristensen": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-B42530E",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "nils-martin-otterdal-nilsen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "jenny-aamodt": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-D4EBCCF",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-0a193252cf6ca35c5270"
+        ]
+      }
+    },
+    "ole-j-bueklev": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-F1FE757",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-0a193252cf6ca35c5270"
+        ]
+      }
+    },
+    "trine-dybesland": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "aud-o": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "arnfinn-g": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "magne": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "lars-aamodt": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-D4F55FF",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "laila-endresen-skjulestad": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "christan-berthelsen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "georg-engenes": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "trine-danielsen": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "lene-holmen-berg": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-830D9E6",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "arvid-boro": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-5F10796",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "margrete-tofte": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "joran-eriksen": {
+      "shortDescription": "",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-5F72D06",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "preben-s-dahl": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "atle-aamodt": {
+      "shortDescription": "",
+      "stories": []
+    },
+    "bent-bakke": {
+      "shortDescription": "Med da nye krefter overtok i 2014.",
+      "stories": [
+        {
+          "title": "Med i den nye arrangørgruppen",
+          "text": "Bent var med da arrangøransvaret ble overtatt i 2014, og bidro i noen år etterpå.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-c2100884cff7d48c1441",
+            "evidence-7055fa6cf91a03556f32"
+          ],
+          "confirmed": true
+        }
+      ],
+      "runnerLink": {
+        "runnerId": "MOR-046CD37",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    },
+    "floke-bredland": {
+      "shortDescription": "En viktig del av bankettene og det sosiale fellesskapet. Arrangøren anslår minst 25 års dugnadsinnsats. Floke gikk bort i 2024.",
+      "stories": [
+        {
+          "title": "En stemme mange husker",
+          "text": "Floke leste resultatlistene på bankettene. Også menneskene og samværet etter løpet er en del av det vi tar med oss videre.",
+          "source": "Publiseringsgrunnlag",
+          "sourceIds": [
+            "evidence-d88c29a42e09364a5a88",
+            "evidence-c2100884cff7d48c1441",
+            "evidence-604a77aa284e4da23d23"
+          ],
+          "confirmed": true
+        }
+      ]
+    },
+    "leif-wiig": {
+      "shortDescription": "En viktig kraft innen tidtaking og organisering. Arrangøren anslår minst 25 års dugnadsinnsats. Leif gikk bort i 2023.",
+      "stories": [],
+      "runnerLink": {
+        "runnerId": "MOR-88334F0",
+        "confirmed": true,
+        "sourceIds": [
+          "evidence-5b9310649acab5bfb24c"
+        ]
+      }
+    }
+  },
+  "publicDataVersion": 1,
+  "sources": {
+    "evidence-7055fa6cf91a03556f32": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-604a77aa284e4da23d23": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-d88c29a42e09364a5a88": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-ac41ce23cdb0bf8f1644": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-9c700f437d3e1daf1d1f": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-32ea9d90fd5c0b1081a8": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-bdb17c4794deea2dad92": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-0771b7a986df36c5eb7a": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-bcf003004c05a5008853": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-ac68d3fef8698b977328": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-60603ca6928f70521ac0": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-d6141846828236562803": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-c2100884cff7d48c1441": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-488a1d1821070b695281": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-755a79b5d8e8c647a5f1": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-ac1d2c083de7a327b041": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-5b9310649acab5bfb24c": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-0a193252cf6ca35c5270": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-4fffcb2b848a552544ca": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-b04f594d90d8d655903e": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-b92212d31af0b021c526": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-afc8fa344dc732d14231": {
+      "title": "Publiseringsgrunnlag"
+    },
+    "evidence-02dedcde36c8ec7a9829": {
+      "title": "Publiseringsgrunnlag"
+    }
+  }
+}

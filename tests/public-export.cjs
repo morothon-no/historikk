@@ -61,7 +61,7 @@ test('final Pages gate refuses extra files, symlinks and reintroduced administra
   await fs.symlink(path.join(root,'data/honors.json'),path.join(out,'original.json'));await assert.rejects(()=>validatePublicSite(out),/Symlink/);await fs.unlink(path.join(out,'original.json'));
   const manifestFile=path.join(out,'build-info.json'),manifest=await fs.readFile(manifestFile,'utf8');
   await fs.writeFile(manifestFile,JSON.stringify({...JSON.parse(manifest),internalNotes:['secret']}));await assert.rejects(()=>validatePublicSite(out),/Unapproved public field/);await fs.writeFile(manifestFile,manifest);
-  await fs.copyFile(path.join(root,'data/honors.json'),path.join(out,'data/honors.json'));await assert.rejects(()=>validatePublicSite(out),/Unapproved public field/);
+  await fs.copyFile(path.join(root,'data/honors.json'),path.join(out,'data/honors.json'));await assert.rejects(()=>validatePublicSite(out),/Changed public data file/);
  }finally{await fs.rm(out,{recursive:true,force:true});}
 });
 test('built public pages preserve PC/mobile cards, every visible diploma proof and print mode, with Erling hidden and runner history intact',async()=>{
@@ -98,7 +98,7 @@ test('CI publishes only gated site and public-package review, never administrati
  const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');
  const steps=workflow.split(/(?=      - name: )/).filter(s=>s.includes('uses: actions/upload-artifact@'));
  assert.equal(steps.length,2);
- assert.ok(steps.some(s=>s.includes('name: morothon-site')&&s.includes('path: _site/')));
+ assert.ok(steps.some(s=>s.includes('name: morothon-site')&&s.includes('path: public/_site/')));
  assert.ok(steps.some(s=>s.includes('name: morothon-a1-offentlig-kontroll')&&s.includes('/tmp/morothon-a1-public/')));
  assert.ok(workflow.includes('npm run public:kontroll -- _site'));
  assert.ok(workflow.indexOf('npm run public:kontroll -- _site')<workflow.indexOf('name: Retain tested site artifact'));

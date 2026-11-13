@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "morothon-public-v1",
+  "dataVersion": 1,
+  "historySha256": "dcf4518e6e20f5f2919cb501cd7ef02123329ce418be228eba8b36170c57fce7",
+  "files": {
+    "data/badges.json": {
+      "sha256": "626e3455eef044f58b5bf221476f9a79edb6eda8318ea556fa51186a3c3fd8f5",
+      "bytes": 16701
+    },
+    "data/event-dates.json": {
+      "sha256": "df72263ae7a692e702892b54090cd417e69fd443aedbf3a482a91f820e3d6323",
+      "bytes": 456
+    },
+    "data/history.json": {
+      "sha256": "dcf4518e6e20f5f2919cb501cd7ef02123329ce418be228eba8b36170c57fce7",
+      "bytes": 929408
+    },
+    "data/honors.json": {
+      "sha256": "9c0536178352f1a594e2a96ff3ee074ca46600e8d3177f1c31e9cab1abaf4ef3",
+      "bytes": 98342
+    },
+    "data/volunteers.json": {
+      "sha256": "be9200e6502ff4f46ba824debce728fe7451c9820c8dd7211726ce083bf76470",
+      "bytes": 5300
+    }
+  },
+  "assets": {
+    "assets/fonts/OFL-Caveat.txt": {
+      "sha256": "1f9d81d094273d82f3898a1ee8b598a717d050ecbf5ff7bede105b704880157b",
+      "bytes": 4385
+    },
+    "assets/fonts/caveat-regular-latin.woff": {
+      "sha256": "870c4d48b7667f3345bbb30a532c85da8368dcc2b7e2f84f215cd136cf87c0d9",
+      "bytes": 65608
+    },
+    "assets/icons/apple-touch-icon.png": {
+      "sha256": "611b433530b4b68a237aa4893c3881bbb029eabd2efeae071201239402d504ef",
+      "bytes": 24460
+    },
+    "assets/icons/favicon-16.png": {
+      "sha256": "be9b7e5c2590e4b30e0a974d7d64920f0b18a2ff6950603fd40265b9c79c2563",
+      "bytes": 575
+    },
+    "assets/icons/favicon-32.png": {
+      "sha256": "ddc107dcd3caa789ffc1c2234ce29237eec694654f0061a376b8191543e5f4e8",
+      "bytes": 1564
+    },
+    "assets/icons/favicon.ico": {
+      "sha256": "ebdf1c3fa37f86edc52eb1c1a3e27a3bd50495af5e061f1c9a57a5cfa5c86b37",
+      "bytes": 2177
+    },
+    "assets/medals/approved/participation-10.png": {
+      "sha256": "6300fdbb48c9ad05c076fb6a2669df511fe78882beaef794ea0c190a966e9698",
+      "bytes": 239588
+    },
+    "assets/medals/approved/participation-15.png": {
+      "sha256": "886bb3bd9e1fa9e4e7a933a428a27217cf4c7074d21b5a51fa7c2f6e4d06bbc8",
+      "bytes": 265765
+    },
+    "assets/medals/approved/participation-20.png": {
+      "sha256": "d5bdb0d23880df1a60fa43eb6d793590a242410dd3f7e93cad6372f5448ee628",
+      "bytes": 264888
+    },
+    "assets/medals/approved/participation-25.png": {
+      "sha256": "45169bebff90ebd7255bf990802545b5eef7a45e05e49a0775ad0e775bef2315",
+      "bytes": 261638
+    },
+    "assets/medals/approved/participation-30.png": {
+      "sha256": "ee751d35f23310919de0df021893b509d13ad42fce05c1c69aca87448d46cd49",
+      "bytes": 330924
+    },
+    "assets/medals/approved/participation-35.webp": {
+      "sha256": "041fb8f38ea4a3a9f337e2475c1aefd62f384575887402de7e89d94f59c55257",
+      "bytes": 169142
+    },
+    "assets/medals/approved/participation-40.webp": {
+      "sha256": "188fabebc0fe5e43c2f3a1c333ea62b3c6ede1cac43b84986f80955b945c08aa",
+      "bytes": 171994
+    },
+    "assets/medals/approved/participation-45.webp": {
+      "sha256": "78b389950aa7bf010b9b7637853d8ce3d97102283a61cb6cde0b7b2adfbffafc",
+      "bytes": 168980
+    },
+    "assets/medals/approved/participation-5.png": {
+      "sha256": "9ce0d3ec6f2918b98bb8791fa6752ecef4ae9f5123fecfb6afb7a7fa736bb9e2",
+      "bytes": 255303
+    },
+    "assets/medals/approved/participation-50.webp": {
+      "sha256": "9fb5d174dca1042be16f3ec3c8be98a9f96dbb62705c79aaf9694c7ea7a75c6a",
+      "bytes": 174710
+    },
+    "assets/medals/approved/record.png": {
+      "sha256": "3ac3595195bf1898366839f581db26c85252d6fb60e5eabfce441d4dd431055c",
+      "bytes": 786947
+    },
+    "assets/medals/identity/debut.webp": {
+      "sha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+      "bytes": 17018
+    },
+    "assets/medals/service/aeresmerke.svg": {
+      "sha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+      "bytes": 7171
+    },
+    "assets/medals/service/dugnad-10.svg": {
+      "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+      "bytes": 4533
+    },
+    "assets/medals/service/dugnad-15.svg": {
+      "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02",
+      "bytes": 5706
+    },
+    "assets/medals/service/dugnad-20.svg": {
+      "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783",
+      "bytes": 5626
+    },
+    "assets/medals/service/dugnad-30.svg": {
+      "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998",
+      "bytes": 6143
+    },
+    "assets/medals/service/dugnad-40.svg": {
+      "sha256": "e56602fa2d56c4fd1fca1594ca8ba6dc492561bfe67894d852703fa4d390d8ca",
+      "bytes": 6173
+    },
+    "assets/medals/service/dugnad-5.svg": {
+      "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+      "bytes": 3310
+    },
+    "assets/medals/service/dugnadshelt.png": {
+      "sha256": "0505337044ab6e379ebf89fe75a8ccbd328546e7d603b9136bfa7dc61833ad4b",
+      "bytes": 720832
+    },
+    "assets/medals/service/dugnadshelt.svg": {
+      "sha256": "b6423bf77a9d0c80281d2d8c208d5e971a5edf65a497eeb39ddc0143689ff51d",
+      "bytes": 5203
+    },
+    "assets/medals/service/grunnlegger.png": {
+      "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+      "bytes": 736632
+    },
+    "assets/medals/service/grunnlegger.svg": {
+      "sha256": "08b896064e1dffd56f2793d13241e387611267460bea92eb4ca32f04e6a3b895",
+      "bytes": 5248
+    },
+    "assets/medals/service/hedersildsjel.png": {
+      "sha256": "c959cca3b4e8bf500645465bff5f854f00993bb213512df7306d3ee16713f295",
+      "bytes": 729965
+    },
+    "assets/medals/service/hedersildsjel.svg": {
+      "sha256": "a771eb29f9aca96dad794cf9b6245aa469c181e9cd4e03a2e142f244d3049161",
+      "bytes": 5217
+    },
+    "assets/medals/service/memorial.svg": {
+      "sha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+      "bytes": 3408
+    },
+    "assets/medals/watermarks/morothon-runner-approved.png": {
+      "sha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+      "bytes": 877898
+    },
+    "assets/social/morothon-og.png": {
+      "sha256": "b7b70633528ea347d54fb6313790e2ea74cb0ee88d3d142cb58eec0c303c87e0",
+      "bytes": 448547
+    }
+  }
+}
