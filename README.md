@@ -59,6 +59,11 @@ repositoryroten som statisk nettsted. Se [A1C: kommandoer, kontrakt og betrodd
 PR-kontroll](docs/a1c-separat-eksport-og-bygg.md), [A1](docs/a1-offentlig-dataeksport.md)
 og [A1B-planen](docs/a1b-privat-migreringsplan.md) med [publiseringsvalg](docs/a1b-publiseringsbeslutninger.md).
 
+[A1D: privat klargjøring og drift](docs/a1d-privat-klargjoring.md) beskriver
+godkjenningsstyrt backup, restore, migrering og inaktive private workflowmaler.
+Ingen originaler er flyttet, ingen privat tilgang er innført i offentlig CI,
+og den aktive Pages-flyten er uendret.
+
 Byggeren beregner én deterministisk innholdshash for hele utgaven. Alle lokale
 CSS-/JS-URL-er i begge sider og diplomets isolerte iframe får `?v=<hash>`.
 `morothon-version` og `build-info.json` viser samme versjon. Det finnes ingen

@@ -1,0 +1,74 @@
+# INACTIVE TEMPLATE. No destination, keys or approval have been configured.
+name: Private encrypted backup
+on:
+  workflow_dispatch:
+    inputs:
+      storage:
+        type: choice
+        description: Encrypted download or approved independent remote
+        default: download
+        options: [download, remote]
+permissions:
+  contents: read
+concurrency:
+  group: private-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    if: github.repository == 'morothon-no/historikk-admin' && github.ref == 'refs/heads/main' && vars.ADMIN_INFRA_ENABLED == 'true'
+    environment: admin-backup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: admin
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require locked tools and complete storage configuration
+        working-directory: admin
+        run: |
+          node -e 'const l=require("./toolchain-lock.json");if(!l.enabled||!/^[a-f0-9]{40}$/.test(l.publicCommit))process.exit(1);require("fs").appendFileSync(process.env.GITHUB_ENV,"PUBLIC_TOOLS_SHA="+l.publicCommit+"\n")'
+          test -f config/backup.json
+      - uses: actions/checkout@v4
+        with:
+          repository: morothon-no/historikk
+          ref: ${{ env.PUBLIC_TOOLS_SHA }}
+          path: public-code
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/admin/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install standard backup tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg python3 rclone git-lfs
+      - name: Prepare private runtime configuration and storage credential
+        env:
+          ADMIN_BACKUP_APPROVAL_JSON: ${{ vars.ADMIN_BACKUP_APPROVAL_JSON }}
+          ADMIN_RCLONE_CONFIG: ${{ secrets.ADMIN_RCLONE_CONFIG }}
+          BACKUP_STORAGE: ${{ inputs.storage }}
+        run: |
+          case "$BACKUP_STORAGE" in download) mode=backup-download ;; remote) mode=backup ;; *) exit 1 ;; esac
+          node public-code/scripts/admin/workflow-config.cjs "$mode"
+      - name: Run encrypted backup and verify remote read-back
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Storage credentials must be provisioned in this private, protected environment.
+          RCLONE_CONFIG: ${{ runner.temp }}/morothon-backup/rclone.conf
+          BACKUP_STORAGE: ${{ inputs.storage }}
+        run: |
+          gh auth setup-git
+          case "$BACKUP_STORAGE" in download) mode=backup-download ;; remote) mode=backup ;; *) exit 1 ;; esac
+          node public-code/scripts/admin/operations.cjs "$mode" "$RUNNER_TEMP/morothon-backup/config.json" "$RUNNER_TEMP/morothon-backup/approval.json"
+      - name: Retain encrypted download temporarily in private repository
+        if: inputs.storage == 'download'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-encrypted-backup-download
+          path: ${{ runner.temp }}/morothon-backup/morothon-backup.zip
+          if-no-files-found: error
+          retention-days: 14
+      # Only encrypted ZIP may be uploaded. It is not independent backup until downloaded elsewhere.
