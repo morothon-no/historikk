@@ -1,0 +1,443 @@
+{
+  "baselineCommit": "53f8f502950073df83d3443544ac17285f421355",
+  "date": "2026-11-12",
+  "scope": "local read-only audit; no production mutation",
+  "environment": {
+    "node": "24.22.1",
+    "npm": "11.9.0",
+    "python": "3.12.14",
+    "chromium": "156.0.8078.79",
+    "visibleCpus": 5,
+    "cpuQuotaCores": 4,
+    "memoryLimitGiB": 32,
+    "dependenciesAlreadyInstalled": true
+  },
+  "caveats": [
+    "Local warm host, not GitHub-hosted runner measurements.",
+    "maxChildRssKiB is reported child rusage, not total concurrent browser memory.",
+    "Browser readyMs includes all then-present images decoded; not field LCP.",
+    "Synthetic scale preserves annual structure; not a weekly-series correctness test."
+  ],
+  "testResult": {
+    "tests": 215,
+    "passed": 215,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "commands": {
+    "render-v361-metrics": {
+      "label": "render-v361",
+      "command": [
+        "node",
+        "scripts/review-honors-v361.cjs",
+        "/workspace/review/morothon-revisjon-53f8f50/renders-v361"
+      ],
+      "elapsedSeconds": 62.20989274978638,
+      "userCpuSeconds": 29.045765,
+      "systemCpuSeconds": 8.548763,
+      "maxChildRssKiB": 183292,
+      "exitCode": 0
+    },
+    "render-final-metrics": {
+      "label": "render-final",
+      "command": [
+        "node",
+        "scripts/review-honors-final-v361.cjs",
+        "/workspace/review/morothon-revisjon-53f8f50/renders-final"
+      ],
+      "elapsedSeconds": 22.76275610923767,
+      "userCpuSeconds": 8.99456,
+      "systemCpuSeconds": 2.835484,
+      "maxChildRssKiB": 216872,
+      "exitCode": 0
+    },
+    "npm-test-metrics": {
+      "label": "npm-test",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "elapsedSeconds": 410.14023661613464,
+      "userCpuSeconds": 349.63695800000005,
+      "systemCpuSeconds": 109.638098,
+      "maxChildRssKiB": 418400,
+      "exitCode": 0
+    },
+    "render-v362-metrics": {
+      "label": "render-v362",
+      "command": [
+        "node",
+        "scripts/review-service-milestones-v362.cjs",
+        "/workspace/review/morothon-revisjon-53f8f50/renders-v362"
+      ],
+      "elapsedSeconds": 14.527368307113647,
+      "userCpuSeconds": 7.19975,
+      "systemCpuSeconds": 2.019272,
+      "maxChildRssKiB": 168128,
+      "exitCode": 0
+    },
+    "build-metrics": {
+      "label": "build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--",
+        "/workspace/review/morothon-revisjon-53f8f50/site"
+      ],
+      "elapsedSeconds": 0.7620589733123779,
+      "userCpuSeconds": 0.8571489999999999,
+      "systemCpuSeconds": 0.140317,
+      "maxChildRssKiB": 78636,
+      "exitCode": 0
+    },
+    "render-v36-metrics": {
+      "label": "render-v36",
+      "command": [
+        "node",
+        "scripts/review-honors-v36.cjs",
+        "/workspace/review/morothon-revisjon-53f8f50/renders-v36"
+      ],
+      "elapsedSeconds": 68.65170383453369,
+      "userCpuSeconds": 36.721401,
+      "systemCpuSeconds": 9.206934,
+      "maxChildRssKiB": 221608,
+      "exitCode": 0
+    },
+    "render-v353-metrics": {
+      "label": "render-v353",
+      "command": [
+        "node",
+        "scripts/review-honor-signoff-v353.cjs",
+        "/workspace/review/morothon-revisjon-53f8f50/renders-v353",
+        "/workspace/review/morothon-revisjon-53f8f50/v353-before"
+      ],
+      "elapsedSeconds": 26.76397395133972,
+      "userCpuSeconds": 13.596243,
+      "systemCpuSeconds": 4.101704,
+      "maxChildRssKiB": 170312,
+      "exitCode": 0
+    }
+  },
+  "renderArtifacts": [
+    {
+      "label": "render-v36",
+      "pdfs": 40,
+      "pngs": 101,
+      "bytes": 94118162
+    },
+    {
+      "label": "render-v361",
+      "pdfs": 28,
+      "pngs": 72,
+      "bytes": 58254753
+    },
+    {
+      "label": "render-final",
+      "pdfs": 6,
+      "pngs": 38,
+      "bytes": 14258683
+    },
+    {
+      "label": "render-v353",
+      "pdfs": 12,
+      "pngs": 30,
+      "bytes": 20846632
+    },
+    {
+      "label": "render-v362",
+      "pdfs": 8,
+      "pngs": 12,
+      "bytes": 14888069
+    }
+  ],
+  "browser": {
+    "browser": "156.0.8078.79",
+    "runs": [
+      {
+        "scenario": "desktop",
+        "sample": 1,
+        "width": 1440,
+        "readyMs": 738.0319149999999,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 10.299999982118607,
+        "noMatchSearchMs": 10.700000017881393,
+        "milestonesMs": 14.5,
+        "profileMs": 31.900000005960464,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4815760,
+        "taskSeconds": 0.755877
+      },
+      {
+        "scenario": "desktop",
+        "sample": 2,
+        "width": 1440,
+        "readyMs": 624.4623100000001,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 9.300000011920929,
+        "noMatchSearchMs": 10.399999976158142,
+        "milestonesMs": 13.400000005960464,
+        "profileMs": 20.900000005960464,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4821108,
+        "taskSeconds": 0.633935
+      },
+      {
+        "scenario": "desktop",
+        "sample": 3,
+        "width": 1440,
+        "readyMs": 703.002661,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 10,
+        "noMatchSearchMs": 9.099999994039536,
+        "milestonesMs": 13.5,
+        "profileMs": 25.799999982118607,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4868264,
+        "taskSeconds": 0.731669
+      },
+      {
+        "scenario": "mobile",
+        "sample": 1,
+        "width": 390,
+        "readyMs": 670.4831680000002,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 10.400000005960464,
+        "noMatchSearchMs": 12.5,
+        "milestonesMs": 14.799999982118607,
+        "profileMs": 23.700000017881393,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4818556,
+        "taskSeconds": 0.660124
+      },
+      {
+        "scenario": "mobile",
+        "sample": 2,
+        "width": 390,
+        "readyMs": 638.89689,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 10.300000011920929,
+        "noMatchSearchMs": 11.5,
+        "milestonesMs": 13.099999994039536,
+        "profileMs": 20.400000005960464,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4819476,
+        "taskSeconds": 0.617699
+      },
+      {
+        "scenario": "mobile",
+        "sample": 3,
+        "width": 390,
+        "readyMs": 641.5244279999997,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 9.699999988079071,
+        "noMatchSearchMs": 12.199999988079071,
+        "milestonesMs": 13.600000023841858,
+        "profileMs": 22.5,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4818572,
+        "taskSeconds": 0.62811
+      },
+      {
+        "scenario": "tablet",
+        "sample": 1,
+        "width": 768,
+        "readyMs": 686.4638070000001,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 8.599999994039536,
+        "noMatchSearchMs": 11,
+        "milestonesMs": 15.5,
+        "profileMs": 20.5,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4817980,
+        "taskSeconds": 0.685166
+      },
+      {
+        "scenario": "mobile-throttled",
+        "sample": 1,
+        "width": 390,
+        "readyMs": 20664.273884000002,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 56.5,
+        "noMatchSearchMs": 44.099999994039536,
+        "milestonesMs": 75.19999998807907,
+        "profileMs": 105.40000000596046,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4873228,
+        "taskSeconds": 3.293221
+      },
+      {
+        "scenario": "mobile-throttled",
+        "sample": 2,
+        "width": 390,
+        "readyMs": 20575.65012,
+        "people": 2643,
+        "results": 6914,
+        "searchMs": 58.900000005960464,
+        "noMatchSearchMs": 44.60000002384186,
+        "milestonesMs": 70.2999999821186,
+        "profileMs": 98.2000000178814,
+        "domNodes": 1505,
+        "overflow": false,
+        "resourceCount": 27,
+        "encodedBodyBytes": 3444268,
+        "historyFetches": 1,
+        "heapUsedBytes": 4875396,
+        "taskSeconds": 3.231622
+      },
+      {
+        "scenario": "scale4",
+        "sample": 1,
+        "width": 1440,
+        "readyMs": 1429.4130799999984,
+        "people": 10572,
+        "results": 27656,
+        "searchMs": 34.80000001192093,
+        "noMatchSearchMs": 42.5,
+        "milestonesMs": 56.19999998807907,
+        "profileMs": 20.700000017881393,
+        "domNodes": 1487,
+        "overflow": false,
+        "resourceCount": 28,
+        "encodedBodyBytes": 6488038,
+        "historyFetches": 1,
+        "heapUsedBytes": 13821744,
+        "taskSeconds": 1.449167
+      },
+      {
+        "scenario": "scale16",
+        "sample": 1,
+        "width": 1440,
+        "readyMs": 4345.391555999995,
+        "people": 42288,
+        "results": 110624,
+        "searchMs": 129.90000000596046,
+        "noMatchSearchMs": 172.40000000596046,
+        "milestonesMs": 213.19999998807907,
+        "profileMs": 23.700000017881393,
+        "domNodes": 1487,
+        "overflow": false,
+        "resourceCount": 28,
+        "encodedBodyBytes": 18739260,
+        "historyFetches": 1,
+        "heapUsedBytes": 49491020,
+        "taskSeconds": 4.516037
+      }
+    ],
+    "errors": []
+  },
+  "honorComputation": {
+    "cards": 43,
+    "statsCalls": 55,
+    "historyRequests": 1
+  },
+  "ruleProbes": {
+    "currentParticipationMismatches": [],
+    "currentControls": {
+      "people": 2643,
+      "starts": 6698,
+      "uniqueYearParticipations": 6695,
+      "perfectAttendance": 33,
+      "participants2026": 398,
+      "debutants2026": 195,
+      "badges2026": 22,
+      "silver": {
+        "count": 10,
+        "firstYear": 2015,
+        "lastYear": 2024,
+        "year": 2024
+      }
+    },
+    "disqualified": {
+      "year": 2007,
+      "personId": "MOR-B1AC0FD",
+      "rawStatus": "Fullført",
+      "rawTime": "Disket",
+      "effectiveStatus": "Fullført",
+      "completed": true,
+      "renderedAsCompleted": true,
+      "rowContribution": {
+        "completed": 1,
+        "distanceKm": 14
+      }
+    },
+    "syntheticRelay": {
+      "historyStats": 2,
+      "loyalty": 1
+    },
+    "syntheticInvalidTimes": {
+      "1:99:99": 9639,
+      "00:60": 60
+    },
+    "syntheticCycle": "a",
+    "syntheticOrphanAccepted": true,
+    "publicProjection": {
+      "httpStatus": 200,
+      "hiddenIdsPresent": [
+        "erling-danielsen"
+      ],
+      "revisionHistoryPresent": true,
+      "internalNotesPresent": true,
+      "personDetailsPresent": true
+    }
+  },
+  "inputBoundary": {
+    "syntheticOnly": true,
+    "invalidIdAccepted": true,
+    "inlineHandlerExecuted": true
+  },
+  "evidenceSha256": {
+    "npm-test.log": "0421839635cebc4eeea94259a08ecf3678158ff084e9c8e2501382a7dca5cfc4",
+    "browser-audit.cjs": "25d70241ef34be1543cd5f3d36e419e829ba7eabcae9af391dce82939d9d1fea",
+    "ci-render-pipeline.log": "313af7e9169f023abd0dd5afcac369bbdfc2e1e6a2783c314d7a2078fe439e4b"
+  },
+  "reproductionScriptSha256": "14d42f382b98aa6f11dc66388280d41b315b3329af05b94b3e9c9e5ba04e2caa",
+  "productionPreservation": {
+    "files": 58,
+    "beforeVersion": "a58062f7c89c96df",
+    "afterVersion": "a58062f7c89c96df",
+    "runtimeManifestIdentical": true,
+    "docsExcludedFromSite": true
+  }
+}
