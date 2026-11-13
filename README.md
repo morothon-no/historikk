@@ -48,6 +48,14 @@ sjekker, uten manuell SHA-oppdatering. Nye offentlige tester i `tests/public/`
 oppdages automatisk. Særskilt head-godkjenning er forbeholdt sikkerhets-,
 teststyrings- og publiseringsreglene: [enkel utviklingsflyt](docs/enkel-utviklingsflyt.md).
 
+## Lokalt diplomverksted (C1-pilot)
+
+Start med `npm run diplomer:admin` og åpne den lokale adressen som vises.
+Søk og velg mottakere, kontroller diplomene og last ned én samlet liggende
+A4-PDF og en JSON-rapport. Knappen **Prøv fem mottakere** gir et enkelt prøveutvalg.
+Verktøyet publiseres ikke på Pages og endrer ingen data eller godkjenninger.
+Se [oppstart, krav og avgrensninger](docs/c1-diplomverksted.md).
+
 ## Bygging, cache og trygg publisering
 
 ```sh
