@@ -6,14 +6,18 @@
     "build": "node scripts/build-site.cjs",
     "data:export": "node scripts/export-public-data.cjs",
     "data:check-sources": "node scripts/check-source-export.cjs",
-    "test:public": "node --test tests/site-build.cjs tests/public-build.cjs tests/data-quality.cjs",
+    "test:public": "node scripts/testing/run.cjs --level full --scope public",
     "data:check-history": "node scripts/check-history.cjs",
     "public:kontroll": "node scripts/check-public-site.cjs",
     "build:branding": "node scripts/build-brand-assets.cjs",
     "diplomer:kontroll": "node scripts/prepare-honor-print-set.cjs",
     "diplomer:klargjor": "node scripts/prepare-honor-print-set.cjs --write",
     "pretest": "node scripts/review-runner-links.cjs",
-    "personer:kontroller": "node scripts/review-runner-links.cjs"
+    "personer:kontroller": "node scripts/review-runner-links.cjs",
+    "test:quick": "node scripts/testing/run.cjs --level quick --scope public",
+    "test:functional": "node scripts/testing/run.cjs --level functional --scope public",
+    "test:visual": "node scripts/testing/run.cjs --level visual --scope public",
+    "test:full": "node scripts/testing/run.cjs --level full --scope all"
   },
   "devDependencies": {
     "playwright": "1.62.1"

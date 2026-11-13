@@ -1,6 +1,6 @@
 // Execute this guard from protected base/main, before installing or running PR code.
 const fs=require('node:fs/promises'),path=require('node:path'),{isDeepStrictEqual}=require('node:util');
-const protectedFiles=['.github/public-data-approval.json','package.json','package-lock.json','js/history-data.js','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs'];
+const protectedFiles=['.github/public-data-approval.json','package.json','package-lock.json','js/history-data.js','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','scripts/testing/catalog.cjs','scripts/testing/plan.cjs','scripts/testing/run.cjs','scripts/diploma-harness.cjs','scripts/review-public-export.cjs','tests/data-quality.cjs','tests/data-quality-browser.cjs','tests/public-modules.cjs','tests/public-build.cjs','tests/public-browser.cjs','tests/public-pdf.cjs','tests/regression.cjs','tests/loyalty-v32.cjs','tests/loyalty-visual.cjs','tests/regression-visual.cjs','tests/site-build.cjs','tests/test-planning.cjs','tests/helpers/public-package.cjs'];
 const critical=p=>p.startsWith('.github/workflows/')||protectedFiles.includes(p);
 async function policyChanges(a,b){
  const names=new Set(protectedFiles);

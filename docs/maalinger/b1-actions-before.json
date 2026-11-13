@@ -1,0 +1,1085 @@
+{
+  "collectedAt": "2026-11-13T20:15:51.656392+00:00",
+  "source": "Public Actions HTML and check-step timestamps; no job logs downloaded",
+  "runs": [
+    {
+      "id": "43496896543",
+      "url": "https://github.com/morothon-no/historikk/actions/runs/43496896543",
+      "status": "Success",
+      "totalDuration": "10m 32s",
+      "jobs": [
+        {
+          "id": "132132234728",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43496896543/job/132132234728",
+          "stepSpanSeconds": 90.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:37Z",
+              "completedAt": "2026-11-13T19:56:39Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:39Z",
+              "completedAt": "2026-11-13T19:56:40Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:40Z",
+              "completedAt": "2026-11-13T19:56:41Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:41Z",
+              "completedAt": "2026-11-13T19:56:44Z",
+              "seconds": 3.0
+            },
+            {
+              "name": "Verify checkout and trusted policy before running PR code",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:44Z",
+              "completedAt": "2026-11-13T19:56:44Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Install public test dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:44Z",
+              "completedAt": "2026-11-13T19:56:45Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Install Chromium",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:56:45Z",
+              "completedAt": "2026-11-13T19:57:16Z",
+              "seconds": 31.0
+            },
+            {
+              "name": "Install PDF tools and matching fonts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:57:16Z",
+              "completedAt": "2026-11-13T19:57:33Z",
+              "seconds": 17.0
+            },
+            {
+              "name": "Run public-only regression tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:57:33Z",
+              "completedAt": "2026-11-13T19:58:03Z",
+              "seconds": 30.0
+            },
+            {
+              "name": "Build from approved public package only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:03Z",
+              "completedAt": "2026-11-13T19:58:03Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Render approved public export review",
+              "conclusion": "skipped",
+              "startedAt": "2026-11-13T19:58:03Z",
+              "completedAt": "2026-11-13T19:58:03Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Retain approved public export review",
+              "conclusion": "skipped",
+              "startedAt": "2026-11-13T19:58:03Z",
+              "completedAt": "2026-11-13T19:58:03Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Validate public data boundary before artifact upload",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:03Z",
+              "completedAt": "2026-11-13T19:58:04Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Retain tested site artifact",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:04Z",
+              "completedAt": "2026-11-13T19:58:06Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:06Z",
+              "completedAt": "2026-11-13T19:58:06Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:06Z",
+              "completedAt": "2026-11-13T19:58:06Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:06Z",
+              "completedAt": "2026-11-13T19:58:06Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:06Z",
+              "completedAt": "2026-11-13T19:58:07Z",
+              "seconds": 1.0
+            }
+          ]
+        },
+        {
+          "id": "132133074830",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43496896543/job/132133074830",
+          "stepSpanSeconds": 7.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:13Z",
+              "completedAt": "2026-11-13T19:58:14Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:14Z",
+              "completedAt": "2026-11-13T19:58:16Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:16Z",
+              "completedAt": "2026-11-13T19:58:17Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:17Z",
+              "completedAt": "2026-11-13T19:58:17Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Verify checkout and trusted policy before running PR code",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:17Z",
+              "completedAt": "2026-11-13T19:58:17Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Retrieve candidate artifact in fresh runner",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:17Z",
+              "completedAt": "2026-11-13T19:58:19Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Validate artifact with trusted code, without running PR tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:19Z",
+              "completedAt": "2026-11-13T19:58:20Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:20Z",
+              "completedAt": "2026-11-13T19:58:20Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:20Z",
+              "completedAt": "2026-11-13T19:58:20Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:20Z",
+              "completedAt": "2026-11-13T19:58:20Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:20Z",
+              "completedAt": "2026-11-13T19:58:20Z",
+              "seconds": 0.0
+            }
+          ]
+        },
+        {
+          "id": "132133192163",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43496896543/job/132133192163",
+          "stepSpanSeconds": 501.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:26Z",
+              "completedAt": "2026-11-13T19:58:26Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Checkout with historical asset provenance",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:26Z",
+              "completedAt": "2026-11-13T19:58:28Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:28Z",
+              "completedAt": "2026-11-13T19:58:29Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Python",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:29Z",
+              "completedAt": "2026-11-13T19:58:29Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Install Node dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:29Z",
+              "completedAt": "2026-11-13T19:58:30Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Install Python dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:30Z",
+              "completedAt": "2026-11-13T19:58:32Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Install PDF tools and fonts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:32Z",
+              "completedAt": "2026-11-13T19:58:45Z",
+              "seconds": 13.0
+            },
+            {
+              "name": "Install Chromium system dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:45Z",
+              "completedAt": "2026-11-13T19:58:52Z",
+              "seconds": 7.0
+            },
+            {
+              "name": "Install Chromium",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:58:52Z",
+              "completedAt": "2026-11-13T19:59:01Z",
+              "seconds": 9.0
+            },
+            {
+              "name": "Check original export against approved public package",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:59:01Z",
+              "completedAt": "2026-11-13T19:59:02Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Run all preserved source and public regression tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:59:02Z",
+              "completedAt": "2026-11-13T20:04:33Z",
+              "seconds": 331.0
+            },
+            {
+              "name": "Render V3.6 honor review artifacts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:04:33Z",
+              "completedAt": "2026-11-13T20:05:22Z",
+              "seconds": 49.0
+            },
+            {
+              "name": "Render V3.6.1 profile and founder-marker comparison",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:05:22Z",
+              "completedAt": "2026-11-13T20:06:05Z",
+              "seconds": 43.0
+            },
+            {
+              "name": "Render final V3.6.1 person and diploma corrections",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:05Z",
+              "completedAt": "2026-11-13T20:06:20Z",
+              "seconds": 15.0
+            },
+            {
+              "name": "Render V3.5.3 date and signature comparison",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:20Z",
+              "completedAt": "2026-11-13T20:06:36Z",
+              "seconds": 16.0
+            },
+            {
+              "name": "Render V3.6.2 historical service diploma comparison",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:36Z",
+              "completedAt": "2026-11-13T20:06:46Z",
+              "seconds": 10.0
+            },
+            {
+              "name": "Post Setup Python",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:46Z",
+              "completedAt": "2026-11-13T20:06:46Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:46Z",
+              "completedAt": "2026-11-13T20:06:46Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout with historical asset provenance",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:46Z",
+              "completedAt": "2026-11-13T20:06:47Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:47Z",
+              "completedAt": "2026-11-13T20:06:47Z",
+              "seconds": 0.0
+            }
+          ]
+        },
+        {
+          "id": "132137785012",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43496896543/job/132137785012",
+          "stepSpanSeconds": 10.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:54Z",
+              "completedAt": "2026-11-13T20:06:55Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Retrieve tested site",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:55Z",
+              "completedAt": "2026-11-13T20:06:56Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Pages",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:56Z",
+              "completedAt": "2026-11-13T20:06:56Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Upload Pages artifact",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:56Z",
+              "completedAt": "2026-11-13T20:06:58Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Deploy to GitHub Pages",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:06:58Z",
+              "completedAt": "2026-11-13T20:07:04Z",
+              "seconds": 6.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T20:07:04Z",
+              "completedAt": "2026-11-13T20:07:04Z",
+              "seconds": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "43494802674",
+      "url": "https://github.com/morothon-no/historikk/actions/runs/43494802674",
+      "status": "Success",
+      "totalDuration": "2m 23s",
+      "jobs": [
+        {
+          "id": "132128809360",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43494802674/job/132128809360",
+          "stepSpanSeconds": 123.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:12Z",
+              "completedAt": "2026-11-13T19:50:13Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:13Z",
+              "completedAt": "2026-11-13T19:50:14Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:14Z",
+              "completedAt": "2026-11-13T19:50:15Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:15Z",
+              "completedAt": "2026-11-13T19:50:20Z",
+              "seconds": 5.0
+            },
+            {
+              "name": "Verify checkout and trusted policy before running PR code",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:20Z",
+              "completedAt": "2026-11-13T19:50:20Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Install public test dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:20Z",
+              "completedAt": "2026-11-13T19:50:22Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Install Chromium",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:22Z",
+              "completedAt": "2026-11-13T19:50:58Z",
+              "seconds": 36.0
+            },
+            {
+              "name": "Install PDF tools and matching fonts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:50:58Z",
+              "completedAt": "2026-11-13T19:51:05Z",
+              "seconds": 7.0
+            },
+            {
+              "name": "Run public-only regression tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:51:05Z",
+              "completedAt": "2026-11-13T19:51:54Z",
+              "seconds": 49.0
+            },
+            {
+              "name": "Build from approved public package only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:51:54Z",
+              "completedAt": "2026-11-13T19:51:55Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Render approved public export review",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:51:55Z",
+              "completedAt": "2026-11-13T19:52:10Z",
+              "seconds": 15.0
+            },
+            {
+              "name": "Retain approved public export review",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:10Z",
+              "completedAt": "2026-11-13T19:52:12Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Validate public data boundary before artifact upload",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:12Z",
+              "completedAt": "2026-11-13T19:52:13Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Retain tested site artifact",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:13Z",
+              "completedAt": "2026-11-13T19:52:14Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:14Z",
+              "completedAt": "2026-11-13T19:52:14Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:14Z",
+              "completedAt": "2026-11-13T19:52:15Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Post Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:15Z",
+              "completedAt": "2026-11-13T19:52:15Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:15Z",
+              "completedAt": "2026-11-13T19:52:15Z",
+              "seconds": 0.0
+            }
+          ]
+        },
+        {
+          "id": "132129945368",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43494802674/job/132129945368",
+          "stepSpanSeconds": 7.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:20Z",
+              "completedAt": "2026-11-13T19:52:21Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:21Z",
+              "completedAt": "2026-11-13T19:52:23Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:23Z",
+              "completedAt": "2026-11-13T19:52:24Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:24Z",
+              "completedAt": "2026-11-13T19:52:24Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Verify checkout and trusted policy before running PR code",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:24Z",
+              "completedAt": "2026-11-13T19:52:24Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Retrieve candidate artifact in fresh runner",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:24Z",
+              "completedAt": "2026-11-13T19:52:26Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Validate artifact with trusted code, without running PR tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:26Z",
+              "completedAt": "2026-11-13T19:52:26Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:26Z",
+              "completedAt": "2026-11-13T19:52:26Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:26Z",
+              "completedAt": "2026-11-13T19:52:27Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Post Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:27Z",
+              "completedAt": "2026-11-13T19:52:27Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T19:52:27Z",
+              "completedAt": "2026-11-13T19:52:27Z",
+              "seconds": 0.0
+            }
+          ]
+        },
+        {
+          "id": "132130058273",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43494802674/job/132130058273",
+          "stepSpanSeconds": null,
+          "steps": []
+        },
+        {
+          "id": "132130058798",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43494802674/job/132130058798",
+          "stepSpanSeconds": null,
+          "steps": []
+        }
+      ]
+    },
+    {
+      "id": "43445653717",
+      "url": "https://github.com/morothon-no/historikk/actions/runs/43445653717",
+      "status": "Success",
+      "totalDuration": "10m 21s",
+      "jobs": [
+        {
+          "id": "131954276404",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43445653717/job/131954276404",
+          "stepSpanSeconds": 71.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:48Z",
+              "completedAt": "2026-11-13T14:44:49Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:49Z",
+              "completedAt": "2026-11-13T14:44:50Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:50Z",
+              "completedAt": "2026-11-13T14:44:51Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:51Z",
+              "completedAt": "2026-11-13T14:44:53Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Verify checkout and trusted policy before running PR code",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:53Z",
+              "completedAt": "2026-11-13T14:44:53Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Install public test dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:53Z",
+              "completedAt": "2026-11-13T14:44:54Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Install Chromium",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:44:54Z",
+              "completedAt": "2026-11-13T14:45:20Z",
+              "seconds": 26.0
+            },
+            {
+              "name": "Install PDF tools and matching fonts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:20Z",
+              "completedAt": "2026-11-13T14:45:26Z",
+              "seconds": 6.0
+            },
+            {
+              "name": "Run public-only regression tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:26Z",
+              "completedAt": "2026-11-13T14:45:56Z",
+              "seconds": 30.0
+            },
+            {
+              "name": "Build from approved public package only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:56Z",
+              "completedAt": "2026-11-13T14:45:56Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Render approved public export review",
+              "conclusion": "skipped",
+              "startedAt": "2026-11-13T14:45:56Z",
+              "completedAt": "2026-11-13T14:45:56Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Retain approved public export review",
+              "conclusion": "skipped",
+              "startedAt": "2026-11-13T14:45:56Z",
+              "completedAt": "2026-11-13T14:45:56Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Validate public data boundary before artifact upload",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:56Z",
+              "completedAt": "2026-11-13T14:45:56Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Retain tested site artifact",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:56Z",
+              "completedAt": "2026-11-13T14:45:58Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:58Z",
+              "completedAt": "2026-11-13T14:45:58Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:58Z",
+              "completedAt": "2026-11-13T14:45:58Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:58Z",
+              "completedAt": "2026-11-13T14:45:58Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:45:58Z",
+              "completedAt": "2026-11-13T14:45:59Z",
+              "seconds": 1.0
+            }
+          ]
+        },
+        {
+          "id": "131954989965",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43445653717/job/131954989965",
+          "stepSpanSeconds": 6.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:04Z",
+              "completedAt": "2026-11-13T14:46:05Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:05Z",
+              "completedAt": "2026-11-13T14:46:07Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:07Z",
+              "completedAt": "2026-11-13T14:46:08Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:08Z",
+              "completedAt": "2026-11-13T14:46:08Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Verify checkout and trusted policy before running PR code",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:08Z",
+              "completedAt": "2026-11-13T14:46:08Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Retrieve candidate artifact in fresh runner",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:08Z",
+              "completedAt": "2026-11-13T14:46:10Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Validate artifact with trusted code, without running PR tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:10Z",
+              "completedAt": "2026-11-13T14:46:10Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:10Z",
+              "completedAt": "2026-11-13T14:46:10Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout trusted base policy only",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:10Z",
+              "completedAt": "2026-11-13T14:46:10Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Checkout public files only (sparse, blob-filtered)",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:10Z",
+              "completedAt": "2026-11-13T14:46:10Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:10Z",
+              "completedAt": "2026-11-13T14:46:10Z",
+              "seconds": 0.0
+            }
+          ]
+        },
+        {
+          "id": "131955106201",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43445653717/job/131955106201",
+          "stepSpanSeconds": 511.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:15Z",
+              "completedAt": "2026-11-13T14:46:16Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Checkout with historical asset provenance",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:16Z",
+              "completedAt": "2026-11-13T14:46:18Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:18Z",
+              "completedAt": "2026-11-13T14:46:19Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Python",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:19Z",
+              "completedAt": "2026-11-13T14:46:19Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Install Node dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:19Z",
+              "completedAt": "2026-11-13T14:46:20Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Install Python dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:20Z",
+              "completedAt": "2026-11-13T14:46:22Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Install PDF tools and fonts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:22Z",
+              "completedAt": "2026-11-13T14:46:33Z",
+              "seconds": 11.0
+            },
+            {
+              "name": "Install Chromium system dependencies",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:33Z",
+              "completedAt": "2026-11-13T14:46:39Z",
+              "seconds": 6.0
+            },
+            {
+              "name": "Install Chromium",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:39Z",
+              "completedAt": "2026-11-13T14:46:47Z",
+              "seconds": 8.0
+            },
+            {
+              "name": "Check original export against approved public package",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:47Z",
+              "completedAt": "2026-11-13T14:46:48Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Run all preserved source and public regression tests",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:46:48Z",
+              "completedAt": "2026-11-13T14:52:37Z",
+              "seconds": 349.0
+            },
+            {
+              "name": "Render V3.6 honor review artifacts",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:52:37Z",
+              "completedAt": "2026-11-13T14:53:24Z",
+              "seconds": 47.0
+            },
+            {
+              "name": "Render V3.6.1 profile and founder-marker comparison",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:53:24Z",
+              "completedAt": "2026-11-13T14:54:06Z",
+              "seconds": 42.0
+            },
+            {
+              "name": "Render final V3.6.1 person and diploma corrections",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:06Z",
+              "completedAt": "2026-11-13T14:54:21Z",
+              "seconds": 15.0
+            },
+            {
+              "name": "Render V3.5.3 date and signature comparison",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:21Z",
+              "completedAt": "2026-11-13T14:54:36Z",
+              "seconds": 15.0
+            },
+            {
+              "name": "Render V3.6.2 historical service diploma comparison",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:36Z",
+              "completedAt": "2026-11-13T14:54:45Z",
+              "seconds": 9.0
+            },
+            {
+              "name": "Post Setup Python",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:45Z",
+              "completedAt": "2026-11-13T14:54:45Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Post Setup Node",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:45Z",
+              "completedAt": "2026-11-13T14:54:46Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Post Checkout with historical asset provenance",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:46Z",
+              "completedAt": "2026-11-13T14:54:46Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:46Z",
+              "completedAt": "2026-11-13T14:54:46Z",
+              "seconds": 0.0
+            }
+          ]
+        },
+        {
+          "id": "131959930663",
+          "url": "https://github.com/morothon-no/historikk/actions/runs/43445653717/job/131959930663",
+          "stepSpanSeconds": 11.0,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:53Z",
+              "completedAt": "2026-11-13T14:54:55Z",
+              "seconds": 2.0
+            },
+            {
+              "name": "Retrieve tested site",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:55Z",
+              "completedAt": "2026-11-13T14:54:56Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Setup Pages",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:56Z",
+              "completedAt": "2026-11-13T14:54:56Z",
+              "seconds": 0.0
+            },
+            {
+              "name": "Upload Pages artifact",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:56Z",
+              "completedAt": "2026-11-13T14:54:57Z",
+              "seconds": 1.0
+            },
+            {
+              "name": "Deploy to GitHub Pages",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:54:57Z",
+              "completedAt": "2026-11-13T14:55:04Z",
+              "seconds": 7.0
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success",
+              "startedAt": "2026-11-13T14:55:04Z",
+              "completedAt": "2026-11-13T14:55:04Z",
+              "seconds": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

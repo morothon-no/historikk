@@ -51,7 +51,8 @@ test('V3.2 CI runs once per PR update, tests main pushes and deploys only verifi
  const triggers=workflow.match(/^on:\n([\s\S]*?)(?=^\S)/m)?.[1];assert.ok(triggers);
  assert.deepEqual([...triggers.matchAll(/^  ([a-z_]+):/gm)].map(m=>m[1]),['push','pull_request','workflow_dispatch']);
  assert.match(triggers,/^  push:\n    branches: \[main\]\n/m);assert.match(triggers,/^  pull_request:\n    branches: \[main\]\n/m);assert.doesNotMatch(triggers,/codex|\*|paths-ignore|types:/);
- assert.match(workflow,/needs: \[artifact_gate, source_checks\]/);assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);for(const s of ['npm ci','npm test','npm run build','playwright install-deps chromium','playwright install chromium','poppler-utils','requirements-dev.txt','fetch-depth: 0'])assert.ok(workflow.includes(s),s);assert.doesNotMatch(workflow,/continue-on-error|if: always\(\)/);
+ assert.match(workflow,/needs: \[artifact_gate, source_checks\]/);assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);for(const s of ['npm ci','--scope source --level','npm run build','playwright install-deps chromium','playwright install chromium','poppler-utils','requirements-dev.txt'])assert.ok(workflow.includes(s),s);assert.doesNotMatch(workflow,/continue-on-error/);assert.doesNotMatch(workflow.split('  deploy:')[1],/always\(/);
+ assert.ok(workflow.includes("fetch-depth: ${{ needs.plan.outputs.source_browser == 'true' && '0' || '1' }}"),'Historical provenance remains mandatory for browser/source regressions');
  assert.match(workflow,/verify:[\s\S]*?runs-on: ubuntu-24\.04/);
   const registry=JSON.parse(await fs.readFile(path.join(root,'data/badges.json'),'utf8'));
   const originalRegistry=JSON.parse(execFileSync('git',['show','bb22ec8:data/badges.json'],{cwd:root}));

@@ -3,19 +3,8 @@ const {buildSite,validatePublicSite}=require('../scripts/build-site.cjs');
 const {readApprovedPackage,manifestFor,approvalFor,sha256}=require('../scripts/lib/public-package.cjs');
 const {checkPolicy}=require('../scripts/check-public-policy.cjs');
 const {runtimeFiles}=require('../scripts/lib/runtime-files.cjs');
-const {createHarness}=require('../scripts/diploma-harness.cjs');
 const root=path.resolve(__dirname,'..'),pin=path.join(root,'.github/public-data-approval.json');
-async function temp(){return fs.mkdtemp(path.join(os.tmpdir(),'morothon-public-only-'));}
-async function copyPublic(out){
- const data=JSON.parse(await fs.readFile(path.join(root,'public-data/data/badges.json'),'utf8'));
- const files=[...runtimeFiles(data).filter(f=>!f.startsWith('data/')),'package.json','package-lock.json','.github/public-data-approval.json','.github/workflows/pages.yml','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','scripts/diploma-harness.cjs','tests/site-build.cjs','tests/data-quality.cjs','scripts/check-history.cjs','tests/fixtures/a1c-public-reference.json'];
- for(const file of files){const dest=path.join(out,file);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(root,file),dest);}
- await fs.cp(path.join(root,'public-data'),path.join(out,'public-data'),{recursive:true});
-}
-async function rewriteManifest(folder,mutate){
- const m=JSON.parse(await fs.readFile(path.join(folder,'public-data/manifest.json'),'utf8'));await mutate(m);
- const b=Buffer.from(JSON.stringify(m,null,2)+'\n');await fs.writeFile(path.join(folder,'public-data/manifest.json'),b);const p=approvalFor(b);await fs.writeFile(path.join(folder,'.github/public-data-approval.json'),JSON.stringify(p,null,2)+'\n');return p;
-}
+const {temp,copyPublic,rewriteManifest}=require('./helpers/public-package.cjs');
 test('approved package is versioned, history-bound and cannot silently accept changed, missing or extra inputs',async()=>{
  const dir=await temp();try{await copyPublic(dir);const opts={approvalFile:pin,assetsRoot:dir};assert.equal((await readApprovedPackage(path.join(dir,'public-data'),opts)).visiblePeople,43);
  for(const mutate of [async()=>fs.appendFile(path.join(dir,'public-data/data/honors.json'),' '),async()=>fs.unlink(path.join(dir,'public-data/data/honors.json')),async()=>fs.writeFile(path.join(dir,'public-data/internal.json'),'{}')]){
@@ -56,23 +45,6 @@ test('PR-local approvals and safety edits cannot replace protected-base or exter
   assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head,approvedManifestSha:rollback.manifestSha256})).bootstrap,true);
  }finally{await fs.rm(base,{recursive:true,force:true});await fs.rm(candidate,{recursive:true,force:true});}
 });
-test('isolated public build and existing site test need no administrative files, exporter, Git history or private credentials',async()=>{
- const dir=await temp();let h;try{await copyPublic(dir);await fs.symlink(path.join(root,'node_modules'),path.join(dir,'node_modules'),'dir');
-  for(const f of ['data/honors.json','data/volunteers.json','scripts/export-public-data.cjs','scripts/lib/public-data.cjs','.git'])await assert.rejects(()=>fs.access(path.join(dir,f)));
-  const out=path.join(dir,'site');await fs.mkdir(out);const permissions=['--permission','--allow-fs-read='+dir,'--allow-fs-write='+out],env={PATH:process.env.PATH,LANG:'C.UTF-8'};
-  const result=JSON.parse(execFileSync(process.execPath,[...permissions,'scripts/build-site.cjs',out],{cwd:dir,env,encoding:'utf8'}));assert.equal(result.files,59);
-  assert.throws(()=>execFileSync(process.execPath,[...permissions,'-e',`require('node:fs').readFileSync(${JSON.stringify(path.join(root,'data/honors.json'))})`],{cwd:dir,env,stdio:'pipe'}),e=>/ERR_ACCESS_DENIED/.test(e.stderr.toString()));
-  execFileSync('npm',['run','build','--',path.join(dir,'npm-site')],{cwd:dir,env,stdio:'pipe',timeout:120000});
-  execFileSync(process.execPath,['scripts/check-public-site.cjs',out],{cwd:dir,env,stdio:'pipe'});
-  execFileSync(process.execPath,['--test','tests/site-build.cjs'],{cwd:dir,env,stdio:'pipe',timeout:120000});
-  h=await createHarness({rootDir:out});const p=await h.browser.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
-  await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();const ref=JSON.parse(await fs.readFile(path.join(dir,'tests/fixtures/a1c-public-reference.json'),'utf8'));
-  for(const width of [390,1440]){await p.setViewportSize({width,height:900});assert.deepEqual(await p.locator('[data-honoree]').evaluateAll(nodes=>nodes.map(n=>n.dataset.honoree)),ref.ids);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
-  const actual=await p.evaluate(async()=>{const data=await MorothonHonorsData.load(),all=[];for(const m of data.groups.flatMap(g=>g.members))for(const display of ['all','latest']){const d=await MorothonDiplomas.serviceDraft(m.id,display);all.push({id:m.id,display,proof:d.contentProof,mode:d.printMode,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,title:d.title,tribute:d.tribute});}return all;});
-  assert.deepEqual(actual,ref.diplomas);assert.equal(actual.length,86);
-  await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));const counts=await p.evaluate(async()=>{const h=await MorothonHistoryData.load();return [h.data.people.length,h.data.results.length,h.data.teamResults.length];});assert.deepEqual(counts,[2643,6914,4]);assert.deepEqual(errors,[]);
- }finally{if(h)await h.close();await fs.rm(dir,{recursive:true,force:true});}
-});
 test('fresh trusted artifact validation ignores validator and approval mutations in the PR build workspace',async()=>{
  const base=await temp(),candidate=await temp(),artifact=await temp();try{
   await copyPublic(base);await copyPublic(candidate);await buildSite(artifact);
@@ -103,8 +75,8 @@ test('public Actions checkout excludes originals and uses protected-base policy;
  assert.ok(publicJob.includes('sparse-checkout-cone-mode: false'));assert.ok(publicJob.includes('partialclonefilter)" = blob:none'));
  for(const line of publicJob.split('\n').map(s=>s.trim()))assert.ok(!['/data/','/tests/','/scripts/','/scripts/lib/public-data.cjs'].includes(line));
  assert.ok(publicJob.includes('github.event.pull_request.base.sha'));assert.ok(publicJob.includes('policy-base/scripts/check-public-policy.cjs'));assert.ok(publicJob.indexOf('Verify checkout and trusted policy')<publicJob.indexOf('npm ci'));
- assert.ok(!publicJob.includes('npm test'));assert.ok(publicJob.includes('npm run test:public'));assert.ok(!publicJob.includes('${{ secrets.'));
- assert.ok(sourceJob.includes("if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'"));assert.ok(sourceJob.includes('npm test'));assert.ok(sourceJob.includes('npm run data:check-sources'));
+ assert.ok(!publicJob.includes('npm test'));assert.ok(publicJob.includes('policy-base/scripts/testing/run.cjs'));assert.ok(publicJob.includes("--scope public --level '${{ needs.plan.outputs.level }}'"));assert.ok(!publicJob.includes('${{ secrets.'));
+ assert.ok(sourceJob.includes("if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'"));assert.ok(sourceJob.includes("--scope source --level '${{ needs.plan.outputs.level }}'"));const runner=await fs.readFile(path.join(root,'scripts/testing/run.cjs'),'utf8');assert.ok(runner.includes('scripts/check-source-export.cjs'));assert.ok(runner.includes("scope!=='public'"));assert.ok(sourceJob.includes('needs: plan'));assert.equal((sourceJob.match(/if: inputs.historical_reports == true/g)||[]).length,5);
  for(const file of ['review-honors-v36.cjs','review-honors-v361.cjs','review-honors-final-v361.cjs','review-honor-signoff-v353.cjs','review-service-milestones-v362.cjs'])assert.ok(sourceJob.includes(file));
  const gate=workflow.split('  artifact_gate:')[1].split('  source_checks:')[0];
  assert.ok(gate.includes('needs: verify'));assert.ok(gate.includes('policy-base/scripts/check-public-policy.cjs'));assert.ok(gate.includes('policy-base/scripts/check-public-site.cjs'));assert.ok(gate.includes('actions/download-artifact@v4'));

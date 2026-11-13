@@ -97,9 +97,10 @@ test('built public pages preserve PC/mobile cards, every visible diploma proof a
 test('CI publishes only gated site and public-package review, never administrative link reports or archived galleries',async()=>{
  const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');
  const steps=workflow.split(/(?=      - name: )/).filter(s=>s.includes('uses: actions/upload-artifact@'));
- assert.equal(steps.length,2);
+ assert.equal(steps.length,3);
  assert.ok(steps.some(s=>s.includes('name: morothon-site')&&s.includes('path: public/_site/')));
- assert.ok(steps.some(s=>s.includes('name: morothon-a1-offentlig-kontroll')&&s.includes('/tmp/morothon-a1-public/')));
+ assert.ok(steps.some(s=>s.includes('name: morothon-a1-offentlig-kontroll')&&s.includes('/tmp/morothon-b1-public-review/')));
+ assert.ok(steps.some(s=>s.includes('name: morothon-test-plan')&&s.includes('path: policy-base/test-plan.json')));
  assert.ok(workflow.includes('npm run public:kontroll -- _site'));
  assert.ok(workflow.indexOf('npm run public:kontroll -- _site')<workflow.indexOf('name: Retain tested site artifact'));
  for(const step of steps)assert.ok(!/\.review\/runner-links|morothon-v36\/|morothon-v353\/|morothon-v362\//.test(step));
