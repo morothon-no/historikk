@@ -52,49 +52,15 @@ jobs:
         run: npm test
       - name: Build versioned runtime package
         run: npm run build
-      - name: Retain runner identity review
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-v36-loperkoblinger
-          path: |
-            .review/runner-links/koblingsforslag.md
-            .review/runner-links/koblingsforslag.json
-          include-hidden-files: true
-          if-no-files-found: ignore
-          retention-days: 14
       - name: Render V3.6 honor review artifacts
         if: github.event_name == 'pull_request'
         run: node scripts/review-honors-v36.cjs /tmp/morothon-v36
-      - name: Retain V3.6 honor review artifacts
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-v36-forhaandsvisning
-          path: /tmp/morothon-v36/
-          if-no-files-found: error
-          retention-days: 14
       - name: Render V3.6.1 profile and founder-marker comparison
         if: github.event_name == 'pull_request'
         run: node scripts/review-honors-v361.cjs /tmp/morothon-v361
-      - name: Retain V3.6.1 profile and diploma comparison
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-v361-profiler-diplomer
-          path: /tmp/morothon-v361/
-          if-no-files-found: error
-          retention-days: 14
       - name: Render final V3.6.1 person and diploma corrections
         if: github.event_name == 'pull_request'
         run: node scripts/review-honors-final-v361.cjs /tmp/morothon-v361-final
-      - name: Retain final V3.6.1 person and diploma corrections
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-v361-sluttkontroll
-          path: /tmp/morothon-v361-final/
-          if-no-files-found: error
-          retention-days: 14
       - name: Render V3.5.3 date and signature comparison
         if: github.event_name == 'pull_request'
         run: |
@@ -102,25 +68,24 @@ jobs:
           git archive 3e45c8b | tar -x -C /tmp/morothon-v353-source
           node /tmp/morothon-v353-source/scripts/build-site.cjs /tmp/morothon-v353-before
           node scripts/review-honor-signoff-v353.cjs /tmp/morothon-v353 /tmp/morothon-v353-before
-      - name: Retain V3.5.3 date and signature comparison
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-v353-dato-signatur
-          path: /tmp/morothon-v353/
-          if-no-files-found: error
-          retention-days: 14
       - name: Render V3.6.2 historical service diploma comparison
         if: github.event_name == 'pull_request'
         run: node scripts/review-service-milestones-v362.cjs /tmp/morothon-v362
-      - name: Retain V3.6.2 historical service diploma comparison
+      # Historical review renderers still run locally as regression checks, but
+      # their raw-register/old-profile output must not be uploaded publicly.
+      - name: Render approved public export review
+        if: github.event_name == 'pull_request'
+        run: node scripts/review-public-export.cjs /tmp/morothon-a1-public _site
+      - name: Retain approved public export review
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: morothon-v362-dugnadsdiplomer
-          path: /tmp/morothon-v362/
+          name: morothon-a1-offentlig-kontroll
+          path: /tmp/morothon-a1-public/
           if-no-files-found: error
           retention-days: 14
+      - name: Validate public data boundary before artifact upload
+        run: npm run public:kontroll -- _site
       - name: Retain tested site artifact
         uses: actions/upload-artifact@v4
         with:

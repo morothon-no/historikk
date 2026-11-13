@@ -45,6 +45,17 @@ npm run build
 Dette lager `_site/` fra en eksplisitt liste over runtime-filer. Utmappen må være
 tom; fjern tidligere generert `_site/` før et nytt lokalt bygg, eller bruk
 `node scripts/build-site.cjs /tmp/morothon-site` med en ny mappe.
+
+Bygget eksporterer nå eksplisitte offentlige datafelt fremfor å kopiere hele
+administrasjonsregistrene. Kontroller en eksisterende byggepakke før opplasting:
+
+```sh
+npm run public:kontroll -- _site
+```
+
+Publiser bare den validerte byggepakken, aldri repositoryroten. Originalregistrene
+ligger fortsatt i dette repositoryet og Git-historikken; filtrert Pages-eksport
+gjør dem ikke private. Se [A1: datafelt, eksponering og migreringsplan](docs/a1-offentlig-dataeksport.md).
 Tester, vedlegg, kildearkiver og gjennomgangsbilder publiseres ikke.
 
 Byggeren beregner én deterministisk innholdshash for hele utgaven. Alle lokale

@@ -50,7 +50,10 @@ test('only explicit recipient/content approval plus approved graphics allows a f
  try{
   const fixture=await approvalFixture(p,h.base),site=await require('../scripts/build-site.cjs').buildSite(path.join(tmp,'site'));
   built=await createHarness({rootDir:site.out});const q=await built.browser.newPage();
-  await q.route('**/data/honors.json',r=>r.fulfill({json:fixture.core}));
+  const inputs=Object.fromEntries(await Promise.all(['honors','volunteers','history','badges','event-dates'].map(async name=>[name,JSON.parse(await fs.readFile(path.resolve(__dirname,'../data',name+'.json'),'utf8'))])));
+  inputs.honors=fixture.core;const projected=require('../scripts/lib/public-data.cjs').exportPublicData(inputs);
+  await q.route('**/data/honors.json',r=>r.fulfill({json:projected.honors}));
+  await q.route('**/data/volunteers.json',r=>r.fulfill({json:projected.volunteers}));
   await q.goto(built.base+'/heder.html#person/'+fixture.id);await q.locator('#profileName').waitFor();await open(q);
   const d=await q.evaluate(id=>MorothonDiplomas.serviceDraft(id),fixture.id);
   assert.equal(d.contentProof.contentSha256,fixture.proof.contentSha256);assert.equal(d.printMode,'final');
