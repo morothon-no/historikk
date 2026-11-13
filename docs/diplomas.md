@@ -23,7 +23,7 @@ node scripts/review-polish.cjs /tmp/morothon-polish
 node scripts/review-approved-medals.cjs /tmp/morothon-approved-medals
 ```
 
-Generatoren endrer ikke historiske resultater, oppretter ikke tildelinger og har ingen offentlig administrasjons- eller masseutskriftsfunksjon.
+Generatoren endrer ikke historiske resultater, oppretter ikke tildelinger og har ingen offentlig administrasjons- eller masseutskriftsfunksjon. C1-piloten tilbyr separat, lokal masseutskrift med `npm run diplomer:admin`; se [diplomverkstedet](c1-diplomverksted.md). De offentlige malene er uendret.
 
 V3-grunnleggerprofiler kan ha en kort `diplomaTribute` fra hedersdataene. Den
 vises i det eksisterende sitatfeltet, med layoutkontroll for alle fem grunnleggere.

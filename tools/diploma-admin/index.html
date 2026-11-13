@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="nb">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="local-session" content="__LOCAL_TOKEN__"><title>Morothon · Diplomverksted</title><link rel="stylesheet" href="/admin.css"><script defer src="/admin.js"></script></head>
+<body>
+<header><div><span class="eyebrow">SØGNE MOROTHON · LOKAL ARRANGØRPILOT</span><h1>Diplomverksted</h1><p>Velg mottakere, kontroller hvert diplom og lag én samlet A4-PDF.</p></div><span class="local-tag">Kun på denne maskinen</span></header>
+<main>
+  <section aria-labelledby="chooseHeading" class="panel">
+    <div class="section-heading"><div><span class="step">1</span><h2 id="chooseHeading">Finn mottakere</h2></div><span id="resultCount"></span></div>
+    <div class="filters">
+      <label>Søk etter navn<input id="search" type="search" placeholder="For eksempel Inger eller Oscar" autocomplete="off"></label>
+      <label>Type diplom<select id="kind"><option value="all">Løper og Heder</option><option value="runner">Løper</option><option value="honor">Heder</option></select></label>
+      <label>Prestasjon<select id="achievement"><option value="highest">Høyeste oppnådde merke</option><option value="badge:5">Bronse · 5 deltakelser</option><option value="badge:10">Sølv · 10 deltakelser</option><option value="badge:15">Gull · 15 deltakelser</option><option value="badge:20">Platina · 20 deltakelser</option><option value="badge:25">Titan · 25 deltakelser</option><option value="badge:30">Legende · 30 deltakelser</option><option value="badge:35">Æresløper · 35 deltakelser</option><option value="badge:40">Evighetsløper · 40 deltakelser</option><option value="badge:45">Storlegende · 45 deltakelser</option><option value="badge:50">Æreslegende · 50 deltakelser</option><option value="debut">Debutdiplom</option><option value="record">Gjeldende løyperekord</option></select></label>
+      <label>Oppnåelsesår<select id="year"><option value="all">Alle år</option></select></label>
+      <label>Medaljer på diplomet<select id="display"><option value="latest">Kun siste merke</option><option value="all">Alle merker</option></select></label>
+    </div>
+    <p class="hint">Prestasjon og medaljevisning velges hver for seg. Heder bruker bare dagens tillatte hovedutmerkelse. Ukjent opptjeningsår fylles ikke inn.</p>
+    <div class="actions"><button id="addAll" type="button">Legg til alle i utvalget</button><button id="demo" type="button" class="secondary">Prøv fem mottakere</button></div>
+    <div id="results" class="recipients" aria-label="Tilgjengelige mottakere"></div>
+    <button id="more" type="button" class="secondary" hidden>Vis flere</button>
+  </section>
+  <section aria-labelledby="jobHeading" class="panel">
+    <div class="section-heading"><div><span class="step">2</span><h2 id="jobHeading">Din utskriftsjobb</h2></div><strong id="selectedCount">0 diplomer valgt</strong></div>
+    <p class="hint">Rekkefølgen her blir siderekkefølgen i PDF-en. Fjern eller flytt mottakere før eksport.</p>
+    <div id="job" class="job-list"><p>Ingen mottakere valgt ennå.</p></div>
+    <div class="actions"><button id="check" type="button" disabled>Kontroller utvalget</button><button id="clear" type="button" class="secondary" disabled>Tøm listen</button></div>
+    <div class="legend"><span class="status approved">Godkjent</span><span>Gjeldende kontrollgrunnlag</span><span class="status control">Kontrollkopi</span><span>Mangler godkjenning for ren utskrift</span><span class="status blocked">Sperret</span><span>Feil må rettes eller mottakeren fjernes</span></div>
+  </section>
+  <section aria-labelledby="exportHeading" class="panel export-panel">
+    <div class="section-heading"><div><span class="step">3</span><h2 id="exportHeading">Lag samlet PDF</h2></div></div>
+    <p id="exportSummary">Velg mottakere og kontroller utvalget først.</p>
+    <label class="check-label"><input type="checkbox" id="allowControl">Jeg vil også ta med tydelig merkede kontrollkopier.</label>
+    <div class="actions"><button id="export" type="button" disabled>Lag samlet PDF</button><button id="report" type="button" class="secondary" disabled>Lagre kontrollrapport (JSON)</button></div>
+    <div id="downloads" class="actions" hidden></div>
+    <p class="hint">Inntil 100 diplomer per jobb. Én liggende A4-side per diplom. PDF-en kontrolleres på nytt, side for side, før nedlasting. Ingen merker tildeles og ingen diplomer registreres som utstedt.</p>
+  </section>
+  <p id="message" role="status" aria-live="polite">Starter diplomverkstedet …</p>
+</main>
+<dialog id="preview" aria-labelledby="previewTitle"><div class="dialog-heading"><div><h2 id="previewTitle">Forhåndsvisning</h2><p id="previewStatus"></p></div><button id="closePreview" type="button" class="secondary">Lukk</button></div><div class="preview-viewport"><iframe title="Valgt A4-diplom" sandbox="allow-same-origin"></iframe></div><p class="hint">Forhåndsvisningen tilpasses skjermen. PDF-en beholder full A4-størrelse.</p></dialog>
+<footer>Lokal pilot · Jobblisten beholdes bare i denne nettleserøkten. Last ned PDF og rapport før du avslutter verktøyet.</footer>
+</body></html>

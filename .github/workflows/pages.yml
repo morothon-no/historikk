@@ -69,6 +69,8 @@ jobs:
             /scripts/check-public-policy.cjs
             /scripts/review-public-export.cjs
             /scripts/diploma-harness.cjs
+            /scripts/diploma-admin.cjs
+            /tools/diploma-admin/
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -111,6 +113,8 @@ jobs:
             /scripts/lib/runtime-files.cjs
             /scripts/testing/
             /scripts/diploma-harness.cjs
+            /scripts/diploma-admin.cjs
+            /tools/diploma-admin/
             /scripts/review-public-export.cjs
             /tests/data-quality.cjs
             /tests/data-quality-browser.cjs
@@ -215,6 +219,8 @@ jobs:
             /scripts/check-public-policy.cjs
             /scripts/review-public-export.cjs
             /scripts/diploma-harness.cjs
+            /scripts/diploma-admin.cjs
+            /tools/diploma-admin/
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -257,6 +263,8 @@ jobs:
             /scripts/lib/runtime-files.cjs
             /scripts/testing/
             /scripts/diploma-harness.cjs
+            /scripts/diploma-admin.cjs
+            /tools/diploma-admin/
             /scripts/review-public-export.cjs
             /tests/data-quality.cjs
             /tests/data-quality-browser.cjs
@@ -327,6 +335,7 @@ jobs:
         env:
           MOROTHON_TEST_SITE: ${{ github.workspace }}/public/_site
           MOROTHON_PUBLIC_REVIEW_DIR: /tmp/morothon-b1-public-review
+          MOROTHON_C1_REVIEW_DIR: /tmp/morothon-c1-review
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           MOROTHON_REVIEWED_POLICY_HEAD: ${{ vars.MOROTHON_REVIEWED_POLICY_HEAD }}
         run: |
@@ -342,6 +351,14 @@ jobs:
         with:
           name: morothon-a1-offentlig-kontroll
           path: /tmp/morothon-b1-public-review/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retain local C1 pilot review (public data only)
+        if: needs.plan.outputs.public_pdf == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-c1-diplomverksted
+          path: /tmp/morothon-c1-review/
           if-no-files-found: error
           retention-days: 14
       - name: Validate public data boundary before artifact upload
@@ -391,6 +408,8 @@ jobs:
             /scripts/check-public-policy.cjs
             /scripts/review-public-export.cjs
             /scripts/diploma-harness.cjs
+            /scripts/diploma-admin.cjs
+            /tools/diploma-admin/
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -433,6 +452,8 @@ jobs:
             /scripts/lib/runtime-files.cjs
             /scripts/testing/
             /scripts/diploma-harness.cjs
+            /scripts/diploma-admin.cjs
+            /tools/diploma-admin/
             /scripts/review-public-export.cjs
             /tests/data-quality.cjs
             /tests/data-quality-browser.cjs

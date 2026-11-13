@@ -16,7 +16,8 @@
     "test:quick": "node scripts/testing/run.cjs --level quick --scope public",
     "test:functional": "node scripts/testing/run.cjs --level functional --scope public",
     "test:visual": "node scripts/testing/run.cjs --level visual --scope public",
-    "test:full": "node scripts/testing/run.cjs --level full --scope all"
+    "test:full": "node scripts/testing/run.cjs --level full --scope all",
+    "diplomer:admin": "node scripts/diploma-admin.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
