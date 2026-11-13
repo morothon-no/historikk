@@ -1,0 +1,48 @@
+{
+  "base": "1c84b4ec87fd23c9b82dbdb7f6c7af51d79ea3b8",
+  "measuredAt": "2026-11-13T20:57:50.859389+00:00",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "Linux x64",
+    "dependenciesAlreadyInstalled": true
+  },
+  "measurements": {
+    "quick": {
+      "level": "quick",
+      "scope": "public",
+      "seconds": 3.622973574,
+      "tests": 23,
+      "failures": 0
+    },
+    "functional": {
+      "level": "functional",
+      "scope": "public",
+      "seconds": 34.835492203,
+      "tests": 31,
+      "failures": 0
+    },
+    "visual": {
+      "level": "visual",
+      "scope": "public",
+      "seconds": 70.90333820699999,
+      "tests": 44,
+      "failures": 0
+    },
+    "sourceQuick": {
+      "level": "quick",
+      "scope": "source",
+      "seconds": 1.165370952,
+      "tests": 0,
+      "failures": 0
+    },
+    "full": {
+      "level": "full",
+      "scope": "all",
+      "seconds": 487.641394324,
+      "tests": 262,
+      "failures": 0
+    }
+  },
+  "githubActionsAfter": null,
+  "githubActionsAfterReason": "Awaiting PR creation and exact-head maintainer approval; main after needs a separately approved merge."
+}

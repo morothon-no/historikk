@@ -37,6 +37,12 @@ Noen tester kontrollerer historiske originalfiler i Git; bruk en checkout med
 full historikk. Hvis npm-cachen ikke er skrivbar, angi en egen mappe med
 `npm ci --cache /tmp/morothon-npm-cache`.
 
+B1 gir fire portable testnivåer: `npm run test:quick` (uten nettleser og npm-
+installasjon), `npm run test:functional`, `npm run test:visual` og
+`npm run test:full`. Det siste kjører alle testene og kontrollerer originalkildene;
+det krever kildecheckout og verktøyene over. Offentlige nivåer bruker bare den
+godkjente datapakken. Se [B1: testvalg, målinger og sikkerhetsporter](docs/b1-testlop-og-maalinger.md).
+
 ## Bygging, cache og trygg publisering
 
 ```sh
@@ -72,7 +78,9 @@ for absolutte delings-/canonical-URL-er i bygget.
 
 Den eneste workflowen er `.github/workflows/pages.yml`. PR-er mot `main` kjører
 betrodd pakkekontroll og offentlige tester uten originalregistrene. På `main`
-kjøres også hele den bevarte kildekontrollen før deploy. Publisering krever
+kontrolleres alltid originaleksporten før deploy, med målrettede eller fulle
+kildetester etter beskyttet endringsklassifisering. Ukjente/sikkerhetskritiske
+endringer og eksplisitt fullkontroll kjører alle bevarte tester. Publisering krever
 vellykket offentlig bygg/test, uavhengig artefaktkontroll og kildekontroll;
 arbeidsgrener og PR-er deployes ikke. Første A1C-kjøring og sikkerhetsendringer
 krever repo-eiers eksterne godkjenning og GitHub-beskyttelse som beskrevet i

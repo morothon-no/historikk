@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { chromium } = require('playwright');
 const defaultRoot = path.resolve(__dirname, '..');
-async function createHarness({ rootDir = defaultRoot } = {}) {
+async function createHarness({ rootDir = process.env.MOROTHON_TEST_SITE || defaultRoot } = {}) {
   const root = path.resolve(rootDir);
   const server = http.createServer(async (req, res) => {
     const pathname = new URL(req.url, 'http://localhost').pathname;
