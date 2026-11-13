@@ -92,3 +92,7 @@ Dette er dokumentasjonsavvik, ikke nye personkorrigeringer. Register og faktisk 
 [`honors.md:136–145`](../honors.md#L136) beskriver fortsatt en **reell og tilsiktet sperre**: et lavere personlig Heder-hovedmerke kan ikke velges fritt. Dette er ikke en foreldet feil som skal fjernes. Nytt krav om historiske Heder-merker i masseutskrift trenger et eksplisitt prestasjonsscope og ny godkjenning, beskrevet i [04](04-moduler-og-design.md#masseutskrift-av-diplomer).
 
 Anbefalt dokumentasjonspraksis: generer person-/varianttall fra samme synlighets- og kontrollfunksjoner, oppgi revisjon/dato og grunnlag, og hold historiske versjonsrapporter adskilt fra dagens brukerhjelp. Ikke kopier interne notater til offentlige vedlegg. `awards` og `issuedDiplomas` er fortsatt tomme; kontroll av presentasjon er ikke formell utdeling.
+
+## Oppfølging i A2
+
+[A2 – datakvalitet og statusregler](../a2-datakvalitet-og-statusregler.md) beskriver arrangørbeslutningen om å beholde R-01-raden som fullført, felles deltakelsesfiltrering, strengere tids-/identitetsvalidering og bevarte historiske avvik. Ingen eksisterende deltakelser, fullføringer eller registrert distanse fjernes. Observasjonene og målingene ovenfor er bevart som revisjonens historiske grunnlag.

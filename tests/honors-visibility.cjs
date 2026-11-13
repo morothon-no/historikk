@@ -15,7 +15,7 @@ test('Honor visibility hides only Erling Danielsen while preserving every identi
   }
  }finally{await p.close();}
  const files=execFileSync('git',['ls-tree','-r','--name-only',baseline,'data/history.json','data/volunteers.json','data/badges.json','data/event-dates.json','assets','css','index.html','js/diplomas.js'],{cwd:root}).toString().trim().split('\n');
- for(const file of files)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show',baseline+':'+file],{cwd:root}),file);
+ for(const file of files)require('./helpers/honors.cjs').assertPreservedPresentation(await fs.readFile(path.join(root,file)),execFileSync('git',['show',baseline+':'+file],{cwd:root}),file);
 });
 test('Honor overview, search, referenced cards and named diploma gallery exclude Erling; old and alias URLs return safely to the overview on mobile and PC',async()=>{
  const fixture=structuredClone(core),erling=H.findIn(fixture,'erling-danielsen').member;

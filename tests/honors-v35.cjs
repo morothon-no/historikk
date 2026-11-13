@@ -38,8 +38,8 @@ test('V3.5 nine active badge types coexist with unchanged retired assets and pre
   for(const r of m.roles)assert.ok(now.roles.some(n=>JSON.stringify(n)===JSON.stringify(r)||n.title===r.title&&n.fromYear===r.fromYear&&n.historicalNotes?.some(h=>h.text===r.note)),m.id+': historical role');
  }
  await require('./helpers/honors.cjs').assertOrdinaryDiplomaCss(root);
- for(const dir of ['data/history.json','data/event-dates.json','assets','index.html','js/history-data.js','js/brag-card.js']){
-  const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');for(const f of files)assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,f),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
+ for(const dir of ['data/history.json','data/event-dates.json','assets','index.html','js/brag-card.js']){
+  const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');for(const f of files)require('./helpers/honors.cjs').assertPreservedPresentation(await require('./helpers/honors.cjs').preservedFile(root,f),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
  }
  const stripService=require('./helpers/honors.cjs').ordinaryDiplomaCode;
  assert.equal(stripService(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),stripService(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));

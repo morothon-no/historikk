@@ -22,7 +22,7 @@ test('existing confirmations stay explicit and broken/duplicate/invalid links an
  d.personDetails.anna={runnerLink:{runnerId:pid,confirmed:true,sourceIds:['qa']}};assert.equal(reviewLinks(d,h).summary['duplicate-confirmation'],2);
  d.groups[0].members.pop();h.redirects[old]=pid;d.personDetails.anna.runnerLink.runnerId=old;const valid=row(d,h);assert.equal(valid.status,'confirmed');assert.equal(valid.recordedId,old);assert.equal(valid.candidates[0].candidateId,pid);assert.equal(d.personDetails.anna.runnerLink.runnerId,old);
  d.personDetails.anna.runnerLink.confirmed=false;assert.equal(row(d,h).status,'invalid-confirmation');d.personDetails.anna.runnerLink.confirmed=true;d.personDetails.anna.runnerLink.sourceIds=['constructor'];assert.equal(row(d,h).status,'invalid-confirmation');
- d.personDetails.anna.runnerLink.sourceIds=['qa'];d.personDetails.anna.runnerLink.runnerId=other;assert.equal(row(d,h).status,'broken-link');h.redirects[pid]=old;d.personDetails.anna.runnerLink.runnerId=pid;assert.equal(row(d,h).status,'broken-link');
+ d.personDetails.anna.runnerLink.sourceIds=['qa'];d.personDetails.anna.runnerLink.runnerId=other;assert.equal(row(d,h).status,'broken-link');h.redirects[pid]=old;d.personDetails.anna.runnerLink.runnerId=pid;assert.throws(()=>row(d,h),/invalid-identity/);
 });
 test('future reports distinguish new and changed proposals; fresh results update counts without generating false identity changes',()=>{
  const d=registry(),h=history(),first=reviewLinks(d,h);assert.equal(first.summary.newProposals,1);

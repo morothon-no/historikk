@@ -69,8 +69,8 @@ test('PR16 every honorary A4 example retains legible metallic text above 4.5:1 c
 
 test('PR16 legacy assets, all histories, IDs, awards and ordinary diploma implementation remain unchanged',async()=>{
  const files=execFileSync('git',['ls-tree','-r','--name-only',base,'data','assets/medals','index.html','js/brag-card.js','js/history-data.js'],{cwd:root}).toString().trim().split('\n');
- const allowed=new Set([...levels.map(n=>'assets/medals/service/dugnad-'+n+'.svg'),'assets/medals/service/aeresmerke.svg','data/honors.json','data/volunteers.json','data/badges.json','heder.html']);
- for(const f of files.filter(f=>!allowed.has(f)))assert.deepEqual(await fs.readFile(path.join(root,f)),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
+ const allowed=new Set(['js/history-data.js',...levels.map(n=>'assets/medals/service/dugnad-'+n+'.svg'),'assets/medals/service/aeresmerke.svg','data/honors.json','data/volunteers.json','data/badges.json','heder.html']);
+ for(const f of files.filter(f=>!allowed.has(f)))require('./helpers/honors.cjs').assertPreservedPresentation(await fs.readFile(path.join(root,f)),execFileSync('git',['show',base+':'+f],{cwd:root}),f);
  const originalCss=execFileSync('git',['show',base+':css/diplomas.css'],{cwd:root}).toString(),css=await fs.readFile(path.join(root,'css/diplomas.css'),'utf8');assert.ok(css.startsWith(originalCss));assert.match(css.slice(originalCss.length),/\.diploma-service /);
  const ordinary=require('./helpers/honors.cjs').ordinaryDiplomaCode;
  assert.equal(ordinary(await fs.readFile(path.join(root,'js/diplomas.js'),'utf8')),ordinary(execFileSync('git',['show',base+':js/diplomas.js'],{cwd:root}).toString()));

@@ -34,7 +34,7 @@ test('issue #13 changes only sourced honor content: 44 identities, Christan name
   }else assert.deepEqual(n,m,m.id);
  }
  const protectedFiles=execFileSync('git',['ls-tree','-r','--name-only','22bd10a','assets/medals','data/history.json','data/event-dates.json','index.html'],{cwd:root}).toString().trim().split('\n');
- for(const file of protectedFiles)assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
+ for(const file of protectedFiles)require('./helpers/honors.cjs').assertPreservedPresentation(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','22bd10a:'+file],{cwd:root}),file);
 });
 
 test('issue #13 renders short non-duplicated volunteer rows with only supplied details at every required width',async()=>{

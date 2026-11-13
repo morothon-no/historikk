@@ -119,7 +119,7 @@ test('tenure extension changes only the authorized volunteer absence, never iden
  await require('./helpers/honors.cjs').assertOrdinaryDiplomaCss(root);
  for(const dir of ['data/history.json','data/event-dates.json','assets','index.html']){
   const files=execFileSync('git',['ls-tree','-r','--name-only',base,dir],{cwd:root}).toString().trim().split('\n');
-  for(const file of files)assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show',base+':'+file],{cwd:root}),file);
+  for(const file of files)require('./helpers/honors.cjs').assertPreservedPresentation(await fs.readFile(path.join(root,file)),execFileSync('git',['show',base+':'+file],{cwd:root}),file);
  }
  const original=JSON.parse(execFileSync('git',['show',base+':data/volunteers.json'],{cwd:root}));original.people.find(m=>m.id==='atle-aamodt').excludedYears=[2026];const n=original.people.find(p=>p.id==='nils-martin-otterdal-nilsen');Object.assign(n,{role:'Styreleder i Søgne Skiklubb',roleType:'external',sourceIds:['organizer-v34','organizer-v35']});assert.deepEqual(JSON.parse(await require('./helpers/honors.cjs').preservedFile(root,'data/volunteers.json')),original);
 });

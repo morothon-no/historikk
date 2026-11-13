@@ -3,9 +3,11 @@ const fs=require('node:fs/promises'),path=require('node:path'),{createHash}=requ
 const root=path.resolve(__dirname,'..');
 const {BRAND_ASSETS,DATA_NAMES,PUBLIC_CODE,runtimeFiles}=require('./lib/runtime-files.cjs');
 const {readApprovedPackage,safeRead}=require('./lib/public-package.cjs');
+const {assertValid}=require('../js/history-data.js');
 const defaultApproval=path.join(root,'.github/public-data-approval.json');
 async function validatePublicSite(out,{approvalFile=defaultApproval,approval}={}){
  const verified=await readApprovedPackage(out,{approvalFile,approval,assetsRoot:out,site:true});
+ assertValid(verified.data.history);
  return {files:runtimeFiles(verified.data.badges).length+2,visiblePeople:verified.visiblePeople,dataVersion:verified.manifest.dataVersion};
 }
 async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(root,'public-data'),approvalFile=defaultApproval,approval}={}){
@@ -13,6 +15,7 @@ async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(
  if(out===root||root.startsWith(out+path.sep))throw Error('Unsafe output directory');
  await fs.mkdir(out,{recursive:true});if((await fs.readdir(out)).length)throw Error('Output directory must be empty');
  const verified=await readApprovedPackage(dataDir,{approvalFile,approval,assetsRoot:root}),files=runtimeFiles(verified.data.badges);
+ assertValid(verified.data.history);
  const sources=new Map();
  for(const file of files)sources.set(file,verified.bytes.get(file)||verified.assetBytes.get(file)||await safeRead(root,file));
  const hash=createHash('sha256');

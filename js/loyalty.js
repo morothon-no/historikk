@@ -14,7 +14,7 @@
   function calculate(rows, editionYears) {
     const editions = [...new Set(editionYears)].sort((a,b)=>a-b), index = new Map(editions.map((y,i)=>[y,i]));
     const rules = window.MorothonHistoryData;
-    const years = [...new Set(rows.filter(r=>rules.countsAsParticipation(r)&&!rules.isRelayRace(r)&&index.has(r[0])).map(r=>r[0]))].sort((a,b)=>a-b);
+    const years = rules.participationYears(rows).filter(y=>index.has(y));
     const first = years[0] ?? null, last = years.at(-1) ?? null, count = years.length;
     const period = endIndex => { const poss=index.get(years[endIndex])-index.get(first)+1, count=endIndex+1;return {first,last:years[endIndex],count,poss,pct:count/poss,miss:poss-count}; };
     const total = count ? period(count-1) : {first,last,count:0,poss:0,pct:0,miss:0};
