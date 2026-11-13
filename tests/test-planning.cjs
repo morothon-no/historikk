@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process');
-const {classify,gitChanges,plan,protectedTest}=require('../scripts/testing/plan.cjs');
-const {publicFiles,sourceFiles,requirements}=require('../scripts/testing/catalog.cjs');
+const {classify,gitChanges,plan}=require('../scripts/testing/plan.cjs');
+const {publicFiles,sourceFiles,requirements,discoverTests}=require('../scripts/testing/catalog.cjs');
 test('B1 selects cumulative levels conservatively, with no documentation override for code/data changes',()=>{
  for(const files of [['README.md'],['docs/help.md','docs/metrics.json']])assert.equal(classify(files).level,'quick');
  assert.equal(classify(['docs/a.md','js/progress.js']).level,'functional');
@@ -10,17 +10,17 @@ test('B1 selects cumulative levels conservatively, with no documentation overrid
  assert.equal(classify(['README.md'],{forceFull:true}).level,'full');
 });
 test('B1 public/source full partitions every existing test exactly once; no declared test disappears',async()=>{
- const all=(await fs.readdir(path.join(__dirname))).filter(f=>f.endsWith('.cjs')).map(f=>'tests/'+f).sort();
- const pub=publicFiles('full'),source=sourceFiles('full',all);assert.equal(new Set([...pub,...source]).size,all.length);assert.deepEqual([...pub,...source].sort(),all);
+ const {all,extras}=await discoverTests(path.resolve(__dirname,'..'));
+ const pub=publicFiles('full',extras),source=sourceFiles('full',all,extras);assert.equal(new Set([...pub,...source]).size,all.length);assert.deepEqual([...pub,...source].sort(),all);
  for(const f of publicFiles('quick'))assert.ok(publicFiles('functional').includes(f));for(const f of publicFiles('functional'))assert.ok(publicFiles('visual').includes(f));
- assert.deepEqual(sourceFiles('full',[...all,'tests/future.cjs']).at(-1),'tests/future.cjs');
+ assert.deepEqual(sourceFiles('full',[...all,'tests/future.cjs'],extras).at(-1),'tests/future.cjs');
 });
 test('B1 quick has no browser/PDF/Python requirement; known integration and print levels declare their tools',()=>{
  assert.deepEqual(requirements('quick','public'),{browser:false,pdf:false,python:false});assert.deepEqual(requirements('quick','source'),{browser:false,pdf:false,python:false});
  assert.deepEqual(requirements('functional','public'),{browser:true,pdf:false,python:false});assert.deepEqual(requirements('visual','public'),{browser:true,pdf:true,python:false});assert.equal(requirements('full','source').python,true);
  assert.throws(()=>requirements('untrusted','public'),/Unknown/);
 });
-test('B1 rename, deletion and unavailable Git range never lower test coverage; test edits require external head review',async()=>{
+test('B1 rename, deletion and unavailable Git range never lower test coverage; ordinary test edits require full tests without a settings change',async()=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-plan-fixture-'));
  const git=(...args)=>execFileSync('git',args,{cwd:dir,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
  try{
@@ -28,12 +28,10 @@ test('B1 rename, deletion and unavailable Git range never lower test coverage; t
   await fs.mkdir(path.join(dir,'docs'));await fs.mkdir(path.join(dir,'tests'));await fs.writeFile(path.join(dir,'docs/a.md'),'a');await fs.writeFile(path.join(dir,'tests/one.cjs'),'synthetic');git('add','.');git('commit','-m','base');const base=git('rev-parse','HEAD');
   git('mv','docs/a.md','unknown.file');await fs.writeFile(path.join(dir,'tests/one.cjs'),'changed');git('add','.');git('commit','-m','head');const head=git('rev-parse','HEAD');
   const changed=await gitChanges(dir,base,head);assert.ok(changed.includes('docs/a.md'));assert.ok(changed.includes('unknown.file'));assert.equal(classify(changed).level,'full');
-  await assert.rejects(()=>plan({root:dir,base,head,checkReview:true}),/exact PR head/);
-  assert.equal((await plan({root:dir,base,head,checkReview:true,reviewedHead:head})).level,'full');
+  assert.equal((await plan({root:dir,base,head})).level,'full');
   assert.equal((await plan({root:dir,base:'0'.repeat(40),head})).level,'full');
-  await assert.rejects(()=>plan({root:dir,base:'0'.repeat(40),head,checkReview:true}),/maintainer head review/);
+  assert.equal((await plan({root:dir,base:'0'.repeat(40),head})).public.pdf,true);
  }finally{await fs.rm(dir,{recursive:true,force:true});}
- for(const f of ['tests/new.cjs','scripts/testing/run.cjs','scripts/diploma-harness.cjs'])assert.equal(protectedTest(f),true);
 });
 test('B1 missing required tests or an invalid scope fail closed before any test command runs',async()=>{
  const {run}=require('../scripts/testing/run.cjs'),dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-missing-tests-'));

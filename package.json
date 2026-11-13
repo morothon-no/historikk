@@ -2,7 +2,7 @@
   "name": "morothon-historikk",
   "private": true,
   "scripts": {
-    "test": "node --test tests/*.cjs",
+    "test": "node scripts/testing/run.cjs --level full --scope all",
     "build": "node scripts/build-site.cjs",
     "data:export": "node scripts/export-public-data.cjs",
     "data:check-sources": "node scripts/check-source-export.cjs",
@@ -12,7 +12,6 @@
     "build:branding": "node scripts/build-brand-assets.cjs",
     "diplomer:kontroll": "node scripts/prepare-honor-print-set.cjs",
     "diplomer:klargjor": "node scripts/prepare-honor-print-set.cjs --write",
-    "pretest": "node scripts/review-runner-links.cjs",
     "personer:kontroller": "node scripts/review-runner-links.cjs",
     "test:quick": "node scripts/testing/run.cjs --level quick --scope public",
     "test:functional": "node scripts/testing/run.cjs --level functional --scope public",

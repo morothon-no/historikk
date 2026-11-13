@@ -1,11 +1,11 @@
 // Portable test entry point. Never trusts a PR-generated list of files or arbitrary commands.
 const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),{spawnSync}=require('node:child_process');
-const {levels,publicFiles,sourceFiles}=require('./catalog.cjs');
+const {levels,publicFiles,sourceFiles,discoverTests}=require('./catalog.cjs');
 async function run({root=path.resolve(__dirname,'../..'),level='full',scope='public'}={}){
  if(!levels.includes(level)||!['public','source','all'].includes(scope))throw Error('Invalid test level/scope');
- root=path.resolve(root);const all=(await fs.readdir(path.join(root,'tests'))).filter(f=>f.endsWith('.cjs')).map(f=>'tests/'+f).sort();
- const files=scope==='all'?(level==='full'?all:[...publicFiles(level),...sourceFiles(level,all)]):scope==='source'?sourceFiles(level,all):publicFiles(level);
- const required=scope==='all'?[...new Set([...files,...publicFiles(level)])]:files;
+ root=path.resolve(root);const {all,extras}=await discoverTests(root);
+ const files=scope==='all'?(level==='full'?all:[...publicFiles(level,extras),...sourceFiles(level,all,extras)]):scope==='source'?sourceFiles(level,all,extras):publicFiles(level,extras);
+ const required=scope==='all'?[...new Set([...files,...publicFiles(level,extras)])]:files;
  for(const f of required)if(!all.includes(f))throw Error('Missing required test: '+f);
  const execute=(args,env=process.env)=>{
   const p=spawnSync(process.execPath,args,{cwd:root,env,stdio:'inherit'});

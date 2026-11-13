@@ -1,5 +1,10 @@
 # B1 – testløp, sikkerhet og målinger
 
+**Oppdatert etter B1:** Det brede SHA-kravet for vanlige tester/kode er erstattet
+av [enkel utviklingsflyt](enkel-utviklingsflyt.md). Testnivåene og de historiske
+målingene i denne rapporten gjelder fortsatt; SHA kreves bare ved endring av
+selve sikkerhets-, teststyrings- og publiseringsreglene.
+
 Grunnlag: `main` etter A2 / PR #31 (`1c84b4e`). Ingen endringer i nettsidens kode, design, data, medaljer eller diplomgrunnlag. Backup og migrering er ikke utført.
 
 ## Faktisk Actions-baseline
@@ -67,7 +72,7 @@ Den eksisterende påkrevde offentlige testjobben bruker `always()` **bare til å
 
 B1 endrer `.github/workflows/pages.yml`, `package.json`, offentlig sikkerhetskontroll og testplan/-kjører. Før første B1-PR-kjøring må repository-eier gjennomgå den endelige commit-en og sette **`MOROTHON_REVIEWED_POLICY_HEAD` til dens fulle 40-tegns SHA**. Variabelen er den eksisterende A1C-porten; den settes ikke av Codex. `MOROTHON_PUBLIC_DATA_SHA256` og datapakkens godkjenning skal beholdes uendret.
 
-Etter innføring beregnes nivå med planlegger fra beskyttet base før PR-kode kjøres. Den samme basen leverer testkjøreren. Manglende planlegger ved første innføring tillates bare etter den eksakte eksterne head-godkjenningen. Endringer i tester/plan/harness krever også head-godkjenning og full kontroll; de kan ikke velge et lettere nivå for seg selv. Offentlige jobber får fortsatt ingen administrative originalregistre, private repositories, tokens eller nøkler.
+Som standard beregnes nivå og obligatoriske tester fra beskyttet base. Vanlige tester og harness-endringer utløser full kontroll, men trenger ikke head-godkjenning. Bare de faktiske kontrollreglene krever dette; en eksplisitt head-godkjent oppgradering kan prøve nye kontroller. Offentlige jobber får fortsatt ingen administrative originalregistre, private repositories, tokens eller nøkler. Se den gjeldende utviklingsflyten over.
 
 ## Før/etter – hva som faktisk er målt
 

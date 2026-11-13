@@ -30,7 +30,7 @@ test('even a newly pinned malformed package cannot bypass public field, contract
 test('PR-local approvals and safety edits cannot replace protected-base or external maintainer approval',async()=>{
  const base=await temp(),candidate=await temp(),head='a'.repeat(40);try{await copyPublic(base);await copyPublic(candidate);
   assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head})).visiblePeople,43);
-  for(const file of ['scripts/lib/public-schema.cjs','js/history-data.js']){
+  for(const file of ['scripts/lib/public-schema.cjs','scripts/testing/run.cjs']){
    await fs.appendFile(path.join(candidate,file),'\n// untrusted security edit');await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
    await fs.copyFile(path.join(base,file),path.join(candidate,file));
   }
