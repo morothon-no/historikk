@@ -65,6 +65,7 @@
       row.append(node('span', String(index + 1), 'job-index'), main, controls); list.append(row);
     });
     $('selectedCount').textContent = `${state.jobs.length} diplomer valgt`;
+    document.dispatchEvent(new CustomEvent('morothon:diploma-count', { detail: { count: state.jobs.length } }));
     for (const id of ['demo', 'allowControl', 'search', 'kind', 'achievement', 'year', 'display']) $(id).disabled = state.busy;
     for (const b of $('downloads').querySelectorAll('button')) b.disabled = state.busy;
     for (const id of ['check', 'clear']) $(id).disabled = state.busy || !state.jobs.length;
@@ -86,7 +87,7 @@
       $('previewTitle').textContent = checked.name; $('previewStatus').textContent = [words[checked.status], ...checked.errors || [], ...checked.reasons || []].join(' · ');
       const frame = $('preview').querySelector('iframe'); frame.srcdoc = result.html || '<p>Diplomet kan ikke klargjøres.</p>';
       const job = state.jobs.find(j => itemKey(j.item) === itemKey(item)); if (job) job.checked = checked;
-      if (!$('preview').open) $('preview').showModal(); fit(); message('Forhåndsvisningen er kontrollert.');
+      if (location.hash === '#diplomer' && !$('preview').open) $('preview').showModal(); fit(); message('Forhåndsvisningen er kontrollert.');
     });
   }
   function fit() {
@@ -120,6 +121,13 @@
   });
   $('report').onclick = () => save(new Blob([JSON.stringify(state.checked, null, 2)], { type: 'application/json' }), 'morothon-kontrollrapport.json');
   $('closePreview').onclick = () => $('preview').close(); new ResizeObserver(fit).observe(document.querySelector('.preview-viewport'));
+  document.addEventListener('morothon:diploma-person', e => {
+    const p = state.people.find(p => p.kind === 'runner' && p.personId === e.detail?.id);
+    if (!p) { message('Løperens diplomvalg er ikke tilgjengelige ennå. Prøv igjen når historikken er lastet.'); return; }
+    $('kind').value = 'runner'; $('search').value = p.name; $('year').value = 'all';
+    $('achievement').value = p.defaultKey.startsWith('badge:') ? 'highest' : p.defaultKey.startsWith('record:') ? 'record' : 'debut';
+    state.limit = 40; renderResults();
+  });
   api('catalog').then(data => {
     state.people = data.people; state.max = data.maxItems;
     const years = [...new Set(data.people.flatMap(p => p.options.map(o => o.year)).filter(Number.isInteger))].sort((a, b) => b - a);
