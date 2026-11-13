@@ -1,44 +1,24 @@
-// Explicit runtime package. A single deterministic content version also covers iframe CSS.
+// Public-only builder: consumes an approved package, never administrative originals.
 const fs=require('node:fs/promises'),path=require('node:path'),{createHash}=require('node:crypto');
 const root=path.resolve(__dirname,'..');
-const {exportPublicData,validateExport,validatePublicData}=require('./lib/public-data.cjs');
-const BRAND_ASSETS=['assets/social/morothon-og.png','assets/icons/favicon-16.png','assets/icons/favicon-32.png','assets/icons/apple-touch-icon.png','assets/icons/favicon.ico'];
-const DATA_NAMES=['history','badges','honors','volunteers','event-dates'];
-// New administrative code must not become public just by appearing in js/.
-const PUBLIC_CODE=['css/diplomas.css','css/navigation.css','css/brag-card.css','css/honors.css',
- 'js/compare.js','js/rankings.js','js/loyalty.js','js/brag-card.js','js/honors.js','js/history-data.js',
- 'js/navigation.js','js/diplomas.js','js/badges.js','js/honors-data.js','js/progress.js','js/milestones.js'];
-async function readInputs(){return Object.fromEntries(await Promise.all(DATA_NAMES.map(async n=>[n,JSON.parse(await fs.readFile(path.join(root,'data',n+'.json'),'utf8'))])));}
-function runtimeFiles(registry){
- const files=['index.html','heder.html',...DATA_NAMES.map(n=>`data/${n}.json`),...BRAND_ASSETS,'assets/fonts/caveat-regular-latin.woff','assets/fonts/OFL-Caveat.txt',...PUBLIC_CODE];
- const assets=new Set([registry.watermark.src]);
- for(const badge of registry.badges){assets.add(badge.src);if(badge.vectorSource)assets.add(badge.vectorSource);}
- for(const src of assets){
-  if(!/^assets\/medals\/(approved|identity|service|watermarks)\/[a-z0-9._-]+$/.test(src))throw Error('Non-runtime asset in public register');
-  files.push(src);
- }
- return files.sort();
+const {BRAND_ASSETS,DATA_NAMES,PUBLIC_CODE,runtimeFiles}=require('./lib/runtime-files.cjs');
+const {readApprovedPackage,safeRead}=require('./lib/public-package.cjs');
+const defaultApproval=path.join(root,'.github/public-data-approval.json');
+async function validatePublicSite(out,{approvalFile=defaultApproval,approval}={}){
+ const verified=await readApprovedPackage(out,{approvalFile,approval,assetsRoot:out,site:true});
+ return {files:runtimeFiles(verified.data.badges).length+2,visiblePeople:verified.visiblePeople,dataVersion:verified.manifest.dataVersion};
 }
-async function validatePublicSite(out){
- const original=await readInputs(),actual=Object.fromEntries(await Promise.all(DATA_NAMES.map(async n=>[n,JSON.parse(await fs.readFile(path.join(out,'data',n+'.json'),'utf8'))])));
- validateExport(actual,original);
- validatePublicData('build-info',JSON.parse(await fs.readFile(path.join(out,'build-info.json'),'utf8')));
- const expected=[...runtimeFiles(actual.badges),'build-info.json'].sort(),found=[];
- async function walk(dir){for(const e of await fs.readdir(dir,{withFileTypes:true})){const full=path.join(dir,e.name);if(e.isSymbolicLink())throw Error('Symlink in public package');if(e.isDirectory())await walk(full);else found.push(path.relative(out,full).split(path.sep).join('/'));}}
- await walk(out);found.sort();
- if(JSON.stringify(found)!==JSON.stringify(expected))throw Error('Unexpected or missing file in public package');
- return {files:found.length,visiblePeople:actual.honors.groups.reduce((n,g)=>n+g.members.length,0)+actual.volunteers.people.filter(p=>p.id).length};
-}
-async function buildSite(destination=path.join(root,'_site')){
+async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(root,'public-data'),approvalFile=defaultApproval,approval}={}){
  const out=path.resolve(destination);
  if(out===root||root.startsWith(out+path.sep))throw Error('Unsafe output directory');
  await fs.mkdir(out,{recursive:true});if((await fs.readdir(out)).length)throw Error('Output directory must be empty');
- const original=await readInputs(),publicData=exportPublicData(original),files=runtimeFiles(publicData.badges);
- const sources=new Map(await Promise.all(files.map(async f=>[f,await fs.readFile(path.join(root,f))])));
- for(const name of DATA_NAMES)if(name!=='history')sources.set(`data/${name}.json`,Buffer.from(JSON.stringify(publicData[name],null,2)+'\n'));
+ const verified=await readApprovedPackage(dataDir,{approvalFile,approval,assetsRoot:root}),files=runtimeFiles(verified.data.badges);
+ const sources=new Map();
+ for(const file of files)sources.set(file,verified.bytes.get(file)||verified.assetBytes.get(file)||await safeRead(root,file));
  const hash=createHash('sha256');
  // Include the rewriter itself: changing build semantics must invalidate cached assets too.
- for(const f of ['scripts/build-site.cjs','scripts/lib/public-data.cjs','package.json',...files]){const bytes=sources.get(f)||await fs.readFile(path.join(root,f));hash.update(f+'\0'+bytes.length+'\0');hash.update(bytes);}
+ for(const f of ['scripts/build-site.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','package.json',...files]){const bytes=sources.get(f)||await fs.readFile(path.join(root,f));hash.update(f+'\0'+bytes.length+'\0');hash.update(bytes);}
+ hash.update(verified.manifestBytes);
  const version=hash.digest('hex').slice(0,16),packageInfo=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
  const siteUrl=new URL(packageInfo.homepage);if(siteUrl.protocol!=='https:'||!siteUrl.pathname.endsWith('/'))throw Error('homepage must be an absolute HTTPS directory URL');
  const code=new Set(files.filter(f=>/\.(css|js)$/.test(f)));
@@ -63,8 +43,9 @@ async function buildSite(destination=path.join(root,'_site')){
  }
  const manifest={version,siteUrl:siteUrl.href,assets:Object.fromEntries([...code].sort().map(f=>[f,assetUrl(f)]))};
  await fs.writeFile(path.join(out,'build-info.json'),JSON.stringify(manifest,null,2)+'\n');
- await validatePublicSite(out);
- return {out,files:[...files,'build-info.json'].sort(),version};
+ await fs.writeFile(path.join(out,'public-manifest.json'),verified.manifestBytes);
+ await validatePublicSite(out,{approval:verified.approval});
+ return {out,files:[...files,'build-info.json','public-manifest.json'].sort(),version};
 }
 module.exports={buildSite,BRAND_ASSETS,validatePublicSite};
-if(require.main===module)buildSite(process.argv[2]).then(r=>console.log(JSON.stringify({output:r.out,files:r.files.length,version:r.version}))).catch(e=>{console.error(e.message);process.exitCode=1;});
+if(require.main===module)buildSite(process.argv[2],{...(process.argv[3]?{dataDir:process.argv[3]}:{}),...(process.argv[4]?{approvalFile:process.argv[4]}:{})}).then(r=>console.log(JSON.stringify({output:r.out,files:r.files.length,version:r.version}))).catch(e=>{console.error(e.message);process.exitCode=1;});

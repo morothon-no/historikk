@@ -17,7 +17,8 @@ Hederssiden er fortsatt en skjult forhåndsvisning på `heder.html`, med
 
 ## Installer og test
 
-Bruk Node.js 24 (minimum 20), Python 3.12 med Pillow, Chromium og Poppler.
+Bruk Node.js 24 til testpakkene, Python 3.12 med Pillow, Chromium og Poppler.
+Selve byggeren støtter Node.js fra versjon 20.
 På Ubuntu trenger testene også Liberation- og URW Base35-fontene.
 
 ```sh
@@ -42,26 +43,21 @@ full historikk. Hvis npm-cachen ikke er skrivbar, angi en egen mappe med
 npm run build
 ```
 
-Dette lager `_site/` fra en eksplisitt liste over runtime-filer. Utmappen må være
-tom; fjern tidligere generert `_site/` før et nytt lokalt bygg, eller bruk
-`node scripts/build-site.cjs /tmp/morothon-site` med en ny mappe.
-
-Bygget eksporterer nå eksplisitte offentlige datafelt fremfor å kopiere hele
-administrasjonsregistrene. Kontroller en eksisterende byggepakke før opplasting:
+Dette bygger `_site/` fra den godkjente offentlige pakken i `public-data/` og
+offentlige kode-/assetfiler. Utmappen må være tom. Bygget leser ikke originale
+administrasjonsregistre og trenger ingen private tilganger.
 
 ```sh
+npm run test:public
 npm run public:kontroll -- _site
 ```
 
-Publiser bare den validerte byggepakken, aldri repositoryroten. Originalregistrene
-ligger fortsatt i dette repositoryet og Git-historikken; filtrert Pages-eksport
-gjør dem ikke private. Se [A1: datafelt, eksponering og migreringsplan](docs/a1-offentlig-dataeksport.md).
-
-Videre privat lagring og skillet mellom privat eksport og offentlig bygg er
-beskrevet i [A1B-planen](docs/a1b-privat-migreringsplan.md), med en egen
-[beslutningsliste for publisering](docs/a1b-publiseringsbeslutninger.md).
-Dette er en plan; ingen originaldata er flyttet eller historikk omskrevet.
-Tester, vedlegg, kildearkiver og gjennomgangsbilder publiseres ikke.
+Privat/administrativ eksport er et separat steg som lager en kandidat til
+gjennomgang. Originalene er foreløpig bevart på sin gamle plass; filtrering og
+selvstendig bygg gjør ikke dagens Git-historikk privat. Publiser aldri
+repositoryroten som statisk nettsted. Se [A1C: kommandoer, kontrakt og betrodd
+PR-kontroll](docs/a1c-separat-eksport-og-bygg.md), [A1](docs/a1-offentlig-dataeksport.md)
+og [A1B-planen](docs/a1b-privat-migreringsplan.md) med [publiseringsvalg](docs/a1b-publiseringsbeslutninger.md).
 
 Byggeren beregner én deterministisk innholdshash for hele utgaven. Alle lokale
 CSS-/JS-URL-er i begge sider og diplomets isolerte iframe får `?v=<hash>`.
@@ -69,12 +65,13 @@ CSS-/JS-URL-er i begge sider og diplomets isolerte iframe får `?v=<hash>`.
 manuell versjonsstreng som må oppdateres. `homepage` i `package.json` er kilden
 for absolutte delings-/canonical-URL-er i bygget.
 
-Den eneste workflowen er `.github/workflows/pages.yml`. Push til `codex/**`,
-pull requests mot `main` og oppdateringer av `main` kjører installasjon,
-alle regresjonstester og bygg. Bare grønn verifisering på `main` kan sende det
-**samme testede artifaktet** til GitHub Pages. PR-er og arbeidsgrener deployes
-ikke. En merge til `main` kan dermed publisere etter kontrollen; ikke merge uten
-arrangørens uttrykkelige godkjenning.
+Den eneste workflowen er `.github/workflows/pages.yml`. PR-er mot `main` kjører
+betrodd pakkekontroll og offentlige tester uten originalregistrene. På `main`
+kjøres også hele den bevarte kildekontrollen før deploy. Publisering krever
+vellykket offentlig bygg/test, uavhengig artefaktkontroll og kildekontroll;
+arbeidsgrener og PR-er deployes ikke. Første A1C-kjøring og sikkerhetsendringer
+krever repo-eiers eksterne godkjenning og GitHub-beskyttelse som beskrevet i
+A1C-veiledningen. Ikke merge uten arrangørens uttrykkelige godkjenning.
 
 Se [utgivelseskontrollen](docs/release-quality.md) for kildeklargjøring,
 cache-testing, visuell gjennomgang og senere publisering.

@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "sourceIds": [
+    "evidence-604a77aa284e4da23d23"
+  ],
+  "people": [
+    {
+      "profileId": "kalle-kimestad"
+    },
+    {
+      "profileId": "finn-lohne"
+    },
+    {
+      "id": "jon-fjeld",
+      "name": "Jon Fjeld",
+      "role": "Barneløp og startpistol",
+      "fromYear": 2014,
+      "sourceIds": [
+        "evidence-d6141846828236562803"
+      ]
+    },
+    {
+      "id": "rune-bergjord",
+      "name": "Rune Bergjord",
+      "fromYear": 2015
+    },
+    {
+      "id": "astrid-lohne",
+      "name": "Astrid Lohne",
+      "role": "Løypemerking"
+    },
+    {
+      "id": "per-sangvik",
+      "name": "Per Sangvik",
+      "role": "Løypemerking",
+      "fromYear": 2019
+    },
+    {
+      "id": "tom-lohne",
+      "name": "Tom Lohne",
+      "fromYear": 2021
+    },
+    {
+      "id": "joar-lohne",
+      "name": "Joar Lohne",
+      "fromYear": 2025
+    },
+    {
+      "id": "anne-lene-forland-hansen",
+      "name": "Anne Lene Førland-Hansen",
+      "role": "Drikkestasjon",
+      "sourceIds": [
+        "evidence-4fffcb2b848a552544ca",
+        "evidence-ac68d3fef8698b977328"
+      ],
+      "fromYear": 2016
+    },
+    {
+      "id": "birgitte-aamodt",
+      "name": "Birgitte Aamodt",
+      "nameStatus": "as-provided",
+      "fromYear": 2022,
+      "sourceIds": [
+        "evidence-604a77aa284e4da23d23",
+        "evidence-b04f594d90d8d655903e"
+      ]
+    },
+    {
+      "id": "nils-henning-pedersen",
+      "name": "Nils Henning Pedersen",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "ingvild-holmen-solvik",
+      "name": "Ingvild Holmen Solvik",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "johannes-aamodt",
+      "name": "Johannes Aamodt",
+      "nameStatus": "as-provided",
+      "fromYear": 2021,
+      "sourceIds": [
+        "evidence-604a77aa284e4da23d23",
+        "evidence-b04f594d90d8d655903e"
+      ]
+    },
+    {
+      "id": "linea-morland",
+      "name": "Linea Morland",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "mari-melsom-kristensen",
+      "name": "Mari Melsom Kristensen",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "nils-martin-otterdal-nilsen",
+      "name": "Nils Martin Otterdal Nilsen",
+      "nameStatus": "as-provided",
+      "role": "Styreleder i Søgne Skiklubb",
+      "roleType": "external",
+      "sourceIds": [
+        "evidence-604a77aa284e4da23d23",
+        "evidence-bdb17c4794deea2dad92"
+      ]
+    },
+    {
+      "id": "jenny-aamodt",
+      "name": "Jenny Åmodt",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "ole-j-bueklev",
+      "name": "Ole J.Bueklev",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "trine-dybesland",
+      "name": "Trine Dybesland",
+      "nameStatus": "as-provided"
+    },
+    {
+      "id": "aud-o",
+      "name": "Aud Ovesen",
+      "nameStatus": "as-provided",
+      "sourceIds": [
+        "evidence-604a77aa284e4da23d23",
+        "evidence-b92212d31af0b021c526"
+      ]
+    },
+    {
+      "id": "arnfinn-g",
+      "name": "Arnfinn Grimestad",
+      "nameStatus": "as-provided",
+      "sourceIds": [
+        "evidence-604a77aa284e4da23d23",
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "magne",
+      "name": "Magne Lia",
+      "nameStatus": "as-provided",
+      "sourceIds": [
+        "evidence-604a77aa284e4da23d23",
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "lars-aamodt",
+      "name": "Lars Vassbotn Aamodt",
+      "sourceIds": [
+        "evidence-afc8fa344dc732d14231",
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "laila-endresen-skjulestad",
+      "name": "Laila Endresen Skjulestad",
+      "role": "Drikkestasjon",
+      "sourceIds": [
+        "evidence-4fffcb2b848a552544ca",
+        "evidence-ac68d3fef8698b977328"
+      ],
+      "fromYear": 2016
+    },
+    {
+      "id": "christan-berthelsen",
+      "name": "Christan Berthelsen",
+      "sourceIds": [
+        "evidence-02dedcde36c8ec7a9829"
+      ]
+    },
+    {
+      "id": "georg-engenes",
+      "name": "Georg Engenes",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "trine-danielsen",
+      "name": "Trine Danielsen",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "lene-holmen-berg",
+      "name": "Lene Holmen Berg",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "arvid-boro",
+      "name": "Arvid Borø",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "margrete-tofte",
+      "name": "Margrete Tofte",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "joran-eriksen",
+      "name": "Jøran Eriksen",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "preben-s-dahl",
+      "name": "Preben S. Dahl",
+      "sourceIds": [
+        "evidence-488a1d1821070b695281"
+      ]
+    },
+    {
+      "id": "atle-aamodt",
+      "name": "Atle Aamodt",
+      "sourceIds": [
+        "evidence-b92212d31af0b021c526",
+        "evidence-b04f594d90d8d655903e"
+      ],
+      "fromYear": 2021,
+      "excludedYears": [
+        2026
+      ]
+    }
+  ],
+  "publicDataVersion": 1,
+  "sources": {}
+}

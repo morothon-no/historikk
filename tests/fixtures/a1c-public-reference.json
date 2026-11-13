@@ -1,0 +1,1664 @@
+{
+  "baseline": "A1 e3c0397f3cc7799f",
+  "ids": [
+    "oscar-lohne",
+    "erling-askildsen",
+    "einar-danielsen",
+    "arnfinn-haverstad",
+    "helge-reisvoll",
+    "dag-morten-frantzen",
+    "hakon-lohne",
+    "bent-bakke",
+    "finn-lohne",
+    "jon-fjeld",
+    "kalle-kimestad",
+    "rune-bergjord",
+    "anne-lene-forland-hansen",
+    "laila-endresen-skjulestad",
+    "per-sangvik",
+    "atle-aamodt",
+    "johannes-aamodt",
+    "tom-lohne",
+    "birgitte-aamodt",
+    "joar-lohne",
+    "arnfinn-g",
+    "arvid-boro",
+    "astrid-lohne",
+    "aud-o",
+    "christan-berthelsen",
+    "georg-engenes",
+    "ingvild-holmen-solvik",
+    "jenny-aamodt",
+    "joran-eriksen",
+    "lars-aamodt",
+    "lene-holmen-berg",
+    "linea-morland",
+    "magne",
+    "margrete-tofte",
+    "mari-melsom-kristensen",
+    "nils-henning-pedersen",
+    "nils-martin-otterdal-nilsen",
+    "ole-j-bueklev",
+    "preben-s-dahl",
+    "trine-danielsen",
+    "trine-dybesland",
+    "floke-bredland",
+    "leif-wiig"
+  ],
+  "diplomas": [
+    {
+      "id": "erling-askildsen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "fb0f32e921e1e303ba2a29f8e23312e3387558cedf72ff245ae6d52b287a3bb6",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      "mode": "presentation",
+      "count": 35,
+      "first": 1992,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "title": "Morothons æresmerke",
+      "tribute": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien."
+    },
+    {
+      "id": "erling-askildsen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "248816360621b7f6bdb161942c82ee8877f3379def4a9d83a8efcd59b0ae0c30",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          }
+        ]
+      },
+      "mode": "presentation",
+      "count": 35,
+      "first": 1992,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "title": "Morothons æresmerke",
+      "tribute": "Du fikk ideen som ble til Morothon. Gjennom samtlige 35 utgaver har du vært med på å bevare løpet og fellesskapet rundt det. Engasjementet ditt har gitt generasjoner av løpere minner for livet. Du er blitt en del av selve historien."
+    },
+    {
+      "id": "oscar-lohne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "eecd1c447f4d00960395593a67f0f0378d43d20a2dc10058dd8e9d1904e9619b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      "mode": "presentation",
+      "count": 35,
+      "first": 1992,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "title": "Morothons æresmerke",
+      "tribute": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien."
+    },
+    {
+      "id": "oscar-lohne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "0b5cf61538268c4e1dd3c7a9c95b0c02daaaa88003558c8bb5f948f7a2777efb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          }
+        ]
+      },
+      "mode": "presentation",
+      "count": 35,
+      "first": 1992,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "title": "Morothons æresmerke",
+      "tribute": "Gjennom samtlige 35 utgaver har du gitt av din tid og kraft for å holde Morothon levende. Fra den aller første starten har du vært en bærebjelke i fellesskapet. Noen bidrar til et arrangement. Du er blitt en del av selve historien."
+    },
+    {
+      "id": "arnfinn-haverstad",
+      "display": "all",
+      "proof": {
+        "contentSha256": "f77e9bc0574f2fa930821f60ed6484bc089840c7274745ce86b54ca8595a8dff",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Grunnlegger",
+      "tribute": "Du var med på å legge grunnlaget for Morothon, både som grunnlegger og løypeildsjel. Med takk for engasjementet bak tradisjonen og innsatsen ute i heiene."
+    },
+    {
+      "id": "arnfinn-haverstad",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "1aa0da62bd601f1a1fbbe5b8aa9c52199ed519e73d1804fa55ef9ad08e972f39",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Grunnlegger",
+      "tribute": "Du var med på å legge grunnlaget for Morothon, både som grunnlegger og løypeildsjel. Med takk for engasjementet bak tradisjonen og innsatsen ute i heiene."
+    },
+    {
+      "id": "helge-reisvoll",
+      "display": "all",
+      "proof": {
+        "contentSha256": "e01a4e6425917007a2e6245c790092b18d202c1be0afadc37b70c5d2c1abba7c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Grunnlegger",
+      "tribute": "Du var med på å skape en lokal tradisjon for utfordringer, løpsglede og fellesskap. Med takk for grunnlaget du la sammen med de andre ildsjelene."
+    },
+    {
+      "id": "helge-reisvoll",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "09618c7ef4365c7009c931aad73267500b14741405bb536fb92465eadc28672c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Grunnlegger",
+      "tribute": "Du var med på å skape en lokal tradisjon for utfordringer, løpsglede og fellesskap. Med takk for grunnlaget du la sammen med de andre ildsjelene."
+    },
+    {
+      "id": "einar-danielsen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "29238313b1d3ff22c2bdfe37a8f428a13233425cf41ad6a7601c7910a11be3ff",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-memorial",
+            "sha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb"
+          },
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          },
+          {
+            "key": "service-dugnad-10",
+            "sha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a"
+          },
+          {
+            "key": "service-dugnad-15",
+            "sha256": "7aa9f2960c1c6be92ffd687204808bbd23c03dab37cdaed8938f685b67400c02"
+          },
+          {
+            "key": "service-dugnad-20",
+            "sha256": "b792030ae13d1e2f2bab93603d69a4dca2dffcbb48359c7f1bfe9e2d40a68783"
+          },
+          {
+            "key": "service-dugnad-30",
+            "sha256": "c7946ae27764ff3a924682018d6bd00827255994bf0ca2473bb8899cdd2fd998"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 33,
+      "first": null,
+      "last": null,
+      "date": "Søgne, 7. november 2026",
+      "title": "Morothons æresmerke",
+      "tribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre."
+    },
+    {
+      "id": "einar-danielsen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "4050ff1b0625ddef0ce0d76a59888102d32f8fa1aa5c21f698291fc1502de9c3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "d165d248d047b1edaf81e2df3cc62759ecedeaf1f2799dd5bdd245470c822a48",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-grunnlegger",
+            "sha256": "823dc55eda782373d958ee0693dc74d0c1d00a117564d540e70d7255463b9509"
+          },
+          {
+            "key": "service-memorial",
+            "sha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 33,
+      "first": null,
+      "last": null,
+      "date": "Søgne, 7. november 2026",
+      "title": "Morothons æresmerke",
+      "tribute": "Du var med på å skape Morothon og grunnlaget for et varig fellesskap. Med takk for bidraget til tradisjonen som nye generasjoner fortsatt fører videre."
+    },
+    {
+      "id": "kalle-kimestad",
+      "display": "all",
+      "proof": {
+        "contentSha256": "ad4dde015f23b66d54fb2a6b3851053acb01a0441b95b1f9175b6b0369fa8712",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "kalle-kimestad",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "17f0c42445822f79b58fb4b77989c4c9444742ec4bc6e65a4518d2d6a388a950",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "finn-lohne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "5bd29eb9c0eff39e6fe9b3a629d58abe2500a380f437866df0f8ade428207d42",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "finn-lohne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "28a35f06de991340e06d8d7ca849ea51a91976e2956775823fc452caa7dfaeba",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "dag-morten-frantzen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "0fea3a8bc0ea1d51856c4b98be479236d97990427e692048a420c0efe8a6a113",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "dag-morten-frantzen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "71926e3a5c6c813323baa62c1bc2fd8c9062b2a1898d0e4eaac40ce091b55069",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "hakon-lohne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "ed6e35e58739c84d33f0f1820003d99855a6aa561c62b911f355e451719092b1",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2024,
+      "date": "Søgne, 9. november 2024",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "hakon-lohne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "7888b11109a123a2af2406bf37ddd2b290597dba2bc0c8c9b070f173fcf89885",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2024,
+      "date": "Søgne, 9. november 2024",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "jon-fjeld",
+      "display": "all",
+      "proof": {
+        "contentSha256": "bf5ea38a84cdf3b85f37c87f83e53bfdafac48d65b077e29367646efa6f553c8",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "jon-fjeld",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "61e478565c6bedad9af031677cbb244fcb1fccf99de8195ef80cd13187664f5a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2014,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "rune-bergjord",
+      "display": "all",
+      "proof": {
+        "contentSha256": "c75b9fbf1ca7c8271ee6f0707c386290acd748fa9c757f34ae418d3487c1966d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2015,
+      "last": 2024,
+      "date": "Søgne, 9. november 2024",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "rune-bergjord",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "5832b9930b0343ff11bf62aabe9c1456030718f0f2d4edbae57dedd1a133caaa",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2015,
+      "last": 2024,
+      "date": "Søgne, 9. november 2024",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "astrid-lohne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "a8ae71574146ea1312de85944a6309c33c9193d9e60f1a93f33d6a778428ee5b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "astrid-lohne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "838379243aa274b88c1c864eb9bfca2e4139746a8d7acb30f69c1e868e84f0b3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "per-sangvik",
+      "display": "all",
+      "proof": {
+        "contentSha256": "4c3187d01133f9b4433e5919539987caf09ce8a48ca243e5ec0c743c5177e2a4",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2019,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "per-sangvik",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "60ab008e2a765fe8400821f1d3f061ea131197c9b15ac95f5b41fc92442b3975",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2019,
+      "last": 2023,
+      "date": "Søgne, 11. november 2023",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "tom-lohne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "2d67d48726138d09deba2883a18ee3f55fcbf2cfb27597aa761591b90083287f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2021,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "tom-lohne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "11d685dce42b74e64a3559c4685270c2149f23458a49c0c43051d752d7b8b793",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2021,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "joar-lohne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "d8c474d958a82a6648726bd402c6f1388eae60ffec19566fb8e9ca3d737b8c94",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": 2,
+      "first": 2025,
+      "last": 2026,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "joar-lohne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "088532e4a5913c0d67bb78cc82eaf6c8c118eecc3d94804d5bf57b9838bdac04",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": 2,
+      "first": 2025,
+      "last": 2026,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "anne-lene-forland-hansen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "1dc38840f2b7f600cdef5aa19ac3336aa686376be2756b336943bf76fc8267ac",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2016,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "anne-lene-forland-hansen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "a38ee50a401cac28dbccbad83c57af893b24cc3d8e38d0c22e82e8445eff31bb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2016,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "birgitte-aamodt",
+      "display": "all",
+      "proof": {
+        "contentSha256": "f1f40c905f20df97b2f95d83a9006ae8f09d46cae0e9bbd594f6e3554003ef44",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": 5,
+      "first": 2022,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "birgitte-aamodt",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "ba5f7060bc392ec29d66a469304f2843c876117b9d48409ffc9df3835d86f910",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": 5,
+      "first": 2022,
+      "last": 2026,
+      "date": "Søgne, 7. november 2026",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "nils-henning-pedersen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "f6a1c03352f754e7697ef6dd550073363ba0f41e8faae39d19c0c199f1a4130e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "nils-henning-pedersen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "51898df6de83b53cee833628208c75e10ac1153a1f46aef9b5b81fea7a8fb296",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "ingvild-holmen-solvik",
+      "display": "all",
+      "proof": {
+        "contentSha256": "b8244d1887757590db5291dddfb9373a06efbf05f82a95ac4ed2d673c248f2a1",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "ingvild-holmen-solvik",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "e779b10fb2d62178ab483974b7e10b83f05dfbe6930592056d9a7a15cee1b169",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "johannes-aamodt",
+      "display": "all",
+      "proof": {
+        "contentSha256": "ae15c9d5cae2a9f1bda20caa99f95ead336203c7d32b034f248e391af8282398",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2021,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "johannes-aamodt",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "6f2b15f981692ade1165eb09042666c379b79556f36882197092137b23ef2c2b",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2021,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "linea-morland",
+      "display": "all",
+      "proof": {
+        "contentSha256": "f3a864f75d0188086da20aef8853736e517d50fd019b9935193e402fcb69125a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "linea-morland",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "44172cd0dfb7dd3e1248719accd906a16782e1a4c60ace021416be89e4fc2776",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "mari-melsom-kristensen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "0788a06c36961c52066db4e32f54e20633814a105bb7e4adea9784a2cc0e2c87",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "mari-melsom-kristensen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "15cf9e69119254dced2f6363639d53e819245d5a123c841d23bcb1d412cc9ca9",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "nils-martin-otterdal-nilsen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "0b3587bb85656911761f7000bbe9845c2c0f3d0f1f6bb496878d9329c9503e4e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "nils-martin-otterdal-nilsen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "32c0d843607aaba658b69913b767a6ca4b4f30c4460376cd568c90e40995bf05",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "jenny-aamodt",
+      "display": "all",
+      "proof": {
+        "contentSha256": "cf1c54f6116879f564f2838f64a6042047cf22833a13bebf78ffadc67a1c276c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "jenny-aamodt",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "da4b1f03f1151f5a6670e70f246eae8c5af0a8458369598534e9d7467fc5a991",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "ole-j-bueklev",
+      "display": "all",
+      "proof": {
+        "contentSha256": "91dc0ba182b03ec8459c1a2e7564b19b41374b6154143ea980c11f4469cd68dd",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "ole-j-bueklev",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "db5c683fbcd3ae438c55202b333e1eb0ef00268fd2aa5b27dbf6a08aa41e17cb",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "trine-dybesland",
+      "display": "all",
+      "proof": {
+        "contentSha256": "26ac521b39519eaf49a75e2ec9519ea1ad6c3c1d686986b2b729220f6c6d7b89",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "trine-dybesland",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "ca35ef9fa910e137ddfa625c5c0883aa91ff150c1a5394a6eb4032fd010ca2b4",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "aud-o",
+      "display": "all",
+      "proof": {
+        "contentSha256": "f541c02386a994579541c1c3f5da311d004d0f450370b9e716ebd31de9f5216f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "aud-o",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "ddd6ab6cf9c801514af07e4f2ffd0731be61b4d3fe4a0c7883baa28c340146ed",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "arnfinn-g",
+      "display": "all",
+      "proof": {
+        "contentSha256": "2211781169c8ff7ba952de73f5995146380e5d1eb0e32c7a43e7e2b6420ba17f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "arnfinn-g",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "5fedeacdbb220523628123b882a25983702e72a300bef484b7c3ec34a026ac10",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "magne",
+      "display": "all",
+      "proof": {
+        "contentSha256": "d8508304904bc2054a09295ad750dd931a1099b2e0d561c9fc83b73b4dc47ce7",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "magne",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "50ba54e8b7eb79896ede87ba5f3b653d708b784631f5e8e5f192be5ccb85ced0",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "lars-aamodt",
+      "display": "all",
+      "proof": {
+        "contentSha256": "d0889649922418020a40961e729f7775749cfaab9d4d084f8ce10257053f762d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "lars-aamodt",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "00a738176a9cb95e592d2490208415373cd24bf64749f3da9293ad402ef1cb16",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "laila-endresen-skjulestad",
+      "display": "all",
+      "proof": {
+        "contentSha256": "cb4b2dcfad97b901a0cb1fae8b5d6600007d4dfecb7ffb2d5e97450f334e2813",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2",
+        "secondarySha256": [
+          {
+            "key": "service-dugnad-5",
+            "sha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a"
+          }
+        ]
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2016,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "laila-endresen-skjulestad",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "8bdc95c00856b50caa05f124a3b2f9d8a17ff10825b65c7c12f5e5376cd261d3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "800dfe969a6296af46a312eb85a9ae2e193262e85f5745accb993e34636fcc4a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 10,
+      "first": 2016,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Dugnadshelt",
+      "tribute": "Ti utgaver med innsats. Du har for lengst sluttet å spørre hva du skal gjøre – du bare gjør det. Takk, dugnadshelt!"
+    },
+    {
+      "id": "christan-berthelsen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "543acd8d578d83fd95f0bce212d4081c2c504f2bd77e3b3ed5fabed1e1211f43",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "christan-berthelsen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "cd2065f6106bfc802d74694b362a104fd8016556b5968e292bb588cda96ef21f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "georg-engenes",
+      "display": "all",
+      "proof": {
+        "contentSha256": "9f9cac2d3c56e7bfb82eb30f1e8f790368e9fb6c36d1f0f712637378d1ce9959",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "georg-engenes",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "ae0c4b438a561c287e474a26a7b0dce94fdd755d96c65db730e3648e82708ba9",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "trine-danielsen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "c27c8191fe90e9abe651333dfabdbd42581cced34704657d47d24506496555ad",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "trine-danielsen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "6e2d11ad4c0a27f1dccfbeca44a13e44ed21593f28a11a3516a77fe9a56fa299",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "lene-holmen-berg",
+      "display": "all",
+      "proof": {
+        "contentSha256": "d8f9319018f82e02294ea7595ca3ec46740235bcf5771429c1fa489680a3a94c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "lene-holmen-berg",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "956b60b7d759721790b3ed32080a14019e0d1913bf4e6c25a3cd5c0fa9b5413d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "arvid-boro",
+      "display": "all",
+      "proof": {
+        "contentSha256": "78d813ecbb4bf6f74d6791ac004906bf055900932594702ca1ac82d0fdf94967",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "arvid-boro",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "303ee457ef850105aea434fded76d69d43756f3c6d59932a30b44e33bbcc8e32",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "margrete-tofte",
+      "display": "all",
+      "proof": {
+        "contentSha256": "8aabe616bdb20060999c021b209e247fe4dc5022d9bdfea32c43fb6905ec55f3",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "margrete-tofte",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "ac39b87821d1960ed11de6a29c4283afd62d5e3b455401469570a6be0bee667f",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "joran-eriksen",
+      "display": "all",
+      "proof": {
+        "contentSha256": "485578e5c8ac2211d97ffe3527a0489da8e2d5bd8557eb85e63caaa2109b2a6c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "joran-eriksen",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "757b3250e1ed673e30a1cf84a6f801c96e63b2d55114020671b23f5bea22d43c",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "preben-s-dahl",
+      "display": "all",
+      "proof": {
+        "contentSha256": "37feed1b6f2226b9181b765d2cb5e96aa61eaa303437fca27e47b6b3ee183fe5",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "preben-s-dahl",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "d019a6aac3589dd80644534e7e709e78ee59573eb6cf485ca25bfaf7178786b5",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "9c7fd36cd2061ce816ae514880d178d17e57b6955ac028f3653c6adf2f3c7daf",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "Takk for innsatsen",
+      "tribute": "Morothon blir ikke til av seg selv. Bak hver eneste løper står mennesker som gir av sin tid, sitt engasjement og sitt gode humør. Takk for ditt bidrag til løpsglede, fellesskap og ekte Morothon-moro!"
+    },
+    {
+      "id": "atle-aamodt",
+      "display": "all",
+      "proof": {
+        "contentSha256": "7c619749417590dd52e630ec0a8122dc3f39aa8d94bba4e9f3d43da90c8ccaca",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": 5,
+      "first": 2021,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "atle-aamodt",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "161a0c19991839ab77ff21002e7794548864dc8236eb6fdc9635b9461e42108d",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": 5,
+      "first": 2021,
+      "last": 2025,
+      "date": "Søgne, 8. november 2025",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "bent-bakke",
+      "display": "all",
+      "proof": {
+        "contentSha256": "53bb82207dc269d4b63dc9e29f550aab1508ae9037261301079b03ce1764ace0",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2014,
+      "last": 2018,
+      "date": "Søgne, 11. november 2018",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "bent-bakke",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "46ab6452746ed66a40d1910dff6355b28eb1f99daecf9917844c67cc3d331ebf",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "8127684001617859456e42b8baded0271dcc8ee03393b6a7e3f957cd1cb5f78a",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "draft",
+      "count": 5,
+      "first": 2014,
+      "last": 2018,
+      "date": "Søgne, 11. november 2018",
+      "title": "Ivrig hjelper",
+      "tribute": "Fem ganger har du stilt opp frivillig. Vi begynner å tro at du faktisk liker dette! Takk for en innsats som betyr mye for Morothon."
+    },
+    {
+      "id": "floke-bredland",
+      "display": "all",
+      "proof": {
+        "contentSha256": "f6d03c47aa7369ffbb7bb1992977d98468004a52883f5a82a1adef33a1fce038",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "For alltid en del av Morothon",
+      "tribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+    },
+    {
+      "id": "floke-bredland",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "9b2cb88be028941519a77fe0a451cacc5bbf52cb05be731bbbd94dbaf2fea057",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "For alltid en del av Morothon",
+      "tribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+    },
+    {
+      "id": "leif-wiig",
+      "display": "all",
+      "proof": {
+        "contentSha256": "72a8addd70647997d48043ffd828149ae61b2ae5b7fc8e08fd96f9512167149a",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "For alltid en del av Morothon",
+      "tribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+    },
+    {
+      "id": "leif-wiig",
+      "display": "latest",
+      "proof": {
+        "contentSha256": "d34e628e34a2be5c3abe412c1094bf47a688edc9c2c840281796253ae405e89e",
+        "cssSha256": "4b9bb464b5b9da10d28001b12aef6604cf1e8b21495618c587a12bbbb107ad8e",
+        "assetSha256": "e66538619f71da9a780429d26b3814e80d538f1a43d449bcba869a982e2318cb",
+        "watermarkSha256": "96e0740cbb428f6b3e6ff1a7100b070898468b200a9b203c817d20e4ffbad2b2"
+      },
+      "mode": "presentation",
+      "count": null,
+      "first": null,
+      "last": null,
+      "date": "",
+      "title": "For alltid en del av Morothon",
+      "tribute": "Med dyp takknemlighet for en innsats som har satt varige spor i Morothons historie. Minnene og fellesskapet lever videre."
+    }
+  ]
+}

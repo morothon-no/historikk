@@ -16,8 +16,233 @@ concurrency:
 
 jobs:
   verify:
-    name: Regression tests and site build
-    # Keep browser/font dependencies stable across ubuntu-latest migrations.
+    name: Public package, policy and site build
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: public
+    steps:
+      - name: Checkout public files only (sparse, blob-filtered)
+        uses: actions/checkout@v4
+        with:
+          path: public
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /index.html
+            /heder.html
+            /package.json
+            /package-lock.json
+            /requirements-dev.txt
+            /.github/workflows/
+            /.github/public-data-approval.json
+            /public-data/
+            /js/
+            /css/
+            /assets/medals/approved/
+            /assets/medals/service/
+            /assets/medals/identity/
+            /assets/medals/watermarks/
+            /assets/fonts/
+            /assets/icons/
+            /assets/social/
+            /scripts/build-site.cjs
+            /scripts/check-public-site.cjs
+            /scripts/check-public-policy.cjs
+            /scripts/review-public-export.cjs
+            /scripts/diploma-harness.cjs
+            /scripts/lib/public-schema.cjs
+            /scripts/lib/public-package.cjs
+            /scripts/lib/runtime-files.cjs
+            /tests/site-build.cjs
+            /tests/public-build.cjs
+            /tests/fixtures/a1c-public-reference.json
+      - name: Checkout trusted base policy only
+        uses: actions/checkout@v4
+        with:
+          path: policy-base
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/
+            /.github/public-data-approval.json
+            /package.json
+            /package-lock.json
+            /scripts/build-site.cjs
+            /scripts/check-public-site.cjs
+            /scripts/check-public-policy.cjs
+            /scripts/lib/public-schema.cjs
+            /scripts/lib/public-package.cjs
+            /scripts/lib/runtime-files.cjs
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: public/package-lock.json
+      - name: Verify checkout and trusted policy before running PR code
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MOROTHON_PUBLIC_DATA_SHA256: ${{ vars.MOROTHON_PUBLIC_DATA_SHA256 }}
+          MOROTHON_REVIEWED_POLICY_HEAD: ${{ vars.MOROTHON_REVIEWED_POLICY_HEAD }}
+        run: |
+          test ! -e data
+          test ! -e scripts/export-public-data.cjs
+          test ! -e scripts/lib/public-data.cjs
+          test "$(git config --get remote.origin.partialclonefilter)" = blob:none
+          guard="$GITHUB_WORKSPACE/policy-base/scripts/check-public-policy.cjs"
+          if [ ! -f "$guard" ]; then
+            # First introduction: no unreviewed PR may bootstrap its own guard.
+            if [ "$MOROTHON_REVIEWED_POLICY_HEAD" != "$PR_HEAD_SHA" ] || [ -z "$MOROTHON_PUBLIC_DATA_SHA256" ]; then
+              echo "::error::Initial A1C policy needs an externally reviewed PR head and approved public manifest hash in repository variables."
+              exit 1
+            fi
+            guard="$GITHUB_WORKSPACE/public/scripts/check-public-policy.cjs"
+          fi
+          node "$guard" "$GITHUB_WORKSPACE/public" "$GITHUB_WORKSPACE/policy-base" "$PR_HEAD_SHA" "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+      - name: Install public test dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: |
+          npx playwright install --with-deps chromium
+          printf 'CHROMIUM_PATH=%s\n' "$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" >> "$GITHUB_ENV"
+      - name: Install PDF tools and matching fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils fonts-liberation fonts-urw-base35
+      - name: Run public-only regression tests
+        run: npm run test:public
+      - name: Build from approved public package only
+        run: npm run build -- _site public-data "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+      - name: Render approved public export review
+        if: github.event_name == 'pull_request'
+        run: node scripts/review-public-export.cjs /tmp/morothon-a1-public _site
+      - name: Retain approved public export review
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-a1-offentlig-kontroll
+          path: /tmp/morothon-a1-public/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Validate public data boundary before artifact upload
+        run: npm run public:kontroll -- _site "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+      - name: Retain tested site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: morothon-site
+          path: public/_site/
+          if-no-files-found: error
+
+  artifact_gate:
+    name: Independent trusted artifact gate
+    needs: verify
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: public
+    steps:
+      - name: Checkout public files only (sparse, blob-filtered)
+        uses: actions/checkout@v4
+        with:
+          path: public
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /index.html
+            /heder.html
+            /package.json
+            /package-lock.json
+            /requirements-dev.txt
+            /.github/workflows/
+            /.github/public-data-approval.json
+            /public-data/
+            /js/
+            /css/
+            /assets/medals/approved/
+            /assets/medals/service/
+            /assets/medals/identity/
+            /assets/medals/watermarks/
+            /assets/fonts/
+            /assets/icons/
+            /assets/social/
+            /scripts/build-site.cjs
+            /scripts/check-public-site.cjs
+            /scripts/check-public-policy.cjs
+            /scripts/review-public-export.cjs
+            /scripts/diploma-harness.cjs
+            /scripts/lib/public-schema.cjs
+            /scripts/lib/public-package.cjs
+            /scripts/lib/runtime-files.cjs
+            /tests/site-build.cjs
+            /tests/public-build.cjs
+            /tests/fixtures/a1c-public-reference.json
+      - name: Checkout trusted base policy only
+        uses: actions/checkout@v4
+        with:
+          path: policy-base
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/
+            /.github/public-data-approval.json
+            /package.json
+            /package-lock.json
+            /scripts/build-site.cjs
+            /scripts/check-public-site.cjs
+            /scripts/check-public-policy.cjs
+            /scripts/lib/public-schema.cjs
+            /scripts/lib/public-package.cjs
+            /scripts/lib/runtime-files.cjs
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify checkout and trusted policy before running PR code
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MOROTHON_PUBLIC_DATA_SHA256: ${{ vars.MOROTHON_PUBLIC_DATA_SHA256 }}
+          MOROTHON_REVIEWED_POLICY_HEAD: ${{ vars.MOROTHON_REVIEWED_POLICY_HEAD }}
+        run: |
+          test ! -e data
+          test ! -e scripts/export-public-data.cjs
+          test ! -e scripts/lib/public-data.cjs
+          test "$(git config --get remote.origin.partialclonefilter)" = blob:none
+          guard="$GITHUB_WORKSPACE/policy-base/scripts/check-public-policy.cjs"
+          if [ ! -f "$guard" ]; then
+            # First introduction: no unreviewed PR may bootstrap its own guard.
+            if [ "$MOROTHON_REVIEWED_POLICY_HEAD" != "$PR_HEAD_SHA" ] || [ -z "$MOROTHON_PUBLIC_DATA_SHA256" ]; then
+              echo "::error::Initial A1C policy needs an externally reviewed PR head and approved public manifest hash in repository variables."
+              exit 1
+            fi
+            guard="$GITHUB_WORKSPACE/public/scripts/check-public-policy.cjs"
+          fi
+          node "$guard" "$GITHUB_WORKSPACE/public" "$GITHUB_WORKSPACE/policy-base" "$PR_HEAD_SHA" "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+      - name: Retrieve candidate artifact in fresh runner
+        uses: actions/download-artifact@v4
+        with:
+          name: morothon-site
+          path: candidate-site/
+      - name: Validate artifact with trusted code, without running PR tests
+        run: |
+          validator="$GITHUB_WORKSPACE/policy-base/scripts/check-public-site.cjs"
+          if [ ! -f "$GITHUB_WORKSPACE/policy-base/scripts/lib/public-package.cjs" ]; then
+            # Bootstrap was explicitly head-approved by the preceding guard.
+            validator="$GITHUB_WORKSPACE/public/scripts/check-public-site.cjs"
+          fi
+          node "$validator" "$GITHUB_WORKSPACE/candidate-site" "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+
+  source_checks:
+    name: Transitional trusted source regression
+    needs: artifact_gate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout with historical asset provenance
@@ -48,54 +273,28 @@ jobs:
         run: |
           npx playwright install chromium
           printf 'CHROMIUM_PATH=%s\n' "$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" >> "$GITHUB_ENV"
-      - name: Run all regression tests
+      - name: Check original export against approved public package
+        run: npm run data:check-sources
+      - name: Run all preserved source and public regression tests
         run: npm test
-      - name: Build versioned runtime package
-        run: npm run build
       - name: Render V3.6 honor review artifacts
-        if: github.event_name == 'pull_request'
         run: node scripts/review-honors-v36.cjs /tmp/morothon-v36
       - name: Render V3.6.1 profile and founder-marker comparison
-        if: github.event_name == 'pull_request'
         run: node scripts/review-honors-v361.cjs /tmp/morothon-v361
       - name: Render final V3.6.1 person and diploma corrections
-        if: github.event_name == 'pull_request'
         run: node scripts/review-honors-final-v361.cjs /tmp/morothon-v361-final
       - name: Render V3.5.3 date and signature comparison
-        if: github.event_name == 'pull_request'
         run: |
           mkdir -p /tmp/morothon-v353-source
           git archive 3e45c8b | tar -x -C /tmp/morothon-v353-source
           node /tmp/morothon-v353-source/scripts/build-site.cjs /tmp/morothon-v353-before
           node scripts/review-honor-signoff-v353.cjs /tmp/morothon-v353 /tmp/morothon-v353-before
       - name: Render V3.6.2 historical service diploma comparison
-        if: github.event_name == 'pull_request'
         run: node scripts/review-service-milestones-v362.cjs /tmp/morothon-v362
-      # Historical review renderers still run locally as regression checks, but
-      # their raw-register/old-profile output must not be uploaded publicly.
-      - name: Render approved public export review
-        if: github.event_name == 'pull_request'
-        run: node scripts/review-public-export.cjs /tmp/morothon-a1-public _site
-      - name: Retain approved public export review
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-a1-offentlig-kontroll
-          path: /tmp/morothon-a1-public/
-          if-no-files-found: error
-          retention-days: 14
-      - name: Validate public data boundary before artifact upload
-        run: npm run public:kontroll -- _site
-      - name: Retain tested site artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: morothon-site
-          path: _site/
-          if-no-files-found: error
 
   deploy:
     name: Publish tested main only
-    needs: verify
+    needs: [artifact_gate, source_checks]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
