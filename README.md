@@ -56,6 +56,11 @@ npm run public:kontroll -- _site
 Publiser bare den validerte byggepakken, aldri repositoryroten. Originalregistrene
 ligger fortsatt i dette repositoryet og Git-historikken; filtrert Pages-eksport
 gjør dem ikke private. Se [A1: datafelt, eksponering og migreringsplan](docs/a1-offentlig-dataeksport.md).
+
+Videre privat lagring og skillet mellom privat eksport og offentlig bygg er
+beskrevet i [A1B-planen](docs/a1b-privat-migreringsplan.md), med en egen
+[beslutningsliste for publisering](docs/a1b-publiseringsbeslutninger.md).
+Dette er en plan; ingen originaldata er flyttet eller historikk omskrevet.
 Tester, vedlegg, kildearkiver og gjennomgangsbilder publiseres ikke.
 
 Byggeren beregner én deterministisk innholdshash for hele utgaven. Alle lokale
