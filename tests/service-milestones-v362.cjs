@@ -41,6 +41,9 @@ test('V3.6.2 audit accepts only the historical count/period migration, remains r
  const original=await fs.readFile(path.join(root,'data/honors.json')),r=await prepare();assert.equal(r.diplomas,60);assert.equal(r.pendingDiplomas,28);assert.equal(r.milestoneReviews.length,20);assert.deepEqual(await fs.readFile(path.join(root,'data/honors.json')),original);
  const temp=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-v362-audit-'));try{
   await buildSite(temp);for(const file of ['scripts/prepare-honor-print-set.cjs','scripts/diploma-harness.cjs','tests/helpers/honors.cjs']){await fs.mkdir(path.dirname(path.join(temp,file)),{recursive:true});await fs.copyFile(path.join(root,file),path.join(temp,file));}await fs.symlink(path.join(root,'node_modules'),path.join(temp,'node_modules'),'dir');
+  // This tests the private source audit, not a browser consuming the public export.
+  // Keep both administrative input registers in the isolated temporary fixture.
+  await fs.copyFile(path.join(root,'data/volunteers.json'),path.join(temp,'data/volunteers.json'));
   const data=JSON.parse(original);data.diplomaTexts.dugnad[10]='En uavhengig tekstendring som ikke har fått noen ny godkjenning.';await fs.writeFile(path.join(temp,'data/honors.json'),JSON.stringify(data));
   assert.throws(()=>execFileSync(process.execPath,[path.join(temp,'scripts/prepare-honor-print-set.cjs')],{cwd:temp,stdio:'pipe',timeout:120000}),e=>e.status===1&&/reviewed presentation set is stale/.test(e.stderr.toString()));
   assert.deepEqual(await fs.readFile(path.join(root,'data/honors.json')),original);
