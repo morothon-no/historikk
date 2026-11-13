@@ -3,7 +3,10 @@ const {createHarness}=require('../scripts/diploma-harness.cjs');const root=path.
 before(async()=>{h=await createHarness();data=JSON.parse(await fs.readFile(path.join(root,'data/history.json'),'utf8'));});after(async()=>{await h?.close();});
 async function load(width=390,fixture){const p=await h.browser.newPage({viewport:{width,height:1100}});if(fixture)await p.route('**/data/history.json',r=>r.fulfill({json:fixture}));await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));return p;}
 test('V3.2.1 fourth front-page metric is dynamically 33 with three participations; five-edition loyalty honours are unchanged',async()=>{
- assert.deepEqual(await fs.readFile(path.join(root,'js/loyalty.js')),execFileSync('git',['show',base+':js/loyalty.js'],{cwd:root}));
+ // A2 shares participation filtering; threshold and historical-recognition parity is tested behaviorally.
+ const vm=require('node:vm'),rules=require('../js/history-data.js'),old={window:{MorothonHistoryData:rules}},now={window:{MorothonHistoryData:rules}};
+ vm.runInNewContext(execFileSync('git',['show',base+':js/loyalty.js'],{cwd:root}).toString(),old);vm.runInNewContext(await fs.readFile(path.join(root,'js/loyalty.js'),'utf8'),now);
+ const model=rules.create(data),editions=data.yearStats.map(r=>r[0]);for(const person of model.people.values())assert.equal(JSON.stringify(now.window.MorothonLoyalty.calculate(model.resultsFor(person.i),editions)),JSON.stringify(old.window.MorothonLoyalty.calculate(model.resultsFor(person.i),editions)),person.i);
  for(const width of [320,390,768,1440]){const p=await load(width);try{
   const metric=p.locator('.metric').last();assert.equal(await metric.locator('strong').textContent(),'33');assert.equal(await metric.locator('small').evaluate(e=>e.firstChild.textContent),'Med 100 % deltakelse siden debut');assert.equal(await metric.locator('.metric-note').textContent(),'Minst 3 utgaver · til og med 2026');
   const r=await metric.evaluate(e=>({fit:e.scrollWidth<=e.clientWidth+1&&document.documentElement.scrollWidth<=innerWidth,note:getComputedStyle(e.querySelector('.metric-note')).fontSize}));assert.equal(r.fit,true);assert.ok(parseFloat(r.note)>=11);

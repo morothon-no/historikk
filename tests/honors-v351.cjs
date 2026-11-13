@@ -20,7 +20,7 @@ test('V3.5.1 planned founder honor never fabricates tenure, an award date or an 
  const hakon=member('hakon-lohne');assert.deepEqual(hakon.contribution.excludedYears,[2016]);assert.equal(H.contribution(hakon).count,12);assert.equal(H.contribution(member('dag-morten-frantzen')).count,13);
  const oldRole=old.groups.flatMap(g=>g.members).find(m=>m.id==='hakon-lohne').roles.find(r=>r.note);
  assert.ok(hakon.roles.some(r=>r.historicalNotes?.some(n=>n.text===oldRole.note)));assert.ok(hakon.historicalNotes.length);
- for(const file of ['data/history.json','data/volunteers.json','data/badges.json','data/event-dates.json','index.html','js/history-data.js','js/brag-card.js'])assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','41f5e45:'+file],{cwd:root}),file);
+ for(const file of ['data/history.json','data/volunteers.json','data/badges.json','data/event-dates.json','index.html','js/brag-card.js'])require('./helpers/honors.cjs').assertPreservedPresentation(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show','41f5e45:'+file],{cwd:root}),file);
  await require('./helpers/honors.cjs').assertOrdinaryDiplomaCss(root);assert.deepEqual(data.diplomaApprovals,[]);
 });
 test('V3.5.1 43 visible cards and 44 retained identities have three founder sizes, equal memorials last, warm concise language and hidden navigation on mobile/PC',async()=>{

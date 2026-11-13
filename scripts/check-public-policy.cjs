@@ -1,6 +1,6 @@
 // Execute this guard from protected base/main, before installing or running PR code.
 const fs=require('node:fs/promises'),path=require('node:path'),{isDeepStrictEqual}=require('node:util');
-const protectedFiles=['.github/public-data-approval.json','package.json','package-lock.json','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs'];
+const protectedFiles=['.github/public-data-approval.json','package.json','package-lock.json','js/history-data.js','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs'];
 const critical=p=>p.startsWith('.github/workflows/')||protectedFiles.includes(p);
 async function policyChanges(a,b){
  const names=new Set(protectedFiles);

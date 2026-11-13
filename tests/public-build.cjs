@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,'..'),pin=path.join(root,'.github/public-data-
 async function temp(){return fs.mkdtemp(path.join(os.tmpdir(),'morothon-public-only-'));}
 async function copyPublic(out){
  const data=JSON.parse(await fs.readFile(path.join(root,'public-data/data/badges.json'),'utf8'));
- const files=[...runtimeFiles(data).filter(f=>!f.startsWith('data/')),'package.json','package-lock.json','.github/public-data-approval.json','.github/workflows/pages.yml','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','scripts/diploma-harness.cjs','tests/site-build.cjs','tests/fixtures/a1c-public-reference.json'];
+ const files=[...runtimeFiles(data).filter(f=>!f.startsWith('data/')),'package.json','package-lock.json','.github/public-data-approval.json','.github/workflows/pages.yml','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','scripts/diploma-harness.cjs','tests/site-build.cjs','tests/data-quality.cjs','scripts/check-history.cjs','tests/fixtures/a1c-public-reference.json'];
  for(const file of files){const dest=path.join(out,file);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(root,file),dest);}
  await fs.cp(path.join(root,'public-data'),path.join(out,'public-data'),{recursive:true});
 }
@@ -41,8 +41,10 @@ test('even a newly pinned malformed package cannot bypass public field, contract
 test('PR-local approvals and safety edits cannot replace protected-base or external maintainer approval',async()=>{
  const base=await temp(),candidate=await temp(),head='a'.repeat(40);try{await copyPublic(base);await copyPublic(candidate);
   assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head})).visiblePeople,43);
-  await fs.appendFile(path.join(candidate,'scripts/lib/public-schema.cjs'),'\n// untrusted security edit');await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
-  await fs.copyFile(path.join(base,'scripts/lib/public-schema.cjs'),path.join(candidate,'scripts/lib/public-schema.cjs'));
+  for(const file of ['scripts/lib/public-schema.cjs','js/history-data.js']){
+   await fs.appendFile(path.join(candidate,file),'\n// untrusted security edit');await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
+   await fs.copyFile(path.join(base,file),path.join(candidate,file));
+  }
   const changed=await rewriteManifest(candidate,async m=>{m.dataVersion=2;});
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head}),/approved outside/);

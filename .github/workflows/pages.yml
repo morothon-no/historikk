@@ -53,11 +53,14 @@ jobs:
             /scripts/check-public-policy.cjs
             /scripts/review-public-export.cjs
             /scripts/diploma-harness.cjs
+            /js/history-data.js
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
             /tests/site-build.cjs
             /tests/public-build.cjs
+            /tests/data-quality.cjs
+            /scripts/check-history.cjs
             /tests/fixtures/a1c-public-reference.json
       - name: Checkout trusted base policy only
         uses: actions/checkout@v4
@@ -75,6 +78,7 @@ jobs:
             /scripts/build-site.cjs
             /scripts/check-public-site.cjs
             /scripts/check-public-policy.cjs
+            /js/history-data.js
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -176,11 +180,14 @@ jobs:
             /scripts/check-public-policy.cjs
             /scripts/review-public-export.cjs
             /scripts/diploma-harness.cjs
+            /js/history-data.js
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
             /tests/site-build.cjs
             /tests/public-build.cjs
+            /tests/data-quality.cjs
+            /scripts/check-history.cjs
             /tests/fixtures/a1c-public-reference.json
       - name: Checkout trusted base policy only
         uses: actions/checkout@v4
@@ -198,6 +205,7 @@ jobs:
             /scripts/build-site.cjs
             /scripts/check-public-site.cjs
             /scripts/check-public-policy.cjs
+            /js/history-data.js
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs

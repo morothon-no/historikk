@@ -1,5 +1,15 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {mergeVolunteers}=require('../../js/honors-data.js');
+// A2 deliberately changes result logic inside index.html, not its markup/CSS.
+// Keep historical presentation checks; status/identity/participation contracts
+// are covered by data-quality.cjs and the existing behavioural regressions.
+function assertPreservedPresentation(actual,expected,file){
+ const assert=require('node:assert/strict');
+ if(file==='index.html'){
+  const presentation=bytes=>bytes.toString().replace(/<script>const initialCalendarLimit=[\s\S]*?<\/script>/,'<script>RESULT-LOGIC</script>');
+  assert.deepEqual(presentation(actual),presentation(expected),file+' presentation');
+ }else assert.deepEqual(actual,expected,file);
+}
 // Historical snapshot checks undo only the four organizer-approved corrections.
 // The archive is independently compared against bcb6f52 in the final V3.6.1 tests.
 function beforeFinalCorrections(data){
@@ -73,4 +83,4 @@ function ordinaryDiplomaCode(s){return s.replace(/  async function serviceConten
  .replace(",'.diploma-service-collection'",'').replace('.map(selector=>doc.querySelector(selector)).filter(Boolean)','.map(selector=>doc.querySelector(selector))')
  .replace('serviceExample, serviceProof, checkServiceDraft, printServiceDraft,','serviceExample,');}
 function visibleMembers(data){return data.groups.flatMap(g=>g.members).filter(m=>require('../../js/honors-data.js').isVisibleOnHonorPage(data,m.id));}
-module.exports={visibleMembers,readHonors,historicalMember,assertOrdinaryDiplomaCss,ordinaryDiplomaCode,beforeFinalCorrections,priorCorrectionMember,expectedPrintMode,preservedFile};
+module.exports={assertPreservedPresentation,visibleMembers,readHonors,historicalMember,assertOrdinaryDiplomaCss,ordinaryDiplomaCode,beforeFinalCorrections,priorCorrectionMember,expectedPrintMode,preservedFile};
