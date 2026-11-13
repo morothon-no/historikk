@@ -2,11 +2,11 @@
 'use strict';
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),sync=require('node:fs'),path=require('node:path'),os=require('node:os');
 const C=require('../scripts/admin/common.cjs'),R=require('../scripts/admin/repository.cjs'),B=require('../scripts/admin/backup.cjs'),M=require('../scripts/admin/migration.cjs'),P=require('../scripts/admin/publication.cjs');
-const {execute}=require('../scripts/admin/operations.cjs'),{scaffold}=require('../scripts/admin/scaffold.cjs'),{prepare}=require('../scripts/admin/workflow-config.cjs');
+const {execute}=require('../scripts/admin/operations.cjs'),S=require('../scripts/admin/storage.cjs');
 const {auditSource}=require('../scripts/admin/source-audit.cjs');
 const repo=path.resolve(__dirname,'..');let tmp,source,home,key,fpr,receipt,archive,restored,head;
 const approved=(operation,binding)=>({schemaVersion:1,status:'approved',approvedBy:'Synthetic owner',approvedAt:'2026-11-13T12:00:00Z',operations:[operation],binding});
-async function init(root){await fs.mkdir(root);C.git(root,['init','--quiet']);C.git(root,['config','user.name','Synthetic test']);C.git(root,['config','user.email','test@example.invalid']);}
+async function init(root){await fs.mkdir(root,{mode:0o700});C.git(root,['init','--quiet']);C.git(root,['config','user.name','Synthetic test']);C.git(root,['config','user.email','test@example.invalid']);}
 before(async()=>{
  tmp=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-admin-synthetic-'));source=path.join(tmp,'source');await init(source);
  await C.writeNew(path.join(source,'data/honors.json'),C.bytes({people:[{id:'synthetic-1',name:'Synthetic Person',privateNote:'Synthetic internal evidence'}]}));
@@ -22,10 +22,9 @@ before(async()=>{
  restored=path.join(tmp,'restored');await B.restoreBackup({archive:path.join(independent,'backup.gpg'),receipt,keyHome:home,out:restored,independentSource:independent});
 });
 after(async()=>{if(tmp)await fs.rm(tmp,{recursive:true,force:true});});
-test('A1D private repository creation happens only on a genuine 404 and rechecks private visibility and push access',async()=>{
- const calls=[];let exists=false;const request=async(endpoint,method,body)=>{calls.push({endpoint,method,body});if(method==='POST'){exists=true;return {};}if(!exists){const e=Error('missing');e.notFound=true;throw e;}return {full_name:C.ADMIN,private:true,visibility:'private',permissions:{push:true}};};
- assert.equal((await R.privateRepository({create:true,request})).private,true);assert.equal(calls.length,3);assert.equal(calls[1].body.private,true);
- let writes=0;await assert.rejects(()=>R.privateRepository({create:true,request:async(_,method)=>{if(method==='POST')writes++;throw Error('Forbidden');}}),/Forbidden/);assert.equal(writes,0);
+test('A1D optional GitHub adapter only reads and verifies identity, private visibility and permissions',async()=>{
+ let reads=0;assert.equal((await R.privateRepository({request:async(endpoint)=>{reads++;assert.equal(endpoint,'repos/'+C.ADMIN);return {full_name:C.ADMIN,private:true,visibility:'private',permissions:{push:true}};}})).private,true);assert.equal(reads,1);
+ await assert.rejects(()=>R.privateRepository({request:async()=>{throw Error('Forbidden');}}),/Forbidden/);
  for(const r of [{full_name:C.ADMIN,private:false,visibility:'public',permissions:{push:true}},{full_name:C.ADMIN,private:true,visibility:'private',permissions:{}},{full_name:'other/private',private:true,visibility:'private',permissions:{push:true}}])await assert.rejects(()=>R.privateRepository({request:async()=>r}),/could not be verified/);
  assert.equal((await R.privateRepository({requirePush:false,request:async()=>({full_name:C.ADMIN,private:true,visibility:'private',permissions:{pull:true,push:false}})})).private,true);
 });
@@ -54,8 +53,8 @@ test('A1D downloadable ZIP contains only encrypted data and receipt, and is not 
  const meta=B.openReceipt({archive:path.join(out,'receipt.gpg'),keyHome:home});assert.equal(meta.independent,false);assert.equal(meta.sha256,receipt.sha256);assert.ok(!(await fs.readFile(zip)).includes(Buffer.from('Synthetic internal evidence')));
  const local=path.join(tmp,'local-only-restore');const proof=await B.restoreBackup({archive,receipt,keyHome:home,out:local});assert.equal(proof.independentReadBackVerified,false);
  const admin=path.join(tmp,'local-gated-target');await init(admin);C.git(admin,['remote','add','origin','https://github.com/'+C.ADMIN+'.git']);
- const {plan,sha256:planSha256}=await M.planMigration({sourceRoot:source,sourceCommit:head});
- await assert.rejects(()=>M.copyMigration({sourceRoot:source,adminRoot:admin,restoredRoot:local,plan,planSha256,receipt,ownerApproval:approved('migrate',{repository:C.ADMIN,sourceCommit:head,planSha256}),verifyPrivate:async()=>({private:true})}),/independent storage/);
+ const {plan,sha256:planSha256}=await M.planMigration({sourceRoot:source,sourceCommit:head,adminRoot:admin});
+ await assert.rejects(()=>M.copyMigration({sourceRoot:source,adminRoot:admin,restoredRoot:local,plan,planSha256,receipt,ownerApproval:approved('migrate',{destination:plan.destination,sourceCommit:head,planSha256}),verifyPrivate:async()=>({private:true})}),/independent storage/);
  assert.equal(sync.existsSync(path.join(admin,'data')),false);
 });
 test('A1D restore verifies plaintext SHA-256 and rejects changed files and unexpected members',async()=>{
@@ -89,8 +88,8 @@ test('A1D independent backup upload is encrypted, immutable and verified by down
 });
 test('A1D migration is idempotent, source-preserving and gated on exact plan, actual restore and private destination',async()=>{
  const admin=path.join(tmp,'private-synthetic');await init(admin);C.git(admin,['remote','add','origin','https://github.com/'+C.ADMIN+'.git']);
- const {plan,sha256:planSha256}=await M.planMigration({sourceRoot:source,sourceCommit:head});
- const binding={repository:C.ADMIN,sourceCommit:head,planSha256},options={sourceRoot:source,adminRoot:admin,restoredRoot:restored,plan,planSha256,receipt,ownerApproval:approved('migrate',binding),verifyPrivate:async()=>({private:true})};
+ const {plan,sha256:planSha256}=await M.planMigration({sourceRoot:source,sourceCommit:head,adminRoot:admin});
+ const binding={destination:plan.destination,sourceCommit:head,planSha256},options={sourceRoot:source,adminRoot:admin,restoredRoot:restored,plan,planSha256,receipt,ownerApproval:approved('migrate',binding),verifyPrivate:async()=>({private:true})};
  await assert.rejects(()=>M.copyMigration({...options,ownerApproval:null}),/Explicit owner approval/);
  await assert.rejects(()=>M.copyMigration({...options,verifyPrivate:async()=>{throw Error('public repository');}}),/public repository/);assert.equal(sync.existsSync(path.join(admin,'data')),false);
  const before=await C.inventory(source),first=await M.copyMigration(options),again=await M.copyMigration(options);assert.equal(first.copied,4);assert.equal(again.copied,0);assert.deepEqual(await C.inventory(source),before);
@@ -100,11 +99,11 @@ test('A1D migration is idempotent, source-preserving and gated on exact plan, ac
 test('A1D backup operations reject absent approval before creating local or remote data',async()=>{
  const work=path.join(tmp,'never-created');await assert.rejects(()=>execute('backup',{schemaVersion:1,repository:C.ADMIN,sourceRoot:source,publicRoot:source,sourceCommit:head,workRoot:work},null),/Explicit owner approval/);assert.equal(sync.existsSync(work),false);
 });
-test('A1D public transfer cannot accept a self-approved payload or an arbitrary branch',async()=>{
- await assert.rejects(()=>P.stagePublicUpdate({publicRoot:source,publicCommit:head,packageRoot:source,branch:'main'}));
- const file=await fs.readFile(path.join(repo,'scripts/admin/publication.cjs'),'utf8');assert.ok(file.includes('External approval of this exact public manifest'));assert.ok(file.includes('Data version must increase'));assert.ok(!file.includes("['merge'"));
+test('A1D runtime workspace rejects broad permissions and Git worktrees before storing private data',async()=>{
+ const broad=path.join(tmp,'broad');await fs.mkdir(broad);await fs.chmod(broad,0o755);await assert.rejects(()=>S.privateWorkspace(broad),/0700/);
+ const tracked=path.join(tmp,'tracked');await init(tracked);await assert.rejects(()=>S.privateWorkspace(tracked),/outside Git worktrees/);
 });
-test('A1D public-only proposal validates the actual external digest and schema, and stages only allowed public files',async()=>{
+test('A1D public candidate validation checks external approval and schema without modifying the public checkout',async()=>{
  const root=path.join(tmp,'public-only'),pkg=path.join(tmp,'public-candidate');await init(root);
  const registry=C.json(await C.read(repo,'public-data/data/badges.json')),{runtimeFiles}=require('../scripts/lib/runtime-files.cjs');
  for(const file of [...runtimeFiles(registry).filter(f=>f.startsWith('assets/')),'scripts/lib/public-package.cjs','scripts/lib/public-schema.cjs','scripts/lib/runtime-files.cjs','.github/public-data-approval.json'])await C.writeNew(path.join(root,file),await C.read(repo,file));
@@ -113,40 +112,42 @@ test('A1D public-only proposal validates the actual external digest and schema, 
  const {approvalFor,sha256}=require('../scripts/lib/public-package.cjs');const manifest=C.json(await C.read(pkg,'manifest.json'));manifest.dataVersion=2;
  await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(manifest));let proposed=approvalFor(C.bytes(manifest));
  const opts={publicRoot:root,publicCommit:commit,packageRoot:pkg,approvedManifestSha256:'0'.repeat(64),branch:'codex/data-synthetic'};
- await assert.rejects(()=>P.stagePublicUpdate(opts),/External approval/);assert.equal(C.git(root,['status','--porcelain']),'');
+ await assert.rejects(()=>P.validateApprovedCandidate(opts),/External approval/);assert.equal(C.git(root,['status','--porcelain']),'');
  const h=C.json(await C.read(pkg,'data/honors.json'));h.internalNotes=['synthetic forbidden field'];const b=C.bytes(h);await fs.writeFile(path.join(pkg,'data/honors.json'),b);manifest.files['data/honors.json']={sha256:sha256(b),bytes:b.length};await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(manifest));
- await assert.rejects(()=>P.stagePublicUpdate({...opts,approvedManifestSha256:approvalFor(C.bytes(manifest)).manifestSha256}),/Unapproved public field/);
+ await assert.rejects(()=>P.validateApprovedCandidate({...opts,approvedManifestSha256:approvalFor(C.bytes(manifest)).manifestSha256}),/Unapproved public field/);
  await fs.rm(pkg,{recursive:true});await fs.cp(path.join(repo,'public-data'),pkg,{recursive:true});const valid=C.json(await C.read(pkg,'manifest.json'));valid.dataVersion=2;await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(valid));
- const result=await P.stagePublicUpdate({...opts,approvedManifestSha256:approvalFor(C.bytes(valid)).manifestSha256});assert.equal(result.changedFiles,2);
- assert.deepEqual(C.git(root,['diff',commit,'--name-only']).split('\n').sort(),['.github/public-data-approval.json','public-data/manifest.json']);
+ const result=await P.validateApprovedCandidate({...opts,approvedManifestSha256:approvalFor(C.bytes(valid)).manifestSha256});assert.equal(result.files,6);assert.equal(result.approval.dataVersion,2);
+ assert.equal(C.git(root,['diff',commit,'--name-only']),'');assert.equal(C.git(root,['rev-parse','HEAD']),commit);assert.equal(C.git(root,['status','--porcelain']),'');
 });
 test('A1D Git audit detects remote refs missing from the archive and never fetches or changes the source',async()=>{
  const remote=path.join(tmp,'source-remote');C.run('git',['clone','--quiet','--bare',source,remote]);C.git(source,['remote','add','origin',remote]);
- const first=auditSource(source);assert.equal(first.completeGitCoverage,true);
+ const first=auditSource(source,{remote:true});assert.equal(first.completeGitCoverage,true);
  // Create another commit in a separate synthetic working copy and advertise it remotely.
  const extra=path.join(tmp,'synthetic-extra');C.run('git',['clone','--quiet',remote,extra]);C.git(extra,['config','user.name','Synthetic test']);C.git(extra,['config','user.email','test@example.invalid']);await C.writeNew(path.join(extra,'extra.txt'),Buffer.from('synthetic'));
  C.git(extra,['add','.']);C.git(extra,['commit','--quiet','-m','synthetic remote only']);C.git(extra,['push','--quiet','origin','HEAD:refs/heads/remote-only']);
- const second=auditSource(source);assert.equal(second.completeGitCoverage,false);assert.equal(second.missingReachableRefs,1);assert.equal(C.git(source,['rev-parse','HEAD']),head);
+ const second=auditSource(source,{remote:true});assert.equal(second.completeGitCoverage,false);assert.equal(second.missingReachableRefs,1);assert.equal(C.git(source,['rev-parse','HEAD']),head);
 });
-test('A1D inactive publishing template isolates private originals from the public-only proposal credential',async()=>{
- const text=(await C.read(repo,'ops/admin-templates/private-export.yml')).toString(),propose=text.split('  propose:')[1];
- assert.ok(propose.includes('permissions: {}'));assert.ok(propose.includes('PUBLIC_DATA_PROPOSER_TOKEN'));assert.ok(!propose.includes('repository: morothon-no/historikk-admin'));assert.ok(!propose.includes('${{ github.token }}'));
- assert.ok(!propose.includes('/data/'));assert.ok(!propose.includes('admin-export'));assert.ok(propose.includes('APPROVED_PUBLIC_MANIFEST_SHA256'));
- const backup=(await C.read(repo,'ops/admin-templates/private-backup.yml')).toString();assert.ok(backup.includes('ADMIN_RCLONE_CONFIG'));assert.ok(backup.includes("if: inputs.storage == 'download'"));assert.ok(backup.includes('path: ${{ runner.temp }}/morothon-backup/morothon-backup.zip'));
+test('A1D local administrative storage is private and cannot bypass hosted repository visibility',async()=>{
+ const admin=path.join(tmp,'local-storage');await init(admin);const c={storage:{type:'local-directory'},adminRoot:admin,publicRoot:source};
+ assert.equal((await S.verifyStorage(c)).type,'local-directory');await fs.chmod(admin,0o755);await assert.rejects(()=>S.verifyStorage(c),/0700/);await fs.chmod(admin,0o700);
+ C.git(admin,['remote','add','origin','https://github.com/'+C.ADMIN+'.git']);await assert.rejects(()=>S.verifyStorage(c),/visibility/);
+ const verify=R.privateRepository;let checked=0;try{R.privateRepository=async()=>{checked++;throw Error('visibility unverified');};await assert.rejects(()=>S.verifyStorage({...c,storage:{type:'github'},repository:C.ADMIN}),/unverified/);assert.equal(checked,1);}finally{R.privateRepository=verify;}
 });
-test('A1D generic private scaffold contains no records and remains disabled',async()=>{
- const out=path.join(tmp,'scaffold');const result=await scaffold(out,head);assert.equal(result.containsRegisters,false);assert.equal(result.enabled,false);
- assert.deepEqual(await fs.readdir(path.join(out,'data')),['.gitkeep']);assert.equal(C.json(await C.read(out,'toolchain-lock.json')).enabled,false);
- for(const f of ['private-export.yml','private-backup.yml']){const text=(await C.read(out,'.github/workflows/'+f)).toString();assert.ok(text.includes("github.repository == 'morothon-no/historikk-admin'"));assert.ok(text.includes("vars.ADMIN_INFRA_ENABLED == 'true'"));assert.ok(!/pull_request_target|workflow_run|schedule:/.test(text));}
+test('A1D complete approved backup-download operation works offline without gh, Actions, tokens or rclone',async()=>{
+ const work=path.join(tmp,'portable-run'),c={schemaVersion:1,sourceRoot:source,publicRoot:source,sourceCommit:head,workRoot:work,recipientKey:key,recipientFingerprint:fpr,coverageReviewed:true,verifyRemoteRefs:false};
+ const binding={sourceCommit:head,remoteRoot:null,recipientFingerprint:fpr,workRoot:work,extraRoots:{},coverageReviewed:true,verifyRemoteRefs:false};
+ const bin=path.join(tmp,'no-hosting-tools'),configFile=path.join(tmp,'cli-config/run.json'),approvalFile=path.join(tmp,'cli-config/approval.json');
+ for(const command of ['gh','curl','rclone']){await C.writeNew(path.join(bin,command),Buffer.from('#!/bin/sh\nexit 91\n'));await fs.chmod(path.join(bin,command),0o700);}
+ await C.writeNew(configFile,C.bytes(c));await C.writeNew(approvalFile,C.bytes(approved('backup-download',binding)));
+ const result=C.json(Buffer.from(C.run(process.execPath,[path.join(repo,'scripts/admin/operations.cjs'),'backup-download',configFile,approvalFile],{cwd:os.tmpdir(),env:{PATH:bin+path.delimiter+process.env.PATH,LANG:'C.UTF-8'}})));
+ assert.equal(result.status,'completed');assert.equal(result.independent,false);assert.equal(result.backup,'awaiting-independent-download');assert.ok(sync.existsSync(path.join(work,'morothon-backup.zip')));
+ const audit=auditSource(source);assert.equal(audit.remoteChecked,false);assert.equal(audit.completeGitCoverage,false);assert.equal(audit.advertisedRefs,null);assert.equal(audit.localGitValid,true);
 });
-test('A1D private workflow configuration cannot be prepared on public repos or feature branches',async()=>{
- await assert.rejects(()=>prepare('publish',{GITHUB_REPOSITORY:C.PUBLIC,GITHUB_REF:'refs/heads/main'}),/Private protected main only/);
- await assert.rejects(()=>prepare('backup',{GITHUB_REPOSITORY:C.ADMIN,GITHUB_REF:'refs/heads/feature'}),/Private protected main only/);
- const workspace=path.join(tmp,'workflow'),admin=path.join(workspace,'admin'),temp=path.join(tmp,'workflow-temp');await fs.mkdir(workspace);await init(admin);
- await C.writeNew(path.join(admin,'config/backup.json'),C.bytes({recipientFingerprint:fpr,coverageReviewed:true}));C.git(admin,['add','.']);C.git(admin,['commit','--quiet','-m','synthetic backup config']);
- const binding={repository:C.ADMIN,sourceCommit:C.git(admin,['rev-parse','HEAD']),remoteRoot:null,recipientFingerprint:fpr,workRoot:path.join(temp,'morothon-backup'),extraRoots:{},coverageReviewed:true};
- const result=await prepare('backup-download',{GITHUB_REPOSITORY:C.ADMIN,GITHUB_REF:'refs/heads/main',GITHUB_WORKSPACE:workspace,RUNNER_TEMP:temp,ADMIN_BACKUP_APPROVAL_JSON:JSON.stringify(approved('backup-download',binding))});assert.equal(result.prepared,true);
- assert.equal(sync.existsSync(path.join(temp,'morothon-backup/rclone.conf')),false);
+test('A1D portable configuration remains pending and contains no workflow or service-account setup',async()=>{
+ const config=C.json(await C.read(repo,'ops/admin-templates/config.example.json')),approval=C.json(await C.read(repo,'ops/admin-templates/approval.example.json'));
+ assert.equal(config.storage.type,'local-directory');assert.equal(approval.status,'pending');assert.deepEqual(approval.operations,[]);
+ assert.deepEqual((await fs.readdir(path.join(repo,'ops/admin-templates'))).sort(),['approval.example.json','config.example.json']);
+ const operations=(await C.read(repo,'scripts/admin/operations.cjs')).toString();assert.ok(!operations.includes("C.run('gh'"));assert.ok(!operations.includes("['push'"));
 });
 test('A1D administrative tools and private credentials remain outside public runtime and PR checkout',async()=>{
  const {runtimeFiles}=require('../scripts/lib/runtime-files.cjs'),registry=C.json(await C.read(repo,'public-data/data/badges.json'));

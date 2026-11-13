@@ -1,188 +1,129 @@
-# A1D – privat administrasjon, backup og kontrollert migrering
+# A1D – portable backup-, restore- og migreringsverktøy
 
-Utgangspunkt: `main 907420e`, merge av A1C/PR #29. Denne leveransen klargjør verktøy og inaktive private driftsmaler. **Ingen reelle personregistre er kopiert til ny lagring, ingen backup av dem er laget, og ingen migrering, tilgangsendring, historikkendring eller Pages-endring er utført.**
+A1D forbereder sikker behandling av administrative originaler med enkle kommandolinjeverktøy. Kjøringen trenger ikke GitHub Actions, privat GitHub-tilgang, en personlig utviklermaskin eller denne chatten. Grunnlaget er [A1](a1-offentlig-dataeksport.md), [A1B](a1b-privat-migreringsplan.md), [P01–P12](a1b-publiseringsbeslutninger.md) og [A1C](a1c-separat-eksport-og-bygg.md).
 
-Gjeldende rammer: [A1](a1-offentlig-dataeksport.md), [A1B](a1b-privat-migreringsplan.md), [P01–P12](a1b-publiseringsbeslutninger.md) og [A1C](a1c-separat-eksport-og-bygg.md). A1D gjør ingen nye publiseringsvalg. Det tidligere publiserte materialet er fortsatt tilgjengelig gjennom dagens offentlige repository/historikk; et nytt privat repository vil ikke tilbakekalle eksterne kopier.
+**Ingen reell backup eller datamigrering er gjennomført.** `morothon-no/historikk-admin` er opprettet av eier og tilgjengelig som tom lokal checkout. Det er ikke lagt inn filer eller commits der. Andre eksisterende lokale endringer er bevart. Repositoryvalget i miljøet er ikke endret av denne leveransen.
 
-## Faktisk status og eierens nødvendige valg
+## Avgrensning
 
-| Område | Kontrollert/klargjort | Gjenstår før bruk |
-| --- | --- | --- |
-| Privat repository | Opprettelse/verifikasjon er automatisert i `repository.cjs`, men forsøket mot GitHub gir **API Forbidden**. Det er ikke bekreftet at repositoryet finnes, er privat eller gir nødvendige rettigheter. | Opprett/verifiser `morothon-no/historikk-admin` som **Private**, uten data. API-tilgang må fungere før verktøyet kan godta destinasjonen. Ingen antakelse om manglende org-rettigheter utledes fra nettverksfeilen. |
-| Git-arkivgrunnlag | Read-only-kontroll av kildecheckouten: ikke shallow, `git fsck` bestått, alle **48 annonserte heads/tags/PR-heads** finnes som objekter tilgjengelige fra lokale refs. | Gjenta ved godkjent, frosset migrering. En senere gren/PR kan endre opptellingen. |
-| Eksterne kilder | Arbeidsflyten krever godkjent dekningskontroll og støtter egne kilde-/vedleggsmapper i backup. | GitHub Issues, kommentarvedlegg, gamle artefakter, eventuelle LFS-objekter, masterfiler og eksterne kilder må kartlegges/bevares med lovlig tilgang. Git-bundle alene dekker ikke disse. API-blokkeringen gjør at full dekning ikke er verifisert. |
-| Kryptert backup | GnuPG, filmanifest, Git-bundle, read-back fra separat lagring og restore er implementert og testet med syntetisk innhold. | Eier må godkjenne uavhengig lagringssted, forvaltere, krypteringsnøkkel/recovery og bevaring. Ingen reell backupdestinasjon er valgt eller kontaktet. |
-| Tilganger/regler | Read-only API-inspektør og anbefalte private miljøer/servicekontoavgrensninger er klargjort. | Repo/org-/gren-/miljøregler og faktisk ACL må verifiseres. Ingen andre personer eller kontoer har fått tilgang. |
-| Offentlig publisering | Separat privat eksport og ren offentlig forslagsjobb er forberedt. Den offentlige aktive workflowen er uendret. | Installasjon/aktivering i verifisert privat repo og godkjenning av servicekonto/miljøer kreves. Dagens A1C-policy gjelder fortsatt. |
+- Behold kryptert backup, restore, SHA-256, frosne kilderevisjoner og kontrollert migrering.
+- Bruk privat lokal katalog som standard. GitHub er kun en valgfri adapter for senere lagring i det allerede opprettede repositoryet.
+- Ingen nye Actions-workflows, servicekontoer, miljøer, tilgangsregler eller automatisk GitHub-publisering inngår. De tidligere forberedte GitHub-malene er tatt ut av A1D.
+- Offentlig eksport følger A1C. Den kan valideres og leveres videre, men verktøyene endrer ikke offentlig checkout, pusher ikke data og oppretter ikke publiserings-PR-er automatisk.
+- Nettsidekode, historikk, person-ID-er, medaljer, diplomer, P01–P12 og aktiv Pages-publisering er uendret. Offentlige originaler og eldre Git-versjoner er fortsatt tilgjengelige inntil en egen migrering/opprydding er godkjent.
 
-Hvis Codex fortsatt ikke kan opprette repositoryet, er den konkrete GitHub-handlingen: **Opprett et tomt repository `historikk-admin` under `morothon-no`, velg Private, og ikke legg inn data eller gi nye personer tilgang.** Codex kan gjøre resten som tilgangene tillater etterpå; eier skal ikke måtte kopiere registre, kjøre Git-/backupkommandoer eller redigere eksportfiler manuelt.
+## Hva er ferdig?
 
-For å unngå unødvendige manuelle GitHub-steg er det også lagret et **nettverksutkast** for Codex-miljøet: legg til `api.github.com`, med øvrige tillatte domener bevart. Verktøyet bekreftet lagring, men krever gjennomgang/lagring og publisering av **miljøkonfigurasjonen** før aktivering. Dette er ikke en Pages-publisering eller en ny repositorytilgang. API-et må testes på nytt etter aktivering; utkastet i seg selv beviser ikke org-rettigheter eller privat synlighet.
-
-For backup anbefales et organisasjonseid objektlager hos en separat leverandør, med versjonering og avtalt uforanderlig bevaring. Dette er **et forslag**, ingen godkjent destinasjon. Eier må først oppgi/godkjenne leverandør, konto/bucket/prefiks, lagringsregion, ansvarlig/stedfortreder og bevaring. Deretter kan Codex konfigurere og teste med avgrensede rettigheter. Ikke send nøkler eller passord i chat.
-
-Eier har også spurt om lokal lagring for senere nedlasting. **Dette støttes:** en kryptert `morothon-backup.zip` kan klargjøres på et godkjent privat arbeidsområde og lastes ned senere til PC/ekstern disk. Ingen reell fil er opprettet nå. Midlertidig arbeidsmiljø eller GitHub-artefakt regnes ikke som uavhengig backup; filen må lagres varig utenfor disse miljøene, og restore må faktisk prøves fra den nedlastede kopien. Se nedlastingsvarianten nedenfor.
-
-## Verktøy og oppdeling
-
-Alle filer under `scripts/admin/` er generisk infrastruktur uten originalregistre eller innbakte personopplysninger. De inngår ikke i A1Cs runtime-filliste eller offentlige PR-jobbs sparse checkout.
-
-| Fil | Ansvar |
+| Verktøy | Ansvar |
 | --- | --- |
-| `common.cjs` | Sikre relative stier, separate arbeidsmapper, SHA-256, eksakt commit, godkjenningsbinding og ingen overskriving. |
-| `repository.cjs` | Forsøk opprettelse kun ved reell 404; kontroller deretter identitet, `private:true`, `visibility:private` og push-rettighet. 403/nettverksfeil gir stopp, aldri antatt privat synlighet. Tilgangsrapporten viser kontrollstatus/antall, ikke personlister. |
-| `source-audit.cjs` | Sammenlign annonserte Git-refs med arkiverbare lokale objekter. Ingen automatisk fetch eller historikkendring. |
-| `backup.cjs` | Komplett filsnapshot av angitte kildemapper, Git-bundle med alle lokale refs/HEAD, tilgjengelige LFS-objekter, SHA-256-manifest, OpenPGP-kryptering og faktisk restore-test. |
-| `migration.cjs` | Plan med låst kilde-/verktøycommit og filhash; kopier uendrede originalbyte etter verifisert restore, bevar historikkbundle/journal privat, og avvis avvik. Idempotent gjentakelse, aldri automatisk sletting. |
-| `publication.cjs` | Kombiner to private originalregistre med tre låste offentlige innganger, kjør A1C-eksport, sammenlign migreringens 43/86, og klargjør bare offentlig pakke/referanse til en data-PR. |
-| `operations.cjs` | Utfør operasjoner med separat, eksplisitt eiergodkjenning. Publisering lager en Draft PR; ingen merge/deploykommando finnes. |
-| `workflow-config.cjs` | Lag runtimekonfigurasjon i privat runner fra beskyttet konfigurasjon/godkjenning; nekt offentlig repo og featurebranch. |
-| `scaffold.cjs` | Generer tom administrativ struktur og avslåtte workflowmaler uten personregistre. |
+| `scripts/admin/backup.cjs` | Filsnapshot, full lokal Git-bundle/refs/HEAD, tilgjengelige LFS-objekter, SHA-256 per fil, GnuPG-kryptering, nedlastingspakke og faktisk restore-test. |
+| `scripts/admin/migration.cjs` | Plan som binder kilde, eksportverktøy, konkret destinasjon og filhash. Idempotent kopiering uten overskriving, med uavhengig restore som krav. |
+| `scripts/admin/publication.cjs` | A1C-eksport fra to private originaler og tre offentlige innganger, 43/86-sammenligning og validering av offentlig kandidat mot eksternt godkjent hash. Ingen GitHub-publisering. |
+| `scripts/admin/storage.cjs` | Kontroll av privat lokal katalog og separat, valgfri GitHub-adapter. Lokal modus kan ikke brukes som omgåelse for et Git-repository med remote. |
+| `scripts/admin/source-audit.cjs` | Lokal Git-integritet uten nettverk. Med eksplisitt `--remote` kan annonserte Git-referanser kontrolleres uten å hente nye originaldata. |
+| `scripts/admin/operations.cjs` | Portabel CLI med separate godkjenninger og stopp ved avvik. |
+| `scripts/admin/common.cjs` | Sikre filstier, private arbeidsmapper, frosne commits og kontrollsummer. |
+| `scripts/admin/repository.cjs` | Valgfri, read-only kontroll av privat GitHub-synlighet/tilgang. Oppretter ikke repo, regler eller brukertilgang. |
 
-Det tilføyes ingen npm-avhengigheter. Driftsverktøy krever Node 24, Git, Python 3 og GnuPG. Ekstern backup bruker rclone; LFS krever git-lfs og tilgjengelige, hashvaliderte objekter. Chromium/Playwright brukes ved 43/86-sammenligning fra gjennomgått offentlig kode. Private maler installerer standard backupverktøy automatisk.
+Det tilføyes ingen npm- eller Python-avhengigheter. Backup/restore bruker Node.js 24, Git, GnuPG og Python 3s standardbibliotek. rclone er bare nødvendig dersom separat fjernlagring velges. Git-LFS kreves bare ved LFS-kilder. Den bevarte 43/86-kontrollen bruker eksisterende Playwright/Chromium som kvalitetssikring, ikke som backupavhengighet.
 
-## Administrativ struktur
+Kjøretiden er testet på Linux/POSIX. Kryptert ZIP/OpenPGP kan flyttes mellom systemer; direkte kjøring på andre operativsystemer må verifiseres, særlig katalogrettigheter og systemverktøy. Dette er ikke en påstand om testet Windows-drift.
+
+## Lokal drift og konfigurasjon
+
+Det følger kun to generiske JSON-eksempler under `ops/admin-templates/`: konfigurasjon og en godkjenning med `status:pending`. Ingen nøkler, originalregistre eller reelle godkjenningsjournaler inngår. Konfigurasjonen fylles av ansvarlig forvalter/Codex etter eierens beslutninger; eier trenger ikke skrive skript eller kopiere registre manuelt.
+
+Oppbevar kjøringskonfigurasjon og journaler utenfor offentlig checkout, eksempelvis:
 
 ```text
-historikk-admin/                  skal verifiseres PRIVATE før dataimport
-  data/honors.json                uendrede administrative originaler
-  data/volunteers.json
-  sources/                       klassifiserte originalvedlegg og kilder
-  internal-docs/                 intern dokumentasjon, ikke offentlig eksport
-  archive/<source-commit>/history.bundle
-  release-journal/               importplan, backupkvittering og bevaringskontroll
-  config/                        privat policy og konfigurasjon
-  tests/                         private kildekontroller
-  toolchain-lock.json            gjennomgått offentlig kodecommit, enabled:false først
-  .github/workflows/             bare private, beskyttede driftsløp
+/private-work/
+  config/                 konfigurert kjøring og separate godkjenninger
+  source/                 frosset kildecheckout
+  public-code/            gjennomgått offentlig kode/datapakke
+  admin/                  privat lokal originalmappe (0700)
+  runtime/run-unique-id/   ny, privat arbeidsmappe utenfor Git
+  recovery-gnupg/          separat, godkjent nøkkeltilgang ved restore
 ```
 
-Tom struktur genereres med `node scripts/admin/scaffold.cjs <ny-tom-mappe> <gjennomgått-40-tegns-commit>`. Det er trygt å forhåndsvise denne lokalt; den inneholder kun mapper, generiske tekster og avslåtte maler. Installasjon/push av ren infrastruktur kan utføres av Codex når repositorytilgang og privat synlighet er verifisert. Ingen persondata skal følge med dette første steget.
+`storage.type:local-directory` bruker en privat katalog. Den kan versjoneres med lokal Git uten remote; eksport fra denne krever en ren, låst administrativ commit. Runtime-mapper må ha 0700 og være utenfor Git-arbeidstrær. Symlinker og mangelfull Git-metadata avvises. Disse sjekkene erstatter ikke eierens kontroll av vertens tilganger, disk og lagringssted.
 
-Originalene har én privat redigeringsautoritet etter en senere godkjent overgang. Den offentlige løpshistorikken, medaljeregisteret og datoregisteret har fortsatt én **offentlig** redigeringsautoritet. Privat eksport leser nøyaktige, gjennomgåtte versjoner av disse tre; den bruker ikke gamle kopier fra administrative mapper og reeksporterer ikke offentlige Heder-data som originaler.
+Hvis GitHub senere velges, kreves eksplisitt `storage.type:github`, korrekt origin og faktisk API-verifisert privat synlighet/tilgang før persondata kan kopieres dit. Lokal modus nekter å godkjenne en katalog med Git-remote som privat uten hostingkontroll. API-begrensninger blokkerer denne adapteren, men ikke lokal backup/restore.
 
-## Godkjenninger og sikkerhetsgrenser
+## Godkjenning før første reelle backup
 
-Runtimekonfigurasjon og godkjenninger lagres **utenfor offentlig checkout**, på privat arbeidsområde. Eksemplene i `ops/admin-templates/` er generiske, ufullstendige og `pending`. De kan ikke brukes til datakopiering slik de står.
+Følgende må godkjennes konkret før noen administrative originaler brukes til å lage backup:
 
-Hver operasjon krever `schemaVersion:1`, `status:approved`, navngitt godkjenner, gyldig tidspunkt, riktig operasjon og en eksakt binding:
+1. **Kilden:** eksakt commit, ekstra kildemapper og hva som skal bevares av vedlegg, historiske refs, LFS og eksterne kilder. Et Git-bundle dekker ikke automatisk Issues, vedlegg eller gamle Actions-artefakter.
+2. **Arbeidsplassen:** konkret privat, midlertidig katalog med tilgangskontroll. Ingen plaintext i offentlig Git, logger eller webrot.
+3. **Kryptering/recovery:** kontrollert mottakernøkkel og fingerprint, ansvarlig/stedfortreder og separat organisasjonsforvaltet recoverykopi. Ikke send passord eller privatnøkler i chat og ikke legg dem i repositoryet.
+4. **Uavhengig bevaring:** nedlasting til varig PC-/ekstern-disklagring eller et godkjent separat lager, med avtalt bevaring og faktisk restore-test før migrering/fjerning av originaler.
 
-| Operasjon | Godkjenningen binder |
+Ingen av disse valgene regnes som godkjent bare fordi A1D-koden godkjennes. Eksempelfilen for godkjenning stopper som den står.
+
+Godkjenningsbindingene i CLI-en er:
+
+| Operasjon | Eksakt binding |
 | --- | --- |
-| `backup` | Privat repository, frosset kildecommit, uavhengig lagringsrot, mottakernøkkelens fingerprint, arbeidsrot, ekstra kildemapper og godkjent dekningskontroll. |
-| `backup-download` | Samme kilde/nøkkel/dekning, konkret privat arbeidsrot og `remoteRoot:null`. Gir bare en ventende nedlastingskopi, ingen uavhengig backupgodkjenning. |
-| `restore` | Repository, konkret kryptert backup-SHA og ny privat restoremappe. Hentes fra backupens godkjente eksterne objekt, ikke bare lokal kopi. |
-| `restore-download` | Samme backup-SHA/restoremappe, samt eiergodkjent plassering av den faktisk nedlastede uavhengige kopien. |
-| `migrate` | Repository, kildecommit og plan-SHA; planen binder også eksportverktøyets commit og alle importfiler. |
-| `export` | Privat kildecommit, offentlig verktøy-/datacommit og datarevisjon. |
-| `publish` | Offentlig basecommit, eksternt godkjent manifest-SHA og bestemt forslaggren. Ingen mergefullmakt. |
+| `backup-download` / `backup` | Kildecommit, arbeidsrot, nøkkelfingerprint, ekstra kildemapper, dekningsgodkjenning, valg av remote-kontroll og fjernlagringsrot (`null` ved nedlasting). |
+| `restore-download` | Backup-SHA, ny restoremappe og eiergodkjent uavhengig kopi. |
+| `restore` | Backup-SHA og restoremappe; kvittering/arkiv hentes fra avtalt fjernlager. |
+| `migrate` | Destinasjon, kildecommit og plan-SHA. Planen binder også eksportkode og alle filer. |
+| `export` | Destinasjon, administrativ commit, offentlig verktøy-/datacommit og datarevisjon. |
 
-Godkjenningsfilen er **en sporbar operasjonssperre, ikke digital signering eller tilgangskontroll mot en aktør som kan endre kode og godkjenninger**. Reell sikkerhet krever beskyttet privat main, review, riktige GitHub-miljøregler og begrensede kontoer. En offentlig PR får aldri skrive sin egen private godkjenning. Ingen mal aktiveres før disse serverreglene er verifisert.
+Godkjenninger er sporbare operasjonssperrer, ikke digital signering eller vern mot en administrator som selv kan endre kode og godkjenninger. Eier må godkjenne verts-/lagringstilgang og fysisk uavhengighet. Det registreres ingen medaljetildelinger eller nye diplomgodkjenninger.
 
-Visningsgodkjenning, backup/migreringsgodkjenning og eventuell formell medaljeutdeling er ulike ting. Ingen `awards`, diplomgodkjenninger eller `issuedDiplomas` endres av verktøyene.
+## Backup og nedlasting
 
-## Backup og restore
+En backup inneholder alle filer i angitte kildemapper, SHA-256/størrelse/executable-bit, full lokal Git-bundle med refs/HEAD og tilgjengelige LFS-objekter. `.git`-konfigurasjon, credentials, hooks, reflogs og ikke-refererte objekter inngår ikke i bundleløftet. Bevar nødvendige historiske objekter under arkivrefs først. Kjør fra en kontrollert checkout uten innloggingsnøkler eller uvedkommende arbeidsmapper; også ignorerte/usporede filer tas med. Hele kildearbeidstreet og hvert kopiert byte kontrolleres før/etter kopieringen.
 
-En godkjent kjøring lager et privat midlertidig snapshot med SHA-256 og størrelse for **hver fil**, samt executable-bit. Hele kildearbeidstreet inkluderes, også usporede/ignorerte filer; `.git` erstattes av full lokal bundle/ref-/HEAD-informasjon og tilgjengelige LFS-objekter. Derfor skal kilden være en kontrollert administrativ checkout, uten innloggingsnøkler eller fremmede arbeidsmapper. Hemmeligheter forvaltes/gjenopprettes separat fra godkjent nøkkellager.
-
-Git-konfigurasjon, hooks, credentials, reflogs og ikke-refererte/danglende objekter er ikke en del av bundleløftet. Bevar nødvendige historiske objekter under godkjente arkivrefs før backup. LFS, branches/PR-heads og eksterne vedlegg må være fullstendig tilgjengelige; manglende Git-dekning, shallow clone, manglende LFS-verktøy/objekt, symlink eller spesialfil stopper i stedet for å utelate innhold stille. Eksterne kildemapper tas med gjennom godkjent `extraRoots`.
-
-GnuPG krypterer ZIP64-snapshotet med AES-256 til en fingerprint-kontrollert offentlig mottakernøkkel. Krypteringsjobben trenger **ikke privat dekrypteringsnøkkel**. Backup lastes opp under sin SHA med rclone `--immutable`, lastes ned igjen og må ha identisk SHA. Kvitteringen krypteres også og lagres som `<backup-SHA>.receipt.gpg` på samme uavhengige lager, med egen read-back. Den forsvinner dermed ikke når en midlertidig GitHub-runner avsluttes. Restore laster ned/dekrypterer kvitteringen og backupen fra lageret og krever den eksternt godkjente `backupSha256` i konfigurasjonen. Separat backupkonto med versjonering/uforanderlighet og begrenset append/read-tilgang må godkjennes; `--immutable` alene hindrer ikke en kontoeier fra å slette objekter.
-
-Restore krever verifisert kryptert SHA, GnuPG-dekryptering, grenser for størrelse/antall ZIP-medlemmer og sikre filstier. Deretter kontrolleres filmanifest, Git-bundle, `fsck`, HEAD, alle refs, LFS og identiske arbeidsfiler. Ekstra kildemapper bevares under `verified/payload/roots/`. Det skrives først et `restore-tested`-bevis når alt består. Korrupte/malformede gjenopprettinger fjernes fra **den nyopprettede restore-mappen**, aldri fra originalkilden.
-
-Standardgrensen ved restore er 20 GiB / 200 000 medlemmer; større arkiver krever gjennomgått ressursgrense. Symlinker/spesialfiler avvises, ikke omskrives. Tomme mapper, ACL-er og OS-eierskap er ikke dataformatets bevaringsgaranti; filbyte, filinventar, executable-bit, Git-objekter/refs og de oppgitte ekstrakildene er det. Dette må kontrolleres mot den virkelige kilden før migrering.
-
-Backupkvittering, manifest og restorebevis skal journalføres privat og sikres sammen med organisasjonens recoveryprosess. En kvittering i et GitHub-workspace er ikke uavhengig backup. Den krypterte filen må finnes på separat godkjent lagring, og gjenoppretting må være praktisk prøvd fra den. Forslag: daglig og før import, versjonert bevaring og kvartalsvis restoreøvelse. Tider/bevaring er ikke vedtatt eller aktivert nå.
-
-### Kryptert nedlasting til PC eller ekstern disk
-
-`backup-download` bruker samme komplette snapshot, Git-bundle, filhash og GnuPG-kryptering, men trenger ikke et rclone-lager. Resultatet er én ZIP med **kun** `backup.gpg`, `receipt.gpg` og generiske gjenopprettingsinstruksjoner. Både registre og kvittering er kryptert; dekrypteringsnøkkel eller plaintextregistre er ikke med i ZIP-en.
-
-I en godkjent lokal/privat kjøring ligger filen i `<workRoot>/morothon-backup.zip`. Den private workflowmalen har også valget `download` og kan beholde akkurat denne ZIP-en som `morothon-encrypted-backup-download` i **14 dager**, bare i det private repositoryet. Last den ned før artefaktet utløper eller arbeidsmiljøet avsluttes. Den faktiske lagringsplassen og separat nøkkelforvaltning må godkjennes før originalregistrene brukes til å lage filen.
+GnuPG krypterer snapshot og kvittering med AES-256 til den kontrollerte offentlige mottakernøkkelen. Krypteringsjobben trenger ingen privat dekrypteringsnøkkel. `backup-download` lager én ZIP med bare `backup.gpg`, `receipt.gpg` og generiske restoreinstruksjoner. Ingen plaintextregistre eller recovery-nøkkel følger med ZIP-en.
 
 ```sh
-node scripts/admin/operations.cjs backup-download /private-work/config/run.json /private-work/approvals/download.json
-# Når den nedlastede ZIP-en er bevart varig og pakket ut på godkjent sted:
-node scripts/admin/operations.cjs restore-download /private-work/config/run.json /private-work/approvals/restore-download.json
+node scripts/admin/operations.cjs backup-download /private-work/config/run.json /private-work/config/backup-approval.json
 ```
 
-`independentCopyRoot` peker på de utpakkede krypterte filene fra den nedlastede kopien. Kildeplassen må være separat fra originalens arbeidsrot og være godkjent som fysisk/administrativt uavhengig; en annen katalog i samme skymiljø er ikke tilstrekkelig. Filstier alene beviser ikke fysisk uavhengighet. Codex kan kontrollere hash, dekryptere og teste restore når kopien er tilgjengelig med godkjent tilgang, men kan ikke attestere at en nedlasting til eierens PC har skjedd uten faktisk tilgang/bekreftelse.
+Resultatet ligger i `<workRoot>/morothon-backup.zip`. En fil i Codex-miljøet er midlertidig: last den ned før miljøet avsluttes. Først når kopien er lagret uavhengig og restore faktisk er prøvd, kan den brukes som migreringsgrunnlag. Ingen reell backupfil er laget i denne leveransen.
 
-En vanlig lokal restore får `independentReadBackVerified:false`. Migrering nekter å fortsette med et slikt bevis, selv om filhashene stemmer. Først en vellykket restore fra godkjent ekstern/nedlastet kopi gir uavhengig restorebevis. Originalene beholdes hele tiden. Nøkkelen må ha en separat, organisasjonsforvaltet recoverykopi; den skal ikke være eneste fil i det midlertidige miljøet eller sendes i chat.
+Fjernlagring er et valgfritt alternativ: `backup` bruker rclone med immutable objektnavn, leser den faktiske opplastingen tilbake og kontrollerer SHA. Den krypterte kvitteringen bevares separat på samme godkjente lager. Retensjon, tilgang og eventuell objektlås må godkjennes hos leverandøren; rclone-flagget alene er ikke slettingsbeskyttelse.
 
-## Kontrollert gjennomføring etter nødvendige godkjenninger
-
-Codex eller en senere arrangør kjører samme verktøy fra låst kode; det krever ingen personlig utviklermaskin eller denne chatten:
+## Restore, migrering og videre eksport
 
 ```sh
-node scripts/admin/repository.cjs --create
-node scripts/admin/source-audit.cjs /private-work/frozen-source
+node scripts/admin/source-audit.cjs /private-work/source
+# Valgfri, eksplisitt nettverkskontroll av Git-refs:
+node scripts/admin/source-audit.cjs /private-work/source --remote
 node scripts/admin/operations.cjs plan /private-work/config/run.json
-# Etter separate, konkrete eiergodkjenninger:
-node scripts/admin/operations.cjs backup /private-work/config/run.json /private-work/approvals/backup.json
-node scripts/admin/operations.cjs restore /private-work/config/run.json /private-work/approvals/restore.json
-node scripts/admin/operations.cjs migrate /private-work/config/run.json /private-work/approvals/migrate.json
+# Først etter de konkrete godkjenningene:
+node scripts/admin/operations.cjs restore-download /private-work/config/run.json /private-work/config/restore-approval.json
+node scripts/admin/operations.cjs migrate /private-work/config/run.json /private-work/config/migration-approval.json
+node scripts/admin/operations.cjs export /private-work/config/run.json /private-work/config/export-approval.json
 ```
 
-Planen og SHA-er av råregistre skrives bare privat. Migrering krever samme kildecommit og faktisk restore som backupen; hvert importert originalbyte kontrolleres mot både kilde og restore. Eksisterende målinnhold må være identisk, ellers stoppes kjøringen. Historikkbundle, plan og restorebevis bevares i privat arkiv/journal.
+Restore kontrollerer kryptert SHA, dekryptering, sikkert ZIP-inventar/størrelse, alle filhash, refs, Git-bundle, fsck og HEAD. Ekstra kildemapper bevares under restoreområdets `verified/payload/roots/`. Symlinker, spesialfiler, path traversal og avvik stopper. Standard ressursgrense er 20 GiB / 200 000 ZIP-medlemmer. Formatet bevarer filbyte, inventar og executable-bit, ikke tomme mapper, ACL-er eller OS-eierskap.
 
-Etter kopieringen kjører migreringsoperasjonen også A1C-eksport og bevaringskontroll: alle fem offentlige filer må være byte-identiske, alle **43 profiler og 86 diplomvarianter** må samsvare med A1C-referansen, inkludert dokumenthash, periode, historisk dato og utskriftsmodus. Feil etter privat kopiering lar originalene og den private kopien stå for undersøkelse; det skjer ingen offentlig overgang/publisering. Idempotent omkjøring krever fortsatt samme plan/godkjenning.
+En vanlig lokal restore gir ikke uavhengig backupbevis. `restore-download` krever en separat eiergodkjent kildeplass for de faktisk nedlastede filene; en ny katalog i samme midlertidige miljø er ikke i seg selv uavhengig. Filstier alene beviser ikke fysisk uavhengighet. `restore` henter fra det godkjente eksterne lageret. Migrering avvises uten bestått uavhengig restore.
 
-Det er bevisst at denne fasen lar alle offentlige originalfiler og Pages-kontroller stå. Privat commit/push av det kontrollerte importsettet kan deretter utføres av Codex etter konkret migreringsgodkjenning og ny privatkontroll. Ordinær publisering bruker bare sanitert pakke. Full bevaring gjelder blant annet Adelskalenderen, Einar med 33 og utdelingsdato 7. november 2026, skjult Erling Danielsen, begge diplomvalg og gjeldende layout-/DPI-/godkjenningssperrer.
+Migreringsplanen fryser originalenes filhash, konkrete mål og eksportkode. Kopieringen bevarer originalbyte, historikkbundle og journal privat. Ved omkjøring må eksisterende filer være identiske, ellers stoppes den uten overskriving. Originalene slettes aldri. Før migrering rapporteres ferdig må A1C-eksporten samsvare byte for byte og alle **43 offentlige profiler / 86 diplomvarianter** være uendret, inklusive opptjeningstidspunkter, dokumenthash og utskriftsmodus. Einar/Erling-rettelsene og alle historiske resultater beholdes.
 
-Tilbakeføring betyr stopp før offentlig overgang og fortsatt bruk av siste **gjeldende policyvaliderte offentlige pakke**. Kilden er aldri fjernet eller omskrevet. Ikke gjør privat repository offentlig eller legg gamle råregistre i Pages som nødløsning. Eventuell senere offentlig rollback må få en ny, gjennomgått datarevisjon og beholde dagens skjuling.
+Løpshistorikk, medaljeregister og arrangementsdatoer har fortsatt én offentlig redigeringsautoritet. Eksporten kombinerer de to private originalregistrene med en låst offentlig versjon av disse tre; gamle administrative kopier brukes aldri som fallback. Offentlig kandidat kan kontrolleres med `validate-public` mot en eksternt godkjent manifesthash. Denne kommandoen endrer ikke offentlig checkout, lager ingen Git-gren og pusher ingenting. Eksisterende A1C-validering og Pages-flyt beholdes.
 
-## Privat automatisering og offentlig data-PR
+Ved feil etter privat kopiering beholdes kilden og den private kopien til kontroll; ingen offentlig overgang skjer. Tilbakeføring betyr fortsatt bruk av siste gjeldende godkjente offentlige pakke. Ikke publiser gamle råregistre som nødløsning. En senere fjerning av offentlige originaler, endring av Pages eller historikkrensing krever egne godkjenninger og full privat kildekontroll først.
 
-Malene under `ops/admin-templates/` er **ikke aktive workflows i dette offentlige repositoryet**. De er begrenset til `historikk-admin`, main, `ADMIN_INFRA_ENABLED=true` og beskyttede miljøer. `toolchain-lock.json` må i tillegg være eksplisitt aktivert og låst til en gjennomgått 40-tegns commit. Ingen flyttbar PR-ref, dispatch fra offentlig CI eller offentlig kontrollert kode får privat tilgang.
+## Leveransekontroll og gjenstående arbeid
 
-`private-export.yml` har to separate runners:
+Infrastrukturtestene bruker syntetiske administrative registre og midlertidige testnøkler. Offentlige sammenligningsfixturer kommer bare fra den allerede filtrerte A1C-pakken. De dekker faktisk kryptering/restore, skadede arkiver, utrygge stier, kildeendring under kopiering, manglende godkjenning, idempotent migrering, private katalogrettigheter og lokal modus som ikke kan omgå hostingkontroll. Den komplette backup-CLI-en testes med blokkert `gh`/`curl`/`rclone`, uten GitHub-variabler eller tokens.
 
-1. Privat eksport leser private registre, henter låste offentlige innganger, lager A1C-kandidat og laster bare opp de seks validerte offentlige pakkefilene som et kortlivet **privat** mellomartefakt. Ingen private kilder eller rårapporter følger med.
-2. Ren forslagsjobb har `permissions:{}`, sjekker ikke ut privat repo og bruker kun servicecredential avgrenset til det **offentlige** repositoryet. Den laster ned payloaden, krever eksternt godkjent manifest-SHA, validerer på nytt og endrer kun `public-data/` og godkjenningsreferansen. Den pusher en dataarbeidsgren og oppretter Draft PR. Utdatert offentlig main stopper i stedet for å overskrive nyere arbeid.
+Gjenstår før reell bruk: eierens godkjenninger ovenfor, recoveryoppsett, virkelig kilde-/vedleggsdekning og en ekte uavhengig backup/restore. GitHub-adapteren er ikke en attest på privat synlighet når API-et er blokkert. `historikk-admin` forblir tomt. Ingen nye tilganger, nøkler eller eksterne lagre er opprettet. Tidligere offentlig eksponering følges opp etter A1B, uten automatisk sletting eller historikkendring.
 
-`private-backup.yml` har valg mellom kryptert nedlasting og godkjent rclone-lager med faktisk read-back. Privatnøkkelen for recovery hører ikke hjemme i denne jobben. Kun det krypterte nedlastingsarkivet kan beholdes som kortlivet privat artefakt; ingen plaintextarkiver, rårapporter eller nøkler lastes opp. Malen har ingen aktivert tidsplan; planlagt drift kan aktiveres etter at første backup og restore er godkjent. Konfigurasjon/godkjenning legges i runnerens private tempmappe, ikke i offentlig Git.
-
-Serviceidentitet anbefales som en organisasjonseid GitHub App eller en avgrenset organisasjonsforvaltet konto/token, med Contents/PR write **kun** til offentlig `historikk`, ingen private repo-rettigheter, ingen Actions-/Variables-/administrasjonsrettigheter og ingen mergefullmakt. Nøkkel/token lagres kun i privat beskyttet miljø. Installasjon/tilgang krever eiergodkjenning og er ikke utført. Malen har et tomt secret-navn; ingen credential er opprettet eller delt.
-
-Dagens A1C-sikkerhet beholdes: offentlig data-PR kan ikke sette sin egen betrodde manifest-/head-godkjenning eller endre publiseringsregler. Den private forslagsjobben får ikke rett til å endre disse GitHub-innstillingene. Etter gjennomgang må eksisterende A1C-godkjenning og påkrevde sjekker oppfylles før eier eventuelt merger. En godkjent eksport er ikke en automatisk merge eller Pages-endring.
-
-## Tilganger, innstillinger og overtakelse
-
-Før privat dataimport må eier/Codex med godkjent tilgang kontrollere:
-
-- Faktisk privat synlighet, riktig organisasjon, orgens standardtilgang, arvede team/eksterne samarbeidspartnere og tilgang fra en uautorisert konto. Private betyr ikke automatisk «bare eier».
-- Beskyttet privat main: review uten selv-godkjenning, kontroll av workflows/lock/godkjenninger, ingen forcepush/sletting og riktig begrensning av bypass.
-- Miljøene `admin-export`, `admin-backup` og `public-data-proposal`: riktige godkjennere, main-begrensning og separat minimumstilgang til secrets. Begrens repo-forking/Actions og krev MFA der organisasjonen støtter dette.
-- Gjenopprettingsansvarlig og stedfortreder, separat key recovery, nøkkelrotasjon, lagringskontoens retensjon/objektlås og regelmessig tilgangsreview.
-- SHA-pinning av tredjeparts Actions ved aktivering etter vanlig kode-/leverandørkontroll. Malene bruker kjente versjonsreferanser; de er ikke ferdig produksjonsgodkjent eller slått på.
-
-API-inspektøren forsøker read-only-kontroll av både repo-regler, branch protection, Actions og organisasjon. Utilgjengelige felt rapporteres som **ikke verifisert**, aldri som trygg standard. Ingen foreslåtte rettigheter, personer eller innstillinger er anvendt automatisk.
-
-`ops/admin-templates/settings-plan.example.json` samler det foreslåtte innstillingsgrunnlaget med `apply:false`. Det er en plan, ikke en REST-payload som skal kjøres blindt. Faktiske godkjennere, eventuelle bypasskontoer og org-arvet tilgang må først verifiseres og godkjennes. Codex kan deretter klargjøre/applicere konkrete regler med tilgjengelig API-tilgang etter eierens uttrykkelige godkjenning; eier trenger ikke selv skrive JSON eller konfigurere hver enkelt regel.
-
-Ved overtakelse trenger neste arrangør bare organisasjonens repo-/miljø-/lagringstilgang og denne versjonerte driftsbeskrivelsen. Låste verktøy, genererte planer, backupkvitteringer, restorebevis og eksportjournal skal følge organisasjonen. Ingen hemmeligheter eller driftsavhengigheter skal ligge i chat, personlig laptop eller en utviklers private konto.
-
-## Tester og resterende arbeid
-
-`tests/admin-infrastructure.cjs` bruker kun syntetiske **administrative** registre, eget Git-repository og en midlertidig testnøkkel. Den faktiske GnuPG-rundturen tester SHA, refs, Unicode-stier og executable-bit. Negative tester dekker feil fingerprint, skadet backup, usikre arkivstier/symlink/duplikater/størrelse, manglende refs, uautorisert operasjon, endret mål og gjentatt migrering. Testen for offentlig forslag bruker bare allerede filtrert offentlig pakke, aldri administrative originaler.
-
-Utført lokalt 13. november 2026:
+### Utført leveransekontroll
 
 | Kontroll | Resultat |
 | --- | --- |
 | `npm test` | **247/247 bestått**, ingen hoppet over. |
-| Ny infrastruktursuite, også etter siste nedlastingsjustering | **18/18 bestått**. Kryptert payload/kvittering, faktisk syntetisk restore og sperre mot å bruke lokal kopi som uavhengig backup. |
-| `npm run test:public` | **9/9 bestått**, uten private registre i offentlig byggekontekst. |
-| `npm run build`, `public:kontroll`, `data:check-sources` | Bestått; samme bygg `21e320e9944d5188`, 59 filer, 43 profiler. **Alle 59 produksjonsfiler er byte-identiske** med A1C-kontrollen. |
-| Ny eksport-/migreringskontroll | Offentlig fixture uten administrative originaler: alle 43/86 og dokumenthashene stemmer. Syntetiske private originaler eksporteres uten canarynotat, gammel privat historikkfallback brukes ikke, og endret migreringspakke avvises. |
-| Statisk kontroll | YAML, shellsyntaks i workflowmalene, JSON, interne dokumentlenker og `git diff --check` bestått. |
+| Siste målrettede infrastruktursuite | **18/18 bestått**, med faktisk CLI-kjøring fra en annen arbeidskatalog, uten GitHub-variabler/tokens og med hostingverktøy blokkert. |
+| `npm run test:public` | **9/9 bestått**. |
+| Bygg, offentlig pakkevalidering og kildekontroll | Bestått. Bygg `21e320e9944d5188`; alle **59 produksjonsfiler byte-identiske** med A1C. |
+| Eksport-/migreringsgrunnlag | Alle **43 profiler / 86 diplomvarianter** identiske. Syntetisk eksport utelater private canarynotater, ignorerer gammel privat historikkfallback og avviser endret migreringspakke. |
+| Statisk kontroll | Node-syntaks, JSON, interne dokumentlenker og `git diff --check` bestått. Ingen pakke-/lockfil- eller aktive workflowendringer. |
 
-Disse resultatene gjelder lokal/syntetisk kontroll og den allerede godkjente offentlige pakken. GitHub Actions i det nye private repositoryet, ekte ekstern backup og faktisk migrering er **ikke kjørt eller attestert**.
-
-Aktive Pages-workflows, offentlig datapakke, originalregistre, medaljer, design, resultater, person-ID-er, P01–P12, A1C-policy og eksisterende tester er uendret. Hele eksisterende regresjonspakke beholdes. Ingen test flyttes/fjernes ved å installere de nye malene.
-
-Før **faktisk** migrering gjenstår privat verifikasjon/ACL, konkret backup-/nøkkelgodkjenning, eksternt kildearkiv, virkelig backup/restore fra uavhengig lager, eiergodkjent importplan og parallell 43/86-kontroll på de bevarte originalene. Før offentlige originalfiler eventuelt fjernes må den eksisterende fulle kildekontrollen dessuten etableres og bestå i privat kontekst. Dette er et eget godkjent overgangssteg; A1Cs main-jobb er ikke fjernet eller erstattet nå.
-
-Tidligere offentlige grener, Git-historikk, Actions-artefakter, Issues og eksterne kopier følges fortsatt opp etter A1B. Ingen sletting eller historikkrensing inngår i A1D-forberedelsene.
+Dette er lokale og syntetiske kontroller, ikke en attest på at ekte kildearkiv, backupdestinasjon, nøkkelforvaltning eller faktisk migrering er godkjent. Privat Git-tilgang fungerer og det tomme repositoryet er kontrollert uten innholdsendringer. GitHub API svarte fortsatt `Forbidden` i tre forsøk med ti sekunders mellomrom; PR-opprettelse via API er derfor en separat tilgangsbegrensning.

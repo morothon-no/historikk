@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
-  "repository": "morothon-no/historikk-admin",
+  "storage": {"type": "local-directory"},
+  "verifyRemoteRefs": false,
   "sourceRoot": "/private-work/source",
   "sourceCommit": "REPLACE_WITH_REVIEWED_40_HEX_COMMIT",
   "adminRoot": "/private-work/admin",

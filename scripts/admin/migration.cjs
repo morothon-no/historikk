@@ -2,17 +2,18 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const C=require('./common.cjs'),{verifyPayload}=require('./backup.cjs');
 const ORIGINALS=['data/honors.json','data/volunteers.json'];
-async function planMigration({sourceRoot,sourceCommit,publicCommit=sourceCommit,additionalFiles=[]}){
+async function planMigration({sourceRoot,sourceCommit,publicCommit=sourceCommit,adminRoot,destination=adminRoot?'local:'+path.resolve(adminRoot):null,additionalFiles=[]}){
  C.pinned(sourceRoot,sourceCommit);
  if(!/^[a-f0-9]{40}$/.test(publicCommit||''))throw Error('Pin the reviewed public export toolchain');
  const files={};for(const file of [...new Set([...ORIGINALS,...additionalFiles])].sort()){const b=await C.read(sourceRoot,file);files[file]={sha256:C.sha(b),bytes:b.length};}
- const plan={schemaVersion:1,repository:C.ADMIN,sourceCommit,publicToolsCommit:publicCommit,files,publicData:'unchanged',removeOriginals:false};
+ if(typeof destination!=='string'||!destination)throw Error('An explicit migration destination is required');
+ const plan={schemaVersion:1,destination,sourceCommit,publicToolsCommit:publicCommit,files,publicData:'unchanged',removeOriginals:false};
  return {plan,sha256:C.sha(C.bytes(plan))}; // Private journal only; never publish original-record hashes.
 }
-async function copyMigration({sourceRoot,adminRoot,restoredRoot,plan,planSha256,receipt,ownerApproval,verifyPrivate}){
- if(C.sha(C.bytes(plan))!==planSha256||plan.repository!==C.ADMIN||plan.removeOriginals!==false)throw Error('Migration plan mismatch');
- C.approval(ownerApproval,'migrate',{repository:C.ADMIN,sourceCommit:plan.sourceCommit,planSha256});
- await verifyPrivate();C.remote(adminRoot,C.ADMIN);C.pinned(sourceRoot,plan.sourceCommit);C.separate(sourceRoot,adminRoot);C.separate(sourceRoot,restoredRoot);
+async function copyMigration({sourceRoot,adminRoot,restoredRoot,plan,planSha256,destination=plan.destination,receipt,ownerApproval,verifyPrivate}){
+ if(C.sha(C.bytes(plan))!==planSha256||plan.destination!==destination||plan.removeOriginals!==false||destination?.startsWith('local:')&&destination!=='local:'+path.resolve(adminRoot))throw Error('Migration plan mismatch');
+ C.approval(ownerApproval,'migrate',{destination,sourceCommit:plan.sourceCommit,planSha256});
+ await verifyPrivate();C.pinned(sourceRoot,plan.sourceCommit);C.separate(sourceRoot,adminRoot);C.separate(sourceRoot,restoredRoot);
  const proof=C.json(await C.read(restoredRoot,'restore-proof.json')),verified=await verifyPayload(path.join(restoredRoot,'verified'));
  if(proof.status!=='restore-tested'||proof.independentReadBackVerified!==true||!proof.independentSource||proof.backupSha256!==receipt.sha256||proof.manifestSha256!==receipt.manifestSha256||verified.manifestSha256!==receipt.manifestSha256||verified.state.sourceHead!==plan.sourceCommit)throw Error('A matching actual restore test from approved independent storage is required');
  C.git(path.join(restoredRoot,'repository'),['fsck','--full','--no-reflogs']);
