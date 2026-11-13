@@ -1,0 +1,77 @@
+{
+  "url": "https://github.com/morothon-no/historikk/rules?ref=refs%2Fheads%2Fmain",
+  "checkedAt": "2026-11-13T21:47:17.605428+00:00",
+  "branch": "refs/heads/main",
+  "matchingRulesets": [
+    {
+      "id": 26984942,
+      "name": "Morothon – beskytt main",
+      "target": "branch",
+      "enforcement": "enabled",
+      "rules": [
+        {
+          "type": "deletion",
+          "parameters": {}
+        },
+        {
+          "type": "non_fast_forward",
+          "parameters": {}
+        },
+        {
+          "type": "pull_request",
+          "parameters": {
+            "required_reviewers": [],
+            "allowed_merge_methods": [
+              "merge",
+              "squash",
+              "rebase"
+            ],
+            "dismissal_restriction": {
+              "enabled": false,
+              "allowed_actors": []
+            },
+            "require_code_owner_review": false,
+            "require_last_push_approval": false,
+            "dismiss_stale_reviews_on_push": false,
+            "required_approving_review_count": 0,
+            "authorized_dismissal_actors_only": false,
+            "required_review_thread_resolution": false,
+            "ignore_approvals_from_contributors": false,
+            "require_extra_approval_for_unattributed_changes": true
+          }
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "required_status_checks": [
+              {
+                "context": "Public package, policy and site build",
+                "integration_id": 15368
+              },
+              {
+                "context": "Independent trusted artifact gate",
+                "integration_id": 15368
+              }
+            ],
+            "do_not_enforce_on_create": false,
+            "strict_required_status_checks_policy": false
+          }
+        }
+      ],
+      "conditions": [
+        {
+          "id": 50301583,
+          "target": "ref_name",
+          "parameters": {
+            "exclude": [],
+            "include": [
+              "~DEFAULT_BRANCH"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "bypassActorsVisible": false,
+  "settingsChanged": false
+}

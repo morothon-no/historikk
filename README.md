@@ -43,6 +43,11 @@ installasjon), `npm run test:functional`, `npm run test:visual` og
 det krever kildecheckout og verktøyene over. Offentlige nivåer bruker bare den
 godkjente datapakken. Se [B1: testvalg, målinger og sikkerhetsporter](docs/b1-testlop-og-maalinger.md).
 
+Vanlig kode og tester krever nå bare ordinær PR-gjennomgang og grønne obligatoriske
+sjekker, uten manuell SHA-oppdatering. Nye offentlige tester i `tests/public/`
+oppdages automatisk. Særskilt head-godkjenning er forbeholdt sikkerhets-,
+teststyrings- og publiseringsreglene: [enkel utviklingsflyt](docs/enkel-utviklingsflyt.md).
+
 ## Bygging, cache og trygg publisering
 
 ```sh
