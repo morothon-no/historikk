@@ -35,6 +35,10 @@ deltakelse, en formell tildeling eller et utskrevet diplom.
 
 ## Støttede formater – presis avgrensning
 
+**Oppdatert i C2.1a:** dokumentert Emit-attributt-XML og eksplisitte
+massevalg av distanser er lagt til. Se [C2.1a-veiledningen](c21a-emit-startliste.md).
+Omtalen nedenfor beskriver den opprinnelige C2.1-delmengden.
+
 Revisjonen og filkartleggingen fant **ingen faktiske CSV/XML/XLSX-prøvefiler fra
 EQ Timing** i prosjektet. Dette er derfor et dokumentert minimum testet med
 tydelig syntetiske filer, ikke sertifisering av alle EQ-varianter. Kontroller

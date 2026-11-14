@@ -48,3 +48,28 @@ test('C2.1 contradictory identifiers and birth years reopen rejected matches; re
  const team=rows('Navn;EQID;Distanse\nTestløper Ni;EQ-1;Langmoro stafett');const a=I.analyze(c,team,{year:2027,decisions:new Map([[team[0].identityKey,{action:'new'}]])});assert.equal(a.rows[0].match.status,'team');assert.equal(a.forecast.length,0);
  const badges=structuredClone(registry);badges.badges=badges.badges.filter(b=>b.kind!=='participation').concat([{id:'first',n:1,kind:'participation',name:'Første',src:'assets/icons/favicon-32.png'}]);const fresh=rows('Navn;Distanse\nUkjent Person;Kortmoro'),f=I.analyze(context(sample.history(),badges),fresh,{year:2027,decisions:new Map([[fresh[0].signature,{action:'new'}]])});assert.equal(f.forecast[0].candidateId,'new-1');assert.equal(f.forecast[0].historicalCount,0);assert.equal(f.forecast[0].possibleCount,1);
 });
+const emit=require('./fixtures/emit-data.js');
+test('C2.1a Emit staging keeps 449 text bibs and source fields, separates 15 relays and never infers distance or gender from class',()=>{
+ const s=emit.staged(),r=I.rows(s,s.mapping,2027),a=I.analyze(context(),r,{year:2027});assert.equal(r.length,449);assert.equal(a.rows.filter(r=>r.match.status==='team').length,15);assert.equal(a.rows.filter(r=>!r.race).length,434);assert.equal(a.forecast.length,0);assert.equal(r[0].bib,'0001');assert.equal(r[0].startTime,'09:00:00');assert.equal(r[0].nation,'NOR');assert.equal(r[0].club,'Syntetisk klubb & lag');assert.equal(r[0].gender,'');assert.equal(r[3].name,'Syntetisk Æ Ø Å & venner');assert.ok(r.every(r=>!r.errors.length));assert.equal(r[0].athleteId,'');
+ const bad=I.rows(emit.staged([{...emit.entries(1)[0],starttid:'25:10:11'}]),s.mapping,2027)[0];assert.match(bad.errors.join(' '),/starttid/);
+});
+test('C2.1a bulk distances validate atomically, preserve independent choices, support undo and require a distance even after identity confirmation',()=>{
+ const c=context(),s=emit.staged(emit.entries(4)),r=I.rows(s,s.mapping,2027),initial=new Map(),decisions=new Map([[r[0].signature,{action:'confirm',runnerId:'MOR-TEST001'}]]);
+ assert.equal(I.analyze(c,r,{year:2027,decisions}).forecast.length,0);
+ const one=I.assignDistances(c,r,initial,[r[0].id],JSON.stringify(['Kortmoro',10]));assert.equal(initial.size,0);const two=I.assignDistances(c,r,one,[r[1].id,r[2].id],JSON.stringify(['Morothon',20]));assert.equal(one.size,1);assert.equal(two.size,3);
+ const a=I.analyze(c,r,{year:2027,rowDistances:two,decisions});assert.equal(a.forecast.find(f=>f.candidateId==='MOR-TEST001').confirmed,true);assert.equal(a.forecast.find(f=>f.candidateId==='MOR-TEST002').confirmed,false);assert.equal(a.forecast.filter(f=>f.ambiguous).length,2);assert.equal(a.rows[3].race,null);
+ assert.throws(()=>I.assignDistances(c,r,two,[r[0].id,'missing'],'relay'),/ukjent rad/);assert.equal(two.size,3);assert.throws(()=>I.assignDistances(c,r,two,[r[0].id],'unknown'),/godkjent/);assert.throws(()=>I.assignDistances(c,r,two,[],'relay'),/Marker/);
+ const relay=I.assignDistances(c,r,two,[r[0].id],'relay');assert.equal(I.analyze(c,r,{year:2027,rowDistances:relay,decisions}).rows[0].match.status,'team');assert.equal(I.analyze(c,r,{year:2027,rowDistances:one,decisions}).rows[0].match.status,'confirmed','Restoring previous map restores previous choice');
+ const full=I.rows(emit.staged(),s.mapping,2027);assert.throws(()=>I.assignDistances(c,full,new Map(),[full.at(-1).id],JSON.stringify(['Kortmoro',10])),/stafettoppføring/);
+});
+test('C2.1a Emit reimport carries choices only for unique unchanged rows, never from bib alone or ambiguous duplicates',()=>{
+ const c=context(),e=emit.entries(4),s=emit.staged(e),r=I.rows(s,s.mapping,2027),assignments=new Map([[r[0].id,JSON.stringify(['Kortmoro',10])]]),decisions=new Map([[r[0].signature,{action:'confirm',runnerId:'MOR-TEST001'}]]),before=I.analyze(c,r,{year:2027,rowDistances:assignments,decisions});
+ const nextRows=I.rows(emit.staged([e[1],e[0],{...e[2],team:'Endret klubb'},{...e[3],etternavn:'Ny person'}]),s.mapping,2027),after=I.analyze(c,nextRows,{year:2027,rowDistances:I.carryDistances(before,nextRows,assignments,2027),decisions:I.carryDecisions(before,nextRows,2027),previous:before});assert.equal(after.rows[1].match.status,'confirmed');assert.equal(after.rows[1].race.event,'Kortmoro');assert.equal(after.comparison.changed,2);assert.equal(after.comparison.unchanged,2);
+ const changed=I.rows(emit.staged([{...e[0],etternavn:'Annen person'}]),s.mapping,2027);assert.equal(I.carryDistances(before,changed,assignments,2027).size,0);assert.equal(I.carryDecisions(before,changed,2027).size,0);
+ const duplicates=I.rows(emit.staged([e[0],e[0]]),s.mapping,2027);assert.equal(I.carryDistances(before,duplicates,assignments,2027).size,0);assert.ok(I.analyze(c,duplicates,{year:2027}).summary.duplicates===2);assert.equal(I.carryDistances(before,nextRows,assignments,2028).size,0);
+});
+test('C2.1a import CSV reports preserve source metadata and distinguish source distance from manually selected distance',()=>{
+ const c=context(),s=emit.staged(emit.entries(1)),r=I.rows(s,s.mapping,2027),meta={format:s.format,source:{provider:'Emit as',version:'Ver 1.0',changedAt:'2026-11-06 23:20:38'}},a=I.analyze(c,r,{year:2027,rowDistances:new Map([[r[0].id,JSON.stringify(['Kortmoro',10])]]),meta});
+ for(const type of ['import','review','forecast','orders']){const report=I.csvReport(a,type);assert.match(report,/Emit as/);assert.match(report,/2026-11-06 23:20:38/);assert.match(report,/FORELØPIG/);}
+ const report=I.csvReport(a,'import');assert.match(report,/Distanse i fil/);assert.match(report,/Valgt distanse/);assert.match(report,/09:00:00/);assert.match(report,/NOR/);assert.match(report,/0001/);assert.match(report,/Kortmoro/);
+});
