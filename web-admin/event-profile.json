@@ -16,7 +16,7 @@
       "deltakere": { "title": "Deltakere", "description": "Menneskene på startstreken. Historikken de har skapt." },
       "merker": { "title": "Merker", "description": "Se oppnådde milepæler og veien til neste merke." },
       "diplomer": { "title": "Diplomer", "description": "Velg mottakere, kontroller hvert diplom og forhåndsvis ett A4-diplom om gangen." },
-      "import": { "title": "Import", "description": "En plass for fremtidig EQ Timing-import." },
+      "import": { "title": "Årets arrangement", "description": "Startliste, personkontroll og foreløpig merkeprognose." },
       "premier": { "title": "Premier", "description": "Grunnlaget for en enklere utdeling." }
     }
   },

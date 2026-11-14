@@ -7,7 +7,7 @@
     deltakere: ['Deltakere', 'Menneskene på startstreken. Historikken de har skapt.'],
     merker: ['Merker', 'Se oppnådde milepæler og veien til neste merke.'],
     diplomer: ['Diplomer', 'Velg mottakere, kontroller hvert diplom og lag én samlet A4-PDF.'],
-    import: ['Import', 'En plass for fremtidig EQ Timing-import.'],
+    import: ['Årets arrangement', 'Startliste, personkontroll og foreløpig merkeprognose.'],
     premier: ['Premier', 'Grunnlaget for en enklere utdeling.'],
     design: ['Design og tilpasning', 'Ditt arrangement, dine merker og ditt diplom – i et separat utkast.']
   };

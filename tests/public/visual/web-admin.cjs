@@ -13,8 +13,8 @@ test('C1.2 profile contract rejects unknown/private fields, CSS/URL injection an
  assert.equal(validate(profile,registry).id,'sogne-morothon');
  for(const alter of [p=>p.internalNotes='private',p=>p.colors.primary='url(https://bad.example/x)',p=>p.fonts.ui='https://bad.example/font',p=>p.logoAssetId='https://bad.example/logo',p=>p.references.participationPolicy='automatic-awards',p=>p.references.diplomaTemplate='free-html',p=>p.modules.oversikt=false,p=>p.texts.welcomeTitle='<script>bad</script>',p=>p.modules.import='enabled']){const bad=structuredClone(profile);alter(bad);assert.throws(()=>validate(bad,registry));}
 });
-test('C1.2 exact public inventory accepts twelve web files and refuses local server, original data, unknown files and invalid public profiles',async()=>{
- assert.equal(build.files.length,71);assert.equal(build.files.filter(f=>f.startsWith('admin/')).length,12);
+test('C1.2 exact public inventory accepts fifteen web files and refuses local server, original data, unknown files and invalid public profiles',async()=>{
+ assert.equal(build.files.length,74);assert.equal(build.files.filter(f=>f.startsWith('admin/')).length,15);
  for(const file of ['admin/worker.cjs','admin/api.cjs','scripts/diploma-admin.cjs','data/private.json'])assert.equal(build.files.includes(file),false);
  assert.deepEqual(await fs.readFile(path.join(build.out,'data/history.json')),await fs.readFile(path.resolve(__dirname,'../../../public-data/data/history.json')));
  const html=await fs.readFile(path.join(build.out,'admin/index.html'),'utf8');assert.match(html,/noindex, nofollow/);assert.doesNotMatch(html,/__LOCAL_TOKEN__|<meta name="local-session"|src="\/admin/);assert.match(html,/Offentlig testversjon/);
@@ -38,7 +38,7 @@ test('C1.2 static Pages portal works on desktop, tablet and mobile without API c
  assert.match(await p.locator('#participantDetail').innerText(),/12/);assert.match(await p.locator('#participantDetail').innerText(),/2024/);const href=await p.locator('#participantDetail a').getAttribute('href');assert.ok(href.startsWith(base+'index.html#lop='));await p.click('#closeParticipant');
  await p.getByRole('navigation').getByRole('link',{name:'Merker',exact:true}).click();await p.fill('#badgeSearch','Inger Katherin');await p.waitForFunction(()=>document.querySelectorAll('.runner-badge-card').length===1);
  assert.match(await p.locator('#badgeList').innerText(),/2024/);await p.selectOption('#badgeView','upcoming');await p.waitForFunction(()=>document.querySelector('#badgeList').textContent.includes('3 deltakelser igjen til 15'));
- await p.getByRole('navigation').getByRole('link',{name:/Import/}).click();assert.match(await p.locator('#view-import').innerText(),/ikke aktivert/);
+ await p.getByRole('navigation').getByRole('link',{name:'Årets arrangement'}).click();await p.locator('#intakeFile').waitFor();assert.match(await p.locator('#view-import').innerText(),/midlertidig analyse/);
  await p.getByRole('navigation').getByRole('link',{name:/Premier/}).click();assert.match(await p.locator('#view-premier').innerText(),/Ingen bestilling/);
  await preview(p,'Inger Katherin');assert.match(await p.locator('#previewStatus').innerText(),/^Godkjent/);
  const metric=await p.locator('#preview iframe').evaluate(f=>({count:f.contentDocument.querySelector('.diploma-achievement').textContent,date:f.contentDocument.querySelector('.diploma-date').textContent}));assert.equal(metric.count,'10');assert.match(metric.date,/9\. november 2024/);
