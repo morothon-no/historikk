@@ -31,7 +31,7 @@ async function startAdmin({ port = 0, beforeCheck } = {}) {
         const html = (await fs.readFile(path.join(uiRoot, 'index.html'), 'utf8')).replace('__LOCAL_TOKEN__', token);
         res.setHeader('Content-Type', types['.html']); return res.end(html);
       }
-      if (['/admin.js', '/admin.css', '/portal.js', '/design-model.js', '/design-studio.js', '/design-studio.css'].includes(route)) {
+      if (['/admin.js', '/admin.css', '/portal.js', '/design-model.js', '/design-studio.js', '/design-studio.css', '/intake-model.js', '/intake.js', '/intake.css'].includes(route)) {
         res.setHeader('Content-Type', types[path.extname(route)]); return res.end(await fs.readFile(path.join(uiRoot, route.slice(1))));
       }
       const relative = route.startsWith('/site/') ? route.slice(6) : null;

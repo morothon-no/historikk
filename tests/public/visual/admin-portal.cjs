@@ -66,7 +66,8 @@ test('C1.1 desktop and tablet navigation, participant history, upcoming mileston
     await p.selectOption('#badgeView', 'upcoming'); await p.fill('#badgeSearch', 'Inger Katherin'); await p.selectOption('#badgeLevel', '15');
     await p.waitForFunction(() => document.querySelectorAll('.runner-badge-card').length === 1);
     assert.match(await p.locator('#badgeList').innerText(), /3 deltakelser igjen/);
-    for (const name of ['Import', 'Premier']) { await p.getByRole('navigation').getByRole('link', { name: new RegExp(name) }).click(); await p.waitForFunction(name => document.querySelector('#pageTitle').textContent === name, name); assert.equal(await p.locator('[data-view]:visible input[type="file"]').count(), 0); }
+    for (const name of ['Premier']) { await p.getByRole('navigation').getByRole('link', { name: new RegExp(name) }).click(); await p.waitForFunction(name => document.querySelector('#pageTitle').textContent === name, name); assert.equal(await p.locator('[data-view]:visible input[type="file"]').count(), 0); }
+    await p.getByRole('navigation').getByRole('link', { name: 'Årets arrangement' }).click(); await p.locator('#intakeFile').waitFor();
     for (const width of [1440, 768]) {
       await p.setViewportSize({ width, height: 1050 });
       await p.getByRole('navigation').getByRole('link', { name: 'Oversikt' }).click(); await p.locator('#overviewMetrics .metric-card').first().waitFor();

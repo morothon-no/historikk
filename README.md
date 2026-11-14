@@ -68,6 +68,15 @@ Morothons aktive profil. Nye design er stemplede utkast med sperret utskrift/PDF
 Se [bruk, funksjonsstatus og kontroll](docs/c13-designstudio.md) og
 [operativ utkastkontrakt v2](docs/contracts/design-draft-v2.md).
 
+## Årets arrangement (C2.1)
+
+Åpne **Årets arrangement** i adminportalen for nettleserbasert CSV/XML-innlesing,
+personforslag, manuell bekreftelse, foreløpige merkeprognoser og fire lokale
+CSV-rapporter. Ingen startlistedata lastes opp til server, og historikken endres
+ikke. Minimumsformatene er syntetisk testet; reelle EQ-eksporter må kontrolleres.
+Se [bruk, støttede formater og begrensninger](docs/c21-startliste-import.md) og
+[datakontrakt](docs/contracts/startlist-v1.md).
+
 ## Lokal administrasjonsportal (C1.1)
 
 Start med `npm run admin`. Portalen samler Oversikt, Deltakere, Merker og det
