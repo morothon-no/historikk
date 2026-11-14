@@ -44,8 +44,13 @@ Etter merge slipper vanlige kode-/test-PR-er dette steget.
 
 Som standard kjører planlegger og testkjører fra beskyttet base. Ved en eksplisitt
 head-godkjent sikkerhetsoppgradering kan de nye kontrollene prøves i PR-en.
-Den uavhengige artefaktkontrollen henter alltid kontrollkode og godkjent referanse
-på nytt fra base i en egen runner; den bruker aldri testjobbens redigerte kopier.
+Den uavhengige artefaktkontrollen henter som standard kontrollkode og godkjent
+referanse på nytt fra base i en egen runner. Fra C1.2 kan en faktisk
+kontraktoppgradering bruke kontrollkode fra en **ny utsjekk av den eksakt
+head-godkjente kandidaten**, mens datareferansen fortsatt kommer fra beskyttet
+base. Dette krever eiers eksplisitte SHA-godkjenning utenfor PR-en, og gjelder
+aldri automatisk for vanlig appkode. Testjobbens redigerte kopier eller kode
+fra selve artefaktet kjøres aldri som validator.
 Feilet, avbrutt eller hoppet over plan feiler den eksisterende påkrevde testjobben.
 
 ## GitHub-beskyttelse og kompromisser

@@ -54,6 +54,8 @@ async function readApprovedPackage(root,{approval,approvalFile,assetsRoot,site=f
  const found=await inventory(path.resolve(root)),expected=site?[...runtimeFiles(data.badges),'public-manifest.json','build-info.json'].sort():[...DATA_FILES,'manifest.json'].sort();
  if(found.join('|')!==expected.join('|'))throw Error('Unexpected or missing file in public package');
  if(site){
+  const profile=JSON.parse(await safeRead(root,'admin/event-profile.json'));require('../../web-admin/profile-contract.js').validate(profile,data.badges);
+  const html=(await safeRead(root,'admin/index.html')).toString('utf8');if(!html.includes('data-admin-mode="public-preview"')||!/<meta name="robots" content="noindex, nofollow">/.test(html)||html.includes('__LOCAL_TOKEN__')||html.includes('<meta name="local-session"'))throw Error('Unsafe public admin shell');
   const info=validatePublicData('build-info',JSON.parse(await safeRead(root,'build-info.json')));keys(info.assets,PUBLIC_CODE,'runtime URL list');
   for(const file of PUBLIC_CODE)if(info.assets[file]!==file+'?v='+info.version)throw Error('Invalid public runtime URL');
   const url=new URL(info.siteUrl);if(url.protocol!=='https:'||url.username||url.password||!url.pathname.endsWith('/'))throw Error('Invalid public site URL');

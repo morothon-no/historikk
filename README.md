@@ -48,6 +48,17 @@ sjekker, uten manuell SHA-oppdatering. Nye offentlige tester i `tests/public/`
 oppdages automatisk. Særskilt head-godkjenning er forbeholdt sikkerhets-,
 teststyrings- og publiseringsreglene: [enkel utviklingsflyt](docs/enkel-utviklingsflyt.md).
 
+## Offentlig testportal (C1.2)
+
+Etter merge og godkjent Pages-kjøring ligger den statiske testportalen på
+[historikk/admin/](https://morothon-no.github.io/historikk/admin/).
+Åpning krever ingen lokal installasjon. Oversikt, deltakere, merker og
+kontrollerte diplomforhåndsvisninger bruker bare godkjente offentlige data.
+Enkeltutskrift er tilgjengelig via nettleseren; samlet PDF krever fortsatt C1-serveren.
+Ingen innlogging eller administrative skrivefunksjoner er aktivert.
+Se [funksjonsstatus, datagrense og publisering](docs/c12-webportal.md),
+[arrangementsprofilen](web-admin/event-profile.json) og [plan for C1.3](docs/c13-designadministrasjon.md).
+
 ## Lokal administrasjonsportal (C1.1)
 
 Start med `npm run admin`. Portalen samler Oversikt, Deltakere, Merker og det

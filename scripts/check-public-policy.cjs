@@ -3,7 +3,7 @@ const fs=require('node:fs/promises'),path=require('node:path'),{isDeepStrictEqua
 const {execFileSync}=require('node:child_process');
 // Ordinary application code, tests, fixtures, harnesses and dependency updates use PR review.
 // Exact-head approval is reserved for the data boundary and the code deciding what must pass.
-const protectedFiles=['.github/public-data-approval.json','.github/CODEOWNERS','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','scripts/lib/public-data.cjs','scripts/export-public-data.cjs','scripts/check-source-export.cjs','scripts/testing/catalog.cjs','scripts/testing/plan.cjs','scripts/testing/run.cjs'];
+const protectedFiles=['.github/public-data-approval.json','.github/CODEOWNERS','scripts/build-site.cjs','scripts/check-public-site.cjs','scripts/check-public-policy.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','scripts/lib/public-data.cjs','scripts/export-public-data.cjs','scripts/check-source-export.cjs','scripts/testing/catalog.cjs','scripts/testing/plan.cjs','scripts/testing/run.cjs','web-admin/profile-contract.js'];
 const publicationScripts=['build','public:kontroll','data:export','data:check-sources'];
 const scriptKeys=publicationScripts.flatMap(k=>[k,'pre'+k,'post'+k]);
 const critical=p=>p.startsWith('.github/workflows/')||protectedFiles.includes(p)||p==='package.json:publication-scripts';

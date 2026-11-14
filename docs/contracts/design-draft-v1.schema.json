@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://morothon.no/contracts/design-draft-v1",
+  "title": "C1.3 designutkast – kontraktforslag, ikke aktiv produksjonskonfigurasjon",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventProfileId", "status", "base", "assets", "branding", "diploma", "badgePolicies"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "eventProfileId": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
+    "status": {"const": "draft"},
+    "base": {"type": "object", "additionalProperties": false, "required": ["profileSha256", "registrySha256", "templateId"], "properties": {"profileSha256": {"$ref": "#/$defs/sha"}, "registrySha256": {"$ref": "#/$defs/sha"}, "templateId": {"type": "string", "maxLength": 80}}},
+    "assets": {"type": "array", "maxItems": 100, "items": {"type": "object", "additionalProperties": false, "required": ["id", "role", "mediaType", "sha256", "bytes", "width", "height", "reviewStatus"], "properties": {
+      "id": {"type": "string", "pattern": "^[a-z0-9-]{1,80}$"}, "role": {"enum": ["logo", "badge", "background"]}, "mediaType": {"enum": ["image/png", "image/webp", "image/svg+xml"]}, "sha256": {"$ref": "#/$defs/sha"}, "bytes": {"type": "integer", "minimum": 1, "maximum": 20000000}, "width": {"type": "integer", "minimum": 1, "maximum": 20000}, "height": {"type": "integer", "minimum": 1, "maximum": 20000}, "reviewStatus": {"enum": ["pending", "web-reviewed", "print-reviewed"]}
+    }}},
+    "branding": {"type": "object", "additionalProperties": false, "required": ["logoAssetId", "primary", "secondary", "backgroundAssetId", "uiFont", "displayFont"], "properties": {"logoAssetId": {"type": "string"}, "primary": {"$ref": "#/$defs/color"}, "secondary": {"$ref": "#/$defs/color"}, "backgroundAssetId": {"type": ["string", "null"]}, "uiFont": {"type": "string", "maxLength": 80}, "displayFont": {"type": "string", "maxLength": 80}}},
+    "diploma": {"type": "object", "additionalProperties": false, "required": ["templateId", "heading", "body", "place", "dateMode", "signatureName", "signatureRole", "medalDisplay"], "properties": {
+      "templateId": {"type": "string", "maxLength": 80}, "heading": {"type": "string", "maxLength": 100}, "body": {"type": "string", "maxLength": 1000}, "place": {"type": "string", "maxLength": 100}, "dateMode": {"enum": ["achievement", "explicit-presentation"]}, "signatureName": {"type": "string", "maxLength": 120}, "signatureRole": {"type": "string", "maxLength": 120}, "medalDisplay": {"enum": ["latest", "all"]}
+    }},
+    "badgePolicies": {"type": "array", "maxItems": 10, "items": {"type": "object", "additionalProperties": false, "required": ["id", "scope", "unit", "levels"], "properties": {
+      "id": {"type": "string", "pattern": "^[a-z0-9-]{1,80}$"}, "scope": {"enum": ["runner", "service"]}, "unit": {"enum": ["participation-years", "starts"]}, "levels": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "additionalProperties": false, "required": ["threshold", "title", "assetId"], "properties": {"threshold": {"type": "integer", "minimum": 1, "maximum": 10000}, "title": {"type": "string", "maxLength": 100}, "assetId": {"type": "string", "maxLength": 80}}}}
+    }}}
+  },
+  "$defs": {"sha": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "color": {"type": "string", "pattern": "^#[A-Fa-f0-9]{6}$"}}
+}

@@ -1,13 +1,15 @@
 /* Plain local UI. Names, status and errors are always inserted as text. */
 (() => {
   'use strict';
-  const $ = id => document.getElementById(id), token = document.querySelector('[name="local-session"]').content;
+  const $ = id => document.getElementById(id), token = document.querySelector('[name="local-session"]')?.content;
   const state = { people: [], jobs: [], checked: null, busy: false, limit: 40, max: 100 };
   const words = { approved: 'Godkjent', control: 'Kontrollkopi', blocked: 'Sperret', pending: 'Ikke kontrollert' };
   const itemKey = i => [i.kind, i.personId, i.key, i.display].join('|');
   const node = (tag, text, cls) => { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; };
   function button(text, fn, cls = 'secondary') { const b = node('button', text, cls); b.type = 'button'; b.disabled = state.busy; b.onclick = fn; return b; }
   async function api(route, body) {
+    if (window.MorothonAdminTransport) return MorothonAdminTransport.request(route, body);
+    if (document.body.dataset.adminMode === 'public-preview') throw Error('Nettadapteren kunne ikke lastes. Last siden på nytt.');
     const response = await fetch('/api/' + route, { method: body === undefined ? 'GET' : 'POST', headers: { 'X-Morothon-Token': token, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     const data = await response.json(); if (!response.ok) throw Error(data.error || 'Handlingen kunne ikke fullføres.'); return data;
   }
@@ -71,7 +73,7 @@
     for (const id of ['check', 'clear']) $(id).disabled = state.busy || !state.jobs.length;
     const blocked = state.jobs.filter(j => j.checked?.status === 'blocked').length, controls = state.jobs.filter(j => j.checked?.status === 'control').length;
     const ready = state.checked && !blocked && (!controls || $('allowControl').checked);
-    $('export').disabled = state.busy || !ready; $('report').disabled = state.busy || !state.checked;
+    $('export').disabled = state.busy || !ready || window.MorothonAdminTransport?.capabilities.batchPdf === false; $('report').disabled = state.busy || !state.checked;
     $('exportSummary').textContent = state.checked ? `${state.jobs.length} A4-sider · ${state.jobs.length - controls - blocked} godkjente · ${controls} kontrollkopier · ${blocked} sperrede.` : 'Kontroller utvalget for å se sideantall og eventuelle feil før eksport.';
   }
   function render() { renderResults(); renderJobs(); }
@@ -85,6 +87,7 @@
     await operation('Klargjør forhåndsvisning og kontrollerer diplom …', async () => {
       const result = await api('preview', { items: [item] }), checked = result.entries[0];
       $('previewTitle').textContent = checked.name; $('previewStatus').textContent = [words[checked.status], ...checked.errors || [], ...checked.reasons || []].join(' · ');
+      for (const b of document.querySelectorAll('[data-web-print]')) b.disabled = checked.status === 'blocked' || !result.html;
       const frame = $('preview').querySelector('iframe'); frame.srcdoc = result.html || '<p>Diplomet kan ikke klargjøres.</p>';
       const job = state.jobs.find(j => itemKey(j.item) === itemKey(item)); if (job) job.checked = checked;
       if (location.hash === '#diplomer' && !$('preview').open) $('preview').showModal(); fit(); message('Forhåndsvisningen er kontrollert.');
@@ -120,6 +123,11 @@
     message(`PDF med ${result.report.pageCount} sider er ferdig og kontrollert. Last ned PDF og rapport nedenfor.`);
   });
   $('report').onclick = () => save(new Blob([JSON.stringify(state.checked, null, 2)], { type: 'application/json' }), 'morothon-kontrollrapport.json');
+  for (const b of document.querySelectorAll('[data-web-print]')) b.onclick = async () => {
+    const buttons = [...document.querySelectorAll('[data-web-print]')]; buttons.forEach(b => b.disabled = true);
+    try { await MorothonAdminTransport.printPreview($('preview').querySelector('iframe')); buttons.forEach(b => b.disabled = false); }
+    catch (e) { $('previewStatus').textContent = 'Sperret: ' + e.message; }
+  };
   $('closePreview').onclick = () => $('preview').close(); new ResizeObserver(fit).observe(document.querySelector('.preview-viewport'));
   document.addEventListener('morothon:diploma-person', e => {
     const p = state.people.find(p => p.kind === 'runner' && p.personId === e.detail?.id);

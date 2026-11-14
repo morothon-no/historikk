@@ -64,30 +64,30 @@
       reasons: collectionNeedsReview ? ['Ny medaljesamling på løperdiplom krever visuell godkjenning.'] : mode === 'control' ? ['Innholdet mangler gjeldende godkjenning for ren utskrift.'] : [],
       expectedText: [d.name, d.dateLabel, 'Håkon Lohne'].filter(Boolean) };
   }
-  async function check() {
+  async function check(doc = document) {
     const { d, extras, mode, expectedHtml } = window.__c1;
-    const failures = [], warnings = [], layout = await D.checkLayout(document);
+    const failures = [], warnings = [], layout = await D.checkLayout(doc);
     failures.push(...layout.failures);
     if (d.type === 'service') {
       // Adding a control-copy label would alter an approved proof. It is only
       // added to already unapproved drafts, whose existing stamp stays intact.
-      const service = await D.checkServiceDraft(d, document);
+      const service = await D.checkServiceDraft(d, doc);
       failures.push(...service.failures); warnings.push(...service.warnings);
     } else {
       failures.push(...d.asset.issues);
       if (!d.imageReady) failures.push('Løperdiplomets bilde- eller vannmerkekontroll er ikke bestått.');
       for (const asset of extras) failures.push(...asset.issues);
       warnings.push(...d.asset.warnings, ...extras.flatMap(a => a.warnings));
-      const images = [...document.querySelectorAll('.c1-collection img')];
+      const images = [...doc.querySelectorAll('.c1-collection img')];
       if (images.length !== extras.length || extras.some(a => images.filter(i => i.dataset.c1Badge === a.key && i.src === a.src).length !== 1)) failures.push('Medaljesamlingen avviker fra den valgte historiske prestasjonen.');
     }
     if (mode === 'control') {
-      const mark = document.querySelector('.c1-control-copy'), cs = mark && getComputedStyle(mark);
+      const mark = doc.querySelector('.c1-control-copy'), cs = mark && getComputedStyle(mark);
       if (!mark || !mark.textContent.startsWith('KONTROLLKOPI') || cs.display === 'none' || cs.visibility !== 'visible' || +cs.opacity !== 1 || !mark.getBoundingClientRect().width) failures.push('Kontrollkopimerkingen mangler.');
     }
     const expected = new DOMParser().parseFromString(expectedHtml, 'text/html');
-    if (expected.body.outerHTML !== document.body.outerHTML) failures.push('Diplominnholdet er endret etter klargjøring.');
-    if (expected.head.innerHTML !== document.head.innerHTML) failures.push('Diplomets stil- eller fontgrunnlag er endret.');
+    if (expected.body.outerHTML !== doc.body.outerHTML) failures.push('Diplominnholdet er endret etter klargjøring.');
+    if (expected.head.innerHTML !== doc.head.innerHTML) failures.push('Diplomets stil- eller fontgrunnlag er endret.');
     return { ready: !failures.length, failures: [...new Set(failures)], warnings: [...new Set(warnings)], layout };
   }
   window.C1 = { catalog, prepare, check };

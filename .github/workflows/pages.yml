@@ -71,6 +71,7 @@ jobs:
             /scripts/diploma-harness.cjs
             /scripts/diploma-admin.cjs
             /tools/diploma-admin/
+            /web-admin/
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -115,6 +116,7 @@ jobs:
             /scripts/diploma-harness.cjs
             /scripts/diploma-admin.cjs
             /tools/diploma-admin/
+            /web-admin/
             /scripts/review-public-export.cjs
             /tests/data-quality.cjs
             /tests/data-quality-browser.cjs
@@ -221,6 +223,7 @@ jobs:
             /scripts/diploma-harness.cjs
             /scripts/diploma-admin.cjs
             /tools/diploma-admin/
+            /web-admin/
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -265,6 +268,7 @@ jobs:
             /scripts/diploma-harness.cjs
             /scripts/diploma-admin.cjs
             /tools/diploma-admin/
+            /web-admin/
             /scripts/review-public-export.cjs
             /tests/data-quality.cjs
             /tests/data-quality-browser.cjs
@@ -410,6 +414,7 @@ jobs:
             /scripts/diploma-harness.cjs
             /scripts/diploma-admin.cjs
             /tools/diploma-admin/
+            /web-admin/
             /scripts/lib/public-schema.cjs
             /scripts/lib/public-package.cjs
             /scripts/lib/runtime-files.cjs
@@ -454,6 +459,7 @@ jobs:
             /scripts/diploma-harness.cjs
             /scripts/diploma-admin.cjs
             /tools/diploma-admin/
+            /web-admin/
             /scripts/review-public-export.cjs
             /tests/data-quality.cjs
             /tests/data-quality-browser.cjs
@@ -493,7 +499,17 @@ jobs:
           name: morothon-site
           path: candidate-site/
       - name: Validate artifact with trusted code, without running PR tests
-        run: node "$GITHUB_WORKSPACE/policy-base/scripts/check-public-site.cjs" "$GITHUB_WORKSPACE/candidate-site" "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MOROTHON_REVIEWED_POLICY_HEAD: ${{ vars.MOROTHON_REVIEWED_POLICY_HEAD }}
+        run: |
+          validator="$GITHUB_WORKSPACE/policy-base/scripts/check-public-site.cjs"
+          # Contract upgrades require external exact-head review. This is a fresh
+          # checkout in the independent runner, never files modified by PR tests.
+          if [ "$MOROTHON_REVIEWED_POLICY_HEAD" = "$PR_HEAD_SHA" ]; then
+            validator="$GITHUB_WORKSPACE/public/scripts/check-public-site.cjs"
+          fi
+          node "$validator" "$GITHUB_WORKSPACE/candidate-site" "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
 
   source_checks:
     name: Transitional trusted source regression
@@ -602,3 +618,25 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published admin files after deployment
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          node <<'JS'
+          const fs=require('node:fs/promises'),{createHash}=require('node:crypto');
+          (async()=>{
+            const info=JSON.parse(await fs.readFile('_site/build-info.json','utf8'));
+            const manifest=JSON.parse(await fs.readFile('_site/public-manifest.json','utf8'));
+            const base=new URL(process.env.PAGES_URL||info.siteUrl);if(!base.pathname.endsWith('/'))base.pathname+='/';
+            if(base.protocol!=='https:'||base.href!==info.siteUrl)throw Error('Unexpected Pages deployment URL');
+            const files=[...new Set(['build-info.json','public-manifest.json','admin/index.html','admin/event-profile.json',...Object.keys(info.assets),...Object.keys(manifest.files)])];
+            const sha=b=>createHash('sha256').update(b).digest('hex');
+            const expected=new Map(await Promise.all(files.map(async file=>[file,sha(await fs.readFile('_site/'+file))])));
+            for(let attempt=1;attempt<=5;attempt++){
+              try{
+                await Promise.all(files.map(async file=>{const url=new URL(file,base);url.searchParams.set('release-check',info.version);const r=await fetch(url,{signal:AbortSignal.timeout(15000),cache:'no-store'});if(!r.ok||sha(Buffer.from(await r.arrayBuffer()))!==expected.get(file))throw Error('Published file missing or stale: '+file);}));
+                console.log('Published admin verified: '+new URL('admin/',base).href+' ('+info.version+')');return;
+              }catch(error){if(attempt===5)throw error;console.log('Waiting for Pages propagation: '+error.message);await new Promise(resolve=>setTimeout(resolve,5000));}
+            }
+          })().catch(error=>{console.error(error.message);process.exitCode=1;});
+          JS

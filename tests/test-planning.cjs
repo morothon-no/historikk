@@ -52,4 +52,11 @@ test('B1 CI plans before PR code, installs only required tools, keeps independen
  assert.match(source,/if: github.ref == 'refs\/heads\/main' && github.event_name != 'pull_request'/);
  assert.equal((source.match(/if: inputs.historical_reports == true/g)||[]).length,5);
  assert.ok(!planner.includes('npm ci'));assert.ok(!gate.includes('npm ci'));
+ assert.match(gate,/MOROTHON_REVIEWED_POLICY_HEAD/);assert.match(gate,/PR_HEAD_SHA/);
+ const selection=gate.slice(gate.indexOf('          validator=')).split('          node "$validator"')[0].split('\n').map(line=>line.slice(10)).join('\n');
+ for(const approved of ['', 'b'.repeat(40), 'a'.repeat(40)]){
+  const picked=execFileSync('bash',['-c',selection+'\nprintf "%s" "$validator"'],{encoding:'utf8',env:{...process.env,GITHUB_WORKSPACE:'/synthetic',PR_HEAD_SHA:'a'.repeat(40),MOROTHON_REVIEWED_POLICY_HEAD:approved}});
+  assert.equal(picked,approved==='a'.repeat(40)?'/synthetic/public/scripts/check-public-site.cjs':'/synthetic/policy-base/scripts/check-public-site.cjs');
+ }
+
 });
