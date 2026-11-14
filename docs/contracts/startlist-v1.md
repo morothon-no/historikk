@@ -17,7 +17,8 @@ Stagingobjekt:
 ```text
 schemaVersion: 1
 kind: startlist-staging
-format: csv-columns-v1 | xml-participant-v1 | iof-startlist-3.0
+format: csv-columns-v1 | xml-participant-v1 | iof-startlist-3.0 | emit-startliste-1.0
+source?: {provider, version, changedAt}  bare kildeinformasjon, ikke løpsdato
 delimiter: semikolon | komma | tab | null
 headers: overskrifter/normaliserte XML-felt
 mapping: felt -> kolonneindeks, eller -1 (ikke brukt)
@@ -26,9 +27,11 @@ records: [{line, cells}]
 
 CSV-`line` er faktisk fysisk startlinje, også ved siterte linjeskift og `sep=`.
 XML-`line` er **deltakerens rekkefølge**, ikke et oppdiktet fysisk linjenummer.
-Påkrevde bindinger er `name` eller `firstName`+`lastName`, og `event`.
+Påkrevde bindinger er `name` eller `firstName`+`lastName`, og normalt `event`.
+Emit 1.0 har ingen distansekolonne: `event` kan mangle, og hver individuell rad
+må få eksplisitt distansevalg før den inngår i prognosen.
 Valgfrie felt: athleteId, entryId, runnerId, bib, className, club, birthYear,
-gender, year og status. Full fødselsdato minimeres til år ved normalisering.
+gender, year, status, startTime og nation. Full fødselsdato minimeres til år ved normalisering.
 Ukjente ekstrakolonner sendes ikke videre til rapporter eller historikk.
 
 Normalisert registrering:
@@ -36,7 +39,8 @@ Normalisert registrering:
 ```text
 id: lokal row-N, ingen global resultat- eller person-ID
 line, sourceScope, name, athleteId, entryId, runnerId, bib
-event, className, club, birthYear|null, gender, year, status
+event, className, club, birthYear|null, gender, year, status, startTime, nation
+entryKind: individual | relay  eksplisitt stafettklasse i Emit, ingen distansegjetting
 errors[], warnings[], identityKey, signature
 ```
 
@@ -94,7 +98,7 @@ kind: startlist-analysis
 status: FORELØPIG PROGNOSE
 year, policy: morothon-annual-v1
 meta: profileId, manifestSha256, historySha256, registrySha256,
-      sourceSha256, importedAt, format, encoding, completeSnapshot
+      sourceSha256, importedAt, format, source?, encoding, completeSnapshot
 rows[], summary, reviewCases[], forecast[], orders[], comparison|null
 ```
 
@@ -141,3 +145,18 @@ konsekvensanalyse. C2.3 må avstemme startlisten mot ekte resultater og håndter
 etteranmeldte/statusendringer før faktiske merkemottakere og diplomjobber
 foreslås. Innlogging, varig lagring og formell utdeling er egne autoriserte
 prosesser. Ingen CSV fra C2.1 kan alene utløse disse handlingene.
+
+## C2.1a – eksplisitte distansevalg
+
+`rowDistances: Map<row-N, approvedCompetitionId | "relay">` er fil-lokale valg,
+adskilt fra identitetsbekreftelser og kildens `event`. `assignDistances` validerer
+hele utvalget før en ny Map returneres; eksisterende Map muteres ikke. Dette gir
+forhåndsvisning og angre uten å endre råfilen. Eksplisitt Emit-stafett kan ikke
+konverteres til individuell øvelse. Ingen tom distansegruppe massebindes.
+
+`carryDistances` krever entydig, helt lik kilderadsignatur innen samme år.
+Emit uten stabile person-ID-er har samme strenge krav for personvalg. Startnummer
+kan brukes til å vise en revisjonsforskjell, men kan aldri alene videreføre et
+valg. Hver normaliserte signatur inkluderer også starttid, nasjon og radtype.
+
+Se [praktisk veiledning og begrensninger](../c21a-emit-startliste.md).
