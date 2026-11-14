@@ -8,7 +8,8 @@
     merker: ['Merker', 'Se oppnådde milepæler og veien til neste merke.'],
     diplomer: ['Diplomer', 'Velg mottakere, kontroller hvert diplom og lag én samlet A4-PDF.'],
     import: ['Import', 'En plass for fremtidig EQ Timing-import.'],
-    premier: ['Premier', 'Grunnlaget for en enklere utdeling.']
+    premier: ['Premier', 'Grunnlaget for en enklere utdeling.'],
+    design: ['Design og tilpasning', 'Ditt arrangement, dine merker og ditt diplom – i et separat utkast.']
   };
   const state = { overview: null, participantOffset: 0, badgeOffset: 0, section: null, sequence: {}, detailSequence: 0, returnFocus: null };
   const format = n => new Intl.NumberFormat('nb-NO').format(n);
@@ -115,7 +116,7 @@
   async function route() {
     const profile = window.MorothonAdminTransport ? await MorothonAdminTransport.ready : null;
     if (profile) for (const [key, value] of Object.entries(profile.texts.pages)) pages[key] = [value.title, value.description];
-    let key = location.hash.slice(1); if (!pages[key] || profile && !profile.modules[key]) { key = 'oversikt'; history.replaceState(null, '', '#oversikt'); }
+    let key = location.hash.slice(1); if (!pages[key] || profile && key !== 'design' && !profile.modules[key]) { key = 'oversikt'; history.replaceState(null, '', '#oversikt'); }
     state.section = key; closePerson(); if ($('preview').open) $('preview').close(); status();
     window.scrollTo({ top: 0, behavior: 'auto' });
     for (const view of document.querySelectorAll('[data-view]')) view.hidden = view.dataset.view !== key;

@@ -1,5 +1,10 @@
 # C1.3 – konkret plan for design- og diplomadministrasjon
 
+**Status:** Dette er planforslaget fra C1.2. Den fungerende C1.3-leveransen er
+beskrevet i [Designstudio – bruk og avgrensning](c13-designstudio.md), med
+[operativ utkastkontrakt v2](contracts/design-draft-v2.md). Schema v1 nedenfor
+beholdes som historisk plan, ikke som et støttet importformat.
+
 C1.2 leverer den offentlige, strengt validerte
 [arrangementsprofilen](../web-admin/event-profile.json) og én felles motor.
 C1.3 skal gi redigering i nettleseren, ikke en kodekopi per kunde.
