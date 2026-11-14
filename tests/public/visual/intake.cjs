@@ -1,6 +1,6 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),http=require('node:http');
 const {chromium}=require('playwright'),{buildSite}=require('../../../scripts/build-site.cjs'),{entry,sha256,approvalFor}=require('../../../scripts/lib/public-package.cjs');
-const sample=require('../../helpers/intake-data.js');const root=path.resolve(__dirname,'../../..');let dir,build,out,browser,server,base;
+const sample=require('../quick/fixtures/intake-data.js');const root=path.resolve(__dirname,'../../..');let dir,build,out,browser,server,base;
 before(async()=>{
  dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-c21-'));const dataDir=path.join(dir,'synthetic-public');await fs.cp(path.join(root,'public-data'),dataDir,{recursive:true});const bytes=Buffer.from(JSON.stringify(sample.history()));await fs.writeFile(path.join(dataDir,'data/history.json'),bytes);const manifest=JSON.parse(await fs.readFile(path.join(dataDir,'manifest.json')));manifest.dataVersion++;manifest.historySha256=sha256(bytes);manifest.files['data/history.json']=entry(bytes);const manifestBytes=Buffer.from(JSON.stringify(manifest));await fs.writeFile(path.join(dataDir,'manifest.json'),manifestBytes);
  build=await buildSite(path.join(dir,'site'),{dataDir,approval:approvalFor(manifestBytes)});out=process.env.MOROTHON_C1_REVIEW_DIR?path.join(process.env.MOROTHON_C1_REVIEW_DIR,'intake-c21'):path.join(dir,'review');await fs.mkdir(out,{recursive:true});const files=new Set(build.files);

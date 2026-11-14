@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const I=require('../../../tools/diploma-admin/intake-model.js'),sample=require('../../helpers/intake-data.js'),profile=require('../../../web-admin/event-profile.json'),registry=require('../../../public-data/data/badges.json');
+const I=require('../../../tools/diploma-admin/intake-model.js'),sample=require('./fixtures/intake-data.js'),profile=require('../../../web-admin/event-profile.json'),registry=require('../../../public-data/data/badges.json');
 const context=(history=sample.history(),badges=registry,extra={})=>I.createContext({history,registry:badges,profile,...extra});
 function rows(text=sample.csv,year=2027){const s=I.parseCsv(text);return I.rows(s,s.mapping,year);}
 const meta={historySha256:'1'.repeat(64),sourceSha256:'2'.repeat(64),importedAt:'2026-11-14T12:00:00Z'};
