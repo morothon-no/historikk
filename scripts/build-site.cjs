@@ -1,7 +1,7 @@
 // Public-only builder: consumes an approved package, never administrative originals.
 const fs=require('node:fs/promises'),path=require('node:path'),{createHash}=require('node:crypto');
 const root=path.resolve(__dirname,'..');
-const {BRAND_ASSETS,DATA_NAMES,PUBLIC_CODE,runtimeFiles}=require('./lib/runtime-files.cjs');
+const {BRAND_ASSETS,DATA_NAMES,PUBLIC_CODE,ADMIN_SOURCES,runtimeFiles}=require('./lib/runtime-files.cjs');
 const {readApprovedPackage,safeRead}=require('./lib/public-package.cjs');
 const {assertValid}=require('../js/history-data.js');
 const defaultApproval=path.join(root,'.github/public-data-approval.json');
@@ -17,7 +17,7 @@ async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(
  const verified=await readApprovedPackage(dataDir,{approvalFile,approval,assetsRoot:root}),files=runtimeFiles(verified.data.badges);
  assertValid(verified.data.history);
  const sources=new Map();
- for(const file of files)sources.set(file,verified.bytes.get(file)||verified.assetBytes.get(file)||await safeRead(root,file));
+ for(const file of files)sources.set(file,verified.bytes.get(file)||verified.assetBytes.get(file)||await safeRead(root,ADMIN_SOURCES[file]||file));
  const hash=createHash('sha256');
  // Include the rewriter itself: changing build semantics must invalidate cached assets too.
  for(const f of ['scripts/build-site.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','package.json',...files]){const bytes=sources.get(f)||await fs.readFile(path.join(root,f));hash.update(f+'\0'+bytes.length+'\0');hash.update(bytes);}
@@ -25,13 +25,23 @@ async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(
  const version=hash.digest('hex').slice(0,16),packageInfo=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
  const siteUrl=new URL(packageInfo.homepage);if(siteUrl.protocol!=='https:'||!siteUrl.pathname.endsWith('/'))throw Error('homepage must be an absolute HTTPS directory URL');
  const code=new Set(files.filter(f=>/\.(css|js)$/.test(f)));
- function assetUrl(value){const match=value.match(/^((?:\.\/)?(?:css|js)\/[^?#]+)(\?[^#]*)?(#.*)?$/);if(!match||!code.has(match[1].replace(/^\.\//,'')))return value;const params=new URLSearchParams(match[2]||'');params.set('v',version);return match[1]+'?'+params.toString()+(match[3]||'');}
+ const profile=JSON.parse(sources.get('admin/event-profile.json'));require('../web-admin/profile-contract.js').validate(profile,verified.data.badges);
+ function assetUrl(value){const match=value.match(/^((?:\.\/)?(?:css|js|admin)\/[^?#]+)(\?[^#]*)?(#.*)?$/);if(!match||!code.has(match[1].replace(/^\.\//,'')))return value;const params=new URLSearchParams(match[2]||'');params.set('v',version);return match[1]+'?'+params.toString()+(match[3]||'');}
  for(const name of files){
   let bytes=sources.get(name);
   if(/\.(html|js|css)$/.test(name)){
    let text=bytes.toString('utf8');
+   if(name==='admin/index.html'){
+    text=text.replace(/<meta name="local-session"[^>]*>/,'').replace('<body class="portal-app">','<body class="portal-app" data-admin-mode="public-preview">')
+      .replace('sandbox="allow-same-origin"','sandbox="allow-same-origin allow-modals"')
+      .replaceAll('/site/assets/','../assets/').replace('Utviklingsversjon · lokal tilgang','Offentlig testversjon · ingen innlogging').replace('Lokalt arbeidsrom','Offentlig testversjon').replace('Utviklingsversjon.<br>Ingen innlogging eller produksjonsdrift.','Offentlig tilgjengelig test.<br>Kun godkjente offentlige data.').replace('Kun lokal utvikling. Jobblisten lagres i nettleserøkten.','Offentlig testversjon · ingen innlogging eller administrative skrivefunksjoner.');
+    for(const f of ['admin.css','admin.js','portal.js'])text=text.replaceAll('/'+f,'./'+f+'?v='+version);
+    const extra=['../js/history-data.js','portal-data.js','profile-contract.js','web-transport.js'].map(f=>'<script defer src="'+f+'?v='+version+'"></script>').join('');
+    text=text.replace('<script defer src="./admin.js',extra+'<script defer src="./admin.js');
+   }
+
    // Covers HTML href/src as well as new URL('css/diplomas.css', document.baseURI).
-   text=text.replace(/(['"])((?:\.\/)?(?:css|js)\/[^'"\s<>]+)\1/g,(full,quote,value)=>quote+assetUrl(value)+quote);
+   text=text.replace(/(['"])((?:\.\/)?(?:css|js|admin)\/[^'"\s<>]+)\1/g,(full,quote,value)=>quote+assetUrl(value)+quote);
    if(name.endsWith('.html')){
     text=text.replace(/(<meta\b[^>]*\bname="morothon-version"[^>]*\bcontent=")[^"]*(")/g,'$1'+version+'$2').replace(/(<meta\b[^>]*\bcontent=")[^"]*("[^>]*\bname="morothon-version")/g,'$1'+version+'$2');
     if(name==='index.html'){

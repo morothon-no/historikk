@@ -6,7 +6,7 @@ test('isolated public build and existing site test need no administrative files,
  const dir=await temp();let h;try{await copyPublic(dir);execFileSync(process.execPath,['scripts/testing/run.cjs','--level','quick','--scope','public'],{cwd:dir,env:{PATH:process.env.PATH,LANG:'C.UTF-8'},stdio:'pipe',timeout:120000});await fs.symlink(path.join(root,'node_modules'),path.join(dir,'node_modules'),'dir');
   for(const f of ['data/honors.json','data/volunteers.json','scripts/export-public-data.cjs','scripts/lib/public-data.cjs','.git'])await assert.rejects(()=>fs.access(path.join(dir,f)));
   const out=path.join(dir,'site');await fs.mkdir(out);const permissions=['--permission','--allow-fs-read='+dir,'--allow-fs-write='+out],env={PATH:process.env.PATH,LANG:'C.UTF-8'};
-  const result=JSON.parse(execFileSync(process.execPath,[...permissions,'scripts/build-site.cjs',out],{cwd:dir,env,encoding:'utf8'}));assert.equal(result.files,59);
+  const result=JSON.parse(execFileSync(process.execPath,[...permissions,'scripts/build-site.cjs',out],{cwd:dir,env,encoding:'utf8'}));assert.equal(result.files,68);
   assert.throws(()=>execFileSync(process.execPath,[...permissions,'-e',`require('node:fs').readFileSync(${JSON.stringify(path.join(root,'data/honors.json'))})`],{cwd:dir,env,stdio:'pipe'}),e=>/ERR_ACCESS_DENIED/.test(e.stderr.toString()));
   execFileSync('npm',['run','build','--',path.join(dir,'npm-site')],{cwd:dir,env,stdio:'pipe',timeout:120000});
   execFileSync(process.execPath,['scripts/check-public-site.cjs',out],{cwd:dir,env,stdio:'pipe'});

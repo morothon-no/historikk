@@ -43,7 +43,7 @@
   </section>
   <section aria-labelledby="exportHeading" class="panel export-panel">
     <div class="section-heading"><div><span class="step">3</span><h2 id="exportHeading">Lag samlet PDF</h2></div></div>
-    <p id="exportSummary">Velg mottakere og kontroller utvalget først.</p>
+    <p id="webLimitations" class="web-limitations" hidden>Offentlig testversjon: mottakervalg, kvalitetskontroll og enkeltvisning fungerer. Kontrollert samlet PDF og produksjonsrapport krever den lokale C1-serveren. Nettleserutskrift gjelder bare det valgte, kontrollerte enkeltdiplomet.</p><p id="exportSummary">Velg mottakere og kontroller utvalget først.</p>
     <label class="check-label"><input type="checkbox" id="allowControl">Jeg vil også ta med tydelig merkede kontrollkopier.</label>
     <div class="actions"><button id="export" type="button" disabled>Lag samlet PDF</button><button id="report" type="button" class="secondary" disabled>Lagre kontrollrapport (JSON)</button></div>
     <div id="downloads" class="actions" hidden></div>
@@ -57,6 +57,6 @@
 </main>
 <footer class="portal-footer"><span>Søgne Morothon · Arrangørportal</span><span>Kun lokal utvikling. Jobblisten lagres i nettleserøkten.</span></footer>
 </div></div>
-<dialog id="preview" aria-labelledby="previewTitle"><div class="dialog-heading"><div><h2 id="previewTitle">Forhåndsvisning</h2><p id="previewStatus"></p></div><button id="closePreview" type="button" class="secondary">Lukk</button></div><div class="preview-viewport"><iframe title="Valgt A4-diplom" sandbox="allow-same-origin"></iframe></div><p class="hint">Forhåndsvisningen tilpasses skjermen. PDF-en beholder full A4-størrelse.</p></dialog>
+<dialog id="preview" aria-labelledby="previewTitle"><div class="dialog-heading"><div><h2 id="previewTitle">Forhåndsvisning</h2><p id="previewStatus"></p></div><button id="closePreview" type="button" class="secondary">Lukk</button></div><div class="preview-viewport"><iframe title="Valgt A4-diplom" sandbox="allow-same-origin"></iframe></div><div id="webPrintControls" class="actions" hidden><button type="button" data-web-print disabled>Skriv ut valgt diplom</button><button type="button" data-web-print disabled>Lagre via nettleserens PDF-dialog</button><p class="hint">Kun ett kontrollert diplom om gangen. Velg liggende A4, 100 %, bakgrunnsgrafikk på og ingen topp-/bunntekst. Dette er ikke C1s kontrollerte samlede PDF-produksjon.</p></div><p class="hint">Forhåndsvisningen tilpasses skjermen. PDF-en beholder full A4-størrelse.</p></dialog>
 <dialog id="participantDialog" class="participant-dialog" aria-labelledby="participantTitle"><div class="dialog-heading"><div><span class="eyebrow">DELTAKERHISTORIKK</span><h2 id="participantTitle">Løper</h2></div><button id="closeParticipant" class="secondary" type="button">Lukk</button></div><div id="participantDetail"></div></dialog>
 </body></html>

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "sogne-morothon",
+  "name": "Morothon",
+  "fullName": "Søgne Morothon",
+  "logoAssetId": "debut",
+  "colors": { "primary": "#123b41", "secondary": "#28554f", "accent": "#b38d46", "background": "#f3f3ed", "surface": "#fffef9", "text": "#143b43" },
+  "fonts": { "ui": "system-sans", "display": "classic-serif" },
+  "texts": {
+    "tagline": "SAMMEN SKAPER VI MOROTHON",
+    "welcomeTitle": "Små forberedelser.\nStore øyeblikk.",
+    "welcomeDescription": "Historikken, menneskene og milepælene samlet på ett sted.",
+    "footer": "Søgne Morothon · Arrangørportal",
+    "pages": {
+      "oversikt": { "title": "Oversikt", "description": "Et godt utgangspunkt for neste Morothon." },
+      "deltakere": { "title": "Deltakere", "description": "Menneskene på startstreken. Historikken de har skapt." },
+      "merker": { "title": "Merker", "description": "Se oppnådde milepæler og veien til neste merke." },
+      "diplomer": { "title": "Diplomer", "description": "Velg mottakere, kontroller hvert diplom og forhåndsvis ett A4-diplom om gangen." },
+      "import": { "title": "Import", "description": "En plass for fremtidig EQ Timing-import." },
+      "premier": { "title": "Premier", "description": "Grunnlaget for en enklere utdeling." }
+    }
+  },
+  "modules": { "oversikt": true, "deltakere": true, "merker": true, "diplomer": true, "import": true, "premier": true },
+  "distances": [
+    { "competition": "Morothon", "km": 20, "name": "Langmoro" },
+    { "competition": "Kortmoro", "km": 10, "name": "Kortmoro" }
+  ],
+  "references": { "badgeRegistry": "data/badges.json", "participationPolicy": "morothon-annual-v1", "diplomaTemplate": "morothon-landscape-v1", "diplomaTexts": "registered-defaults", "medalDisplay": "latest" }
+}

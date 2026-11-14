@@ -32,7 +32,7 @@ test('C1 is loopback-only, rejects foreign origins/hosts and missing session tok
   assert.equal((await fetch(app.origin + '/api/export', { method: 'POST', headers: { 'X-Morothon-Token': app.token, 'Content-Type': 'application/json' }, body: '{}' })).status, 403);
   const hidden = await app.worker.check([honor('erling-danielsen')]); assert.equal(hidden.entries[0].status, 'blocked');
   await assert.rejects(() => app.worker.produce([honor('erling-danielsen')], { allowControlCopies: true }), /ikke tilgjengelig/);
-  const built = await validatePublicSite(app.site); assert.equal(built.files, 59); assert.equal(built.visiblePeople, 43);
+  const built = await validatePublicSite(app.site); assert.equal(built.files, 68); assert.equal(built.visiblePeople, 43);
   for (const name of ['tools', 'admin.js', 'scripts', 'docs']) await assert.rejects(() => fs.access(path.join(app.site, name)));
 });
 test('C1 uses earned historical runner snapshots, only earlier medals, both Heder variants, long names and Einars agreed date', async () => {

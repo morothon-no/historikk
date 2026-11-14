@@ -1,7 +1,7 @@
 /* Local portal shell. Server-side API boundary controls all data/production. */
 (() => {
   'use strict';
-  const $ = id => document.getElementById(id), token = document.querySelector('[name="local-session"]').content;
+  const $ = id => document.getElementById(id), token = document.querySelector('[name="local-session"]')?.content;
   const pages = {
     oversikt: ['Oversikt', 'Et godt utgangspunkt for neste Morothon.'],
     deltakere: ['Deltakere', 'Menneskene på startstreken. Historikken de har skapt.'],
@@ -16,6 +16,8 @@
   function button(text, action, cls = 'secondary') { const e = element('button', text, cls); e.type = 'button'; e.onclick = action; return e; }
   function image(b, cls) { const img = element('img', undefined, cls); img.src = b.src; img.alt = b.name; img.loading = 'lazy'; return img; }
   async function api(route) {
+    if (window.MorothonAdminTransport) return MorothonAdminTransport.request(route);
+    if (document.body.dataset.adminMode === 'public-preview') throw Error('Nettadapteren kunne ikke lastes. Last siden på nytt.');
     const r = await fetch('/api/' + route, { headers: { 'X-Morothon-Token': token } });
     const data = await r.json(); if (!r.ok) throw Error(data.error || 'Kunne ikke hente historikken.'); return data;
   }
@@ -99,7 +101,7 @@
       const main = $('participantDetail'), metrics = element('div', undefined, 'metric-grid');
       metrics.append(metric('Deltakelser', p.count, 'Unike deltakelsesår'), metric('Periode', period(p), 'DNS teller ikke · DNF teller'), metric('Høyeste merke', p.highestBadge?.name || 'Ikke opptjent', p.highestBadge?.year ? `Oppnådd ${p.highestBadge.year}` : 'Første merke ved 5 deltakelser'));
       const actions = element('div', undefined, 'actions'), pick = button('Velg diplom', () => chooseDiploma(p), ''); pick.disabled = !p.count;
-      const profile = element('a', 'Åpne løperprofil', 'action-link'); profile.href = '/site/index.html#lop=' + encodeURIComponent(p.id); profile.target = '_blank'; profile.rel = 'noopener'; actions.append(pick, profile);
+      const profile = element('a', 'Åpne løperprofil', 'action-link'); profile.href = new URL('index.html#lop=' + encodeURIComponent(p.id), window.MorothonAdminTransport?.rootUrl || new URL('/site/', location.href)).href; profile.target = '_blank'; profile.rel = 'noopener'; actions.append(pick, profile);
       const collection = element('div', undefined, 'badge-collection');
       for (const b of p.earned) { const figure = element('figure'); figure.append(image(b), element('figcaption', `${b.level} · ${b.year}`)); collection.append(figure); }
       const wrapper = element('div', undefined, 'history-wrapper'), table = element('table', undefined, 'history-table'), caption = element('caption', 'Registrerte løpsresultater'); caption.className = 'hint';
@@ -111,12 +113,14 @@
   }
   function closePerson() { ++state.detailSequence; if ($('participantDialog').open) { $('participantDialog').close(); state.returnFocus?.focus(); } }
   async function route() {
-    let key = location.hash.slice(1); if (!pages[key]) { key = 'oversikt'; history.replaceState(null, '', '#oversikt'); }
+    const profile = window.MorothonAdminTransport ? await MorothonAdminTransport.ready : null;
+    if (profile) for (const [key, value] of Object.entries(profile.texts.pages)) pages[key] = [value.title, value.description];
+    let key = location.hash.slice(1); if (!pages[key] || profile && !profile.modules[key]) { key = 'oversikt'; history.replaceState(null, '', '#oversikt'); }
     state.section = key; closePerson(); if ($('preview').open) $('preview').close(); status();
     window.scrollTo({ top: 0, behavior: 'auto' });
     for (const view of document.querySelectorAll('[data-view]')) view.hidden = view.dataset.view !== key;
     for (const link of document.querySelectorAll('.sidebar nav a')) { if (link.hash === '#' + key) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); }
-    $('pageTitle').textContent = pages[key][0]; $('pageDescription').textContent = pages[key][1]; document.title = `Morothon · ${pages[key][0]}`; $('pageTitle').focus({ preventScroll: true });
+    $('pageTitle').textContent = pages[key][0]; $('pageDescription').textContent = pages[key][1]; document.title = `${profile?.name || 'Morothon'} · ${pages[key][0]}`; $('pageTitle').focus({ preventScroll: true });
     try {
       if (key === 'oversikt' || key === 'merker') await overview();
       if (state.section !== key) return;
@@ -131,5 +135,6 @@
   $('closeParticipant').onclick = closePerson; $('participantDialog').addEventListener('cancel', e => { e.preventDefault(); closePerson(); });
   document.addEventListener('morothon:diploma-count', e => { const count = e.detail.count; $('navDiplomaCount').textContent = count; $('navDiplomaCount').hidden = !count; });
   document.querySelector('.skip-link').addEventListener('click', e => { e.preventDefault(); $('portalMain').focus(); });
-  window.addEventListener('hashchange', route); route();
+  const navigate = () => route().catch(e => status(e.message));
+  window.addEventListener('hashchange', navigate); navigate();
 })();

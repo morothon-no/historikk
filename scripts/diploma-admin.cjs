@@ -2,7 +2,7 @@
 const fs = require('node:fs/promises'), path = require('node:path'), os = require('node:os'), http = require('node:http');
 const { createHash, randomBytes } = require('node:crypto');
 const { buildSite, validatePublicSite } = require('./build-site.cjs');
-const { runtimeFiles } = require('./lib/runtime-files.cjs');
+const { runtimeFiles, ADMIN_SOURCES } = require('./lib/runtime-files.cjs');
 const { createWorker } = require('../tools/diploma-admin/worker.cjs');
 const { createPortalData } = require('../tools/diploma-admin/portal-data.cjs');
 const { createApi } = require('../tools/diploma-admin/api.cjs');
@@ -47,7 +47,7 @@ async function startAdmin({ port = 0, beforeCheck } = {}) {
   try {
     const result = await buildSite(site), registry = JSON.parse(await fs.readFile(path.join(root, 'public-data/data/badges.json')));
     await validatePublicSite(site); siteFiles = new Set(result.files);
-    inputFiles = [...runtimeFiles(registry).filter(f => !f.startsWith('data/')).map(f => path.join(root, f)),
+    inputFiles = [...runtimeFiles(registry).filter(f => !f.startsWith('data/')).map(f => path.join(root, ADMIN_SOURCES[f] || f)),
       ...['manifest.json', 'data/history.json', 'data/honors.json', 'data/volunteers.json', 'data/badges.json', 'data/event-dates.json'].map(f => path.join(root, 'public-data', f)),
       path.join(root, '.github/public-data-approval.json'), path.join(root, 'package.json'), path.join(root, 'scripts/diploma-admin.cjs'), ...['engine.js','worker.cjs','api.cjs','portal-data.cjs'].map(f=>path.join(uiRoot,f)), ...result.files.map(f => path.join(site, f))];
     originalDigest = await snapshot(inputFiles);

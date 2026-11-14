@@ -82,12 +82,19 @@ test('mobile: every year is reachable, correctly labelled and tappable; swipe an
     for (let i = 1; i <= 8; i++) {
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: box.x + 320 - i * 30, y }] });
     }
+    // touchEnd releases the finger, but Chromium may keep scrolling inertially.
+    // Finish that real gesture before testing a separate viewport transition.
+    await page.locator('#chartScroll').evaluate(el => { window.__chartScrollEnded = false; el.addEventListener('scrollend', () => { window.__chartScrollEnded = true; }, { once: true }); });
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await page.waitForFunction(() => document.querySelector('#chartScroll').scrollLeft > 0);
+    await page.waitForFunction(() => window.__chartScrollEnded);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.waitForFunction(() => document.querySelector('.bar').dataset.year === '1992');
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForFunction(() => document.querySelector('.bar').dataset.year === '2026' && document.querySelector('#chartScroll').scrollLeft === 0);
+    await page.waitForFunction(() => document.querySelector('.bar').dataset.year === '2026' && document.querySelector('#chartScroll').scrollLeft === 0).catch(async error => {
+      console.error('Chart resize diagnostic', await page.evaluate(() => ({ year: document.querySelector('.bar').dataset.year, left: document.querySelector('#chartScroll').scrollLeft, width: innerWidth, mobile: matchMedia('(max-width:620px)').matches, active: document.activeElement?.outerHTML.slice(0,200) })));
+      throw error;
+    });
     assert.deepEqual(errors, []);
   } finally { await context.close(); }
 });
