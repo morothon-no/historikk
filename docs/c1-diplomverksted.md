@@ -1,5 +1,9 @@
 # C1 – lokalt diplomverksted
 
+**Oppdatert i C1.1:** Verkstedet finnes under **Diplomer** i den lokale
+[administrasjonsportalen](c11-adminportal.md). Begge startkommandoene virker.
+Mottakervalg, PDF-motor og godkjenningsregler er bevart.
+
 Fungerende første arrangørpilot fra `main` etter PR #33. Den leser den godkjente
 A1C-datapakken, gjenbruker diplommotoren og lager én samlet, kontrollert PDF.
 Ingen originalregistre, personopplysninger, godkjenninger eller offentlige sider

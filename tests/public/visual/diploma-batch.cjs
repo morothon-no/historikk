@@ -82,7 +82,7 @@ test('C1 organizer UI searches, filters, selects, reorders and exports six A4 pa
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 }, acceptDownloads: true }), p = await context.newPage(), errors = [];
   p.on('pageerror', e => errors.push(e.message));
   try {
-    await p.goto(app.origin); await p.getByText('Klar. Velg et utvalg eller prøv fem mottakere.').waitFor();
+    await p.goto(app.origin + '/#diplomer'); await p.getByText('Klar. Velg et utvalg eller prøv fem mottakere.').waitFor();
     await p.selectOption('#kind', 'runner'); await p.fill('#search', 'Inger Katherin'); await p.selectOption('#year', '2024');
     assert.equal(await p.locator('.recipient').count(), 1); await p.selectOption('#year', '2023'); assert.equal(await p.locator('.recipient').count(), 0);
     await p.selectOption('#year', 'all'); await p.selectOption('#kind', 'honor'); await p.fill('#search', 'Oscar'); assert.equal(await p.locator('.recipient').count(), 1);

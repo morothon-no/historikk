@@ -48,6 +48,13 @@ sjekker, uten manuell SHA-oppdatering. Nye offentlige tester i `tests/public/`
 oppdages automatisk. Særskilt head-godkjenning er forbeholdt sikkerhets-,
 teststyrings- og publiseringsreglene: [enkel utviklingsflyt](docs/enkel-utviklingsflyt.md).
 
+## Lokal administrasjonsportal (C1.1)
+
+Start med `npm run admin`. Portalen samler Oversikt, Deltakere, Merker og det
+operative diplomverkstedet. Import og Premier er plassholdere for neste fase.
+Kun lokal utvikling på `127.0.0.1`, uten innlogging eller offentlig drift.
+Se [oppstart, modulstruktur og sikkerhetsavgrensning](docs/c11-adminportal.md).
+
 ## Lokalt diplomverksted (C1-pilot)
 
 Start med `npm run diplomer:admin` og åpne den lokale adressen som vises.
