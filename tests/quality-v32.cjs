@@ -21,7 +21,7 @@ test('V3.2 content or deployment URL changes invalidate versions automatically w
  const fixture=path.join(temporary,'source-copy');for(const f of files){const dest=path.join(fixture,f);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(root,f),dest);}
  await fs.cp(path.join(root,'public-data'),path.join(fixture,'public-data'),{recursive:true});await fs.mkdir(path.join(fixture,'.github'),{recursive:true});await fs.copyFile(path.join(root,'.github/public-data-approval.json'),path.join(fixture,'.github/public-data-approval.json'));
  const copyBuild=require(path.join(fixture,'scripts/build-site.cjs')).buildSite;const original=await copyBuild(path.join(temporary,'copy-original'));assert.equal(original.version,build.version);
- assert.deepEqual(original.files,build.files);assert.equal(Object.keys(ADMIN_SOURCES).length,9);
+ assert.deepEqual(original.files,build.files);assert.equal(Object.keys(ADMIN_SOURCES).length,12);
  for(const f of Object.keys(ADMIN_SOURCES))assert.deepEqual(await fs.readFile(path.join(original.out,f)),await fs.readFile(path.join(build.out,f)),f);
  await assert.rejects(fs.access(path.join(fixture,'data/honors.json')),{code:'ENOENT'});
  await fs.appendFile(path.join(fixture,'css/diplomas.css'),'\n/* controlled cache invalidation */\n');const changed=await copyBuild(path.join(temporary,'changed'));assert.notEqual(changed.version,build.version);const js=await fs.readFile(path.join(changed.out,'js/diplomas.js'),'utf8');assert.ok(js.includes(`css/diplomas.css?v=${changed.version}`));assert.ok(!js.includes('css/diplomas.css?v='+build.version));

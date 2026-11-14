@@ -28,7 +28,7 @@
     const logo=document.createElement('img');logo.src=new URL(registry.badges.find(b=>b.id===p.logoAssetId).src,rootUrl).href;logo.alt='';document.querySelector('.brand-mark').replaceChildren(logo);
     document.querySelector('.welcome-card .eyebrow').textContent=p.texts.tagline;document.querySelector('.welcome-card h2').textContent=p.texts.welcomeTitle;document.querySelector('.welcome-card h2').style.whiteSpace='pre-line';
     document.querySelector('.welcome-card p').textContent=p.texts.welcomeDescription;document.querySelector('.portal-footer>span').textContent=p.texts.footer;
-    for(const a of document.querySelectorAll('.sidebar nav a')){const key=a.hash.slice(1);a.hidden=!p.modules[key];for(const n of [...a.childNodes])if(n.nodeType===3&&n.textContent.trim())n.textContent=p.texts.pages[key].title+' ';}
+    for(const a of document.querySelectorAll('.sidebar nav a')){const key=a.hash.slice(1);if(key==='design')continue;a.hidden=!p.modules[key];for(const n of [...a.childNodes])if(n.nodeType===3&&n.textContent.trim())n.textContent=p.texts.pages[key].title+' ';}
     document.querySelector('#display').value=p.references.medalDisplay;
   }
   return {validate,apply,routes};

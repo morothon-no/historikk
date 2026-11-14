@@ -59,6 +59,15 @@ Ingen innlogging eller administrative skrivefunksjoner er aktivert.
 Se [funksjonsstatus, datagrense og publisering](docs/c12-webportal.md),
 [arrangementsprofilen](web-admin/event-profile.json) og [plan for C1.3](docs/c13-designadministrasjon.md).
 
+## Designstudio (C1.3)
+
+Under **Design og tilpasning** i testportalen kan arrangøren lage en egen profil,
+merkeserier og et A4-diplomutkast, velge egne PNG/WebP-bilder og eksportere/importere
+hele utkastpakken. Alt skjer i nettleseren, uten serverlagring eller endringer i
+Morothons aktive profil. Nye design er stemplede utkast med sperret utskrift/PDF.
+Se [bruk, funksjonsstatus og kontroll](docs/c13-designstudio.md) og
+[operativ utkastkontrakt v2](docs/contracts/design-draft-v2.md).
+
 ## Lokal administrasjonsportal (C1.1)
 
 Start med `npm run admin`. Portalen samler Oversikt, Deltakere, Merker og det
