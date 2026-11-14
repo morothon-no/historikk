@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),{execFileSync}=require('node:child_process');
 const {buildSite,BRAND_ASSETS}=require('../scripts/build-site.cjs'),{createHarness}=require('../scripts/diploma-harness.cjs'),{installMetricFont}=require('../scripts/diploma-font-harness.cjs');
+const {ADMIN_SOURCES}=require('../scripts/lib/runtime-files.cjs');
 const root=path.resolve(__dirname,'..');let temporary,build,built,source;
 before(async()=>{temporary=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-v32-'));build=await buildSite(path.join(temporary,'site'));built=await createHarness({rootDir:build.out});source=await createHarness();});
 after(async()=>{await built?.close();await source?.close();if(temporary)await fs.rm(temporary,{recursive:true,force:true});});
@@ -14,9 +15,15 @@ test('V3.2 build is deterministic, versions every CSS/JS request including both 
  const p=await load();try{await p.evaluate(()=>MorothonDiplomas.open('MOR-C788866'));assert.equal(await p.locator('[data-diploma-print]').isEnabled(),true);assert.equal(await p.frameLocator('#diplomaDialog iframe').locator('link[rel="stylesheet"]').getAttribute('href'),source.base+'/css/diplomas.css');}finally{await p.close();}
 });
 test('V3.2 content or deployment URL changes invalidate versions automatically without editing source HTML',async()=>{
- const fixture=path.join(temporary,'source-copy');for(const f of [...build.files.filter(f=>!['build-info.json','public-manifest.json'].includes(f)),'scripts/build-site.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','package.json']){const dest=path.join(fixture,f);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(root,f),dest);}
+ // Published admin paths are generated from the explicit source map. Data comes
+ // only from the approved package below, never administrative source registers.
+ const files=new Set([...build.files.filter(f=>!f.startsWith('data/')&&!['build-info.json','public-manifest.json'].includes(f)).map(f=>ADMIN_SOURCES[f]||f),'scripts/build-site.cjs','scripts/lib/public-schema.cjs','scripts/lib/public-package.cjs','scripts/lib/runtime-files.cjs','package.json']);
+ const fixture=path.join(temporary,'source-copy');for(const f of files){const dest=path.join(fixture,f);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(root,f),dest);}
  await fs.cp(path.join(root,'public-data'),path.join(fixture,'public-data'),{recursive:true});await fs.mkdir(path.join(fixture,'.github'),{recursive:true});await fs.copyFile(path.join(root,'.github/public-data-approval.json'),path.join(fixture,'.github/public-data-approval.json'));
  const copyBuild=require(path.join(fixture,'scripts/build-site.cjs')).buildSite;const original=await copyBuild(path.join(temporary,'copy-original'));assert.equal(original.version,build.version);
+ assert.deepEqual(original.files,build.files);assert.equal(Object.keys(ADMIN_SOURCES).length,9);
+ for(const f of Object.keys(ADMIN_SOURCES))assert.deepEqual(await fs.readFile(path.join(original.out,f)),await fs.readFile(path.join(build.out,f)),f);
+ await assert.rejects(fs.access(path.join(fixture,'data/honors.json')),{code:'ENOENT'});
  await fs.appendFile(path.join(fixture,'css/diplomas.css'),'\n/* controlled cache invalidation */\n');const changed=await copyBuild(path.join(temporary,'changed'));assert.notEqual(changed.version,build.version);const js=await fs.readFile(path.join(changed.out,'js/diplomas.js'),'utf8');assert.ok(js.includes(`css/diplomas.css?v=${changed.version}`));assert.ok(!js.includes('css/diplomas.css?v='+build.version));
  const pkg=JSON.parse(await fs.readFile(path.join(fixture,'package.json'),'utf8'));pkg.homepage='https://example.com/archive/';await fs.writeFile(path.join(fixture,'package.json'),JSON.stringify(pkg));const moved=await copyBuild(path.join(temporary,'moved'));assert.notEqual(moved.version,changed.version);const html=await fs.readFile(path.join(moved.out,'index.html'),'utf8');assert.match(html,/rel="canonical" href="https:\/\/example.com\/archive\/"/);assert.match(html,/property="og:image" content="https:\/\/example.com\/archive\/assets\/social\/morothon-og.png"/);
 });
