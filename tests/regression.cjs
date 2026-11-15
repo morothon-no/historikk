@@ -328,7 +328,8 @@ test('Enny-Karin correction: one documented 1999 result, canonical alias/redirec
   // Approved V28 fingerprints plus the documented Jon/junior correction; Enny rows remain checked separately.
   // tests/jon-grindland.cjs also reconstructs the prior whole-file hash from only the authorized field changes.
   assert.equal(hash(data.people.filter(p => !['MOR-72A949A', 'MOR-4CB0E52'].includes(p.i))), '7dc3daba7bfc13b6a10213de5ec522ad48323ed3a2dec7d85dc4e35485317180');
-  assert.equal(hash(data.results.filter(r => !(r[0] === 1999 && ['MOR-72A949A', 'MOR-4CB0E52'].includes(r[1])))), '89f990fbc26aacd9ca2642d4744affea57300fee12a386e34a3e1465ba56b33b');
+  const beforeNovember = require('./public/quick/fixtures/historical-corrections.js').previousHistory(data);
+  assert.equal(hash(beforeNovember.results.filter(r => !(r[0] === 1999 && ['MOR-72A949A', 'MOR-4CB0E52'].includes(r[1])))), '89f990fbc26aacd9ca2642d4744affea57300fee12a386e34a3e1465ba56b33b');
   assert.equal(hash(data.yearStats.filter(s => s[0] !== 1999)), '81d11f1378a320c3a1cadd5018c6e137bc8ea1db6c75adee8148e97136aa7625');
   assert.equal(hash(data.teamResults), 'c04ab350260c74fcfcc566904bbb762b7fe5ac8ba07fd8977a2c05c8a92b5b93');
   assert.equal(data.people.length, 2643);

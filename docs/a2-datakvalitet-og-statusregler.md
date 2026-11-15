@@ -1,5 +1,11 @@
 # A2 – Datakvalitet og statusregler
 
+**Senere kildeavklaring:** De fire arrangørgodkjente rettelsene i november 2026
+er dokumentert i [resultatkorrigeringene](result-corrections.md). De to blandede
+tidsformatene er korrigert, og to ukjente distanser er avklart til Kortmoro
+13 km. Beskrivelsen og målingene under er den historiske A2-leveransen;
+statusreglene og den særskilt bevarte 2007-fullføringen er fortsatt uendret.
+
 Grunnlag: `main` på `c94edd02c2b0f7197a8c5253f8eaa67481bcd9ee`, systemrevisjonens [beregningsfunn R-01–R-03 og R-06](revisjon/02-beregninger.md), [S-02](revisjon/05-drift-og-sikkerhet.md) og [A2-planen](revisjon/07-forbedringsplan.md). Kontrollert 13. november 2026.
 
 ## Avgrensning

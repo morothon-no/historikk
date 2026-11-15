@@ -109,14 +109,14 @@ test('A1D public candidate validation checks external approval and schema withou
  for(const file of [...runtimeFiles(registry).filter(f=>f.startsWith('assets/')),'scripts/lib/public-package.cjs','scripts/lib/public-schema.cjs','scripts/lib/runtime-files.cjs','.github/public-data-approval.json'])await C.writeNew(path.join(root,file),await C.read(repo,file));
  await fs.cp(path.join(repo,'public-data'),path.join(root,'public-data'),{recursive:true});await fs.cp(path.join(repo,'public-data'),pkg,{recursive:true});
  C.git(root,['remote','add','origin','https://github.com/'+C.PUBLIC+'.git']);C.git(root,['add','.']);C.git(root,['commit','--quiet','-m','public filtered fixture']);const commit=C.git(root,['rev-parse','HEAD']);
- const {approvalFor,sha256}=require('../scripts/lib/public-package.cjs');const manifest=C.json(await C.read(pkg,'manifest.json'));manifest.dataVersion=2;
+ const {approvalFor,sha256}=require('../scripts/lib/public-package.cjs');const manifest=C.json(await C.read(pkg,'manifest.json')),nextVersion=manifest.dataVersion+1;manifest.dataVersion=nextVersion;
  await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(manifest));let proposed=approvalFor(C.bytes(manifest));
  const opts={publicRoot:root,publicCommit:commit,packageRoot:pkg,approvedManifestSha256:'0'.repeat(64),branch:'codex/data-synthetic'};
  await assert.rejects(()=>P.validateApprovedCandidate(opts),/External approval/);assert.equal(C.git(root,['status','--porcelain']),'');
  const h=C.json(await C.read(pkg,'data/honors.json'));h.internalNotes=['synthetic forbidden field'];const b=C.bytes(h);await fs.writeFile(path.join(pkg,'data/honors.json'),b);manifest.files['data/honors.json']={sha256:sha256(b),bytes:b.length};await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(manifest));
  await assert.rejects(()=>P.validateApprovedCandidate({...opts,approvedManifestSha256:approvalFor(C.bytes(manifest)).manifestSha256}),/Unapproved public field/);
- await fs.rm(pkg,{recursive:true});await fs.cp(path.join(repo,'public-data'),pkg,{recursive:true});const valid=C.json(await C.read(pkg,'manifest.json'));valid.dataVersion=2;await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(valid));
- const result=await P.validateApprovedCandidate({...opts,approvedManifestSha256:approvalFor(C.bytes(valid)).manifestSha256});assert.equal(result.files,6);assert.equal(result.approval.dataVersion,2);
+ await fs.rm(pkg,{recursive:true});await fs.cp(path.join(repo,'public-data'),pkg,{recursive:true});const valid=C.json(await C.read(pkg,'manifest.json'));valid.dataVersion=nextVersion;await fs.writeFile(path.join(pkg,'manifest.json'),C.bytes(valid));
+ const result=await P.validateApprovedCandidate({...opts,approvedManifestSha256:approvalFor(C.bytes(valid)).manifestSha256});assert.equal(result.files,6);assert.equal(result.approval.dataVersion,nextVersion);
  assert.equal(C.git(root,['diff',commit,'--name-only']),'');assert.equal(C.git(root,['rev-parse','HEAD']),commit);assert.equal(C.git(root,['status','--porcelain']),'');
 });
 test('A1D Git audit detects remote refs missing from the archive and never fetches or changes the source',async()=>{

@@ -84,10 +84,10 @@
       }
       if(id&&!people.has(id))issue(s==='DNS'?warnings:errors,s==='DNS'?'legacy-dns-without-person':'missing-person',at);
       if(raw&&raw!==s)issue(warnings,'normalized-status',at);
-      // Two source strings already documented in R-06 remain uninterpreted.
-      const legacyTime=(r[0]===1994&&r[1]==='MOR-88334F0'&&r[2]==='Morothon'&&r[3]==='18 km'&&r[4]==='Fullført'&&r[5]==='02:09.52'||r[0]===1998&&r[1]==='MOR-98692D6'&&r[2]==='Kortmoro'&&r[3]==='13 km'&&r[4]==='Fullført'&&r[5]==='01:06.14');
       const text=String(r[5]??'').trim();
-      if(text&&!time&&timeSeconds(text)===null)issue(legacyTime?warnings:errors,legacyTime?'ambiguous-legacy-time':'invalid-time',at+'[5]');
+      // The two formerly exempt mixed-separator times were source-corrected in
+      // November 2026. Reintroducing either invalid spelling must now fail.
+      if(text&&!time&&timeSeconds(text)===null)issue(errors,'invalid-time',at+'[5]');
       if(!/^\d+(?:[.,]\d+)?\s*km$/i.test(r[3])||!(parseDistanceKm(r[3])>0)){
         issue(r[3]==='Ukjent'&&s==='Deltatt'?warnings:errors,r[3]==='Ukjent'&&s==='Deltatt'?'legacy-unknown-distance':'invalid-distance',at+'[3]');
       }
