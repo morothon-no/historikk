@@ -34,7 +34,7 @@ test('Jon correction and all 21 junior class places preserve every other histori
  for(const [id,name,cls,time,oldPlace,place]of expected){const r=rows.find(r=>r[1]===id),p=data.people.find(p=>p.i===id);assert.equal(p.n,name);assert.equal(r[7],cls);assert.equal(r[5],time);assert.equal(r[6],place);}
  const jon=data.people.find(p=>p.i==='MOR-638C1F4'),row=rows.find(r=>r[1]===jon.i);assert.equal(jon.g,'Herre');assert.deepEqual(row,[2026,jon.i,'Junior','3 km','Fullført','16:10',7,'M10-12','FRAMSTEG IL','120']);
  // Reconstruct only the documented changed fields in memory: the entire previous file must match.
- const previous=structuredClone(data);previous.updated='2026-11-09';previous.people.find(p=>p.i===jon.i).g='Dame';
+ const previous=require('./public/quick/fixtures/historical-corrections.js').previousHistory(data);previous.updated='2026-11-09';previous.people.find(p=>p.i===jon.i).g='Dame';
  for(const [id,,,,oldPlace]of expected)previous.results.find(r=>junior(r)&&r[1]===id)[6]=oldPlace;
  previous.results.find(r=>junior(r)&&r[1]===jon.i)[7]='K10-12';
  assert.equal(createHash('sha256').update(JSON.stringify(previous)).digest('hex'),'e73daae2c4dbc0bb5d68e2bc0174ab7ff3b1e7e1c5024af891e2f4ef6fd9a719');

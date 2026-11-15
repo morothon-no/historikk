@@ -58,7 +58,7 @@ test('A2 validation rejects unsafe, missing and cyclic identities and invalid ti
 test('A2 present history has only documented legacy warnings and no destructive normalization',async()=>{
  const bytes=await fs.readFile(path.join(root,'public-data/data/history.json')),data=JSON.parse(bytes),before=JSON.stringify(data),report=R.assertValid(data);
  assert.deepEqual(report.errors,[]);
- assert.deepEqual(Object.fromEntries([...new Set(report.warnings.map(w=>w.code))].map(code=>[code,report.warnings.filter(w=>w.code===code).length])),{'ambiguous-legacy-time':2,'normalized-status':7,'legacy-disqualification-marker':1,'legacy-unknown-distance':2,'legacy-dns-without-person':79});
+ assert.deepEqual(Object.fromEntries([...new Set(report.warnings.map(w=>w.code))].map(code=>[code,report.warnings.filter(w=>w.code===code).length])),{'normalized-status':7,'legacy-disqualification-marker':1,'legacy-dns-without-person':79});
  const r=data.results.find(r=>r[0]===2007&&r[1]==='MOR-B1AC0FD');
  assert.equal(r[4],'Fullført');assert.equal(r[5],'Disket');assert.equal(R.effectiveStatus(r),'Fullført');assert.equal(R.isCompletedResult(r),true);
  assert.equal(R.countsAsParticipation(r),true);assert.equal(R.create(data).classPlaces.has(r),false);

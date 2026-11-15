@@ -43,3 +43,29 @@ test('A2 organizer-retained completion keeps all participations, completions and
   assert.deepEqual(errors,[]);
  }finally{await p.close();}
 });
+test('approved historical corrections render correct times/source places and two untimed Kortmoro starts on mobile and desktop',async()=>{
+ const p=await h.browser.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ try{
+  await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));
+  for(const width of [390,1440]){
+   await p.setViewportSize({width,height:950});
+   for(const [id,year,time,source,place]of [['MOR-88334F0',1994,'02:09:52',45,35],['MOR-98692D6',1998,'01:06:14',127,2]]){
+    await p.evaluate(id=>openProfile(id),id);const row=p.locator('#profile .result-row').filter({hasText:String(year)});
+    assert.match(await row.textContent(),new RegExp(time));assert.match(await row.textContent(),new RegExp(source+'\\. plass i kildelisten'));
+    assert.equal(await p.evaluate(([id,year])=>classPlacement(resultsFor(id).find(r=>r[0]===year)),[id,year]),place);
+    await p.evaluate(()=>closeProfile());
+   }
+   await p.evaluate(()=>openProfile('MOR-15AF3A3'));
+   assert.equal(await p.evaluate(()=>person('MOR-15AF3A3').c),35);
+   for(const year of [2012,2013]){const row=p.locator('#profile .result-row').filter({hasText:String(year)});assert.match(await row.textContent(),/Kortmoro.*13 km/);assert.match(await row.textContent(),/Deltatt/);assert.doesNotMatch(await row.textContent(),/Historisk tillegg|Ukjent|plass i kildelisten|\d{1,2}:\d{2}/);}
+   assert.equal(await p.evaluate(()=>document.querySelector('#panel').scrollWidth<=document.querySelector('#panel').clientWidth+1),true);await p.evaluate(()=>closeProfile());
+   for(const [year,total,kort]of [[2012,120,64],[2013,146,66]]){
+    await p.evaluate(year=>{document.querySelector('#yearDisclosure').open=true;document.querySelector('#yearSelect').value=String(year);document.querySelector('#yearGender').value='';S.yearRaceMode='other';S.yearOtherKey='Kortmoro|13 km';S.yearLimit=10000;yearView();},year);
+    assert.deepEqual(await p.locator('#yearSummary .year-stat strong').allTextContents(),[String(total),year===2012?'56':'80',String(kort)]);
+    const row=p.locator('.year-result-row').filter({has:p.locator('button[onclick*="MOR-15AF3A3"]')});assert.equal(await row.count(),1);assert.equal(await row.locator('.year-time').textContent(),'Deltatt');assert.equal(await row.locator('.year-class-place strong').textContent(),'–');
+   }
+   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  }
+  assert.deepEqual(errors,[]);
+ }finally{await p.close();}
+});

@@ -29,16 +29,17 @@ test('even a newly pinned malformed package cannot bypass public field, contract
 });
 test('PR-local approvals and safety edits cannot replace protected-base or external maintainer approval',async()=>{
  const base=await temp(),candidate=await temp(),head='a'.repeat(40);try{await copyPublic(base);await copyPublic(candidate);
+  const currentVersion=JSON.parse(await fs.readFile(path.join(base,'public-data/manifest.json'))).dataVersion,nextVersion=currentVersion+1;
   assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head})).visiblePeople,43);
   for(const file of ['scripts/lib/public-schema.cjs','scripts/testing/run.cjs']){
    await fs.appendFile(path.join(candidate,file),'\n// untrusted security edit');await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
    await fs.copyFile(path.join(base,file),path.join(candidate,file));
   }
-  const changed=await rewriteManifest(candidate,async m=>{m.dataVersion=2;});
+  const changed=await rewriteManifest(candidate,async m=>{m.dataVersion=nextVersion;});
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head}),/approved outside/);
-  assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head,approvedManifestSha:changed.manifestSha256})).approval.dataVersion,2);
-  const rollback=await rewriteManifest(candidate,async m=>{m.dataVersion=1;m.files=Object.fromEntries(Object.entries(m.files).reverse());});
+  assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head,approvedManifestSha:changed.manifestSha256})).approval.dataVersion,nextVersion);
+  const rollback=await rewriteManifest(candidate,async m=>{m.dataVersion=currentVersion;m.files=Object.fromEntries(Object.entries(m.files).reverse());});
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head,approvedManifestSha:rollback.manifestSha256}),/must increase/);
   await fs.unlink(path.join(base,'.github/public-data-approval.json'));
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
@@ -85,13 +86,14 @@ test('public Actions checkout excludes originals and uses protected-base policy;
 });
 test('a 2027 public-history update requires a coherent new package and external approval, while stale history binding is rejected',async()=>{
  const base=await temp(),candidate=await temp(),head='b'.repeat(40);try{await copyPublic(base);await copyPublic(candidate);
+  const nextVersion=JSON.parse(await fs.readFile(path.join(base,'public-data/manifest.json'))).dataVersion+1;
   const file=path.join(candidate,'public-data/data/history.json'),history=JSON.parse(await fs.readFile(file,'utf8'));
   history.results.push([2027,history.people[0].i,'Morothon','20 km','DNF','DNF',0,'','','']);
   const bytes=Buffer.from(JSON.stringify(history));await fs.writeFile(file,bytes);
-  const stale=await rewriteManifest(candidate,async m=>{m.dataVersion=2;m.files['data/history.json']={sha256:sha256(bytes),bytes:bytes.length};});
+  const stale=await rewriteManifest(candidate,async m=>{m.dataVersion=nextVersion;m.files['data/history.json']={sha256:sha256(bytes),bytes:bytes.length};});
   await assert.rejects(()=>readApprovedPackage(path.join(candidate,'public-data'),{approval:stale,assetsRoot:candidate}),/Mismatched public history/);
   const fresh=await rewriteManifest(candidate,async m=>{m.historySha256=sha256(bytes);});
   await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head}),/approved outside/);
-  const verified=await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head,approvedManifestSha:fresh.manifestSha256});assert.equal(verified.approval.dataVersion,2);assert.equal(verified.approval.historySha256,sha256(bytes));
+  const verified=await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head,reviewedHeadSha:head,approvedManifestSha:fresh.manifestSha256});assert.equal(verified.approval.dataVersion,nextVersion);assert.equal(verified.approval.historySha256,sha256(bytes));
  }finally{await fs.rm(base,{recursive:true,force:true});await fs.rm(candidate,{recursive:true,force:true});}
 });
