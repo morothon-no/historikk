@@ -1,5 +1,16 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {mergeVolunteers}=require('../../js/honors-data.js');
+// PR #43 corrected four result rows (six fields). Historical honor snapshots
+// retain their original references; undo only those exact approved rows in
+// memory. The public historical-corrections suite locks the current values
+// and the SHA-256 of the entire reconstructed previous history independently.
+function beforeApprovedResultCorrections(bytes){
+ const {changes,previousHistory}=require('../public/quick/fixtures/historical-corrections.js');
+ previousHistory(JSON.parse(bytes)); // Enforce all four complete after-row guards.
+ let text=bytes.toString('utf8');
+ for(const change of changes){const from=JSON.stringify(change.after);require('node:assert/strict').equal(text.split(from).length,2,'Expected exactly one approved row encoding');text=text.replace(from,JSON.stringify(change.before));}
+ return Buffer.from(text); // Preserve every other byte, including whitespace.
+}
 // A2 deliberately changes result logic inside index.html, not its markup/CSS.
 // Keep historical presentation checks; status/identity/participation contracts
 // are covered by data-quality.cjs and the existing behavioural regressions.
@@ -8,6 +19,8 @@ function assertPreservedPresentation(actual,expected,file){
  if(file==='index.html'){
   const presentation=bytes=>bytes.toString().replace(/<script>const initialCalendarLimit=[\s\S]*?<\/script>/,'<script>RESULT-LOGIC</script>');
   assert.deepEqual(presentation(actual),presentation(expected),file+' presentation');
+ }else if(file==='data/history.json'&&!Buffer.from(actual).equals(Buffer.from(expected))){
+  assert.deepEqual(beforeApprovedResultCorrections(actual),expected,file+' with only PR #43 result corrections reversed');
  }else assert.deepEqual(actual,expected,file);
 }
 // Historical snapshot checks undo only the four organizer-approved corrections.
@@ -35,6 +48,7 @@ function expectedPrintMode(data,id){
 }
 async function preservedFile(root,file){
  const bytes=await fs.readFile(path.join(root,file));
+ if(file==='data/history.json')return beforeApprovedResultCorrections(bytes);
  if(file==='data/volunteers.json'){
   const data=JSON.parse(bytes),core=JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8'));
   for(const old of core.revisionHistory?.[0]?.volunteers||[]){const index=data.people.findIndex(p=>p.id===old.id);data.people[index]=old;}
@@ -83,4 +97,4 @@ function ordinaryDiplomaCode(s){return s.replace(/  async function serviceConten
  .replace(",'.diploma-service-collection'",'').replace('.map(selector=>doc.querySelector(selector)).filter(Boolean)','.map(selector=>doc.querySelector(selector))')
  .replace('serviceExample, serviceProof, checkServiceDraft, printServiceDraft,','serviceExample,');}
 function visibleMembers(data){return data.groups.flatMap(g=>g.members).filter(m=>require('../../js/honors-data.js').isVisibleOnHonorPage(data,m.id));}
-module.exports={assertPreservedPresentation,visibleMembers,readHonors,historicalMember,assertOrdinaryDiplomaCss,ordinaryDiplomaCode,beforeFinalCorrections,priorCorrectionMember,expectedPrintMode,preservedFile};
+module.exports={beforeApprovedResultCorrections,assertPreservedPresentation,visibleMembers,readHonors,historicalMember,assertOrdinaryDiplomaCss,ordinaryDiplomaCode,beforeFinalCorrections,priorCorrectionMember,expectedPrintMode,preservedFile};

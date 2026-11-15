@@ -23,7 +23,7 @@ test('PR18 documented volunteer years are exact, never padded into future editio
  for(const id of ['oscar-lohne','erling-askildsen']){assert.equal(H.contribution(person(id)).count,35);assert.equal(H.mainBadge(data,person(id),years).badgeId,'service-aeresmerke');}
  // Use a merged-main baseline so this remains valid after squash/deleting the PR branch.
  // The existing V3.5 preservation tests also cover all original assets and historical facts.
- for(const file of ['data/history.json','data/event-dates.json'])assert.deepEqual(await fs.readFile(path.join(root,file)),execFileSync('git',['show',baseline+':'+file],{cwd:root}),file);
+ for(const file of ['data/history.json','data/event-dates.json'])assert.deepEqual(await require('./helpers/honors.cjs').preservedFile(root,file),execFileSync('git',['show',baseline+':'+file],{cwd:root}),file);
  assert.deepEqual(data.diplomaApprovals,[]);
 });
 
