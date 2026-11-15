@@ -19,13 +19,13 @@ const positive=[
  ['Alvinka Nordvik','Alvinkaa Nordvikk','weak']
 ];
 test('C2.2a full token roles retain exact names, middle names, initials, plausible spelling, surname additions and careful Norwegian variants',()=>{
- for(const [a,b,strength]of positive){const left=C.compareNames(a,b),right=C.compareNames(b,a);assert.ok(left,'Expected synthetic name variant');assert.equal(left.strength,strength);assert.deepEqual(right,left);assert.equal(identities(history([a,b])).length,1);assert.match(left.reason,/kontrolleres/);}
+ for(const [a,b,strength]of positive){const left=C.compareNames(a,b),right=C.compareNames(b,a);assert.ok(left,'Expected synthetic name variant');assert.equal(left.strength,strength);assert.deepEqual(right,left);assert.equal(identities(history([a,b])).length,strength==='weak'?0:1);assert.match(left.reason,/kontrolleres/);}
 });
 test('C2.2a same given name, unrelated surnames, substrings and shared short tokens never create automatic identity suggestions',()=>{
  for(const names of [['Alvinka Nordvik','Alvinka Bjerkedal'],['Alvinka Nord','Alvinka Nordvik'],['Testa Li Nordvik','Testa Li Fjordberg'],['Alvinka De','Alvinka De Bjerkedal'],['Ola Nordvik','Ole Nordvik'],['Alvinka Petra Nordvik','Alvinka Astrid Nordvik'],['Alvinka A A Nordvik','Alvinka Arne Nordvik']]){assert.equal(C.compareNames(...names),null);assert.equal(identities(history(names)).length,0);}
 });
-test('C2.2a nearby, separated or overlapping participation years never establish or exclude identity',()=>{
- for(const years of [[2020,2021],[2020,2026],[2020,2020],[2026,2020]]){assert.equal(identities(history(['Alvinka Nordvik','Alvinka Bjerkedal'],years)).length,0);assert.equal(identities(history(['Alvinka Nordvik','Alvinka Petra Nordvik'],years)).length,1);}
+test('C2.2b years alone never establish identity; different finish times in the same edition/course suppress automatic proposals',()=>{
+ for(const years of [[2020,2021],[2020,2026],[2020,2020],[2026,2020]]){assert.equal(identities(history(['Alvinka Nordvik','Alvinka Bjerkedal'],years)).length,0);assert.equal(identities(history(['Alvinka Nordvik','Alvinka Petra Nordvik'],years)).length,years[0]===years[1]?0:1);}
 });
 test('C2.2a aliases and prior redirects support a strong signal across different surnames without changing IDs, aliases or results',()=>{
  const h=history(['Alvinka Nordvik','Alvinka Bjerkedal']);h.aliases[h.people[0].i]=['Alvinka Bjerkedal'];const before=JSON.stringify(h),list=identities(h);assert.equal(list.length,1);assert.equal(list[0].strength,'strong');assert.equal(list[0].category,'Navn eller alias');assert.equal(JSON.stringify(h),before);

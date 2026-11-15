@@ -19,6 +19,9 @@ cases[]:
   id, category, personIds[], description, source, createdAt
   status: reported | review | proposed | handoff | rejected
   reason
+  registration (valgfritt): null eller {selector, before}
+    selector: {index, rowSha256, historySha256}
+    before: eksakt originalrad som feilmeldingen gjelder
   change: null eller:
     kind: merge | person | alias | result | add | remove | reverse
     personIds[]
@@ -39,6 +42,13 @@ hele kilderaden. Navn+år er ikke en gyldig velger. Interne opprinnelige indekse
 bevares ved simulerte fjerninger, slik at senere handlinger ikke treffer en annen
 rad etter et indeksforskyvning. Alle forventede førverdier kontrolleres.
 
+Valgfritt `registration` (C2.2b) bevarer originalregistreringen i en innmeldt
+feil også før en retting foreslås. Struktur og historikkreferanse valideres ved
+lesing; kandidatkontrollen verifiserer eksakt rad, indeks og SHA-256 mot
+originalhistorikken, også for saker uten aktiv retting. Motstridende referanser
+kan ikke overskrives ved gjentatt import. Eldre pakker uten feltet virker fortsatt;
+eldre klienter som ikke kjenner feltet avviser pakken i stedet for å tape data.
+
 - `merge`: eksakte to kanoniske personposter, alias-/redirectkart og dokumentert
   resultattilhørighet før endring. Etter inneholder bare det forventede redirect-
   og aliaskartet. Personposter eller starter slettes ikke.
@@ -58,6 +68,14 @@ rad etter et indeksforskyvning. Alle forventede førverdier kontrolleres.
 
 `binding`, `empty`, `report`, `updateNotes`, `propose`, `transition`, `serialize`, `parse`,
 `importPackage`, `discover`, `resultSelector`, `applyCandidate`, `consequences`.
+
+C2.2b har i tillegg `caseType`, `worklist` og `carryDecisions`.
+`carryDecisions` erstatter ikke den strenge versjonssperren i `importPackage`:
+den kopierer bare tidligere avvisninger med samme personpar og registrerte
+identitetsgrunnlag, som separate arbeidsnotater. Aktive endringer,
+resultatvelgere og godkjenninger overføres ikke. Øvrige saker telles som
+utelatt fra denne overføringen og må beholdes i originalfilen. UI krever en
+særskilt bekreftelse. Se [C2.2b](../c22b-enkel-personkontroll.md).
 
 `parse` validerer bare syntaks/kontrakt; den gjør ingen godkjenning. UI bruker
 `importPackage`, som avviser konflikt/foreldet base og nedgraderer importert

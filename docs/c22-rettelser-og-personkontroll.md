@@ -1,5 +1,8 @@
 # C2.2 – Rettelser og personkontroll
 
+> Gjeldende arbeidsliste og beslutningsregler er beskrevet i
+> [C2.2b – Forenklet personkontroll](c22b-enkel-personkontroll.md).
+
 Utgangspunkt: `main` etter PR #40 (`cf9a05d`). Modulen finnes under
 **Rettelser og personkontroll** i administrasjonsportalen, på `admin/#rettelser`.
 Den fungerer med godkjent offentlig datapakke både på Pages og i den lokale

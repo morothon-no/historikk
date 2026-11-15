@@ -1,5 +1,9 @@
 # C2.2a – Mer presise identitetsforslag
 
+> [C2.2b](c22b-enkel-personkontroll.md) avgrenser arbeidslisten videre.
+> Navnesammenligningen gjenbrukes, men svake signaler og navnepar med
+> ulike fullførte tider i samme år/øvelse blir ikke automatiske saker.
+
 Utgangspunkt: `main` etter PR #41, commit `753dd8a`. Endringen gjelder
 identitetsforslag og arbeidslisten i «Rettelser og personkontroll».
 
