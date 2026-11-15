@@ -337,19 +337,110 @@
   for(const c of p.cases){if(!(c.status==='handoff'||preview&&c.status==='proposed'))continue;await apply(c);applied.set(c.id,c);journal.push({caseId:c.id,kind:c.change.kind,source:c.source,reason:c.reason,reverses:c.change.reverses});}
   return {history:data,journal,productionApplied:false};
  }
+ // Names are compared by role and complete tokens. Years never create identity evidence.
+ const identityCategories=new Set(['Navn eller alias','Mulige duplikater','Navnevariant','Mulig navnevariant','Mulig navneendring']);
+ function nameParts(value){return String(value??'').normalize('NFKC').toLocaleLowerCase('nb-NO').replace(/[‐‑‒–—-]/g,' ').replace(/’/g,"'").match(/[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*/gu)||[];}
+ function oneNameEdit(a,b){
+  if(Math.min(a.length,b.length)<5||Math.abs(a.length-b.length)>1)return false;
+  if(a.length===b.length){let k=0;while(k<a.length&&a[k]===b[k])k++;if(k+1<a.length&&a[k]===b[k+1]&&a[k+1]===b[k]&&a.slice(k+2)===b.slice(k+2))return true;}
+  let i=0,j=0,differences=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue;}if(++differences>1)return false;if(a.length>=b.length)i++;if(b.length>=a.length)j++;}
+  if(differences+(i<a.length||j<b.length?1:0)<=1)return true;return false;
+ }
+ function tokenRelation(a,b){
+  if(a===b)return 'exact';
+  if(a.length===1&&b.length>=3&&a===b[0]||b.length===1&&a.length>=3&&b===a[0])return 'initial';
+  // Preserve ø/æ/å. Only explicit Norwegian transliterations are alternatives;
+  // variants remain review signals, never identity confirmations.
+  const norwegian=v=>v.replace(/aa/g,'å').replace(/ae/g,'æ').replace(/oe/g,'ø');
+  if(Math.min(a.length,b.length)>=2&&Math.max(a.length,b.length)>=3&&norwegian(a)===norwegian(b))return 'variant';
+  return oneNameEdit(a,b)?'typo':null;
+ }
+ function middleRelation(a,b){
+  const short=a.length<=b.length?a:b,long=a.length<=b.length?b:a;
+  let position=0,initial=false,typo=false;const used=new Set(),initialLetters=new Set();
+  for(const token of short){let match=null;while(position<long.length){const r=tokenRelation(token,long[position++]);if(r&&(!typo||!['typo','variant'].includes(r))){match=r;break;}}if(!match)return null;used.add(position-1);if(match==='initial')initialLetters.add(token[0]);initial ||= match==='initial';typo ||= ['typo','variant'].includes(match);}
+  if(initial&&long.some((token,i)=>!used.has(i)&&token.length===1&&initialLetters.has(token)))return null;
+  return {extra:short.length!==long.length,initial,typo};
+ }
+ function compareNames(left,right){return compareNameParts(nameParts(left),nameParts(right));}
+ function compareNameParts(a,b){
+  if(a.length<2||b.length<2)return null;
+  const signal=(category,strength,reason)=>({category,strength,reason:reason+' Det kan være forskjellige personer; identiteten må kontrolleres.'});
+  if(same(a,b))return signal('Mulige duplikater','strong','Identisk normalisert fullt navn på ulike kanoniske profiler.');
+  const given=tokenRelation(a[0],b[0]),family=tokenRelation(a.at(-1),b.at(-1));
+  if(given&&family){
+   const middle=middleRelation(a.slice(1,-1),b.slice(1,-1));if(!middle)return null;
+   if(given==='exact'&&family==='exact'&&Math.min(a[0].length,a.at(-1).length)>=2&&a[0].length+a.at(-1).length>=7){
+    if(middle.typo)return signal('Mulig navnevariant','moderate','Samme fornavn og etternavn; ett mellomnavn har en liten skrive- eller tegnvariant.');
+    if(middle.initial)return signal('Navnevariant','moderate','Samme fornavn og etternavn; mellomnavn og initial samsvarer i riktig rekkefølge.');
+    if(middle.extra)return signal('Navnevariant','moderate','Samme fornavn og etternavn; øvrige navneledd samsvarer, med ekstra eller manglende mellomnavn.');
+   }
+   if(given==='exact'&&family==='initial'||given==='initial'&&family==='initial')return null; // An abbreviated surname is insufficient.
+   if(given==='initial'&&family==='exact'&&Math.min(a.at(-1).length,b.at(-1).length)>=5&&!middle.typo)return signal('Mulig navnevariant','weak','Samme fulle etternavn og samsvarende fornavnsinitial; eventuelle mellomnavn er forenlige.');
+   const exactAnchor=given==='exact'&&a[0].length>=3||family==='exact'&&a.at(-1).length>=4;
+   const differences=[given,family].filter(v=>v!=='exact');
+   if(exactAnchor&&differences.length===1&&['typo','variant'].includes(differences[0]))return signal('Mulig navnevariant',middle.typo||middle.extra||middle.initial?'weak':'moderate',given==='exact'?'Samme fornavn; etternavnet har én liten skrivevariant, og mellomnavnene er forenlige.':'Samme etternavn; fornavnet har én liten skrivevariant, og mellomnavnene er forenlige.');
+   if(['typo','variant'].includes(given)&&['typo','variant'].includes(family)&&Math.min(a[0].length,b[0].length,a.at(-1).length,b.at(-1).length)>=5&&!middle.extra&&!middle.initial&&!middle.typo)return signal('Mulig navnevariant','weak','Betydelig likhet i både fornavn og etternavn: hvert har ett lite avvik; mellomnavnene samsvarer.');
+  }
+  // A complete surname may be followed by another surname: never a substring.
+  const short=a.length<b.length?a:b,long=a.length<b.length?b:a,particles=new Set(['van','von','de','del','den','der','da','di','la','le','af','av','al','el','bin','ibn']);
+  if(short.length<long.length&&short[0]===long[0]&&short[0].length>=3&&short.at(-1).length>=4&&!particles.has(short.at(-1))&&short.every((v,i)=>v===long[i]))return signal('Navnevariant','moderate','Hele navnet samsvarer ledd for ledd; ett eller flere fulle etternavnsledd er lagt til.');
+  return null;
+ }
+ function suggestionKey(s){return JSON.stringify(identityCategories.has(s.category)?['identity',[...s.personIds].sort()]:[s.category,[...s.personIds].sort(),s.resultIndexes||[],s.source||'']);}
+ async function reviewSuggestions(suggestions,p){
+  validatePackage(p);
+  const pair=ids=>JSON.stringify([...ids].sort());
+  return Promise.all(suggestions.map(async s=>{
+   const origin='suggestion-'+await hash(suggestionKey(s));
+   let cases=p.cases.filter(c=>c.events.some(e=>e.action===origin));
+   if(!cases.length)cases=p.cases.filter(c=>{
+    if(pair(c.personIds)!==pair(s.personIds))return false;
+    if(identityCategories.has(s.category)&&c.change?.kind==='merge')return true;
+    if(c.events.some(e=>/^suggestion-[a-f0-9]{64}$/.test(e.action)))return false;
+    if(identityCategories.has(s.category))return identityCategories.has(c.category)||c.change?.kind==='merge';
+    if(c.category!==s.category)return false;
+    if(c.change?.selector)return s.resultIndexes?.includes(c.change.selector.index);
+    return c.description===s.reason&&c.source===s.source;
+   });
+   // Preserve an explicitly open case if older packages contain multiple cases.
+   const bucket=c=>c.status==='rejected'||c.status==='handoff'?'finished':c.status==='reported'&&!c.events.some(e=>e.action==='note-updated')?'pending':'followup';
+   cases.sort((a,b)=>['pending','followup','finished'].indexOf(bucket(a))-['pending','followup','finished'].indexOf(bucket(b)));
+   const c=cases[0];return {...s,origin,caseId:c?.id||null,caseStatus:c?.status||null,bucket:c?bucket(c):'pending'};
+  }));
+ }
+ async function openSuggestion(p,s,caseId){
+  const [review]=await reviewSuggestions([s],p);if(review.caseId)return {package:clone(p),caseId:review.caseId,reused:true};
+  const next=report(p,{id:caseId,category:s.category,personIds:s.personIds,description:s.reason,source:s.source||''});
+  next.cases.at(-1).events.push({at:now(),action:review.origin,reason:'Åpnet fra et kontrollforslag. Forslagsreferansen inneholder ingen navn.'});
+  validatePackage(next);return {package:next,caseId,reused:false};
+ }
+
  function discover(history,{intake=null}={}){
   const H=rules(),model=H.create(history),people=[...model.people.values()],found=[],seen=new Set();
   function add(category,personIds,reason,strength='moderate',resultIndexes=[],source=''){const key=JSON.stringify([category,[...personIds].sort(),resultIndexes,reason]);if(seen.has(key))return;seen.add(key);found.push({id:'suggestion-'+(found.length+1),category,personIds,reason,strength,resultIndexes,source});}
-  const knownNames=new Map();for(const p of history.people){const canonical=model.resolve(p.i);if(!knownNames.has(Intake.normal(p.n)))knownNames.set(Intake.normal(p.n),new Set());knownNames.get(Intake.normal(p.n)).add(canonical);}for(const [id,names]of Object.entries(history.aliases||{}))for(const name of names){const key=Intake.normal(name);if(!knownNames.has(key))knownNames.set(key,new Set());knownNames.get(key).add(model.resolve(id));}for(const matches of knownNames.values()){const ids=[...matches];for(let a=0;a<ids.length;a++)for(let b=a+1;b<ids.length;b++)add('Navn eller alias',[ids[a],ids[b]],'Et registrert navn eller godkjent historisk alias finnes på ulike kanoniske profiler. Kontroller identiteten.','moderate');}
-  const ctx={names:people.map(p=>({p,n:Intake.fold(p.n),tokens:Intake.fold(p.n).split(' ')}))};
-  for(let i=0;i<ctx.names.length;i++)for(let j=i+1;j<ctx.names.length;j++){
-   const a=ctx.names[i],b=ctx.names[j];if(a.tokens[0]!==b.tokens[0]&&a.tokens.at(-1)!==b.tokens.at(-1))continue;
-   if(a.n===b.n)add('Mulige duplikater',[a.p.i,b.p.i],'Identiske navn på to profiler. Det kan være ulike personer. Kontroller resultatene.','strong');
-   else if(Intake.fold(a.p.n).includes(b.n)||b.n.includes(a.n))add('Navnevariant',[a.p.i,b.p.i],'Lignende navn eller initialer. Krever identitetskontroll.');
-   else {
-    if(Intake.weak(a.p.n,b.p.n)||Intake.weak(b.p.n,a.p.n))add('Mulig navnevariant',[a.p.i,b.p.i],'Navnevarianten gjenkjennes av den eksisterende personkontrollen. Kontroller historikken før kobling.');
-    else if(a.tokens[0]===b.tokens[0]&&a.tokens.length>=2&&b.tokens.length>=2){const ay=H.participationYears(model.resultsFor(a.p.i)),by=H.participationYears(model.resultsFor(b.p.i));if(ay.length&&by.length&&!ay.some(y=>by.includes(y))&&Math.min(Math.abs(ay.at(-1)-by[0]),Math.abs(by.at(-1)-ay[0]))<=2)add('Mulig navneendring',[a.p.i,b.p.i],'Samme fornavn og nærliggende, adskilte perioder. Nytt etternavn er bare en svak mulighet.','weak');}
+  const namesById=new Map(people.map(p=>[p.i,new Set([p.n])])),parts=new Map(),indexById=new Map(people.map((p,i)=>[p.i,i]));
+  const split=name=>{if(!parts.has(name))parts.set(name,nameParts(name));return parts.get(name);};
+  for(const p of history.people)namesById.get(model.resolve(p.i))?.add(p.n);
+  for(const [id,names]of Object.entries(history.aliases||{}))for(const name of names)namesById.get(model.resolve(id))?.add(name);
+  const exactNames=new Map();for(const [id,names]of namesById)for(const name of names){const tokens=split(name),key=JSON.stringify(tokens);if(tokens.length<2)continue;if(!exactNames.has(key))exactNames.set(key,new Set());exactNames.get(key).add(id);}
+  const documented=new Set(),candidatePairs=new Set(),pairKey=(i,j)=>i<j?i+':'+j:j+':'+i;
+  for(const matches of exactNames.values()){const ids=[...matches];for(let a=0;a<ids.length;a++)for(let b=a+1;b<ids.length;b++){const key=pairKey(indexById.get(ids[a]),indexById.get(ids[b]));documented.add(key);candidatePairs.add(key);}}
+  // Compare each given-name pair once, then only eligible profile pairs.
+  // This is an index, not relaxed matching: compareNameParts is still decisive.
+  const givenNames=new Map();for(let i=0;i<people.length;i++){const tokens=split(people[i].n);if(tokens.length<2)continue;const given=tokens[0];if(!givenNames.has(given))givenNames.set(given,[]);givenNames.get(given).push(i);}
+  const groups=[...givenNames];for(let a=0;a<groups.length;a++)for(let b=a;b<groups.length;b++){
+   if(!tokenRelation(groups[a][0],groups[b][0]))continue;
+   for(const i of groups[a][1])for(const j of groups[b][1])if(i!==j)candidatePairs.add(pairKey(i,j));
+  }
+  const ordered=[...candidatePairs].map(key=>key.split(':').map(Number)).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  for(const [i,j]of ordered){
+   const a=people[i],b=people[j],aParts=split(a.n),bParts=split(b.n);
+   if(documented.has(pairKey(i,j))){
+    const match=same(aParts,bParts)?compareNameParts(aParts,bParts):{category:'Navn eller alias',strength:'strong',reason:'Et fullt registrert navn, godkjent alias eller en tidligere godkjent ID-kobling samsvarer på tvers av kanoniske profiler. Kontroller identiteten.'};
+    if(match)add(match.category,[a.i,b.i],match.reason,match.strength);continue;
    }
+   const match=compareNameParts(aParts,bParts);if(match)add(match.category,[a.i,b.i],match.reason,match.strength);
   }
   const byResult=new Map();for(const [index,row]of history.results.entries()){const signature=JSON.stringify([row[0],...row.slice(2)]);if(!byResult.has(signature))byResult.set(signature,[]);byResult.get(signature).push({index,row});}
   for(const list of byResult.values())if(list.length>1)add('Mulig dobbeltresultat',[...new Set(list.map(r=>model.resolve(r.row[1])))].slice(0,2),'Like kildeverdier på flere resultatrader. Bevar starter til kilden er kontrollert.','strong',list.map(r=>r.index));
@@ -382,5 +473,5 @@
   const errors=rules().validate(all.history).errors;
   return {caseId,baseHash:base.snapshotSha256,packageFingerprint:fingerprint(p),changeHash:JSON.stringify(c.change),ready:!uncertain.length&&!errors.length,changes,uncertain:[...new Set(uncertain)],errors,candidate:all.history,journal:all.journal,productionApplied:false};
  }
- return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,discover,consequences};
+ return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
 });
