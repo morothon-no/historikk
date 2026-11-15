@@ -1,5 +1,9 @@
 # C2.3a – Resultatimport og automatisk avstemming
 
+> Dette dokumenterer C2.3a-grunnlaget. Gjeldende automatisk arbeidsflyt,
+> fleksible felt og kombinerte øvelser er beskrevet i
+> [C2.3b – fleksibel resultatimport](c23b-fleksibel-resultatimport.md).
+
 Utgangspunkt er `main` etter PR #43 (`93ad1b1`). De historiske rettelsene og
 offentlig datarevisjon 2 beholdes. Dette er en lokal kontrollfunksjon i den
 eksisterende adminportalen, ikke en produksjonsimport eller ny Adelskalender.

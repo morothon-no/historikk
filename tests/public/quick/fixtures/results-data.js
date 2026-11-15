@@ -23,4 +23,15 @@ function csv(data=history(),rows=data.results.filter(r=>r[0]===2026)){
 }
 function corrected(){const h=history();h.results[0][2]='Morothon';h.results[0][3]='20 km';h.results[0][5]='2:07:14';h.results[1][5]='1:08:51';return h;}
 const meta={dataVersion:2,manifestSha256:'a'.repeat(64),historySha256:'b'.repeat(64)};
-module.exports={ids,history,csv,corrected,meta};
+// Only the listed column names/positions reproduce the observed screenshot.
+// Unknown columns and all values here are deliberately synthetic, not an EQ export specification.
+function scenario454({combined=true,result=true}={}){
+ const people=[],results=[],table=[['Rank','Syntetisk felt B','Firstname','Surname','Gender','Syntetisk felt F','Club','Race','Class',...(result?['Result']:[])]];
+ for(let i=0;i<454;i++){
+  const suffix=String.fromCharCode(65+Math.floor(i/26))+String.fromCharCode(65+i%26),id='MOR-SYN'+String(i).padStart(4,'0'),first='Syntetisk Test',last='Eksempel'+suffix,event=i%2?'Morothon':'Kortmoro',distance=i%2?'20 km':'10 km',time=i%2?'2:10:00':'50:00',token=i===1?'DNS':i===2?'DNF':i===3?'DQ':time,status=token==='DQ'?'Disket':['DNS','DNF'].includes(token)?token:'Fullført';
+  people.push({i:id,n:first+' '+last,g:'Herre'});results.push([2026,id,event,distance,status,token,status==='Fullført'?i+1:'','Herrer','Syntetisk klubb',String(i+1)]);
+  table.push([status==='Fullført'?i+1:'',String(i+1),first,last,'M','Syntetisk verdi','Syntetisk klubb',(i%2?'Langmoro':'Kortmoro')+(combined?' '+distance:''),'Herrer',...(result?[token]:[])]);
+ }
+ return {history:{schemaVersion:1,people,results,yearStats:[[2026,0,0,0,0,0,0,0,0,0]],aliases:{},redirects:{}},text:table.map(r=>r.join(';')).join('\n')};
+}
+module.exports={ids,history,csv,corrected,meta,scenario454};
