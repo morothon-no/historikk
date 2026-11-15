@@ -210,5 +210,177 @@
   else throw Error('Ukjent rapporttype.');
   const escape=v=>{let s=String(v??'');if(/^[\s\u0000-\u001f]*[=+\-@]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};const records=rows.length?rows.map(r=>['Data',...prefix,...r]):[['Rapportmetadata – ingen datarader',...prefix,...headers.map(()=> '')]];return '\uFEFF'+[common.concat(headers),...records].map(r=>r.map(escape).join(';')).join('\r\n')+'\r\n';
  }
- return {MAX_BYTES,MAX_ROWS,fields,decode,parse,parseCsv,parseXml,detectMapping,rows,createContext,assignDistances,carryDistances,analyze,compare,carryDecisions,csvReport,normal,fold,identity,signature};
+ return {MAX_BYTES,MAX_ROWS,fields,decode,parse,parseCsv,parseXml,detectMapping,rows,createContext,assignDistances,carryDistances,analyze,compare,carryDecisions,csvReport,normal,fold,identity,signature,weak};
+});
+
+/* C2.2 portable correction proposals. This is not an issuer or production writer.
+   Included in the existing approved intake bundle; no new publication surface. */
+(function (factory) {
+ if (typeof module==='object'&&module.exports) module.exports.Corrections=factory(require('../../js/history-data.js'),module.exports);
+ else window.MorothonCorrections=factory(window.MorothonHistoryData,window.MorothonIntake);
+})(function (initialRules,Intake) {
+ 'use strict';
+ const FORMAT='morothon-corrections-v1',MAX_BYTES=2*1024*1024,MAX_CASES=500;
+ const statuses=['reported','review','proposed','handoff','rejected'];
+ const labels={reported:'Meldt inn',review:'Til vurdering',proposed:'Foreslått retting',handoff:'Godkjent for overlevering',rejected:'Avvist'};
+ const kinds=['merge','person','alias','result','add','remove','reverse'];
+ const clone=v=>JSON.parse(JSON.stringify(v)),same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+ const rules=()=>initialRules||globalThis.MorothonHistoryData;
+ const id=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(v)&&!['__proto__','constructor','prototype'].includes(v);
+ function keys(v,names,at){if(!v||Array.isArray(v)||typeof v!=='object'||Object.keys(v).sort().join('|')!==names.slice().sort().join('|'))throw Error('Ukjente eller manglende felt: '+at);}
+ function text(v,at,max=2000,empty=false){if(typeof v!=='string'||v.length>max||!empty&&!v.trim()||/[<>\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v))throw Error('Ugyldig tekst: '+at);}
+ function safeTree(v,depth=0){if(depth>16)throw Error('For dyp rettingspakke.');if(typeof v==='string')text(v,'innhold',20000,true);else if(v&&typeof v==='object'){if(Array.isArray(v)&&v.length>50000)throw Error('For mange verdier.');for(const k of Object.keys(v)){if(['__proto__','constructor','prototype'].includes(k))throw Error('Utrygt feltnavn.');safeTree(v[k],depth+1);}}else if(v!==null&&!['number','boolean'].includes(typeof v)||typeof v==='number'&&!Number.isFinite(v))throw Error('Ugyldig verdi.');}
+ const now=()=>new Date().toISOString();
+ const hash=async v=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(typeof v==='string'?v:JSON.stringify(v))))].map(b=>b.toString(16).padStart(2,'0')).join('');
+ function validateBinding(b){keys(b,['dataVersion','manifestSha256','historySha256','snapshotSha256'],'datagrunnlag');if(!Number.isSafeInteger(b.dataVersion)||b.dataVersion<1||['manifestSha256','historySha256','snapshotSha256'].some(k=>!/^[a-f0-9]{64}$/.test(b[k])))throw Error('Ugyldig dataversjon eller kildehash.');}
+ async function binding(history,meta){rules().assertValid(history);const b={dataVersion:meta.dataVersion,manifestSha256:meta.manifestSha256,historySha256:meta.historySha256,snapshotSha256:await hash(history)};validateBinding(b);return b;}
+ function empty(base){validateBinding(base);return {format:FORMAT,version:1,base:clone(base),cases:[]};}
+ function selectorValid(s){keys(s,['index','rowSha256','historySha256'],'resultatvalg');if(!Number.isSafeInteger(s.index)||s.index<0||!/^([a-f0-9]{64})$/.test(s.rowSha256)||!/^([a-f0-9]{64})$/.test(s.historySha256))throw Error('Velg ett entydig resultat.');}
+ function validateChange(c){
+  keys(c,['kind','personIds','selector','before','after','reverses'],'retting');if(!kinds.includes(c.kind)||!Array.isArray(c.personIds)||c.personIds.length<1||c.personIds.length>2||c.personIds.some(v=>!id(v))||new Set(c.personIds).size!==c.personIds.length)throw Error('Ugyldig retting eller personvalg.');
+  if(c.selector!==null)selectorValid(c.selector);
+  if(['person','alias','add','remove'].includes(c.kind)&&c.personIds.length!==1)throw Error('Rettelsen krever én entydig person.');
+  if(['result','remove'].includes(c.kind)&&!c.selector||['merge','person','alias','add','reverse'].includes(c.kind)&&c.selector!==null)throw Error('Resultatvelgeren passer ikke til rettingen.');
+  if(c.kind==='reverse'){if(!id(c.reverses)||c.before!==null||c.after!==null)throw Error('Reversering krever opprinnelig sak.');}else if(c.reverses!==null)throw Error('Uventet reverseringsreferanse.');
+  if(c.kind==='result'&&(!Array.isArray(c.before)||!Array.isArray(c.after))||c.kind==='add'&&(c.before!==null||!Array.isArray(c.after))||c.kind==='remove'&&(!Array.isArray(c.before)||c.after!==null))throw Error('Ugyldige resultatverdier.');
+  if(c.kind==='alias'&&(!Array.isArray(c.before)||!Array.isArray(c.after)||c.after.some(v=>typeof v!=='string'||!v.trim()||v.length>200)))throw Error('Ugyldige historiske aliaser.');
+  if(c.kind==='person'){keys(c.before,['person','aliases'],'person før');keys(c.after,['person','aliases'],'person etter');if(!Array.isArray(c.before.aliases)||!Array.isArray(c.after.aliases))throw Error('Ugyldig personretting.');}
+  if(c.kind==='merge'){keys(c.before,['people','redirects','aliases','ownership'],'sammenslåing før');keys(c.after,['redirects','aliases'],'sammenslåing etter');if(c.personIds.length!==2||!Array.isArray(c.before.people)||c.before.people.length!==2||!Array.isArray(c.before.ownership))throw Error('Sammenslåingen mangler rekonstruerbart grunnlag.');}
+ }
+ function validatePackage(p){
+  keys(p,['format','version','base','cases'],'pakke');if(p.format!==FORMAT||p.version!==1)throw Error('Ukjent rettingsformat eller versjon.');validateBinding(p.base);
+  if(!Array.isArray(p.cases)||p.cases.length>MAX_CASES)throw Error('Maksimalt 500 saker.');safeTree(p);const seen=new Set();
+  for(const c of p.cases){keys(c,['id','category','personIds','description','source','createdAt','status','reason','change','events'],'sak');if(!id(c.id)||seen.has(c.id))throw Error('Duplikat eller ugyldig saks-ID.');seen.add(c.id);text(c.category,'kategori',80);text(c.description,'beskrivelse');text(c.source,'kildereferanse',1500,true);text(c.reason,'begrunnelse',2000,true);if(!Array.isArray(c.personIds)||c.personIds.length>2||c.personIds.some(v=>!id(v)))throw Error('Ugyldige berørte personer.');if(!statuses.includes(c.status)||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(c.createdAt)||!Number.isFinite(Date.parse(c.createdAt)))throw Error('Ugyldig saksstatus eller tidspunkt.');
+   if(c.change){validateChange(c.change);if(!same(c.personIds,c.change.personIds))throw Error('Sak og retting gjelder ulike personer.');}
+   if(['proposed','handoff'].includes(c.status)&&(!c.change||!c.source.trim()||!c.reason.trim()))throw Error('Rettelsen trenger kilde og begrunnelse.');
+   if(!Array.isArray(c.events)||c.events.length>500)throw Error('Ugyldig revisjonshistorikk.');for(const e of c.events){keys(e,['at','action','reason'],'hendelse');text(e.action,'hendelse',80);text(e.reason,'hendelsesgrunn',2000,true);if(!Number.isFinite(Date.parse(e.at)))throw Error('Ugyldig hendelsestid.');}
+  }return p;
+ }
+ function serialize(p){validatePackage(p);const s=JSON.stringify(p,null,2)+'\n';if(new TextEncoder().encode(s).length>MAX_BYTES)throw Error('Rettingspakken overstiger 2 MB.');return s;}
+ function parse(s){if(typeof s!=='string'||new TextEncoder().encode(s).length>MAX_BYTES)throw Error('Velg en rettingspakke på maksimalt 2 MB.');let p;try{p=JSON.parse(s);}catch{throw Error('Rettingsfilen er ikke gyldig JSON.');}return clone(validatePackage(p));}
+ function importPackage(current,incoming){
+  validatePackage(current);validatePackage(incoming);if(!same(current.base,incoming.base))throw Error('Pakken gjelder en annen dataversjon eller kildehash.');
+  const next=clone(current);let added=0,duplicates=0;
+  for(const original of incoming.cases){const existing=next.cases.find(c=>c.id===original.id);if(existing){const comparable=c=>({id:c.id,category:c.category,personIds:c.personIds,description:c.description,source:c.source,createdAt:c.createdAt,reason:c.reason,change:c.change});if(!same(comparable(existing),comparable(original)))throw Error('Konflikt i saks-ID '+original.id+'. Ingen saker ble overskrevet.');duplicates++;continue;}
+   const c=clone(original);if(c.status==='handoff')c.status='proposed';c.events.push({at:now(),action:'imported-untrusted',reason:'Import er et arbeidsgrunnlag. Ingen autentisert godkjenning eller publisering er overtatt.'});next.cases.push(c);added++;
+  }if(added)invalidateHandoffs(next);validatePackage(next);return {package:next,added,duplicates};
+ }
+ function report(p,{id:caseId,category='Manuell sak',personIds=[],description,source=''}){
+  const next=clone(p);if(next.cases.some(c=>c.id===caseId))throw Error('Saks-ID finnes allerede.');next.cases.push({id:caseId,category,personIds:[...personIds],description,source,createdAt:now(),status:'reported',reason:'',change:null,events:[{at:now(),action:'reported',reason:'Lokalt registrert; ikke sendt eller publisert.'}]});validatePackage(next);return next;
+ }
+ const fingerprint=p=>JSON.stringify(p.cases.map(c=>[c.id,c.change,c.source,c.reason,['proposed','handoff'].includes(c.status)]));
+ function invalidateHandoffs(p){for(const c of p.cases)if(c.status==='handoff'){c.status='proposed';c.events.push({at:now(),action:'handoff-invalidated',reason:'Rettingsgrunnlaget er endret. Ny konsekvenskontroll kreves.'});}}
+ function updateNotes(p,caseId,{description,source,reason}){const next=clone(p),c=next.cases.find(c=>c.id===caseId);if(!c)throw Error('Saken finnes ikke.');invalidateHandoffs(next);c.description=description;c.source=source;c.reason=reason;c.events.push({at:now(),action:'note-updated',reason:'Lokalt saksgrunnlag oppdatert. Ingen offentlig innsending.'});validatePackage(next);return next;}
+ function transition(p,caseId,status,reason,impact){
+  const next=clone(p),c=next.cases.find(c=>c.id===caseId);if(!c||!statuses.includes(status))throw Error('Ugyldig sak eller status.');text(reason,'beslutningsgrunn',2000);
+  if(['proposed','handoff'].includes(status)&&!c.change)throw Error('Definer en retting først.');
+  if(status==='handoff'&&(!impact||impact.ready!==true||impact.caseId!==c.id||impact.changeHash!==JSON.stringify(c.change)||impact.baseHash!==p.base.snapshotSha256||impact.packageFingerprint!==fingerprint(p)||impact.uncertain?.length||impact.errors?.length))throw Error('Beregn og avklar konsekvensene for dette forslaget først.');
+  if(['proposed','handoff'].includes(c.status)&&!['proposed','handoff'].includes(status))invalidateHandoffs(next);
+  c.status=status;c.reason=reason;c.events.push({at:now(),action:status,reason});validatePackage(next);return next;
+ }
+ async function resultSelector(history,index,base){if(!Number.isSafeInteger(index)||!history.results[index])throw Error('Velg et registrert resultat.');return {index,rowSha256:await hash(history.results[index]),historySha256:base.historySha256};}
+ async function propose(history,p,caseId,{kind,personIds,selector=null,after=null,source,reason,reverses=null}){
+  validatePackage(p);const model=rules().create(history);let before=null;
+  if(kind==='merge'){
+   const [from,to]=personIds;if(from===to||model.resolve(from)!==from||model.resolve(to)!==to||!model.person(from)||!model.person(to))throw Error('Velg to ulike kanoniske profiler.');
+   before={people:personIds.map(id=>clone(model.person(id))),redirects:clone(history.redirects||{}),aliases:clone(history.aliases||{}),ownership:history.results.map((row,index)=>({index,row})).filter(({row})=>personIds.includes(model.resolve(row[1])))};
+   const aliases=clone(history.aliases||{});aliases[to]=[...new Set([...(aliases[to]||[]),model.person(from).n,...Object.entries(aliases).filter(([id])=>model.resolve(id)===from).flatMap(([,names])=>names)])];
+   after={redirects:{...history.redirects,[from]:to},aliases};
+  }else if(kind==='alias'){before=clone(history.aliases?.[personIds[0]]||[]);}
+  else if(kind==='person'){before={person:clone(model.person(personIds[0])),aliases:clone(history.aliases?.[personIds[0]]||[])};after={person:{...before.person,...after},aliases:[...new Set([...before.aliases,...(after.n&&after.n!==before.person.n?[before.person.n]:[])])]};}
+  else if(['result','remove'].includes(kind)){if(!selector)throw Error('Velg ett entydig resultat.');before=clone(history.results[selector.index]);personIds=[...new Set([model.resolve(before[1]),...(after?[model.resolve(after[1])]:[])])];}
+  else if(kind==='reverse'){if(!p.cases.some(c=>c.id===reverses&&c.change&&c.status!=='rejected'))throw Error('Opprinnelig forslag mangler.');}
+  const change={kind,personIds,selector,before,after,reverses};validateChange(change);
+  const next=clone(p),c=next.cases.find(c=>c.id===caseId);if(!c)throw Error('Saken finnes ikke.');if(c.status==='handoff')throw Error('Trekk tilbake overleveringen før forslaget endres.');
+  invalidateHandoffs(next);c.personIds=[...personIds];c.change=clone(change);c.source=source;c.reason=reason;c.status='proposed';c.events.push({at:now(),action:'proposed',reason});validatePackage(next);return next;
+ }
+ async function applyCandidate(history,p,base,{preview=false}={}){
+  validatePackage(p);validateBinding(base);if(!same(p.base,base)||await hash(history)!==base.snapshotSha256)throw Error('Foreldet dataversjon, kildehash eller grunnlag.');
+  const H=rules(),data=clone(history),rows=data.results.map((row,index)=>({index,row})),journal=[],applied=new Map();
+  function mergeCompatible(c){const [from,to]=c.personIds,model=H.create(data),a=model.person(from),b=model.person(to);if(!a||!b||model.resolve(from)!==from||model.resolve(to)!==to||a.g&&b.g&&a.g!==b.g)throw Error('Motstridende eller endret identitet stopper sammenslåing.');
+   const left=model.resultsFor(from),right=model.resultsFor(to);if(left.some(x=>right.some(y=>x[0]===y[0]&&x[2]===y[2]&&x[3]===y[3])))throw Error('Overlapp i samme år, konkurranse og distanse må avklares før sammenslåing. Ingen starter er slettet.');
+  }
+  async function apply(c,reverse=false){
+   const ch=c.change,kind=ch.kind;if(kind==='reverse'){if(reverse)throw Error('En reversering kan ikke reversere en reversering.');const original=applied.get(ch.reverses)||p.cases.find(x=>x.id===ch.reverses&&x.change&&x.change.kind!=='reverse');if(!original)throw Error('Reversering mangler en rekonstruerbar originalhandling.');if(!same(ch.personIds,original.change.personIds))throw Error('Reverseringen gjelder andre personer enn originalhandlingen.');if(!applied.has(ch.reverses))await apply(original);await apply(original,true);applied.delete(ch.reverses);return;}
+   const before=reverse?ch.after:ch.before,after=reverse?ch.before:ch.after;
+   if(kind==='merge'){
+    const model=H.create(data),[from,to]=ch.personIds;
+    if(!reverse)mergeCompatible(ch);
+    if(!same(data.redirects?.[from]??null,before.redirects[from]??null)||ch.personIds.some(id=>!same(data.aliases?.[id]||[],before.aliases[id]||[]))||reverse&&(model.resolve(from)!==to||model.resolve(to)!==to))throw Error('Forventede identitetsverdier er endret.');
+    const originalPeople=ch.before.people;if(!same(ch.personIds.map(id=>data.people.find(p=>p.i===id)),originalPeople))throw Error('Forventede personverdier er endret.');
+    const ownership=rows.filter(({row})=>row&&ch.personIds.includes(H.resolveId(row[1],ch.before.redirects)));
+    if(!same(ownership,ch.before.ownership))throw Error('Opprinnelig resultattilhørighet kan ikke rekonstrueres uten gjetting.');
+    const expectedAliases=clone(ch.before.aliases);expectedAliases[to]=[...new Set([...(expectedAliases[to]||[]),originalPeople[0].n,...Object.entries(expectedAliases).filter(([id])=>H.resolveId(id,ch.before.redirects)===from).flatMap(([,names])=>names)])];
+    if(!same(ch.after.redirects,{...ch.before.redirects,[from]:to})||!same(ch.after.aliases,expectedAliases))throw Error('Sammenslåingen inneholder andre identitetsendringer.');
+    data.redirects=data.redirects||{};data.aliases=data.aliases||{};if(Object.hasOwn(after.redirects,from))data.redirects[from]=after.redirects[from];else delete data.redirects[from];if(Object.hasOwn(after.aliases,to))data.aliases[to]=clone(after.aliases[to]);else delete data.aliases[to];
+   }else if(kind==='alias'){
+    const personId=ch.personIds[0];if(!H.create(data).person(personId)||!same(data.aliases?.[personId]||[],before))throw Error('Forventede aliaser er endret.');data.aliases=data.aliases||{};if(after.length)data.aliases[personId]=clone(after);else delete data.aliases[personId];
+   }else if(kind==='person'){
+    const index=data.people.findIndex(p=>p.i===ch.personIds[0]),old=before.person,next=after.person;
+    if(index<0||!same(data.people[index],old)||!same(data.aliases?.[old.i]||[],before.aliases)||old.i!==next.i||Object.keys(next).sort().join('|')!==Object.keys(old).sort().join('|')||Object.keys(old).some(k=>!['n','g'].includes(k)&&!same(old[k],next[k])))throw Error('Forventet person eller tillatte navne-/kjønnsfelt stemmer ikke.');
+    const expectedAliases=[...new Set([...ch.before.aliases,...(ch.after.person.n!==ch.before.person.n?[ch.before.person.n]:[])])];if(!same(ch.after.aliases,expectedAliases))throw Error('Tidligere navn må bevares.');
+    text(next.n,'hovednavn',200);if(!['Herre','Dame',''].includes(next.g))throw Error('Ugyldig kjønn.');data.people[index]=clone(next);data.aliases=data.aliases||{};if(after.aliases.length)data.aliases[old.i]=clone(after.aliases);else delete data.aliases[old.i];
+   }else if(kind==='add'){
+    if(reverse){const found=rows.findIndex(r=>r.addedBy===c.id);if(found<0||!same(rows[found].row,ch.after))throw Error('Tillegget kan ikke reverseres trygt.');rows.splice(found,1);}else{if(rows.some(r=>same(r.row,ch.after)))throw Error('Resultatet finnes allerede.');rows.push({index:null,row:clone(ch.after),addedBy:c.id});}
+   }else{
+    if(ch.selector.historySha256!==base.historySha256||await hash(ch.before)!==ch.selector.rowSha256)throw Error('Resultatvelgerens kildehash stemmer ikke.');
+    const matches=rows.filter(r=>r.index===ch.selector.index);if(matches.length!==1)throw Error('Resultatet er ikke entydig tilgjengelig.');const slot=matches[0];
+    if(kind==='remove'){
+     if(reverse){if(slot.row!==null)throw Error('Resultatet kan ikke gjenopprettes trygt.');slot.row=clone(ch.before);}else{if(!same(slot.row,ch.before))throw Error('Resultatets førverdier er endret.');slot.row=null;}
+    }else{if(!same(slot.row,before))throw Error('Resultatets førverdier er endret.');slot.row=clone(after);}
+   }
+   data.results=rows.filter(r=>r.row!==null).map(r=>r.row);H.assertValid(data);
+   if(['add','result'].includes(kind)&&!reverse){const r=ch.after;if(r.length!==10||![2,3,4,5,7,8,9].every(i=>typeof r[i]==='string'&&r[i].length<=200)||!(r[6]===null||Number.isInteger(r[6])&&r[6]>0||['','DNF','DNS','Disket','DQ'].includes(r[6])))throw Error('Ugyldige resultatfelt eller kildeplassering.');}
+   if(['add','result'].includes(kind)&&!reverse&&!data.yearStats.some(r=>r[0]===ch.after[0]))throw Error('Resultatåret finnes ikke i arrangementsregisteret.');
+   if(['add','result'].includes(kind)&&!reverse&&!ch.personIds.includes(H.resolveId(ch.after[1],data.redirects||{})))throw Error('Resultatet tilhører ikke sakens valgte person.');
+  }
+  for(const c of p.cases){if(!(c.status==='handoff'||preview&&c.status==='proposed'))continue;await apply(c);applied.set(c.id,c);journal.push({caseId:c.id,kind:c.change.kind,source:c.source,reason:c.reason,reverses:c.change.reverses});}
+  return {history:data,journal,productionApplied:false};
+ }
+ function discover(history,{intake=null}={}){
+  const H=rules(),model=H.create(history),people=[...model.people.values()],found=[],seen=new Set();
+  function add(category,personIds,reason,strength='moderate',resultIndexes=[],source=''){const key=JSON.stringify([category,[...personIds].sort(),resultIndexes,reason]);if(seen.has(key))return;seen.add(key);found.push({id:'suggestion-'+(found.length+1),category,personIds,reason,strength,resultIndexes,source});}
+  const knownNames=new Map();for(const p of history.people){const canonical=model.resolve(p.i);if(!knownNames.has(Intake.normal(p.n)))knownNames.set(Intake.normal(p.n),new Set());knownNames.get(Intake.normal(p.n)).add(canonical);}for(const [id,names]of Object.entries(history.aliases||{}))for(const name of names){const key=Intake.normal(name);if(!knownNames.has(key))knownNames.set(key,new Set());knownNames.get(key).add(model.resolve(id));}for(const matches of knownNames.values()){const ids=[...matches];for(let a=0;a<ids.length;a++)for(let b=a+1;b<ids.length;b++)add('Navn eller alias',[ids[a],ids[b]],'Et registrert navn eller godkjent historisk alias finnes på ulike kanoniske profiler. Kontroller identiteten.','moderate');}
+  const ctx={names:people.map(p=>({p,n:Intake.fold(p.n),tokens:Intake.fold(p.n).split(' ')}))};
+  for(let i=0;i<ctx.names.length;i++)for(let j=i+1;j<ctx.names.length;j++){
+   const a=ctx.names[i],b=ctx.names[j];if(a.tokens[0]!==b.tokens[0]&&a.tokens.at(-1)!==b.tokens.at(-1))continue;
+   if(a.n===b.n)add('Mulige duplikater',[a.p.i,b.p.i],'Identiske navn på to profiler. Det kan være ulike personer. Kontroller resultatene.','strong');
+   else if(Intake.fold(a.p.n).includes(b.n)||b.n.includes(a.n))add('Navnevariant',[a.p.i,b.p.i],'Lignende navn eller initialer. Krever identitetskontroll.');
+   else {
+    if(Intake.weak(a.p.n,b.p.n)||Intake.weak(b.p.n,a.p.n))add('Mulig navnevariant',[a.p.i,b.p.i],'Navnevarianten gjenkjennes av den eksisterende personkontrollen. Kontroller historikken før kobling.');
+    else if(a.tokens[0]===b.tokens[0]&&a.tokens.length>=2&&b.tokens.length>=2){const ay=H.participationYears(model.resultsFor(a.p.i)),by=H.participationYears(model.resultsFor(b.p.i));if(ay.length&&by.length&&!ay.some(y=>by.includes(y))&&Math.min(Math.abs(ay.at(-1)-by[0]),Math.abs(by.at(-1)-ay[0]))<=2)add('Mulig navneendring',[a.p.i,b.p.i],'Samme fornavn og nærliggende, adskilte perioder. Nytt etternavn er bare en svak mulighet.','weak');}
+   }
+  }
+  const byResult=new Map();for(const [index,row]of history.results.entries()){const signature=JSON.stringify([row[0],...row.slice(2)]);if(!byResult.has(signature))byResult.set(signature,[]);byResult.get(signature).push({index,row});}
+  for(const list of byResult.values())if(list.length>1)add('Mulig dobbeltresultat',[...new Set(list.map(r=>model.resolve(r.row[1])))].slice(0,2),'Like kildeverdier på flere resultatrader. Bevar starter til kilden er kontrollert.','strong',list.map(r=>r.index));
+  for(const [index,r]of history.results.entries()){
+   const p=model.person(r[1]),klass=String(r[7]||'');if(H.isJuniorRace(r)&&(/^[KM]\d/.test(klass))&&p&&((klass.startsWith('K')&&p.g==='Herre')||(klass.startsWith('M')&&p.g==='Dame')))add('Kjønn og klasse',[p.i],'Juniorklasse og registrert kjønn er motstridende.','strong',[index]);
+   if(H.isCompletedResult(r)&&H.timeSeconds(r[5])===null)add('Tid til kontroll',p?[p.i]:[],'Fullført resultat uten entydig gyldig tid. Ikke gjett historisk tid.','moderate',[index]);
+  }
+  const report=H.validate(history);for(const warning of report.warnings){const index=Number(warning.at.match(/results\[(\d+)\]/)?.[1]);if(Number.isInteger(index)&&history.results[index])add('Datakvalitet',[model.resolve(history.results[index][1])],warning.code+' – eksisterende kildeforbehold, ikke automatisk feil.','moderate',[index]);}
+  if(intake)for(const c of intake.reviewCases||[]){const ids=[...new Set(c.rowIds.flatMap(id=>intake.rows.find(r=>r.id===id)?.match.candidates.map(p=>p.id)||[]))].slice(0,2);const rowNames=c.rowIds.map(id=>intake.rows.find(r=>r.id===id)).filter(Boolean).map(r=>(r.line?'rad '+r.line+' · ':'')+(r.name||'Uavklart person')).join(' / ');add('Startlistekontroll',ids,'Startliste '+(intake.year||'')+' · '+rowNames+': '+c.message,'moderate',[],'Startliste '+(intake.year||'')+' · SHA-256 '+(intake.meta?.sourceSha256||'må kontrolleres')+' · '+c.rowIds.join(', '));}
+  return found;
+ }
+ async function consequences(history,p,caseId,base,project,{linkedRunnerIds=[]}={}){
+  const c=p.cases.find(c=>c.id===caseId);if(!c?.change)throw Error('Definer et konkret rettingsforslag først.');
+  const all=await applyCandidate(history,p,base,{preview:true}),beforePackage=clone(p);beforePackage.cases=beforePackage.cases.filter(x=>x.id!==caseId&&!(x.change?.kind==='reverse'&&x.change.reverses===caseId));
+  const before=await applyCandidate(history,beforePackage,base,{preview:true});
+  const beforeView=await project(before.history),afterView=await project(all.history),changes=[];
+  for(const key of ['people','annual','records','placements','rankings','diplomas','loyalty','redirects','aliases']){if(!(key in beforeView)||!(key in afterView))throw Error('Konsekvensmotoren mangler '+key);changes.push({area:key,status:same(beforeView[key],afterView[key])?'unchanged':'changed',before:beforeView[key],after:afterView[key]});}
+  const affected=new Set(c.change.personIds),uncertain=[];
+  if(c.change.kind==='merge')for(const id of affected)if(linkedRunnerIds.includes(id))uncertain.push('Sammenslåingen berører en Heder-kobling. Privat kilde og Heder-diplomgrunnlag må gjennomgås av autorisert forvalter.');
+  for(const id of new Set([...Object.keys(beforeView.people),...Object.keys(afterView.people)]))if((!same(beforeView.people[id],afterView.people[id])||!same(beforeView.diplomas[id],afterView.diplomas[id])||!same(beforeView.loyalty[id],afterView.loyalty[id]))&&linkedRunnerIds.includes(id))uncertain.push('Endret løpsgrunnlag for Heder-profil '+id+' krever kontroll av hederstekst og diplomgodkjenning.');
+
+  // Source positions are historical evidence. Changed calculated order does not rewrite them.
+  const place=changes.find(x=>x.area==='placements');if(place.status==='changed'){
+   const key=r=>JSON.stringify([r.personId,r.year,r.event,r.distance,r.className,r.bib]),beforeRanks=new Map(beforeView.placements.map(r=>[key(r),r]));for(const r of afterView.placements){const old=beforeRanks.get(key(r));if(old&&old.rank!==r.rank&&!affected.has(r.personId)&&r.sourcePlace!==r.rank)uncertain.push('Andre løperes kildeplasseringer avviker fra ny beregning. Kontroller og foreslå kildebaserte rettelser før overlevering.');}
+  }
+  const candidateModel=rules().create(all.history);
+  for(const row of all.history.results)if(rules().isJuniorRace(row)&&/^[KM]\d/.test(row[7]||'')&&c.change.personIds.includes(row[1])){const g=candidateModel.person(row[1])?.g;if(row[7].startsWith('K')&&g==='Herre'||row[7].startsWith('M')&&g==='Dame')uncertain.push('Juniorklasse og kjønn må avklares før overlevering.');}
+  if(c.change.kind==='remove'&&history.results.filter(r=>same(r,c.change.before)).length<2)uncertain.push('Raden er ikke en identisk dobbeltregistrering. Ytterligere kildekontroll er nødvendig før overlevering.');
+  if(['person','alias'].includes(c.change.kind))for(const id of c.change.personIds){const canonical=candidateModel.resolve(id),p=candidateModel.person(id);if(!p)continue;const names=[p.n,...Object.entries(all.history.aliases||{}).filter(([key])=>candidateModel.resolve(key)===canonical).flatMap(([,a])=>a)].map(Intake.normal);for(const other of candidateModel.people.values())if(other.i!==canonical&&names.includes(Intake.normal(other.n)))uncertain.push('Navn eller alias treffer en annen eksisterende profil. Identiteten må avklares.');}
+  const errors=rules().validate(all.history).errors;
+  return {caseId,baseHash:base.snapshotSha256,packageFingerprint:fingerprint(p),changeHash:JSON.stringify(c.change),ready:!uncertain.length&&!errors.length,changes,uncertain:[...new Set(uncertain)],errors,candidate:all.history,journal:all.journal,productionApplied:false};
+ }
+ return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,discover,consequences};
 });

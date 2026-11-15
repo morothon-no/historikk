@@ -92,3 +92,21 @@
   }
   window.C1 = { catalog, prepare, check };
 })();
+
+/* Candidate projections use the real public engines in a dedicated, disposable
+   browser frame. No file, approval or public-page state is modified. */
+window.C2Project = async function (input) {
+  const data = JSON.parse(JSON.stringify(input));
+  MorothonHistoryData.assertValid(data);
+  S.data=data;S.people=data.people;S.results=data.results;S.stats=data.yearStats;
+  S.firstYear=Math.min(...S.stats.map(r=>r[0]));S.lastYear=Math.max(...S.stats.map(r=>r[0]));
+  const sourceModel=MorothonHistoryData.create(data);for(const p of data.people)if(!sourceModel.stats(p.i))p.c=0;
+  buildIndexes();
+  // Run the existing Adelskalender renderer, including its tie/minimum rules.
+  document.querySelector('#rankSearch').value='';document.querySelector('#rankGender').value='';document.querySelector('#rankMin').value='0';S.rankLimit=Number.MAX_SAFE_INTEGER;rank();
+  const rankings={};for(const tr of document.querySelectorAll('#rankBody tr')){const match=tr.querySelector('button')?.getAttribute('onclick')?.match(/openProfile\('([^']+)'\)/);if(match)rankings[match[1]]=Number(tr.querySelector('td').textContent);}
+  const shared=MorothonHistoryData.create(data),people={},loyaltyView={},diplomas={};
+  for(const p of S.people){const stats=shared.stats(p.i),years=startedYears(p);people[p.i]={name:p.n,gender:p.g,count:years.length,years,badges:PARTICIPATION_BADGES.filter(b=>years.length>=b.n).map(b=>({id:'badge-'+b.n,year:years[b.n-1]})),best:(stats?.best||[]).map(g=>({event:g.event,km:g.km,period:g.period,time:g.time,year:g.year}))};loyaltyView[p.i]=MorothonLoyalty.calculate(resultsFor(p.i),S.stats.map(r=>r[0]));diplomas[p.i]=MorothonDiplomas.choices(p.i).map(c=>MorothonDiplomas.model(p.i,c.key));}
+  const annual={};for(const [year] of S.stats){const m=MorothonMilestones.calculate(year);annual[year]={participants:m.participants.map(p=>p.i),debutants:m.debutants.map(p=>p.i),badges:m.badges.map(g=>({id:'badge-'+g.badge.n,people:g.people.map(p=>p.i)}))};}
+  return {annual,people,loyalty:loyaltyView,diplomas,rankings,records:calculateCourseRecords(S.results),placements:S.results.map((r,index)=>({index,personId:shared.resolve(r[1]),year:r[0],event:r[2],distance:r[3],className:r[7]||'',bib:r[9]||'',rank:shared.classPlaces.get(r)??null,sourcePlace:MorothonHistoryData.sourcePlace(r),time:r[5]})),redirects:data.redirects||{},aliases:data.aliases||{}};
+};

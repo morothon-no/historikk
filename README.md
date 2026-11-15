@@ -77,10 +77,19 @@ ikke. Minimumsformatene er syntetisk testet; reelle EQ-eksporter må kontrollere
 Se [bruk, støttede formater og begrensninger](docs/c21-startliste-import.md) og
 [datakontrakt](docs/contracts/startlist-v1.md).
 
+## Rettelser og personkontroll (C2.2)
+
+Sammenlign løperprofiler, undersøk mulige feil og klargjør kildebaserte rettinger
+med før/etter-visning og konsekvensanalyse. Arbeidet kan lastes ned og åpnes som
+en lokal rettingspakke. Ingen historikk endres eller publiseres fra nettleseren.
+Se [arbeidsflyt og avgrensninger](docs/c22-rettelser-og-personkontroll.md) og
+[korrigeringskontrakten](docs/contracts/corrections-v1.md).
+
 ## Lokal administrasjonsportal (C1.1)
 
 Start med `npm run admin`. Portalen samler Oversikt, Deltakere, Merker og det
-operative diplomverkstedet. Import og Premier er plassholdere for neste fase.
+operative diplomverkstedet. Årets arrangement og Rettelser videreutvikler
+arbeidsflaten; Premier er fortsatt en plassholder.
 Kun lokal utvikling på `127.0.0.1`, uten innlogging eller offentlig drift.
 Se [oppstart, modulstruktur og sikkerhetsavgrensning](docs/c11-adminportal.md).
 
