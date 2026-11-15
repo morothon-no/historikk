@@ -15,11 +15,16 @@ kontrollsignaler med tre nivåer: sterke signaler, moderate signaler og svake
 muligheter. Ingen prosentvis «sikkerhet» eller automatisk sammenslåing.
 
 Analysen finner blant annet identiske navn på ulike profiler, små navnevarianter,
-initialer, mulige etternavnsendringer i adskilte perioder, navn/alias på flere
+initialer, ekstra eller manglende navneledd, navn/alias på flere
 kanoniske profiler, like resultatregistreringer, klasse-/kjønnskonflikter og
 historiske datakvalitetsforbehold. Godkjente redirects og aliaser respekteres.
 Navn alene er aldri identitetsbevis. Ikke alle avvik er feil; en historisk
 kildeplassering kan for eksempel gjelde en annen gruppe enn dagens beregning.
+
+[C2.2a](c22a-personmatching.md) strammer inn navnesignalene. Samme fornavn og
+nærliggende deltakelsesår gir ikke lenger forslag. **Oppdater – vis ubehandlede**
+går tilbake til arbeidslisten; saker til oppfølging og ferdig gjennomgåtte saker
+bevares i egne utvalg og under **Behandle saker**.
 
 Søk og filtrering reduserer utvalget. Forslag vises med sideinndeling. **Ta med
 årets startlistekontroller** tar med konflikter fra en tilgjengelig C2.1/C2.1a-
