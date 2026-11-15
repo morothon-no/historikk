@@ -484,22 +484,125 @@
 })(function(I,C,initialRules){
  'use strict';
  const fields={name:'Navn',firstName:'Fornavn',lastName:'Etternavn',bib:'Startnummer',athleteId:'Ekstern utøver-ID',runnerId:'Morothon-ID (valgfritt)',year:'Arrangementsår/dato',event:'Øvelse',distance:'Eksakt distanse',className:'Klasse',gender:'Kjønn',club:'Klubb',time:'Sluttid',status:'Resultatstatus',place:'Kildeplassering'};
- const labels={unchanged:'Uendret',changed:'Endret resultat',new:'Ny person eller registrering',missing:'Mangler i ny eksport',uncertain:'Usikker identitet',conflict:'Konflikt',relay:'Stafett – separat'};
+ const labels={unchanged:'Uendret',changed:'Endret resultat',new:'Ny registrering',missing:'Mangler i ny kilde',uncertain:'Mulig personkonflikt',conflict:'Person-/kildekonflikt',unassessable:'Kan ikke vurderes med tilgjengelige data',relay:'Stafett – separat'};
  const columns={event:2,distance:3,status:4,time:5,place:6,className:7,club:8,bib:9};
- const aliases={event:['ovelse','event','race','competition','course','lop'],distance:['distanse','distance','km','length'],time:['tid','time','sluttid','finishtime','resulttime','elapsedtime','resultat'],status:['status','resultstatus','resultatstatus','sluttstatus'],place:['plass','place','rank','position','plassering','kildeplassering']};
+ const aliases={
+  name:['navn','name','fullname','participant','participantname','deltaker','deltakernavn','personnavn','athletename','competitor'],
+  firstName:['fornavn','firstname','givenname','given'],lastName:['etternavn','lastname','surname','familyname','family'],
+  event:['ovelse','event','race','competition','course','lop','contest'],distance:['distanse','distance','km','kilometer','length','distancekm','distansekm','distancem','meters','meter'],
+  time:['tid','time','sluttid','finishtime','finish','resulttime','elapsedtime','elapsed','resultat','result','nettime','duration'],
+  status:['status','resultstatus','resultatstatus','sluttstatus','state'],place:['plass','place','rank','position','plassering','kildeplassering','overallrank'],
+  bib:['startnummer','startnr','bib','bibnumber','startno','number'],athleteId:['athleteid','eqid','eqtimingid','utoverid','personid','participantid'],
+  runnerId:['morothonid','morid','canonicalid'],year:['ar','year','eventyear','raceyear','arrangementsar','eventdate','lopsar'],
+  className:['klasse','class','classname','category'],gender:['kjonn','gender','sex'],club:['klubb','club','team','organisation','organization']
+ };
  const clone=v=>JSON.parse(JSON.stringify(v)),same=(a,b)=>JSON.stringify(a)===JSON.stringify(b),H=()=>initialRules||globalThis.MorothonHistoryData;
  const clean=v=>String(v??'').trim(),header=v=>I.fold(v).replace(/[^a-z0-9]/g,''),validHash=v=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
- function parse(text,{delimiter}={}){
+ // Adapters produce this bounded header/cell table; field interpretation and
+ // reconciliation do not depend on the exporting timing service.
+ const adapters=[{id:'delimited-text-v1',format:'csv-results-v1',read:(text,options)=>I.parseCsv(text,options.delimiter)}];
+ function parse(text,{delimiter,adapter='delimited-text-v1'}={}){
   if(typeof text!=='string'||new TextEncoder().encode(text).length>I.MAX_BYTES)throw Error('Resultatfilen må være tekst på maksimalt 4 MB.');
-  if(text.trimStart().startsWith('<'))throw Error('Resultatimport støtter CSV/TSV, ikke startliste-XML. Eksporter endelige resultater som CSV.');
-  const staged=I.parseCsv(text,delimiter),base=staged.mapping,mapping={};
-  for(const key of Object.keys(fields)){
-   if(aliases[key]){const hits=staged.headers.flatMap((v,i)=>aliases[key].includes(header(v))?[i]:[]);mapping[key]=hits.length===1?hits[0]:-1;}
-   else mapping[key]=base[key]??-1;
-  }
-  return {...staged,kind:'result-staging',format:'csv-results-v1',mapping};
+  if(text.trimStart().startsWith('<'))throw Error('Resultatimport støtter CSV/TSV. XML og XLSX krever en egen importadapter.');
+  const reader=adapters.find(a=>a.id===adapter);if(!reader)throw Error('Filformatet er ikke støttet ennå. Velg CSV eller TSV.');
+  const table=reader.read(text,{delimiter}),staged={...table,kind:'result-staging',format:reader.format,adapter:reader.id};
+  const detection=detectFields(staged);return {...staged,mapping:detection.mapping,detection};
  }
- function importedRows(context,staged,mapping,year){
+ const resultToken=value=>H().effectiveStatus([0,'','','',clean(value),'']);
+ const hasResult=value=>H().timeSeconds(clean(value))!==null||['DNS','DNF','Disket','Fullført','Deltatt'].includes(resultToken(value));
+ function distanceValue(value,unit){
+  const text=clean(value);if(/-\s*\d/.test(text))return null;
+  if([...text.matchAll(/\d+(?:[.,]\d+)?\s*(?:km|kilometers?|kilometres?|kilometer|meters?|metres?|m)\b/gi)].length>1)return null;
+  const matches=[...text.matchAll(/(?:^|\s|\()(\d+(?:[.,]\d+)?)\s*(km|kilometers?|kilometres?|kilometer|m|meters?|metres?)(?=\s|$|[)·])/gi)];
+  if(matches.length===1){const m=matches[0],km=Number(m[1].replace(',','.'))*(/^m/i.test(m[2])?.001:1);return km>0&&km<=1000?{km,label:km+' km',name:clean(text.replace(m[0],' ').replace(/[()·]/g,' ')).replace(/^[:–—-]+\s*|\s*[:–—-]+$/g,'')}:null;}
+  if(matches.length)return null;
+  if(unit&&/^\d+(?:[.,]\d+)?$/.test(text)){const km=Number(text.replace(',','.'))*(unit==='m'?.001:1);return km>0&&km<=1000?{km,label:km+' km',name:''}:null;}return null;
+ }
+ function detectFields(staged){
+  const mapping=Object.fromEntries(Object.keys(fields).map(k=>[k,-1])),candidates={},evidence={};
+  for(const key of Object.keys(fields)){
+   candidates[key]=staged.headers.flatMap((v,index)=>aliases[key].includes(header(v))?[index]:[]);
+   if(candidates[key].length===1){mapping[key]=candidates[key][0];evidence[key]='header';}
+  }
+  const occupied=new Set(Object.values(mapping).filter(i=>i>=0));
+  // Content is corroboration. Unknown numeric/rank columns and clock/start-time
+  // columns must never be promoted to finish results just because they contain numbers.
+  if(!candidates.time.length&&!candidates.status.length){
+   const inferred=staged.headers.flatMap((v,index)=>{
+    if(occupied.has(index)||/start|birth|fod|split|lap|runde|mellom|passering|clock|gun/i.test(header(v)))return [];
+    const values=staged.records.map(r=>clean(r.cells[index])).filter(Boolean);
+    return values.length&&values.every(hasResult)?[index]:[];
+   });
+   candidates.time=inferred;if(inferred.length)evidence.time='suggested-content';
+  }
+  if(mapping.event<0&&mapping.distance<0){
+   const inferred=staged.headers.flatMap((v,index)=>{if(occupied.has(index))return [];const values=staged.records.map(r=>clean(r.cells[index])).filter(Boolean);return values.length&&values.every(v=>distanceValue(v))?[index]:[];});
+   if(inferred.length){candidates.distance=inferred;if(inferred.length===1){mapping.distance=inferred[0];evidence.distance='content';}}
+  }
+  return {mapping,candidates,evidence};
+ }
+ function annualCourses(context,year){
+  const courses=[];
+  for(const r of context.model.data.results)if(r[0]===year&&!H().isRelayRace(r)){
+   const distance=distanceValue(r[3]);if(distance&&!courses.some(c=>c.event===r[2]&&c.distance===distance.label)){
+    const names=[r[2],...(context.competitions.filter(c=>c.event===r[2]).map(c=>c.label.split(' · ')[0]))];
+    courses.push({event:r[2],distance:distance.label,km:distance.km,names:[...new Set(names)],year});
+   }
+  }return courses;
+ }
+ function inspect(context,staged,year,{mapping=staged.mapping,profileChoices={},manual=false}={}){
+  if(staged.kind!=='result-staging'||staged.format!=='csv-results-v1')throw Error('Velg en CSV/TSV-resultatfil, ikke en startliste.');
+  if(!Number.isInteger(year)||year<1900||year>9999)throw Error('Velg et gyldig arrangementsår.');
+  for(const key of Object.keys(fields))if(!Number.isInteger(mapping[key])||mapping[key]<-1||mapping[key]>=staged.headers.length)throw Error('Ugyldig kolonnekobling: '+fields[key]);
+  const used=Object.values(mapping).filter(i=>i>=0);if(new Set(used).size!==used.length)throw Error('Samme kolonne kan ikke brukes til flere resultatfelt.');
+  const detection=detectFields(staged),issues=[],choices=[],groups=new Map(),courses=annualCourses(context,year);
+  for(const key of Object.keys(fields))if(!manual&&mapping[key]<0&&(detection.candidates[key].length>1||detection.evidence[key]==='suggested-content'))choices.push({key,label:'Hvilken kolonne inneholder '+fields[key].toLowerCase()+'?',options:detection.candidates[key].map(index=>({value:String(index),label:staged.headers[index],example:staged.records.slice(0,3).map(r=>r.cells[index]).join(' · ')}))});
+  if(mapping.name<0&&(mapping.firstName<0||mapping.lastName<0)){
+   issues.push('Vi finner ikke deltakernavn. Velg Navn, eller Fornavn og Etternavn, under Avanserte valg.');
+   if(!choices.some(c=>['name','firstName','lastName'].includes(c.key))){const options=staged.headers.flatMap((label,index)=>{const values=staged.records.map(r=>clean(r.cells[index])).filter(Boolean);return !used.includes(index)&&values.length&&values.every(v=>/^[\p{L}][\p{L}\s.'’–-]{1,199}$/u.test(v))?[{value:String(index),label,example:values.slice(0,3).join(' · ')}]:[];});if(options.length)choices.push({key:'name',label:'Hvilken kolonne inneholder hele deltakernavnet?',options});}
+  }
+  if(mapping.time<0&&mapping.status<0)issues.push('Vi finner ikke sluttid eller gyldig resultatstatus. Velg riktig resultatkolonne, eller last opp en resultatliste i stedet for en startliste.');
+  if(mapping.event<0&&mapping.distance<0)issues.push('Vi finner ikke øvelse eller distanse. Velg kolonnen under Avanserte valg.');
+  const group=(id,label,options)=>{if(!groups.has(id))groups.set(id,{id,label,options});const value=profileChoices[id];return options.some(o=>o.value===value)?value:null;};
+  const canonical=Object.keys(fields),normalized=[],details=[];
+  for(const record of staged.records){
+   const values=Object.fromEntries(canonical.map(k=>[k,mapping[k]<0?'':clean(record.cells[mapping[k]])])),present=Object.fromEntries(canonical.map(k=>[k,mapping[k]>=0])),errors=[],evidence=[];
+   let rawEvent=values.event,rawDistance=values.distance,relay=/stafett|relay/i.test(rawEvent+' '+values.className),explicit=rawDistance?distanceValue(rawDistance):distanceValue(rawEvent);
+   if(!explicit&&rawDistance&&/^\d+(?:[.,]\d+)?$/.test(rawDistance)){
+    const h=header(staged.headers[mapping.distance]),unit=['km','kilometer','distancekm','distansekm'].includes(h)?'km':['distancem','meters','meter'].includes(h)?'m':group('unit-'+mapping.distance,'Hvilken enhet bruker distansekolonnen?', [{value:'km',label:'Kilometer'},{value:'m',label:'Meter'}]);
+    explicit=distanceValue(rawDistance,unit);if(unit)evidence.push({kind:'distance-unit',unit,column:mapping.distance,confirmed:!['km','kilometer','distancekm','distansekm','distancem','meters','meter'].includes(h)});
+   }
+   const combinedEvent=distanceValue(rawEvent),combinedDistance=distanceValue(rawDistance),knownUntimed=rawDistance==='Ukjent'&&resultToken(values.status||values.time)==='Deltatt';
+   if(rawDistance&&!explicit&&!knownUntimed&&!/^\d+(?:[.,]\d+)?$/.test(rawDistance))errors.push('Løypelengden i kilden kan ikke tolkes sikkert. Kontroller øvelsen og kilden.');
+   if(rawEvent&&combinedEvent?.name)rawEvent=combinedEvent.name;
+   if(!rawEvent&&combinedDistance?.name)rawEvent=combinedDistance.name;
+   if(rawEvent&&combinedEvent&&!combinedEvent.name)rawEvent='';
+   const aliases=context.competitions.filter(c=>I.fold(c.label.split(' · ')[0])===I.fold(rawEvent)).map(c=>c.event),eventNames=[...new Set(aliases)];
+   if(eventNames.length===1)rawEvent=eventNames[0];
+   let available=courses.filter(c=>rawEvent?c.names.some(n=>I.fold(n)===I.fold(rawEvent)):explicit&&c.km===explicit.km);
+   if(!relay&&rawDistance&&distanceValue(rawDistance)&&distanceValue(values.event)&&distanceValue(rawDistance).km!==distanceValue(values.event).km)errors.push('Øvelse og distanse angir ulike løypelengder. Kontroller kilden.');
+   if(!rawEvent&&explicit&&available.length===1){rawEvent=available[0].event;evidence.push({kind:'year-course',year,event:rawEvent,distance:explicit.label,confirmed:false});}
+   else if(!rawEvent&&explicit&&available.length>1){const id='event-'+explicit.label,selected=group(id,'Flere øvelser er '+explicit.label+' i '+year+'. Hvilken gjelder denne kolonnen?',available.map(c=>({value:c.event,label:c.event+' · '+c.distance})));if(selected){rawEvent=selected;evidence.push({kind:'confirmed-year-event',year,event:rawEvent,distance:explicit.label});}}
+   if(!explicit&&!rawDistance&&!relay&&rawEvent&&available.length){
+    const id='course-'+I.fold(rawEvent),selected=group(id,'Filen mangler distanse for '+rawEvent+'. Bekreft løypelengden i '+year+'.',available.map(c=>({value:c.distance,label:c.event+' · '+c.distance+' · godkjent historikk '+year})));
+    if(selected){explicit=distanceValue(selected);evidence.push({kind:'confirmed-year-distance',year,event:rawEvent,distance:selected});}
+   }
+   if(explicit){values.distance=explicit.label;present.distance=true;}else if(!relay&&!knownUntimed)errors.push('Eksakt distanse mangler. Ingen sikker løypelengde er dokumentert for denne raden i '+year+'.');
+   values.event=rawEvent;present.event=!!rawEvent;if(!rawEvent)errors.push('Øvelse kan ikke bestemmes entydig.');
+   // Keep the original header presence mask: absent optional metadata must not
+   // overwrite historical values just because normalization uses a fixed table.
+   normalized.push({line:record.line,cells:canonical.map(k=>values[k])});details.push({present,errors,evidence,width:record.cells.length!==staged.headers.length});
+  }
+  const unresolved=[...groups.values()].filter(g=>!g.options.some(o=>o.value===profileChoices[g.id]));
+  const ready=!issues.length&&!choices.length&&!unresolved.length;
+  let rows=[];if(ready){rows=validateRows(context,{...staged,headers:canonical,records:normalized},Object.fromEntries(canonical.map((k,i)=>[k,i])),year).map((r,i)=>({...r,present:details[i].present,inference:details[i].evidence,errors:[...r.errors,...details[i].errors,...(details[i].width?['Antall felt stemmer ikke med kolonnene.']:[])]}));}
+  const sourceYears=mapping.year<0?[]:[...new Set(staged.records.map(r=>I.yearValue(r.cells[mapping.year])))];
+  return {ready,mapping,issues,choices,groups:unresolved,rows,suggestedYear:sourceYears.length===1&&sourceYears[0]>=1900?sourceYears[0]:null,stages:{format:true,interpreted:ready&&rows.every(r=>!r.errors.length),paired:false,reviewed:false}};
+ }
+ function importedRows(context,staged,mapping,year,options={}){
+  const result=inspect(context,staged,year,{...options,mapping});if(!result.ready)throw Error([...result.issues,...result.choices.map(c=>c.label),...result.groups.map(g=>g.label)].join(' '));return result.rows;
+ }
+ function validateRows(context,staged,mapping,year){
   if(staged.kind!=='result-staging'||staged.format!=='csv-results-v1')throw Error('Velg Endelige resultater. En startliste kan ikke brukes som resultatgrunnlag.');
   if(!Number.isInteger(year)||year<1900||year>9999)throw Error('Velg et gyldig arrangementsår.');
   for(const key of Object.keys(fields))if(!Number.isInteger(mapping[key])||mapping[key]<-1||mapping[key]>=staged.headers.length)throw Error('Ugyldig kolonnekobling: '+fields[key]);
@@ -533,12 +636,14 @@
   });
  }
  function semantics(r){return {status:H().effectiveStatus(r),time:H().isCompletedResult(r)?H().timeSeconds(r[5]):null};}
+ function sameDistance(a,b){const x=distanceValue(a),y=distanceValue(b);return x&&y?x.km===y.km:clean(a)===clean(b);}
  function afterRow(row,personId,before,redirects={}){
   const out=before?[...before]:[row.year,personId,row.event,row.distance,row.status,row.time,row.place,row.className,row.club,row.bib];
   out[0]=row.year;out[1]=before&&H().resolveId(before[1],redirects)===personId?before[1]:personId;
   for(const [key,index]of Object.entries(columns))if(row.present[key])out[index]=row[key];
   if(!row.present.status)out[4]=row.status;
   if(before){const a=semantics(before),b=semantics(out);if(a.status===b.status){out[4]=before[4];if(a.time===b.time)out[5]=before[5];}}
+  if(before&&sameDistance(before[3],out[3]))out[3]=before[3];
   // Missing columns preserve the source. Effective status/time comparisons below
   // avoid rewriting equivalent DNF or untimed historical representations.
   return out;
@@ -554,9 +659,9 @@
  function nameSignal(context,name,id){const p=context.people.get(id);if(!p)return null;return p.names.map(n=>C.compareNames(name,n.name)).filter(Boolean).sort((a,b)=>({strong:0,moderate:1,weak:2}[a.strength]-{strong:0,moderate:1,weak:2}[b.strength]))[0]||null;}
  const candidateCache=new WeakMap();
  function candidates(context,row){if(!candidateCache.has(context))candidateCache.set(context,new Map());const cache=candidateCache.get(context);if(!cache.has(row.name))cache.set(row.name,[...context.people.values()].flatMap(p=>{const signal=nameSignal(context,row.name,p.id);return signal?[{id:p.id,name:p.name,reason:signal.reason,strength:signal.strength}]:[];}).sort((a,b)=>({strong:0,moderate:1,weak:2}[a.strength]-{strong:0,moderate:1,weak:2}[b.strength])||a.name.localeCompare(b.name,'nb-NO')));return cache.get(row.name);}
- async function createSession(context,staged,mapping,{year,sourceSha256,sourceScope='eqtiming-csv-results-v1',meta,completeClaim=false}={}){
+ async function createSession(context,staged,mapping,{year,sourceSha256,sourceScope='delimited-results-v1',meta,completeClaim=false,profileChoices={},manual=false}={}){
   if(!validHash(sourceSha256)||typeof sourceScope!=='string'||!sourceScope.trim()||sourceScope.length>100||/[<>\u0000-\u001f]/.test(sourceScope))throw Error('Resultatimporten mangler gyldig kildehash eller kildeområde.');
-  const rows=importedRows(context,staged,mapping,year),base=await C.binding(context.model.data,meta),session={format:'morothon-result-session-v1',version:1,base,source:{sha256:sourceSha256,scope:sourceScope,format:staged.format,year,completeClaim:completeClaim===true},mapping:clone(mapping),rows,createdAt:new Date().toISOString()};
+  const rows=importedRows(context,staged,mapping,year,{profileChoices,manual}),base=await C.binding(context.model.data,meta),session={format:'morothon-result-session-v1',version:1,base,source:{sha256:sourceSha256,scope:sourceScope,format:staged.format,year,completeClaim:completeClaim===true},mapping:clone(mapping),rows,createdAt:new Date().toISOString()};
   session.key=await C.hash({base,source:session.source,mapping:session.mapping,rows});return session;
  }
  async function validateSession(context,session){
@@ -577,16 +682,17 @@
    // every row with the entire historical person register again.
    for(const x of bibRows){const signal=nameSignal(context,row.name,x.id),person=context.people.get(x.id);if(signal&&person)local.set(x.id,{id:x.id,name:person.name,reason:signal.reason,strength:signal.strength});}
    item.candidates=local.size?[...local.values()]:candidates(context,row);
-   let ids=item.candidates.map(p=>p.id),explicit=null,invalidExplicit=false;try{explicit=row.runnerId?context.model.resolve(row.runnerId):null;}catch{invalidExplicit=true;}const external=context.externalRunner?.(session.source.scope,row.athleteId);
+   const strong=item.candidates.filter(p=>p.strength==='strong');
+   let ids=(strong.length?strong:item.candidates).map(p=>p.id),explicit=null,invalidExplicit=false;try{explicit=row.runnerId?context.model.resolve(row.runnerId):null;}catch{invalidExplicit=true;}const external=context.externalRunner?.(session.source.scope,row.athleteId);
    if(row.errors.length||invalidExplicit||duplicateBibs.has(row.id)||duplicateIds.has(row.id)||explicit&&external&&explicit!==external||explicit&&(!context.people.has(explicit)||!nameSignal(context,row.name,explicit))||external&&!nameSignal(context,row.name,external)){
-    item.category='conflict';item.blocking=true;item.reason=row.errors.join(' ')||'Motstridende startnummer, identifikator eller navn. Rett kilde/mapping før et forslag klargjøres.';
+    item.category=row.errors.length?'unassessable':'conflict';item.blocking=true;item.reason=row.errors.join(' ')||'Motstridende startnummer, identifikator eller navn. Rett kilde/mapping før et forslag klargjøres.';
    }else{
     if(explicit||external)ids=[explicit||external];
-    const supported=bibRows.filter(x=>ids.includes(x.id)),narrow=list=>list.length>1?list.filter(x=>x.row[2]===row.event&&x.row[3]===row.distance):list;
+    const supported=bibRows.filter(x=>ids.includes(x.id)),narrow=list=>list.length>1?list.filter(x=>x.row[2]===row.event&&sameDistance(x.row[3],row.distance)):list;
     let paired=narrow(supported),why='Samme arrangementsår og startnummer, med støttende navn eller godkjent alias. Kun et resultatpar, ingen permanent identitetsbekreftelse.';
     if(bibRows.length&&!supported.length){item.category='conflict';item.blocking=true;item.reason='Startnummeret tilhører et annet registrert navn. Startnummer kan ikke overstyre identitetskonflikten.';}
     else{
-     if(!paired.length&&ids.length===1&&(explicit||external||item.candidates.find(p=>p.id===ids[0])?.strength==='strong')){paired=narrow(old.filter(x=>x.id===ids[0]&&x.row[2]===row.event&&x.row[3]===row.distance));why='Entydig fullt navn/alias og samme år, øvelse og distanse støtter resultatparet. Endringer krever din uttrykkelige bekreftelse.';}
+     if(!paired.length&&ids.length===1&&(explicit||external||item.candidates.find(p=>p.id===ids[0])?.strength==='strong')){paired=narrow(old.filter(x=>x.id===ids[0]&&x.row[2]===row.event&&sameDistance(x.row[3],row.distance)));why='Entydig fullt navn/alias og samme år, øvelse og distanse støtter resultatparet. Endringer krever din uttrykkelige bekreftelse.';}
      if(paired.length===1){const x=paired[0];item.beforeIndex=x.index;item.before=x.row;item.after=afterRow(row,x.id,x.row,history.redirects);item.category=differences(x.row,item.after).length?'changed':'unchanged';item.reason=why;}
      else if(paired.length>1){item.category='conflict';item.reason='Flere historiske starter passer. Velg nøyaktig registrering manuelt.';}
      else if(ids.length===0){item.category='new';item.reason='Ingen støttede navnetreff. En ny person må opprettes i en separat, autorisert prosess.';}
@@ -621,7 +727,7 @@
   for(const x of old)if(!claims.has(x.index))items.push({id:'missing-'+x.index,row:null,category:'missing',reason:'Ikke koblet til ny eksport. Kan skyldes filtrert eksport eller uavklart identitet. Resultatet slettes aldri automatisk.',candidates:[],beforeIndex:x.index,before:x.row,after:null,differences:[],blocking:false,decision:decisions.get('missing-'+x.index)||null});
   for(const key of decisions.keys())if(!items.some(i=>i.id===key))throw Error('Beslutningen gjelder en sak som ikke finnes i denne analysen.');
   const counts=Object.fromEntries(Object.keys(labels).map(key=>[key,items.filter(i=>i.category===key).length]));
-  const completeness=counts.missing?'partial':counts.conflict||counts.uncertain||counts.new||counts.relay||!session.source.completeClaim||!old.length?'uncertain':'apparent-complete';
+  const completeness=counts.missing?'partial':counts.conflict||counts.uncertain||counts.unassessable||counts.new||counts.relay||!session.source.completeClaim||!old.length?'uncertain':'apparent-complete';
   return {items,counts,existing:old.length,read:session.rows.length,completeness,pending:items.filter(i=>!['unchanged','relay'].includes(i.category)&&!i.decision).length};
  }
  function decide(context,session,decisions,itemId,{action,runnerId=null,targetIndex=null,reason}){
@@ -644,5 +750,5 @@
   await C.applyCandidate(context.model.data,packet,session.base,{preview:true});C.serialize(packet);return packet;
  }
  async function report(context,session,decisions){const packet=await prepare(context,session,decisions),analysis=review(context,session,decisions);const text=JSON.stringify({format:'morothon-results-review-v1',version:1,base:session.base,source:session.source,interpretationSha256:session.key,mapping:session.mapping,summary:{existing:analysis.existing,read:analysis.read,completeness:analysis.completeness,...analysis.counts},items:analysis.items,corrections:packet,productionApplied:false},null,2)+'\n';if(new TextEncoder().encode(text).length>8*1024*1024)throw Error('Kontrollrapporten overstiger 8 MB. Avgrens utvalget og gjennomgå på nytt. Ingen rader er utelatt stille.');return text;}
- return {fields,labels,columns,parse,importedRows,createSession,validateSession,review,decide,prepare,report,differences};
+ return {fields,labels,columns,parse,detectFields,annualCourses,inspect,importedRows,createSession,validateSession,review,decide,prepare,report,differences};
 });
