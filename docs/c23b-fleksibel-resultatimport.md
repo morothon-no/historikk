@@ -1,5 +1,8 @@
 # C2.3b – Fleksibel resultatimport med øvelse som inngang
 
+Videreføring: [C2.3c – Gjenbruk av filoppsett](c23c-filoppsett.md) flytter
+ny analyse og feltvalg til hovedvisningen og legger til lokale, portable maler.
+
 Normalflyten er **last opp fil → automatisk analyse → gjennomgå avvik**.
 Dette viderefører C2.3as avstemming og C2.2s rettingskontrakt. Det er fortsatt
 ingen produksjonsimport, automatisk personkobling eller publisering.
