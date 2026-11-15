@@ -225,6 +225,13 @@
   }
  }
  document.addEventListener('morothon:intake-analysis',e=>{state.intake=e.detail;});
+ document.addEventListener('morothon:request-result-projection',e=>{projection().then(e.detail.resolve,e.detail.reject);});
+ document.addEventListener('morothon:results-corrections',e=>{(async()=>{
+  if(!state.package)throw Error('Kontrollsentralen er ikke klar.');const imported=C.importPackage(state.package,e.detail.package);await C.applyCandidate(state.history,imported.package,state.base,{preview:true});state.package=imported.package;state.selected=null;state.impact=null;activate('cases');location.hash='#rettelser';message(imported.added+' resultatsaker klargjort i kontrollsentralen. Ingen retting er publisert.');return imported;
+ })().then(e.detail.resolve,e.detail.reject);});
+ document.addEventListener('morothon:result-source-changed',e=>{
+  if(!state.package)return;let next=state.package,count=0;for(const c of state.package.cases)if(['proposed','handoff'].includes(c.status)&&c.events.some(x=>x.action==='result-source-'+e.detail.previousSha)){next=C.transition(next,c.id,'review','Resultatfil eller tolkning er endret. Kontroller kildehash og avvik på nytt før overlevering.');count++;}if(count){state.package=next;state.impact=null;render();message(count+' tidligere resultatforslag krever ny gjennomgang etter endret kildegrunnlag.');}
+ });
  document.addEventListener('morothon:corrections-ready',async e=>{
   try{
    if(state.package)return;Object.assign(state,e.detail);state.model=MorothonHistoryData.create(state.history);state.base=await C.binding(state.history,state.meta);state.package=C.empty(state.base);state.suggestions=C.discover(state.history);
@@ -236,5 +243,108 @@
    const refresh=button('Oppdater – vis ubehandlede',refreshSuggestions);refresh.id='correctionRefresh';tools.append(refresh,button('Last ned rettingspakke',save),field('Åpne lokal rettingspakke',file));const status=node('p');status.id='correctionStatus';status.setAttribute('role','status');const summaryNode=node('div');summaryNode.id='correctionSummary';const body=node('div');body.id='correctionBody';host.replaceChildren(banner,notice,tools,tabs,summaryNode,status,body);render();
    window.addEventListener('beforeunload',e=>{if(state.package?.cases.length){e.preventDefault();e.returnValue='';}});
   }catch(error){host.replaceChildren(node('p','Rettelser kunne ikke starte: '+error.message));}
+ });
+})();
+
+/* Final results are a distinct annual workflow, never a start-list forecast. */
+(() => {
+ 'use strict';
+ const R=window.MorothonResults,C=window.MorothonCorrections,I=window.MorothonIntake,host=document.getElementById('view-import');if(!R||!C||!host)return;
+ const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;},$=id=>document.getElementById(id);
+ const state={context:null,staged:null,source:null,session:null,analysis:null,decisions:new Map(),filter:'pending',page:0,busy:false,revision:0};
+ const actionNames={confirm:'Bekreftet resultatvalg',new:'Markert ny person',reject:'Avvist / beholdt',defer:'Utsatt'};
+ function status(text,bad=false){$('resultStatus').textContent=text;$('resultStatus').dataset.error=String(bad);}
+ function button(label,fn,id){const b=node('button',label,'secondary');b.type='button';if(id)b.id=id;b.onclick=async()=>{if(state.busy)return;state.busy=true;b.disabled=true;try{await fn();}catch(e){status(e.message,true);}finally{state.busy=false;if(b.isConnected)b.disabled=false;}};return b;}
+ function field(text,input){const e=node('label',text);e.append(input);return e;}
+ function hint(text){return node('p',text,'hint');}
+ function input(type,id,value=''){const e=node('input');e.type=type;e.id=id;e.value=value;return e;}
+ function select(options,id,value){const e=node('select');if(id)e.id=id;for(const [key,label]of options){const o=node('option',label);o.value=key;e.append(o);}if(value!==undefined)e.value=value;return e;}
+ function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=node('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+ function request(name,detail={}){return new Promise((resolve,reject)=>document.dispatchEvent(new CustomEvent(name,{detail:{...detail,resolve,reject}})));}
+ function sourceChanged(previousSha){if(previousSha)document.dispatchEvent(new CustomEvent('morothon:result-source-changed',{detail:{previousSha}}));}
+ function clearAnalysis(){state.revision++;if(state.session)sourceChanged(state.session.source.sha256);state.session=null;state.analysis=null;state.decisions.clear();state.page=0;$('resultSummary').replaceChildren();$('resultCases').replaceChildren();$('resultImpact').replaceChildren();$('resultActions').hidden=true;}
+ function mapping(){return Object.fromEntries(Object.keys(R.fields).map(key=>[key,Number($('result-map-'+key).value)]));}
+ function showMapping(){const box=$('resultMapping');box.replaceChildren();for(const [key,label]of Object.entries(R.fields)){const s=select([['-1','Ikke i filen'],...state.staged.headers.map((v,i)=>[String(i),v+' (kolonne '+(i+1)+')'])],'result-map-'+key,String(state.staged.mapping[key]));s.onchange=()=>{clearAnalysis();status('Kolonnekoblingen er endret. Start sammenligning på nytt.');};box.append(field(label,s));}$('resultMappingDetails').hidden=false;}
+ async function loadFile(file){
+  if(file.size>I.MAX_BYTES||!/\.(csv|tsv|txt)$/i.test(file.name))throw Error('Velg en CSV/TSV-resultatfil på maksimalt 4 MB. XML-startlister og XLSX støttes ikke her.');
+  const bytes=new Uint8Array(await file.arrayBuffer()),decoded=I.decode(bytes),staged=R.parse(decoded.text),sourceSha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
+  if(state.source?.sourceSha256===sourceSha256){state.source.name=file.name;$('resultFileInfo').textContent=file.name+' · '+staged.records.length+' resultatlinjer · identisk filhash. Kolonnekoblinger og lokale beslutninger er beholdt.';status('Samme kildefil er valgt igjen. Det eksisterende arbeidsgrunnlaget er beholdt.');return;}
+  clearAnalysis();state.staged=staged;state.source={sourceSha256,encoding:decoded.encoding,name:file.name};showMapping();$('resultFileInfo').textContent=file.name+' · '+staged.records.length+' resultatlinjer lest · '+decoded.encoding+' · CSV-minimumsformat. Kontroller kolonnekoblinger og utvalg før sammenligning.';$('resultCompare').disabled=false;status('Resultatfilen er lest lokalt. Ekte EQ-format er ikke verifisert; kontroller eksportens kolonner.');
+ }
+ async function compare(){
+  if(!state.staged)throw Error('Velg en resultatfil først.');status('Sammenligner resultatfilen med godkjent historikk …');const revision=++state.revision,session=await R.createSession(state.context,state.staged,mapping(),{year:Number($('resultYear').value),sourceSha256:state.source.sourceSha256,sourceScope:$('resultScope').value,meta:state.meta,completeClaim:$('resultComplete').checked});if(revision!==state.revision)return;
+  if(state.session&&state.session.key!==session.key)sourceChanged(state.session.source.sha256);state.session=session;state.decisions.clear();state.analysis=R.review(state.context,session,state.decisions);state.filter='pending';state.page=0;render();status('Sammenligningen er klar. Uendrede resultater krever ingen gjennomgang. Vurder avvik før forslag klargjøres.');
+ }
+ function resultBox(title,row){const box=node('section',undefined,'result-values');box.append(node('h4',title));if(!row){box.append(hint('Ingen koblet registrering.'));return box;}const list=node('dl');for(const [key,index]of Object.entries(R.columns)){list.append(node('dt',R.fields[key]),node('dd',row[index]===null||row[index]===''?'Ikke registrert':String(row[index])));}box.append(list);return box;}
+ function change(item,action,personId,targetIndex,reason){state.decisions=R.decide(state.context,state.session,state.decisions,item.id,{action,runnerId:personId,targetIndex,reason});state.analysis=R.review(state.context,state.session,state.decisions);$('resultImpact').replaceChildren();render();status('Beslutningen er beholdt i denne fanen. Ingen resultater er endret. Last ned kontrollpakken før du lukker.');}
+ function caseCard(item){
+  const card=node('article',undefined,'result-case');card.dataset.resultId=item.id;const name=item.row?.name||state.context.model.person(item.before?.[1])?.n||'Eksisterende kilderegistrering',bib=item.row?.bib||item.before?.[9]||'';
+  card.append(node('h3',name),hint(R.labels[item.category]+(bib?' · startnummer '+bib:'')),node('p',item.reason));if(item.decision)card.append(hint(actionNames[item.decision.action]+' · '+item.decision.reason));
+  if(item.row?.errors.length)card.append(node('p',item.row.errors.join(' '),'intake-error'));for(const warning of item.row?.warnings||[])card.append(hint(warning));if(item.limitation)card.append(node('p',item.limitation,'intake-notice'));
+  const values=node('div',undefined,'result-comparison'),sourceRow=item.row?[item.row.year,'','','','','',null,'','','']:null;if(sourceRow)for(const [key,index]of Object.entries(R.columns))sourceRow[index]=item.row.present[key]?item.row[key]:'Ikke i eksport';values.append(resultBox('Historikken',item.before),resultBox('Ny kilde',sourceRow));card.append(values,hint('Felter som mangler i eksporten beholdes fra historikken. Likeverdige status- og tidsformater omskrives ikke.'));
+  if(item.differences.length)card.append(hint('Endrede felt: '+item.differences.map(x=>x.label).join(', ')));
+  if(item.category==='relay'){card.append(hint('Lagresultater beholdes i kontrollrapporten. Individuelle rettingsforslag støtter ikke lag eller etapper.'));return card;}
+  if(item.category==='unchanged'&&!item.decision)return card;
+  const reason=node('textarea');reason.rows=2;reason.maxLength=1000;reason.placeholder='Hvorfor er dette riktig? Oppgi kildegrunnlaget kort.';reason.value=item.decision?.reason||'';reason.setAttribute('aria-label','Begrunnelse for '+name);card.append(field('Din vurdering',reason));
+  let personSelect,targetSelect;
+  if(item.row&&!item.blocking){
+   const initial=item.before?state.context.model.resolve(item.before[1]):item.candidates.length===1?item.candidates[0].id:'';
+   const search=input('search','', '');search.removeAttribute('id');search.placeholder='Finn en annen eksisterende person';search.setAttribute('aria-label','Finn person for '+name);
+   personSelect=select([['','Velg eksisterende person'],...item.candidates.map(p=>[p.id,p.name])],undefined,initial);personSelect.setAttribute('aria-label','Person for '+name);
+   targetSelect=select([],undefined);targetSelect.setAttribute('aria-label','Resultat for '+name);
+   function targets(){const id=personSelect.value,rows=state.context.model.data.results.flatMap((r,index)=>r[0]===state.session.source.year&&state.context.model.resolve(r[1])===id&&!state.context.rules.isRelayRace(r)?[[String(index),[r[0],r[2],r[3],r[5]||'uten tid',r[9]?'startnr. '+r[9]:''].filter(Boolean).join(' · ')]]:[]);const options=[['','Velg registrering'],...rows,['add','Ny resultatregistrering for denne personen']];targetSelect.replaceChildren(...options.map(([v,label])=>{const o=node('option',label);o.value=v;return o;}));if(item.beforeIndex!==null&&rows.some(([index])=>index===String(item.beforeIndex)))targetSelect.value=String(item.beforeIndex);}
+   search.oninput=()=>{const q=I.fold(search.value);personSelect.replaceChildren(node('option','Velg eksisterende person'));personSelect.firstChild.value='';if(q.length>=2)for(const p of [...state.context.people.values()].filter(p=>p.names.some(n=>I.fold(n.name).includes(q))).slice(0,30)){const o=node('option',p.name);o.value=p.id;personSelect.append(o);}targets();};personSelect.onchange=targets;targets();
+   const options=node('details');options.open=!item.before;options.append(node('summary','Kontroller eller velg en annen person/registrering'),field('Søk etter eksisterende løper',search),field('Person',personSelect),field('Registrering i valgt år',targetSelect));card.append(options);
+  }
+  const actions=node('div',undefined,'actions');if(personSelect){const confirm=button('Bekreft resultatkoblingen',()=>{if(!personSelect.value||!targetSelect.value)throw Error('Velg person og nøyaktig resultat, eller Ny resultatregistrering.');change(item,'confirm',personSelect.value,targetSelect.value==='add'?null:Number(targetSelect.value),reason.value);});confirm.dataset.resultConfirm='';actions.append(confirm);}
+  if(item.row&&!item.blocking)actions.append(button('Marker som ny person',()=>change(item,'new',null,null,reason.value)));
+  actions.append(button(item.category==='missing'?'Behold eksisterende resultat':'Avvis forslaget',()=>change(item,'reject',null,null,reason.value)),button('Utsett saken',()=>change(item,'defer',null,null,reason.value)));card.append(actions);return card;
+ }
+ function render(){
+  const a=state.analysis;if(!a)return;const summary=$('resultSummary');summary.replaceChildren();summary.append(node('h3',a.read+' leste resultater · '+a.existing+' eksisterende individuelle registreringer'));
+  const completeness={partial:'Delvis / uavstemt eksport: historiske registreringer mangler kobling.',uncertain:'Usikkert utvalg: fullstendighet kan ikke bekreftes.', 'apparent-complete':'Fremstår som komplett for bekreftet utvalg. Dette er ingen garanti fra kilden.'};summary.append(hint(completeness[a.completeness]));
+  const grid=node('div',undefined,'result-summary-grid');for(const [key,label]of Object.entries(R.labels)){const box=node('article');box.append(node('strong',String(a.counts[key])),node('span',label));grid.append(box);}summary.append(grid,hint(a.pending+' avvik uten lokal beslutning. Uendrede resultater krever ingen tiltak.'));
+  const box=$('resultCases');box.replaceChildren();const f=select([['pending','Ubehandlede avvik'],['all','Alle avvik'],['processed','Behandlede avvik'],...Object.entries(R.labels)],'resultFilter',state.filter);f.onchange=()=>{state.filter=f.value;state.page=0;render();};box.append(field('Vis',f));
+  const rows=a.items.filter(i=>state.filter==='pending'?!['unchanged','relay'].includes(i.category)&&!i.decision:state.filter==='all'?i.category!=='unchanged':state.filter==='processed'?!!i.decision:i.category===state.filter),size=10;state.page=Math.min(state.page,Math.max(0,Math.ceil(rows.length/size)-1));
+  for(const item of rows.slice(state.page*size,(state.page+1)*size))box.append(caseCard(item));if(!rows.length)box.append(hint('Ingen saker i dette utvalget.'));
+  const paging=node('div',undefined,'actions'),prev=button('Forrige saker',()=>{state.page--;render();}),next=button('Neste saker',()=>{state.page++;render();});prev.disabled=state.page===0;next.disabled=(state.page+1)*size>=rows.length;paging.append(prev,hint(rows.length+' saker · side '+(state.page+1)),next);box.append(paging);$('resultActions').hidden=false;
+ }
+ async function packet(){if(!state.session)throw Error('Start sammenligning først.');return R.prepare(state.context,state.session,state.decisions);}
+ async function consequences(){
+  const revision=state.revision,p=await packet(),cases=p.cases.filter(c=>c.change);if(!cases.length)throw Error('Bekreft minst ett konkret resultatavvik først. Nye personer, lag og ukjente årganger krever separat behandling.');
+  status('Beregner med eksisterende resultat-, merke- og diplommotor …');const project=await request('morothon:request-result-projection'),out=$('resultImpact');out.replaceChildren();
+  const names={people:'Deltakelser, fullføringer, distanser, beste tider og merker',annual:'Årsstatistikk, distansefordeling og milepæler',records:'Løyperekorder',placements:'Beregnede plasseringer',rankings:'Adelskalender',diplomas:'Historiske løperdiplomer',loyalty:'Lojalitet',redirects:'Personkoblinger',aliases:'Aliaser'};
+  for(const c of cases){const impact=await C.consequences(state.context.model.data,p,c.id,state.session.base,project,{linkedRunnerIds:state.linkedRunnerIds});if(revision!==state.revision)return;const section=node('section',undefined,'correction-impact');section.append(node('h3',c.description));for(const x of impact.changes.filter(x=>x.status==='changed')){
+    const details=node('details');details.append(node('summary',names[x.area]+' – endres'));
+    if(x.area==='placements'){const changed=x.after.filter((r,i)=>JSON.stringify(r)!==JSON.stringify(x.before[i]));details.append(hint(changed.length+' registreringer påvirkes. Kildeplasseringer beholdes med mindre en kildebasert retting er uttrykkelig foreslått.'));for(const row of changed.slice(0,25))details.append(hint((state.context.model.person(row.personId)?.n||'Kilderegistrering')+' · '+row.year+' · '+row.event+' '+row.distance+' · beregnet '+(x.before[row.index]?.rank??'–')+' → '+(row.rank??'–')+' · kilde '+(row.sourcePlace??'–')));}
+    else if(x.area==='annual'){
+     for(const year of Object.keys(x.after))if(JSON.stringify(x.before[year])!==JSON.stringify(x.after[year])){const before=x.before[year],after=x.after[year];details.append(node('h4',year));for(const [key,label]of [['participants','Deltakere'],['debutants','Debutanter']])if((before?.[key].length??0)!==after[key].length)details.append(hint(label+': '+(before?.[key].length??0)+' → '+after[key].length));for(const key of new Set([...Object.keys(before?.distribution||{}),...Object.keys(after.distribution||{})]))if((before?.distribution?.[key]||0)!==(after.distribution?.[key]||0))details.append(hint('Distansefordeling: '+key+' · '+(before?.distribution?.[key]||0)+' → '+(after.distribution?.[key]||0)+' registreringer'));if(JSON.stringify(before?.badges)!==JSON.stringify(after.badges))details.append(hint('Årets deltakelsesmerker: '+(before?.badges.reduce((n,g)=>n+g.people.length,0)||0)+' → '+after.badges.reduce((n,g)=>n+g.people.length,0)));}
+    }else if(x.area==='people'){
+     for(const [id,after]of Object.entries(x.after))if(JSON.stringify(after)!==JSON.stringify(x.before[id])){const before=x.before[id];details.append(node('h4',after.name));for(const [a,b,label]of [[before?.count||0,after.count,'Deltakelsesår'],[before?.totals?.completed||0,after.totals?.completed||0,'Fullføringer'],[before?.totals?.km||0,after.totals?.km||0,'Fullførte kilometer']])if(a!==b)details.append(hint(label+': '+a+' → '+b));if(JSON.stringify(before?.best)!==JSON.stringify(after.best))details.append(hint('Beste tider: '+(before?.best||[]).map(b=>b.event+' '+b.km+' km '+b.time).join(' / ')+' → '+after.best.map(b=>b.event+' '+b.km+' km '+b.time).join(' / ')));if(JSON.stringify(before?.badges)!==JSON.stringify(after.badges))details.append(hint('Deltakelsesmerker: '+(before?.badges||[]).map(b=>b.id.replace('badge-','')+' ('+b.year+')').join(', ')+' → '+after.badges.map(b=>b.id.replace('badge-','')+' ('+b.year+')').join(', ')));}
+    }else if(x.area==='records'){
+     const keys=new Set([...x.before,...x.after].map(r=>r.event+' · '+r.gender));for(const key of keys){const a=x.before.filter(r=>r.event+' · '+r.gender===key),b=x.after.filter(r=>r.event+' · '+r.gender===key);if(JSON.stringify(a)!==JSON.stringify(b))details.append(hint(key+': '+(a.map(r=>r.name+' '+r.time+' ('+r.year+')').join(' / ')||'Ingen registrert')+' → '+(b.map(r=>r.name+' '+r.time+' ('+r.year+')').join(' / ')||'Ingen registrert')));}
+    }else details.append(hint(x.area==='diplomas'?'Endret diplomgrunnlag krever separat innholdsgodkjenning før ren utskrift.':'Dette området har reelle endringer. Se full før-/etter-kontroll i Rettelser og personkontroll.'));
+    section.append(details);
+   }if(!impact.changes.some(x=>x.status==='changed'))section.append(hint('Ingen beregnede konsekvenser utover kildefeltene.'));for(const message of [...impact.uncertain,...impact.errors.map(e=>e.code)])section.append(node('p',message,'intake-notice'));out.append(section);
+  }status('Konsekvenser er forhåndsvist. Ingen publisering eller diplomgodkjenning er utført.');
+ }
+ document.addEventListener('morothon:corrections-ready',async e=>{
+  try{
+   Object.assign(state,e.detail);await C.binding(state.history,state.meta);
+   const start=node('div');start.id='annualStartlist';start.append(...host.childNodes);const mode=select([['startlist','Startliste – påmelding og prognoser'],['results','Endelige resultater – sammenlign historikk']],'annualImportKind','startlist'),work=node('section');work.id='annualResults';work.hidden=true;
+   const modeBox=node('div',undefined,'annual-mode');modeBox.append(field('Hva vil du laste inn?',mode));mode.onchange=()=>{start.hidden=mode.value!=='startlist';work.hidden=mode.value!=='results';};host.append(modeBox,start,work);
+   const banner=node('div',undefined,'intake-banner');banner.append(node('span','SAMMENLIGN FØR ENDRING','eyebrow'),node('h2','Endelige resultater'),node('p','Last opp resultatfilen, vurder avvik og klargjør rettingsforslag. Historikken endres ikke her.'));
+   const year=input('number','resultYear',state.context.latestYear);year.min=1900;year.max=9999;year.onchange=clearAnalysis;
+   const complete=input('checkbox','resultComplete');complete.onchange=clearAnalysis;const scope=input('text','resultScope','eqtiming-csv-results-v1');scope.maxLength=100;scope.onchange=clearAnalysis;
+   const settings=node('div',undefined,'result-settings');settings.append(field('Arrangementsår',year),field('Eksporten omfatter alle individuelle øvelser',complete));
+   const advanced=node('details');advanced.append(node('summary','Kildeområde og begrensninger'),field('Kildeområde for eventuelle dokumenterte eksterne ID-er',scope),hint('Samme eksterne ID hos ulike leverandører betyr ikke samme person. En reell EQtiming-resultateksport er ennå ikke formatverifisert. Nye personer, lagrettinger og opprettelse av en ny årgang krever separat autorisert behandling.'));
+   const file=input('file','resultFile');file.accept='.csv,.tsv,.txt,text/csv';file.onchange=async()=>{const selected=file.files[0];if(!selected)return;file.disabled=true;$('resultCompare').disabled=true;try{await loadFile(selected);}catch(error){status(error.message+(state.analysis?' Forrige gyldige analyse er beholdt.':' Ingen analyse er klargjort.'),true);}finally{file.disabled=false;file.value='';$('resultCompare').disabled=!state.staged;}};
+   const fileInfo=node('p');fileInfo.id='resultFileInfo';const mapping=node('details');mapping.id='resultMappingDetails';mapping.hidden=true;mapping.append(node('summary','Kontroller eller korriger kolonnekoblinger'));const map=node('div',undefined,'intake-mapping');map.id='resultMapping';mapping.append(map);
+   const compareButton=button('Start sammenligning',compare,'resultCompare');compareButton.disabled=true;const statusNode=node('p');statusNode.id='resultStatus';statusNode.setAttribute('role','status');
+   const summary=node('section');summary.id='resultSummary';const cases=node('section');cases.id='resultCases';const impact=node('section');impact.id='resultImpact';const actions=node('section',undefined,'result-actions');actions.id='resultActions';actions.hidden=true;
+   actions.append(node('h3','Klargjøring etter din kontroll'),hint('Bare uttrykkelige beslutninger overføres. Manglende rader slettes aldri. Nye personer opprettes ikke automatisk.'),button('Forhåndsvis konsekvenser',consequences,'resultCheck'),button('Åpne forslag i kontrollsentralen',async()=>{const p=await packet();if(!p.cases.length)throw Error('Registrer en beslutning først.');await request('morothon:results-corrections',{package:p});},'resultTransfer'),button('Last ned rettingspakke',async()=>download(C.serialize(await packet()),'morothon-'+state.session.source.year+'-resultatrettinger.json'),'resultExport'),button('Last ned kontrollrapport',async()=>download(await R.report(state.context,state.session,state.decisions),'morothon-'+state.session.source.year+'-resultatkontroll.json'),'resultReport'));
+   work.append(banner,hint('CSV/TSV-minimumsformat · kun lokale filer · ingen opplasting eller produksjonsskriving. Personopplysninger i lokale kontrollpakker skal oppbevares privat.'),settings,field('Velg endelig resultatfil',file),fileInfo,mapping,advanced,compareButton,statusNode,summary,cases,actions,impact);
+   window.addEventListener('beforeunload',event=>{if(state.session){event.preventDefault();event.returnValue='';}});
+  }catch(error){host.append(node('p','Resultatkontrollen kunne ikke starte: '+error.message));}
  });
 })();

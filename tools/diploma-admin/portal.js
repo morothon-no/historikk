@@ -7,7 +7,7 @@
     deltakere: ['Deltakere', 'Menneskene på startstreken. Historikken de har skapt.'],
     merker: ['Merker', 'Se oppnådde milepæler og veien til neste merke.'],
     diplomer: ['Diplomer', 'Velg mottakere, kontroller hvert diplom og lag én samlet A4-PDF.'],
-    import: ['Årets arrangement', 'Startliste, personkontroll og foreløpig merkeprognose.'],
+    import: ['Årets arrangement', 'Startlister, merkeprognoser og kontroll av endelige resultater.'],
     premier: ['Premier', 'Grunnlaget for en enklere utdeling.'],
     rettelser: ['Rettelser og personkontroll', 'Lokale saker, før/etter-visning og kontrollert overlevering.'],
     design: ['Design og tilpasning', 'Ditt arrangement, dine merker og ditt diplom – i et separat utkast.']
