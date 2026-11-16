@@ -7,9 +7,13 @@ const normalize=value=>String(value??'').toLocaleLowerCase('nb-NO').normalize('N
  .replaceAll('å','a').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
 function findHonorRunnerCandidates({roster,history,personId,query,limit=10}={}){
  if(!roster||roster.readOnly!==true||!Array.isArray(roster.people)||
-    typeof personId!=='string')throw Error('Ugyldig Heder-oppslag.');
- const person=roster.people.find(p=>p.id===personId);
- if(!person)throw Error('Personen finnes ikke i aktivt Heder-register.');
+    personId!==undefined&&personId!==null&&typeof personId!=='string')
+  throw Error('Ugyldig Heder-oppslag.');
+ // No person ID is allowed while adding a NEW Heder person: search first,
+ // then explicitly confirm the participant identity when creating the record.
+ const person=personId==null?null:roster.people.find(p=>p.id===personId);
+ if(personId!=null&&!person)throw Error('Personen finnes ikke i aktivt Heder-register.');
+ if(!person&&query===undefined)throw Error('Oppgi et søk for ny Heder-person.');
  if(!history||!Array.isArray(history.people)||!Array.isArray(history.results))
   throw Error('Mangler godkjent deltakerhistorikk.');
  if(!Number.isSafeInteger(limit)||limit<1||limit>30)
@@ -17,7 +21,7 @@ function findHonorRunnerCandidates({roster,history,personId,query,limit=10}={}){
  if(query!==undefined&&(typeof query!=='string'||query.length>100))
   throw Error('Søketekst er ugyldig.');
  const searched=(query??person.name).trim(),needle=normalize(searched);
- if(needle.length<2)return {personId,query:searched,candidates:[],readOnly:true};
+ if(needle.length<2)return {personId:personId??null,query:searched,candidates:[],readOnly:true};
  const model=History.create(history);
  const namesById=new Map();
  const append=(id,name)=>{
@@ -44,7 +48,7 @@ function findHonorRunnerCandidates({roster,history,personId,query,limit=10}={}){
  const words=needle.split(' ').filter(Boolean);
  const candidates=[];
  for(const p of model.people.values()){
-  const names=[...namesById.get(p.i)||new Set([p.n])],
+  const names=[...(namesById.get(p.i)||new Set([p.n]))],
         normalized=names.map(normalize);
   if(!normalized.some(n=>words.every(w=>n.includes(w))))continue;
   const isExact=normalized.some(n=>n===needle);
@@ -54,7 +58,7 @@ function findHonorRunnerCandidates({roster,history,personId,query,limit=10}={}){
    runnerId:p.i,name:p.n,
    aliases:names.filter(n=>n!==p.n),
    participationCount:model.stats(p.i)?.count||0,
-   linkedToThisHonor:linked.includes(personId),
+   linkedToThisHonor:person!==null&&linked.includes(personId),
    linkedToOtherHonor:linked.some(id=>id!==personId),
    matchKind:isExact?'exact':isPrefix?'prefix':'name-search'
   });
@@ -63,7 +67,7 @@ function findHonorRunnerCandidates({roster,history,personId,query,limit=10}={}){
  candidates.sort((a,b)=>Number(b.linkedToThisHonor)-Number(a.linkedToThisHonor)||
   weight[a.matchKind]-weight[b.matchKind]||a.name.localeCompare(b.name,'nb-NO')||
   a.runnerId.localeCompare(b.runnerId));
- return {personId,query:searched,candidates:candidates.slice(0,limit),
+ return {personId:personId??null,query:searched,candidates:candidates.slice(0,limit),
   readOnly:true,confirmationRequired:true,identityLinkedAutomatically:false,
   volunteerYearsAffected:false};
 }
