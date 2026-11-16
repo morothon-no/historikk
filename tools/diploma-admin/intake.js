@@ -125,7 +125,7 @@
  'use strict';
  const C=window.MorothonCorrections,host=document.getElementById('view-rettelser');if(!host||!C)return;
  const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
- const $=id=>document.getElementById(id),state={package:null,history:null,model:null,suggestions:[],tab:'suggestions',selected:null,picked:[],kind:'result',impact:null,intake:null,page:0,projection:null,query:'',suggestionScope:'pending',refreshVersion:0,candidate:null,editVersion:0,preparing:false,manualMode:false,editorNotes:new Map()};
+ const $=id=>document.getElementById(id),state={package:null,history:null,model:null,suggestions:[],tab:'suggestions',selected:null,picked:[],kind:'result',impact:null,intake:null,page:0,projection:null,query:'',suggestionScope:'pending',refreshVersion:0,candidate:null,editVersion:0,preparing:false,manualMode:false,batchReview:null,editorNotes:new Map()};
  const kindLabels={merge:'Samme person – foreslå sammenslåing',person:'Endre hovednavn eller kjønn',alias:'Registrer historisk alias',result:'Rett et registrert resultat',add:'Legg til manglende resultat',remove:'Fjern dokumentert dobbeltregistrering',reverse:'Reverser en tidligere kandidatendring'};
  const areaLabels={annual:'Årsstatistikk og årets milepæler',people:'Deltakelsesår, merker og personlige rekorder',records:'Løyperekorder',placements:'Klasseplasseringer og toppresultater',rankings:'Adelskalender',diplomas:'Historiske løperdiplomer',loyalty:'Lojalitet og rekker',redirects:'Profilkoblinger',aliases:'Historiske navn'};
  function message(text,bad=false){if(bad){if(text.includes('invalid-time'))text='Tiden er ugyldig. Bruk for eksempel 49:20 eller 1:31:24, med sekunder under 60.';else if(text.includes('invalid-distance'))text='Oppgi eksakt distanse i kilometer, for eksempel 10 km.';else if(text.includes('missing-person'))text='Resultatet må tilhøre en eksisterende, kontrollert løperprofil.';}$('correctionStatus').textContent=text;$('correctionStatus').dataset.error=String(bad);}
@@ -186,17 +186,32 @@
    const from=s.personIds.find(id=>id!==main);
    const request={kind:'merge',personIds:[from,main],selector:null,after:null,
     source:c.source.trim()||quickIdentitySource,reason:decisionReason(true)};
-   const prepared=await C.prepareCase(state.history,work,c.id,request,state.base,await projection(),{linkedRunnerIds:state.linkedRunnerIds});
+   // Record the source-bound proposal now; defer the expensive full-page
+   // projection and cross-profile checks until the organizer finishes review.
+   const proposed=await C.propose(state.history,work,c.id,request);
    if(snapshot!==state.package)throw Error('Arbeidslisten ble endret under vurderingen. Prøv igjen.');
-   state.package=prepared.package;state.impact=prepared.impact;state.candidate=prepared.candidate;state.manualMode=false;
-   if(!prepared.ready){
-    const openedCase=state.package.cases.find(item=>item.id===c.id);
-    selectCase(openedCase);
-    message('Sammenslåingen trenger kontroll: '+[...new Set([...(prepared.impact.uncertain||[]),...(prepared.impact.errors||[])])].join(' '),true);
-   }else{
-    state.selected=null;state.suggestionScope='pending';render();
-    message('Samme person er bekreftet. Hovedprofil: '+state.model.person(main).n+'. Forslaget er kontrollert og lokalt klargjort; ingenting er publisert. Lagre arbeidsgrunnlaget.');
-   }
+   state.package=proposed;state.candidate=null;state.impact=null;state.batchReview=null;
+   state.selected=null;state.suggestionScope='pending';render();
+   message('Samme person er registrert som forslag. Hovedprofil: '+state.model.person(main).n+
+    '. Endringen er ikke ferdig kontrollert eller publisert. Gjennomfør samlet kontroll etter personvurderingene, og lagre arbeidsgrunnlaget.');
+  }finally{state.preparing=false;}
+ }
+ async function checkStaged(){
+  if(state.preparing)throw Error('En annen vurdering behandles allerede.');
+  const original=state.package;
+  const active=original.cases.filter(c=>c.change&&['proposed','handoff'].includes(c.status));
+  if(!active.length)throw Error('Behandle minst ett personforslag før samlet kontroll.');
+  state.preparing=true;
+  try{
+   message('Kjører én samlet konsekvensanalyse av '+active.length+' forslag. Andre endringer holdes tilbake …');
+   const project=await projection();
+   const report=await C.reviewStaged(state.history,original,state.base,project,{linkedRunnerIds:state.linkedRunnerIds});
+   if(original!==state.package)throw Error('Arbeidslisten ble endret under kontrollen. Gjennomfør kontrollen på nytt.');
+   state.batchReview={package:original,report};
+   render();
+   message(report.ready?
+    report.proposed+' forslag er kontrollert samlet. Ingen profiler eller resultatlister er endret. Lagre arbeidsgrunnlaget; endelig godkjenning og publisering må skje i en egen sikker prosess.':
+    'Samlet kontroll fant forhold som må avklares: '+report.uncertain.join(' '),!report.ready);
   }finally{state.preparing=false;}
  }
  async function refreshSuggestions(){
@@ -210,7 +225,7 @@
   box.append(node('h2',isReport?'Innmeldte feil':'Mulige duplikater'),toolbar,hint(rows.filter(s=>s.bucket==='pending').length+' ubehandlede · '+rows.filter(s=>s.bucket==='followup').length+' til oppfølging · '+rows.filter(s=>s.bucket==='finished').length+' ferdigbehandlet.'));
   if(isReport)box.append(button('Registrer innmeldt feil',()=>createCase()));
   const list=rows.filter(s=>(state.suggestionScope==='all'||s.bucket===state.suggestionScope)&&MorothonIntake.fold(s.reason+' '+s.personIds.map(id=>state.model.person(id)?.n||'').join(' ')).includes(MorothonIntake.fold(state.query))),size=15;state.page=Math.min(state.page,Math.max(0,Math.ceil(list.length/size)-1));
-  for(const s of list.slice(state.page*size,(state.page+1)*size)){const card=node('article',undefined,'correction-case');card.append(node('h3',s.personIds.map(id=>state.model.person(id)?.n||'Ukjent løper').join(' / ')||'Innmeldt feil'),node('p',s.reason));if(!isReport){const years=node('div',undefined,'correction-pair-years');for(const id of s.personIds)years.append(hint((state.model.person(id)?.n||'Løper')+' · '+(state.model.stats(id)?.years.join(', ')||'Ingen registrerte deltakelsesår')));card.append(years);}if(s.caseId)card.append(hint(C.labels[s.caseStatus]));const actions=node('div',undefined,'actions');actions.append(button(s.caseId?'Fortsett saken':'Åpne og sammenlign',()=>s.caseId?selectCase(state.package.cases.find(c=>c.id===s.caseId)):createCase(s)));if(!isReport&&['pending','followup'].includes(s.bucket)&&!['rejected','handoff','proposed'].includes(s.caseStatus)){const main=quickMainProfile(s.personIds);if(main)actions.append(hint('Hovedprofil ved hurtigvalg: '+state.model.person(main).n));actions.append(button('Samme person – slå sammen',()=>quickIdentity(s,'same')),button('Ikke samme person – hold adskilt',()=>quickIdentity(s,'different')));}card.append(actions);box.append(card);}
+  for(const s of list.slice(state.page*size,(state.page+1)*size)){const card=node('article',undefined,'correction-case');card.append(node('h3',s.personIds.map(id=>state.model.person(id)?.n||'Ukjent løper').join(' / ')||'Innmeldt feil'),node('p',s.reason));if(!isReport){const years=node('div',undefined,'correction-pair-years');for(const id of s.personIds)years.append(hint((state.model.person(id)?.n||'Løper')+' · '+(state.model.stats(id)?.years.join(', ')||'Ingen registrerte deltakelsesår')));card.append(years);}if(s.caseId)card.append(hint(C.labels[s.caseStatus]));const actions=node('div',undefined,'actions');actions.append(button(s.caseId?'Fortsett saken':'Åpne og sammenlign',()=>s.caseId?selectCase(state.package.cases.find(c=>c.id===s.caseId)):createCase(s)));if(!isReport&&['pending','followup'].includes(s.bucket)&&!['rejected','handoff','proposed'].includes(s.caseStatus)){const main=quickMainProfile(s.personIds);if(main)actions.append(hint('Hovedprofil ved hurtigvalg: '+state.model.person(main).n));actions.append(button('Samme person – slå sammen',()=>quickIdentity(s,'same'),'secondary correction-fast-same'),button('Ikke samme person – hold adskilt',()=>quickIdentity(s,'different'),'secondary correction-fast-different'));}card.append(actions);box.append(card);}
   if(!list.length)box.append(hint('Ingen forslag i dette utvalget. Behandlede saker er bevart i de andre utvalgene.'));
   const paging=node('div',undefined,'actions'),prev=button('Forrige saker',()=>{state.page--;render();}),next=button('Neste saker',()=>{state.page++;render();});prev.disabled=!state.page;next.disabled=(state.page+1)*size>=list.length;paging.append(prev,hint(list.length+' saker · side '+(state.page+1)),next);box.append(paging);
  }
@@ -292,8 +307,21 @@
   if(!identity)actions.append(notes);else other.append(notes);manual.append(draft,check,handoff);other.append(manual);actions.append(button(identity?'Forskjellige personer':'Avvis feilmeldingen',()=>finish('rejected',identity?'Profilene er vurdert som forskjellige personer.':'Feilmeldingen er avvist etter kontroll.')),button(identity?'Undersøk senere':'Utsett saken',()=>finish('review','Avventer mer kildegrunnlag.')));other.append(button('Angre / trekk tilbake eget forslag',()=>{state.package=C.transition(state.package,c.id,'review','Forslaget er trukket tilbake fra kandidatbehandling; tidligere hendelser bevares.');state.impact=null;render();}));box.append(actions,other);renderImpact(box,c);candidateSummary(box,c);
   if(c.change){const comparison=node('details');comparison.append(node('summary','Kontrollgrunnlag: registrert og foreslått verdi'));const diff=node('div',undefined,'correction-diff');diff.append(node('pre',JSON.stringify(c.change.before,null,2)),node('pre',JSON.stringify(c.change.after,null,2)));comparison.append(diff);box.append(comparison);}
  }
- function render(){if(state.candidate&&JSON.stringify(state.candidate.corrections)!==JSON.stringify(state.package))state.candidate=null;const body=$('correctionBody');if(!body)return;const version=++state.refreshVersion;C.worklist(state.suggestions,state.package).then(work=>{if(version!==state.refreshVersion)return;renderWork(body,work);}).catch(e=>message(e.message,true));}
- function renderWork(body,work){body.replaceChildren();const selected=state.package.cases.find(c=>c.id===state.selected),tab=state.tab==='cases'&&selected&&C.caseType(selected)==='identity'?'suggestions':state.tab;for(const b of host.querySelectorAll('[data-correction-tab]'))b.setAttribute('aria-pressed',String(b.dataset.correctionTab===tab));$('correctionSummary').replaceChildren(summary(work));
+ function render(){if(state.batchReview?.package!==state.package)state.batchReview=null;if(state.candidate&&JSON.stringify(state.candidate.corrections)!==JSON.stringify(state.package))state.candidate=null;const body=$('correctionBody');if(!body)return;const version=++state.refreshVersion;C.worklist(state.suggestions,state.package).then(work=>{if(version!==state.refreshVersion)return;renderWork(body,work);}).catch(e=>message(e.message,true));}
+ function renderWork(body,work){body.replaceChildren();const selected=state.package.cases.find(c=>c.id===state.selected),tab=state.tab==='cases'&&selected&&C.caseType(selected)==='identity'?'suggestions':state.tab;for(const b of host.querySelectorAll('[data-correction-tab]'))b.setAttribute('aria-pressed',String(b.dataset.correctionTab===tab));const panel=$('correctionSummary');panel.replaceChildren(summary(work));
+  const proposed=state.package.cases.filter(c=>c.change&&['proposed','handoff'].includes(c.status));
+  if(tab==='suggestions'&&proposed.length){
+   const batch=node('section',undefined,'correction-batch-review');batch.id='correctionBatchReview';
+   batch.append(node('h3','Felles gjennomgang av rettelser'),hint(proposed.length+' lokale endringsforslag registrert · '+work.identity.filter(s=>s.bucket==='pending').length+' personforslag fortsatt ubehandlet.'));
+   const check=button('Gjennomgang ferdig – kontroller '+proposed.length+' forslag samlet',checkStaged,'secondary correction-batch-check');check.id='correctionBatchCheck';batch.append(check);
+   const audit=state.batchReview?.package===state.package?state.batchReview.report:null;
+   if(audit){batch.append(node('strong',audit.ready?'Samlet forhåndskontroll bestått':'Samlet forhåndskontroll trenger avklaring'));
+    batch.append(hint('Berørte beregninger: '+(audit.changed.join(' · ')||'Ingen')+'. Kontrollresultatet gir ingen publiseringsrettigheter.'));
+    for(const issue of audit.uncertain)batch.append(node('p',issue,'intake-error'));
+    for(const issue of audit.errors)batch.append(node('p',String(issue.code||issue),'intake-error'));
+   }else batch.append(hint('Sammenslåingene kontrolleres samlet først når du er ferdig med gjennomgangen. Ingen løperprofil endres før egen godkjent publisering.'));
+   panel.append(batch);
+  }
   if(state.tab==='suggestions'||state.tab==='cases'&&!state.selected)listSuggestions(body,work);
   else if(state.tab==='cases'){
    const type=selected?C.caseType(selected):'report',layout=node('div',undefined,'correction-workspace'),list=node('aside',undefined,'correction-case-list');list.append(button('Tilbake til arbeidslisten',()=>{state.selected=null;state.suggestionScope='pending';activate(type==='identity'?'suggestions':'cases');}));for(const c of state.package.cases.filter(c=>C.caseType(c)===type&&(!['rejected','handoff'].includes(c.status)||c.id===state.selected)))list.append(button((c.personIds.map(id=>state.model.person(id)?.n||'Ukjent løper').join(' / ')||'Innmeldt feil')+' · '+C.labels[c.status],()=>selectCase(c)));const editor=node('section');editor.id='correctionEditor';layout.append(list,editor);body.append(layout);renderEditor();

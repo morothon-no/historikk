@@ -145,20 +145,28 @@ test('C2.5 quick decisions reject a suggested duplicate from the list without op
   assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));
  }finally{await context.close();}
 });
-test('C2.5 quick same-person action chooses the established main profile, audits the choice and prepares a reversible merge without writing history',async()=>{
+test('C2.5 quick same-person stages a merge immediately; one later read-only aggregate check reuses the existing projection and never writes history',async()=>{
  const {context,p}=await open(),requests=[];p.on('request',r=>requests.push(r));
  try{
   await p.getByRole('button',{name:'Mulige duplikater',exact:true}).click();
   const first=p.locator('.correction-case').filter({has:p.getByRole('heading',{name:'Syntetisk Kari Nord / Syntetisk Kari N. Nord',exact:true})});
   assert.match(await first.innerText(),/Hovedprofil ved hurtigvalg: Syntetisk Kari Nord/);
+  assert.match(await first.getByRole('button',{name:'Samme person – slå sammen'}).getAttribute('class'),/correction-fast-same/);
+  assert.match(await first.getByRole('button',{name:'Ikke samme person – hold adskilt'}).getAttribute('class'),/correction-fast-different/);
   await first.getByRole('button',{name:'Samme person – slå sammen'}).click();
-  await p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('lokalt klargjort')||document.querySelector('#correctionStatus').dataset.error==='true',{timeout:30000});
+  await p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('registrert som forslag')||document.querySelector('#correctionStatus').dataset.error==='true',{timeout:30000});
   assert.notEqual(await p.locator('#correctionStatus').getAttribute('data-error'),'true',await p.locator('#correctionStatus').innerText());
   assert.equal(await p.locator('#correctionEditor').count(),0);
-  const saved=await download(p);assert.equal(saved.cases.length,1);
-  assert.equal(saved.cases[0].status,'handoff');assert.equal(saved.cases[0].change.kind,'merge');
+  let saved=await download(p);assert.equal(saved.cases.length,1);
+  assert.equal(saved.cases[0].status,'proposed');assert.equal(saved.cases[0].change.kind,'merge');
   assert.deepEqual(saved.cases[0].change.personIds,[ids[1],ids[0]]);
   assert.match(saved.cases[0].source,/Manuell arrangørbekreftelse/);assert.match(saved.cases[0].reason,/bekrefter/);
+  assert.match(await p.locator('#correctionBatchReview').innerText(),/1 lokale endringsforslag/);
+  await p.click('#correctionBatchCheck');
+  await p.waitForFunction(()=>document.querySelector('#correctionBatchReview')?.textContent.includes('Samlet forhåndskontroll')||document.querySelector('#correctionStatus').dataset.error==='true',{timeout:30000});
+  assert.notEqual(await p.locator('#correctionStatus').getAttribute('data-error'),'true',await p.locator('#correctionStatus').innerText());
+  assert.match(await p.locator('#correctionBatchReview').innerText(),/Samlet forhåndskontroll bestått/);
+  saved=await download(p);assert.equal(saved.cases[0].status,'proposed','aggregate check must not secretly authorize a handoff');
   assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));
   assert.equal((await(await fetch(base+'data/history.json')).json()).redirects[ids[1]],undefined);
  }finally{await context.close();}
