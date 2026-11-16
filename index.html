@@ -867,7 +867,7 @@ function effectiveStatus(r){return MorothonHistoryData.effectiveStatus(r)}
 function juniorClass(r){return MorothonHistoryData.juniorClass(r)}
 function classPlacement(r){return r?(S.classPlace.get(r)||null):null}
 function classPlaceLabel(r){const p=person(r[1]),place=classPlacement(r);if(!p||!place)return '';return `${juniorClass(r)||(p.g==='Dame'?'Dame':'Herre')} nr. ${place}`}
-function sourcePlaceLabel(r){const n=Number(r?.[6]);return Number.isInteger(n)&&n>0?`${n}. plass i kildelisten`:''}
+function sourcePlaceLabel(r){const n=MorothonHistoryData.sourcePlace(r);return n===null?'':`${n}. plass i kildelisten`}
 function resultRowsHtml(rows){return rows.map(r=>{const st=resultStatusLabel(r),t=isCompletedResult(r)&&timeSeconds(r[5])!==null?displayTime(r[5]):st;return `<div class="result-row"><strong>${r[0]}</strong><div><b>${esc(resultDescriptor(r))}</b><small>${esc([!isRelayRace(r)?r[7]:'',!isRelayRace(r)?r[8]:'',!isRelayRace(r)?sourcePlaceLabel(r):''].filter(Boolean).join(' · '))}</small></div><strong>${esc(t)}<small class="class-place">${esc(isRelayRace(r)?st:(classPlaceLabel(r)||st))}</small></strong></div>`}).join('')}
 function frontPagePerfectAttendance(p){
  const editions=[...new Set(S.stats.map(s=>s[0]))].sort((a,b)=>a-b);
