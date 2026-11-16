@@ -959,9 +959,12 @@
    if(t===null&&I.fold(row.time)!=='completed')return denied('Fullført resultat mangler både sluttid og gjenkjent COMPLETED-status. Kontroller kildefilen.');
    // Some EQtiming finishes are explicitly COMPLETED without a measured duration.
    // Audit their source order *after* the timed finishers; never invent a time.
-   // If such a row itself changes, the organizer must review it individually.
-   if(t===null&&item?.category==='changed'&&!item.decision)
-    return denied('En COMPLETED-registrering uten sluttid har blitt endret. Den må kontrolleres separat.');
+   // A verified rank-only correction is safe when the untimed COMPLETED
+   // source token itself is unchanged, and the complete group's positions are
+   // contiguous after timed finishers. Never invent or alter an untimed finish.
+   if(t===null&&item?.category==='changed'&&!item.decision&&
+    !(item.before?.[5]===row.time&&item.differences.length&&item.differences.every(d=>d.field==='place')))
+    return denied('En COMPLETED-registrering uten sluttid har fått en annen endring enn kildeplassering. Kontroller denne manuelt.');
    const key=JSON.stringify([row.year,row.event,row.distance,gender]);
    if(!groups.has(key))groups.set(key,[]);groups.get(key).push({t,rank});
   }
