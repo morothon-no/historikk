@@ -22,7 +22,7 @@ function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYe
  if(!honors.volunteerList&&volunteers!==undefined)
   throw Error('Uventet dugnadsliste uten kildereferanse.');
  const data=honors.volunteerList?H.mergeVolunteers(honors,volunteers):copy(honors);
- const people=[],ids=new Set();
+ const people=[],ids=new Set(),suppressedLegacyIds=[];
  for(const group of data.groups){
   if(!group||typeof group.id!=='string'||!Array.isArray(group.members))
    throw Error('Ugyldig Heder-kategori.');
@@ -30,6 +30,12 @@ function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYe
    if(!member||typeof member.id!=='string'||!member.id||ids.has(member.id))
     throw Error('Duplisert eller ugyldig Heder-person.');
    ids.add(member.id);
+   // Previously rejected legacy entries remain in the original source for
+   // provenance, but must not be resurrected as editable Heder persons.
+   if(!H.isVisibleOnHonorPage(data,member.id)){
+    suppressedLegacyIds.push(member.id);
+    continue;
+   }
    const detail=copy(data.personDetails?.[member.id]||{});
    const merged=H.personRecord(data,member);
    const profile=H.honorProfile(data,member,years);
@@ -79,14 +85,15 @@ function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYe
    });
   }
  }
- const publicEligible=people.filter(p=>!p.hiddenFromPublic).length;
+ const publicEligible=people.length;
  const memorialCount=people.filter(p=>p.memorial).length;
  return {
   schemaVersion:1,organizerId,enabled,readOnly:true,publicationAuthorized:false,
   editionBasis:'legacy-distinct-year',editionYears:years,
   summary:{total:people.length,publicEligible,publicAvailable:enabled?publicEligible:0,
-   hidden:people.length-publicEligible,memorial:memorialCount},
-  people
+   suppressedLegacy:suppressedLegacyIds.length,memorial:memorialCount},
+  // Internal-only provenance list: never use as a public or editable person list.
+  suppressedLegacyIds,people
  };
 }
 module.exports={createHonorAdminRoster};
