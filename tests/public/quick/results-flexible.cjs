@@ -167,6 +167,14 @@ test('C2.5 batch gate refuses partial, misranked, class-ranked, conflicting or n
  assert.equal((await check(base.replace(';3;Herrer;M',';1;Herrer;M'))).p.ready,false,'source class/total rank must not pass gender audit');
  assert.equal((await check(base.split('\n').slice(0,-1).join('\n'))).p.ready,false,'missing old result blocks full-year approval');
  assert.equal((await check(base.replace(';M15-17;M',';M15-17;F'))).p.ready,false,'gender discrepancy blocks approval');
+ const manualClass=base.replace('70:00;3;Herrer;M','70:00;3;M20-29;M');
+ const mixed=await check(manualClass);
+ assert.equal(mixed.p.ready,true,mixed.p.problem);
+ assert.equal(mixed.p.total,2,'the two rank-only corrections are safe');
+ assert.equal(mixed.p.manual,1,'class and time change remains individually reviewable');
+ const partial=await R.confirmSafeBatch(ctx,mixed.session,new Map());
+ assert.equal(partial.decisions.size,2);
+ assert.equal(R.review(ctx,mixed.session,partial.decisions).pending,1,'manual structural correction stays visible');
  const changedClub=base.replace('Syntetisk Asmund Steinvik;301;Kortmoro','Syntetisk Asmund Steinvik;301;Kortmoro').replace('Rank Gender;Class;Gender','Rank Gender;Class;Gender;Club').split('\n').map((s,i)=>i?s+';Ny klubb':s).join('\n');
  assert.equal((await check(changedClub)).p.ready,false,'club metadata edits require separate review');
  const untrusted=await check(base);
