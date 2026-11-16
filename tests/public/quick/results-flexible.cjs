@@ -120,3 +120,88 @@ test('C2.3e computed podium ranks combine junior age classes within a single dis
  assert.equal(m.classPlaces.get(h.results[1]),4);
  assert.equal(m.genderPlaces.get(h.results[1]),4);
 });
+
+test('C2.5 one approval groups two corrected times and consequential Rank Gender shifts without changing identities or public history',async()=>{
+ // Fictional runners, complete one-year CSV with two new times and two place-only shifts.
+ const h=fixture.history();h.people=h.people.slice(0,4);
+ h.results=[
+  [2026,fixture.ids[0],'Kortmoro','10 km','Fullført','50:00',1,'Herrer','Syntetisk klubb','301'],
+  [2026,fixture.ids[1],'Kortmoro','10 km','Fullført','55:00',2,'M15-17','Syntetisk klubb','302'],
+  [2026,fixture.ids[2],'Kortmoro','10 km','Fullført','60:00',3,'Herrer','Syntetisk klubb','303'],
+  [2026,fixture.ids[3],'Kortmoro','10 km','Fullført','65:00',4,'Herrer','Syntetisk klubb','304']
+ ];h.yearStats=[[2026,0,0,0,0,0,0,0,0,0]];
+ const names=h.people.map(p=>p.n),rows=[
+  ['301',names[0],'66:00','4','Herrer'],
+  ['302',names[1],'50:00','1','M15-17'],
+  ['303',names[2],'60:00','2','Herrer'],
+  ['304',names[3],'65:00','3','Herrer']
+ ];
+ const csv='Name;Bib;Race;Distance;Status;Time;Rank Gender;Class;Gender\n'+rows.map(([bib,name,time,place,cls])=>[name,bib,'Kortmoro','10 km','Fullført',time,place,cls,'M'].join(';')).join('\n');
+ const ctx=context(h),stage=R.parse(csv),session=await R.createSession(ctx,stage,stage.mapping,{year:2026,sourceSha256:await C.hash(csv),meta:fixture.meta,completeClaim:true});
+ const analysis=R.review(ctx,session),plan=R.bulkPlan(ctx,session,analysis),before=JSON.stringify(h);
+ assert.equal(analysis.counts.changed,4);assert.equal(analysis.counts.missing,0);
+ assert.equal(plan.ready,true,plan.problem);assert.equal(plan.total,4);assert.equal(plan.timeChanged,2);assert.equal(plan.placeOnly,2);
+ const confirmed=await R.confirmSafeBatch(ctx,session,new Map());
+ assert.equal(confirmed.decisions.size,4);assert.equal(confirmed.summary.placeOnly,2);
+ assert.equal(R.review(ctx,session,confirmed.decisions).pending,0);
+ const packet=await R.prepare(ctx,session,confirmed.decisions);
+ assert.equal(packet.cases.length,4);assert.ok(packet.cases.every(c=>c.change?.kind==='result'&&c.status==='proposed'));
+ const candidate=await C.applyCandidate(h,packet,session.base,{preview:true});
+ assert.deepEqual(candidate.history.people,h.people);
+ assert.deepEqual(candidate.history.results.map(r=>r[5]),['66:00','50:00','60:00','65:00']);
+ assert.deepEqual(candidate.history.results.map(r=>r[6]),[4,1,2,3]);
+ assert.equal(candidate.productionApplied,false);assert.equal(JSON.stringify(h),before,'review never mutates original history');
+});
+test('C2.5 batch gate refuses partial, misranked, class-ranked, conflicting or non-time/place year imports',async()=>{
+ const h=fixture.history();h.people=h.people.slice(0,3);h.results=[
+  [2026,fixture.ids[0],'Kortmoro','10 km','Fullført','50:00',1,'Herrer','','301'],
+  [2026,fixture.ids[1],'Kortmoro','10 km','Fullført','55:00',2,'M15-17','','302'],
+  [2026,fixture.ids[2],'Kortmoro','10 km','Fullført','60:00',3,'Herrer','','303']
+ ];h.yearStats=[[2026,0,0,0,0,0,0,0,0,0]];
+ const base='Name;Bib;Race;Distance;Status;Time;Rank Gender;Class;Gender\n'+h.people.map((p,i)=>[p.n,301+i,'Kortmoro','10 km','Fullført',['70:00','55:00','60:00'][i],[3,1,2][i],i===1?'M15-17':'Herrer','M'].join(';')).join('\n');
+ const ctx=context(h);
+ async function check(csv,completeClaim=true){const s=R.parse(csv),ss=await R.createSession(ctx,s,s.mapping,{year:2026,sourceSha256:await C.hash(csv),meta:fixture.meta,completeClaim});return {p:R.bulkPlan(ctx,ss,R.review(ctx,ss)),session:ss};}
+ const good=await check(base);assert.equal(good.p.ready,true,good.p.problem);
+ assert.equal((await check(base,false)).p.ready,false);
+ assert.equal((await check(base.replace('Rank Gender','Rank Class'))).p.ready,false);
+ assert.equal((await check(base.replace(';3;Herrer;M',';1;Herrer;M'))).p.ready,false,'source class/total rank must not pass gender audit');
+ assert.equal((await check(base.split('\n').slice(0,-1).join('\n'))).p.ready,false,'missing old result blocks full-year approval');
+ assert.equal((await check(base.replace(';M15-17;M',';M15-17;F'))).p.ready,false,'gender discrepancy blocks approval');
+ const manualClass=base.replace('70:00;3;Herrer;M','70:00;3;M20-29;M');
+ const mixed=await check(manualClass);
+ assert.equal(mixed.p.ready,true,mixed.p.problem);
+ assert.equal(mixed.p.total,2,'the two rank-only corrections are safe');
+ assert.equal(mixed.p.manual,1,'class and time change remains individually reviewable');
+ const partial=await R.confirmSafeBatch(ctx,mixed.session,new Map());
+ assert.equal(partial.decisions.size,2);
+ assert.equal(R.review(ctx,mixed.session,partial.decisions).pending,1,'manual structural correction stays visible');
+ const changedClub=base.replace('Syntetisk Asmund Steinvik;301;Kortmoro','Syntetisk Asmund Steinvik;301;Kortmoro').replace('Rank Gender;Class;Gender','Rank Gender;Class;Gender;Club').split('\n').map((s,i)=>i?s+';Ny klubb':s).join('\n');
+ assert.equal((await check(changedClub)).p.ready,false,'club metadata edits require separate review');
+ const untrusted=await check(base);
+ await assert.rejects(()=>R.confirmSafeBatch(ctx,{...untrusted.session,key:'0'.repeat(64)}),/Importgrunnlaget er endret/);
+});
+
+test('C2.5 EQtiming COMPLETED without time and DNF with source rank are not fabricated into new times or false placement changes',async()=>{
+ const h=fixture.history();h.people=h.people.slice(0,5);h.results=[
+  [2026,fixture.ids[0],'Kortmoro','10 km','Fullført','50:00',1,'Herrer','','301'],
+  [2026,fixture.ids[1],'Kortmoro','10 km','Fullført','55:00',2,'Herrer','','302'],
+  [2026,fixture.ids[2],'Kortmoro','10 km','Fullført','COMPLETED',5,'Herrer','','303'],
+  [2026,fixture.ids[3],'Kortmoro','10 km','Fullført','COMPLETED',4,'Herrer','','304'],
+  [2026,fixture.ids[4],'Kortmoro','10 km','DNF','DNF',null,'Herrer','','305']
+ ];h.yearStats=[[2026,0,0,0,0,0,0,0,0,0]];
+ const header='Name;Bib;Race;Distance;Status;Time;Rank Gender;Class;Gender';
+ const source=h.people.map((p,i)=>[p.n,301+i,'Kortmoro','10 km',i===4?'DNF':'Fullført',['51:00','55:00','COMPLETED','COMPLETED','DNF'][i],i+1,'Herrer','M'].join(';'));
+ const csv=[header,...source].join('\n');
+ const ctx=context(h),parsed=R.parse(csv),session=await R.createSession(ctx,parsed,parsed.mapping,{year:2026,sourceSha256:await C.hash(csv),meta:fixture.meta,completeClaim:true});
+ const checked=R.review(ctx,session),plan=R.bulkPlan(ctx,session,checked);
+ assert.equal(plan.ready,true,plan.problem);assert.equal(plan.total,2);assert.equal(plan.timeChanged,1);assert.equal(plan.placeOnly,1);
+ assert.equal(session.rows[2].time,'COMPLETED');assert.equal(session.rows[2].place,3);
+ assert.equal(session.rows[4].status,'DNF');assert.equal(session.rows[4].place,'');assert.equal(session.rows[4].present.place,false);
+ const confirmed=await R.confirmSafeBatch(ctx,session,new Map()),pack=await R.prepare(ctx,session,confirmed.decisions),candidate=await C.applyCandidate(h,pack,session.base,{preview:true});
+ assert.deepEqual(candidate.history.results.slice(3),h.results.slice(3),'other untimed COMPLETED and DNF originals remain exact');
+ assert.equal(candidate.history.results[2][5],'COMPLETED','untimed participant must not gain an invented time');
+ assert.equal(candidate.history.results[2][6],3,'documented untimed source placement can be corrected');
+ assert.equal(candidate.history.results[0][5],'51:00');
+ const gap=csv.replace(';COMPLETED;3;',';COMPLETED;8;'),g=R.parse(gap),ss=await R.createSession(ctx,g,g.mapping,{year:2026,sourceSha256:await C.hash(gap),meta:fixture.meta,completeClaim:true});
+ assert.equal(R.bulkPlan(ctx,ss,R.review(ctx,ss)).ready,false,'untimed ranks with gaps require manual review');
+});

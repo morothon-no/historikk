@@ -927,6 +927,88 @@
   const completeness=counts.missing?'partial':counts.conflict||counts.uncertain||counts.registration||counts.unlinked||counts.unassessable||counts.new||counts.relay||!session.source.completeClaim||!old.length?'uncertain':'apparent-complete';
   return {items,counts,existing:old.length,read:session.rows.length,completeness,pending:items.filter(needsAttention).length};
  }
+ // C2.5: One explicit approval for a *complete, independently rank-audited* export.
+ // Only existing, supported bib/name result pairs with time/place differences qualify.
+ // This records decisions for a local C2.2 package; it never edits or publishes history.
+ function bulkPlan(context,session,analysis=review(context,session,new Map())){
+  const denied=problem=>({ready:false,problem,items:[],total:0,timeChanged:0,placeOnly:0});
+  if(!session?.source?.completeClaim)return denied('Bekreft først at resultatfilen inneholder alle individuelle øvelser i dette året.');
+  if(session.mapping?.time<0||session.mapping?.place<0)return denied('Samlet godkjenning krever sluttid og kildeplassering i filen.');
+  if(session.rows.some(r=>r.errors.length&&!r.relay))return denied('Noen resultatlinjer har tolkningsfeil og må avklares først.');
+  const blocking=['missing','unlinked','new','uncertain','conflict','registration','unassessable'];
+  if(blocking.some(k=>analysis.counts[k]))return denied('Filen har manglende resultater, nye personer eller uavklarte kilde-/personkonflikter. Behandle dem før samlet godkjenning.');
+  if(!analysis.existing)return denied('Ingen eksisterende årsresultater er dokumentert for denne importen.');
+  const changed=analysis.items.filter(i=>i.category==='changed'&&!i.decision);
+  if(!changed.length)return denied('Ingen ubehandlede resultatendringer er klare for samlet godkjenning.');
+  const safe=i=>!i.blocking&&i.before&&i.after&&i.beforeIndex!==null&&!i.limitation&&
+    i.row?.bib&&String(i.before[9])===String(i.row.bib)&&
+    i.before[0]===session.source.year&&context.model.resolve(i.before[1])===context.model.resolve(i.after[1])&&
+    i.differences.length&&i.differences.every(d=>['time','place'].includes(d.field));
+  const items=changed.filter(safe),manual=changed.length-items.length;
+  if(!items.length)return denied('Ingen rene tids- eller plasseringsendringer har sikker startnummerkobling. De andre avvikene må kontrolleres enkeltvis.');
+  // More complex corrections remain visible for individual review, but cannot
+  // prevent independent, rank-audited time/place-only rows from being approved.
+  // The source must rank every individual finisher by year+race+distance+gender,
+  // across junior and adult classes, using competition ranking for equal times.
+  // This catches mistakenly mapped Rank Class, partial source groups and rank drift.
+  const byId=new Map(analysis.items.filter(i=>i.row).map(i=>[i.row.id,i]));
+  const groups=new Map(),H=context.rules;
+  for(const row of session.rows){
+   if(row.relay||!H.isCompletedResult([row.year,'',row.event,row.distance,row.status,row.time]))continue;
+   const item=byId.get(row.id),id=item?.before?context.model.resolve(item.before[1]):null;
+   const gender=row.gender||context.model.person(id)?.g||'';
+   if(!id||!['Herre','Dame'].includes(gender)||row.gender&&context.model.person(id)?.g&&row.gender!==context.model.person(id).g)
+    return denied('Kjønn eller resultatkobling kan ikke bekreftes for alle fullførte løpere.');
+   const t=H.timeSeconds(row.time),rank=row.place;
+   if(row.present.place!==true||!Number.isSafeInteger(rank)||rank<1)
+    return denied('Alle fullførte løpere må ha en gyldig kildeplassering for sikker rangkontroll.');
+   if(t===null&&I.fold(row.time)!=='completed')return denied('Fullført resultat mangler både sluttid og gjenkjent COMPLETED-status. Kontroller kildefilen.');
+   // Some EQtiming finishes are explicitly COMPLETED without a measured duration.
+   // Audit their source order *after* the timed finishers; never invent a time.
+   // A verified rank-only correction is safe when the untimed COMPLETED
+   // source token itself is unchanged, and the complete group's positions are
+   // contiguous after timed finishers. Never invent or alter an untimed finish.
+   if(t===null&&item&&items.includes(item)&&
+    !(item.before?.[5]===row.time&&item.differences.length&&item.differences.every(d=>d.field==='place')))
+    return denied('En COMPLETED-registrering uten sluttid har fått en annen endring enn kildeplassering. Kontroller denne manuelt.');
+   const key=JSON.stringify([row.year,row.event,row.distance,gender]);
+   if(!groups.has(key))groups.set(key,[]);groups.get(key).push({t,rank});
+  }
+  if(!groups.size)return denied('Filen mangler fullførte individuelle resultater som kan rangeres.');
+  for(const entries of groups.values()){
+   const timed=entries.filter(e=>e.t!==null).sort((a,b)=>a.t-b.t),untimed=entries.filter(e=>e.t===null);
+   let last=null,rank=0;
+   for(let j=0;j<timed.length;j++){
+    if(timed[j].t!==last){rank=j+1;last=timed[j].t;}
+    if(timed[j].rank!==rank)return denied('Kildeplasseringene samsvarer ikke med samlet rangering etter kjønn og distanse. Kontroller at Rank Gender, ikke Rank Class, er valgt og at eksporten er komplett.');
+   }
+   // Untimed COMPLETED entries have no comparable durations. Check only that
+   // provider ranks continue contiguously after timed results; never infer times.
+   const untimedRanks=untimed.map(e=>e.rank).sort((a,b)=>a-b);
+   if(untimedRanks.some((r,j)=>r!==timed.length+j+1))
+    return denied('COMPLETED uten sluttid har uventede kildeplasseringer. Kontroller hele resultatgruppen manuelt.');
+  }
+  return {ready:true,problem:'',items:items.map(i=>i.id),total:items.length,manual,
+   timeChanged:items.filter(i=>i.differences.some(d=>d.field==='time')).length,
+   placeOnly:items.filter(i=>i.differences.every(d=>d.field==='place')).length,
+   year:session.source.year,sourceSha256:session.source.sha256};
+ }
+ async function confirmSafeBatch(context,session,decisions=new Map()){
+  await validateSession(context,session);
+  const analysis=review(context,session,decisions),plan=bulkPlan(context,session,analysis);
+  if(!plan.ready)throw Error(plan.problem);
+  const next=new Map(decisions),byId=new Map(analysis.items.map(i=>[i.id,i]));
+  const reason='Samlet arrangørbekreftelse av tid og kildeplassering fra fullstendig årsresultat, kontrollert startnummer og rangering etter kjønn og distanse. Fil SHA-256 '+session.source.sha256+'.';
+  const at=new Date().toISOString();
+  for(const id of plan.items){
+   const item=byId.get(id);
+   next.set(id,{basis:session.key,action:'confirm',runnerId:context.model.resolve(item.before[1]),targetIndex:item.beforeIndex,reason,at});
+  }
+  const after=review(context,session,next);
+  if(plan.items.some(id=>{const row=after.items.find(i=>i.id===id);return !row||row.blocking||row.decision?.action!=='confirm'||!['changed','unchanged'].includes(row.category);}))
+   throw Error('Samlet vurdering stemte ikke med resultatkoblingene. Ingen beslutninger er beholdt.');
+  return {decisions:next,summary:{year:plan.year,total:plan.total,timeChanged:plan.timeChanged,placeOnly:plan.placeOnly,manual:plan.manual,sourceSha256:plan.sourceSha256}};
+ }
  function decide(context,session,decisions,itemId,{action,runnerId=null,targetIndex=null,reason}){
   const next=new Map(decisions);next.set(itemId,{basis:session.key,action,runnerId,targetIndex,reason:clean(reason),at:new Date().toISOString()});const analysis=review(context,session,next);if(!analysis.items.some(i=>i.id===itemId))throw Error('Kontrollsaken finnes ikke i dette grunnlaget.');return next;
  }
@@ -947,5 +1029,5 @@
   await C.applyCandidate(context.model.data,packet,session.base,{preview:true});C.serialize(packet);return packet;
  }
  async function report(context,session,decisions){const packet=await prepare(context,session,decisions),analysis=review(context,session,decisions);const text=JSON.stringify({format:'morothon-results-review-v1',version:1,base:session.base,source:session.source,interpretationSha256:session.key,mapping:session.mapping,summary:{existing:analysis.existing,read:analysis.read,completeness:analysis.completeness,...analysis.counts},items:analysis.items,corrections:packet,productionApplied:false},null,2)+'\n';if(new TextEncoder().encode(text).length>8*1024*1024)throw Error('Kontrollrapporten overstiger 8 MB. Avgrens utvalget og gjennomgå på nytt. Ingen rader er utelatt stille.');return text;}
- return {fields,labels,needsAttention,columns,parse,detectFields,resolveFields,annualCourses,inspect,layouts,canContainFinish:v=>!notFinish(v),importedRows,createSession,validateSession,review,decide,prepare,report,differences};
+ return {fields,labels,needsAttention,columns,parse,detectFields,resolveFields,annualCourses,inspect,layouts,canContainFinish:v=>!notFinish(v),importedRows,createSession,validateSession,review,bulkPlan,confirmSafeBatch,decide,prepare,report,differences};
 });

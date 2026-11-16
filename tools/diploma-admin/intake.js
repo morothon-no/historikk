@@ -410,6 +410,18 @@
  }
  function resultBox(title,row){const box=node('section',undefined,'result-values');box.append(node('h4',title));if(!row){box.append(hint('Ingen koblet registrering.'));return box;}const list=node('dl');for(const [key,index]of Object.entries(R.columns)){list.append(node('dt',R.fields[key]),node('dd',row[index]===null||row[index]===''?'Ikke registrert':String(row[index])));}box.append(list);return box;}
  function change(item,action,personId,targetIndex,reason){state.decisions=R.decide(state.context,state.session,state.decisions,item.id,{action,runnerId:personId,targetIndex,reason});state.analysis=R.review(state.context,state.session,state.decisions);$('resultImpact').replaceChildren();render();status('Beslutningen er beholdt i denne fanen. Ingen resultater er endret. Last ned kontrollpakken før du lukker.');}
+ async function confirmAnnualBatch(){
+  const session=state.session,revision=state.revision,original=state.decisions,plan=R.bulkPlan(state.context,session,state.analysis);
+  if(!plan.ready)throw Error(plan.problem);
+  const accepted=window.confirm('Godkjenn '+plan.total+' kontrollerte endringer i '+plan.year+' samlet? '+plan.timeChanged+' sluttider og '+plan.placeOnly+' rene plasseringsendringer.'+(plan.manual?' '+plan.manual+' mer sammensatte rettelser blir liggende til manuell kontroll.':'')+' Startnummer og rangering er kontrollert. Beslutningene lagres bare i denne fanen – ingen publisering.');
+  if(!accepted)return;
+  status('Kontrollerer kildefil, plasseringer og resultatkoblinger på nytt …');
+  const out=await R.confirmSafeBatch(state.context,session,original);
+  if(revision!==state.revision||session!==state.session||original!==state.decisions)throw Error('Kilden eller arbeidslisten er endret under godkjenningen. Prøv igjen.');
+  state.decisions=out.decisions;state.analysis=R.review(state.context,session,state.decisions);
+  state.filter=out.summary.manual?'pending':'processed';state.page=0;$('resultImpact').replaceChildren();render();
+  status(out.summary.total+' rettelser er bekreftet i ett valg: '+out.summary.timeChanged+' tidsendringer og '+out.summary.placeOnly+' rene plasseringsendringer.'+(out.summary.manual?' '+out.summary.manual+' mer sammensatte endringer gjenstår i listen for manuell kontroll.':'')+' Ingen resultatdata er publisert. Last ned kontrollrapporten eller overfør rettelsene til kontrollsentralen.');
+ }
  function caseCard(item){
   const card=node('article',undefined,'result-case');card.dataset.resultId=item.id;const name=item.row?.name||state.context.model.person(item.before?.[1])?.n||'Eksisterende kilderegistrering',bib=item.row?.bib||item.before?.[9]||'';
   card.append(node('h3',name),hint((item.conflictType==='source'?'Kildekonflikt':R.labels[item.category])+(bib?' · startnummer '+bib:'')),node('p',item.reason));if(item.decision)card.append(hint(actionNames[item.decision.action]+' · '+item.decision.reason));
@@ -446,7 +458,17 @@
  function render(){
   const a=state.analysis;if(!a)return;const summary=$('resultSummary');summary.replaceChildren();summary.append(node('h3',a.read+' leste resultater · '+a.existing+' eksisterende individuelle registreringer'));
   const completeness={partial:'Delvis / uavstemt eksport: historiske registreringer mangler kobling.',uncertain:'Usikkert utvalg: fullstendighet kan ikke bekreftes.', 'apparent-complete':'Fremstår som komplett for bekreftet utvalg. Dette er ingen garanti fra kilden.'};summary.append(hint(completeness[a.completeness]));
-  stages();const grid=node('div',undefined,'result-summary-grid');for(const [key,label]of Object.entries(groups)){const box=node('article');box.dataset.resultGroup=key;box.append(node('strong',String(groupCount(a,key))),node('span',label));grid.append(box);}const attention=node('p');attention.id='resultAttentionCount';attention.append(node('strong',a.pending+' saker trenger vurdering'));summary.append(grid,attention,hint('Uendrede resultater og vanlige DNS-registreringer krever ingen handling.'));if(a.counts.unlinked)summary.append(hint(a.counts.unlinked+' historiske registreringer inngår i en tilknyttet avklaring. De telles ikke som ekstra kontrollsaker.'));
+  stages();
+  const needBatch=a.items.some(i=>i.category==='changed'&&!i.decision);
+  if(needBatch){
+   const plan=R.bulkPlan(state.context,state.session,a),box=node('section',undefined,'result-bulk-review');
+   box.id='resultBulkReview';box.append(node('h4','Samlet kontroll av årsresultater'));
+   if(plan.ready){box.append(hint(plan.timeChanged+' endrede sluttider · '+plan.placeOnly+' rene plasseringsendringer · '+plan.total+' sikre resultatendringer.'+(plan.manual?' '+plan.manual+' mer sammensatte endringer må kontrolleres separat.':'')+' Kildens kjønns-/distanserangering og eksisterende startnummer er kontrollert.'));
+    box.append(button('Godkjenn '+plan.total+' sikre endringer samlet',confirmAnnualBatch,'resultBulkApprove'));}
+   else box.append(hint('Samlet godkjenning er foreløpig sperret: '+plan.problem));
+   box.append(hint('Andre avvik og nye personer kan ikke godkjennes automatisk. Ingen historikk oppdateres før separat autorisert publisering.'));summary.append(box);
+  }
+  const grid=node('div',undefined,'result-summary-grid');for(const [key,label]of Object.entries(groups)){const box=node('article');box.dataset.resultGroup=key;box.append(node('strong',String(groupCount(a,key))),node('span',label));grid.append(box);}const attention=node('p');attention.id='resultAttentionCount';attention.append(node('strong',a.pending+' saker trenger vurdering'));summary.append(grid,attention,hint('Uendrede resultater og vanlige DNS-registreringer krever ingen handling.'));if(a.counts.unlinked)summary.append(hint(a.counts.unlinked+' historiske registreringer inngår i en tilknyttet avklaring. De telles ikke som ekstra kontrollsaker.'));
   const box=$('resultCases');box.replaceChildren();const f=select([['pending','Ubehandlede avvik'],['all','Alle avvik'],['processed','Behandlede avvik'],...Object.entries(groups),['unlinked','Tilknyttet historikk – informasjon'],['missing','Mangler i ny kilde']],'resultFilter',state.filter);f.onchange=()=>{state.filter=f.value;state.page=0;render();};box.append(field('Vis',f));
   const rows=a.items.filter(i=>state.filter==='pending'?R.needsAttention(i):state.filter==='all'?i.category!=='unchanged':state.filter==='processed'?!!i.decision:state.filter==='identity'?inIdentity(i):state.filter==='source'?inSource(i):i.category===state.filter),size=10;state.page=Math.min(state.page,Math.max(0,Math.ceil(rows.length/size)-1));
   for(const item of rows.slice(state.page*size,(state.page+1)*size))box.append(caseCard(item));if(!rows.length)box.append(hint('Ingen saker i dette utvalget.'));
