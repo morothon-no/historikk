@@ -38,8 +38,9 @@ publiserings- eller lagringsprosess. GitHub Pages er fremdeles skrivebeskyttet.
 - EQtiming kan registrere **COMPLETED uten målt sluttid**. Slike starter
   beholder sin historiske kildestatus og kildeplassering uten oppdiktet tid.
   Kildeplasseringene må komme fortløpende **etter** de tidsregistrerte
-  fullføringene i samme kjønn/distanse, og en direkte endring av en slik
-  untidsatt registrering krever fortsatt egen manuell vurdering.
+  fullføringene i samme kjønn/distanse. En endring av **bare kildeplassering**
+  kan inngå i samlet godkjenning når den følger denne dokumenterte rekkefølgen,
+  men en endring av selve tids-/statusfeltet må behandles separat.
 
 Selv om et resultatark virker komplett, utgjør brukerens avkrysning ikke
 en attestasjon fra leverandøren. Derfor lagres bare beslutninger som lokalt
