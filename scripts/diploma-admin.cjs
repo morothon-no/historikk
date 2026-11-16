@@ -63,14 +63,14 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
     const approved = JSON.parse(await fs.readFile(path.join(root, '.github/public-data-approval.json'), 'utf8'));
     worker = await createWorker({ base: origin, directory: temp, assertSnapshot, beforeCheck,
       source: { manifestSha256: approved.manifestSha256, dataVersion: approved.dataVersion, buildVersion: result.version, snapshotSha256: originalDigest } });
-    // Read-only Heder runs only when the trusted source-only modules are
-    // present. Public-only CI must keep C1's unrelated PDF/portal tests working.
+    // Portal participant history is public and required in every checkout.
+    // Only the additional Heder source projections depend on trusted files.
+    honorHistory = JSON.parse(await fs.readFile(path.join(site, 'data/history.json'), 'utf8'));
     if (trustedSourcesPresent) {
       const { createHonorAdminRoster } = require('./admin/honor-roster.cjs');
       const { publicHonorAdminView } = require('./admin/honor-admin-view.cjs');
       const { findHonorRunnerCandidates } = require('./admin/honor-runner-search.cjs');
       runnerSearch = findHonorRunnerCandidates;
-      honorHistory = JSON.parse(await fs.readFile(path.join(site, 'data/history.json'), 'utf8'));
       const [honors, volunteers, eventProfile] = await Promise.all([
         fs.readFile(path.join(site, 'data/honors.json'), 'utf8').then(JSON.parse),
         fs.readFile(path.join(site, 'data/volunteers.json'), 'utf8').then(JSON.parse),
