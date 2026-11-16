@@ -54,3 +54,25 @@ test('C2.4 deferred identity decisions do not project until an explicit single a
  assert.equal(withHeder.ready,false,'linked heder runner still blocks an unchecked merge');
  assert.match(withHeder.uncertain.join(' '),/Heder/);
 });
+
+test('C2.5 chooses a confirmed expanded middle name over a shorter initial even when the initial has more participation years',()=>{
+ const people=new Map([['short',{n:'Syntetisk L. Jahnsson'}],['full',{n:'Syntetisk Lauvsland Jahnsson'}]]);
+ const model={person:id=>people.get(id),stats:id=>({years:id==='short'?[2014,2015,2017,2018]:[2019,2020,2024]})};
+ assert.equal(C.preferredMainProfile(model,['short','full']),'full');
+ assert.equal(C.preferredMainProfile(model,['full','short']),'full');
+ people.set('full',{n:'Syntetisk Lauvsland Nord'});
+ assert.equal(C.preferredMainProfile(model,['short','full']),'short','different surnames may not be treated as an expanded initial');
+ people.set('short',{n:'Syntetisk K. Jahnsson'});
+ people.set('full',{n:'Syntetisk Lauvsland Jahnsson'});
+ assert.equal(C.preferredMainProfile(model,['short','full']),'short','an unrelated initial is not an expansion');
+});
+test('C2.5 staged identity batch reports the specific conflicting merge without applying or publishing any change',async()=>{
+ const {h,b}=await setup(),old=structuredClone(h);
+ let work=C.report(C.empty(b),{id:'one',category:'Mulige duplikater',personIds:[ids[0],ids[1]],description:'Syntetisk personkontroll',source:'syntetisk'});
+ work=await C.propose(h,work,'one',{...merge,personIds:[ids[0],ids[1]]});
+ work=C.report(work,{id:'two',category:'Mulige duplikater',personIds:[ids[0],ids[4]],description:'Syntetisk mulig duplikat',source:'syntetisk'});
+ work=await C.propose(h,work,'two',{...merge,personIds:[ids[0],ids[4]]});
+ assert.deepEqual(work.cases.map(c=>c.status),['proposed','proposed']);
+ await assert.rejects(()=>C.reviewStaged(h,work,b,project),/Konflikt i sammenslåing «Syntetisk Kari Nord \/ Syntetisk Statusløper»: Motstridende eller endret identitet/);
+ assert.deepEqual(h,old);
+});
