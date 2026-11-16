@@ -149,10 +149,18 @@ test('A1D portable configuration remains pending and contains no workflow or ser
  assert.deepEqual((await fs.readdir(path.join(repo,'ops/admin-templates'))).sort(),['approval.example.json','config.example.json']);
  const operations=(await C.read(repo,'scripts/admin/operations.cjs')).toString();assert.ok(!operations.includes("C.run('gh'"));assert.ok(!operations.includes("['push'"));
 });
-test('A1D administrative tools and private credentials remain outside public runtime and PR checkout',async()=>{
+test('A1D migration tools and private credentials remain outside public runtime and PR checkout',async()=>{
  const {runtimeFiles}=require('../scripts/lib/runtime-files.cjs'),registry=C.json(await C.read(repo,'public-data/data/badges.json'));
  assert.ok(runtimeFiles(registry).every(f=>!f.startsWith('scripts/admin/')&&!f.startsWith('ops/')));
  const workflow=(await C.read(repo,'.github/workflows/pages.yml')).toString().split('  source_checks:')[0];
- assert.ok(!/historikk-admin|ADMIN_RCLONE|PUBLIC_DATA_PROPOSER_TOKEN|\/scripts\/admin\//.test(workflow));
+ assert.ok(!/historikk-admin|ADMIN_RCLONE|PUBLIC_DATA_PROPOSER_TOKEN/.test(workflow));
+ // Only the separately isolated, token-free source job may fetch these pure
+ // modules. Backup, migration, hosting and original-data tooling remain absent.
+ const isolated=workflow.split('  pr_source_checks:')[1].split('  plan:')[0];
+ const expected=['common.cjs','postgres-review-store.cjs','release-plan.cjs','review-workspace.cjs','storage.cjs'];
+ const paths=isolated.split('\n').map(s=>s.trim()).filter(s=>s.startsWith('/scripts/admin/'));
+ assert.deepEqual(paths.sort(),expected.map(f=>'/scripts/admin/'+f).sort());
+ assert.match(isolated,/permissions: \{\}/);
+ assert.ok(!/\/scripts\/admin\//.test(workflow.split('  plan:')[1]));
  assert.deepEqual(await fs.readdir(path.join(repo,'.github/workflows')),['pages.yml']);
 });

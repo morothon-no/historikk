@@ -1,6 +1,7 @@
 // Run from protected base before any PR code. Missing/unknown change information means full.
 const fs=require('node:fs/promises'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const {levels,requirements}=require('./catalog.cjs');
+const {tests:prSourceTests}=require('./pr-source.cjs');
 const functional=new Set(['js/compare.js','js/rankings.js','js/progress.js']);
 const visual=new Set(['js/brag-card.js','js/honors.js','js/navigation.js','css/brag-card.css','css/honors.css','css/navigation.css']);
 const documentation=p=>p==='README.md'||/^docs\/[a-zA-Z0-9/._-]+\.(md|json)$/.test(p);
@@ -20,7 +21,7 @@ async function gitChanges(root,base,head){
 }
 async function plan({root,base,head,forceFull=false}){
  const changes=await gitChanges(root,base,head),selection=classify(changes,{forceFull});
- return {schemaVersion:1,base,head,...selection,changes,public:requirements(selection.level,'public'),source:requirements(selection.level,'source')};
+ return {schemaVersion:1,base,head,...selection,changes,prSource:{required:true,levelIndependent:true,tests:[...prSourceTests]},public:requirements(selection.level,'public'),source:requirements(selection.level,'source')};
 }
 module.exports={classify,gitChanges,plan};
 if(require.main===module){
