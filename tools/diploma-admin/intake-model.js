@@ -336,7 +336,19 @@
    if(['add','result'].includes(kind)&&!reverse&&!data.yearStats.some(r=>r[0]===ch.after[0]))throw Error('Resultatåret finnes ikke i arrangementsregisteret.');
    if(['add','result'].includes(kind)&&!reverse&&!ch.personIds.includes(H.resolveId(ch.after[1],data.redirects||{})))throw Error('Resultatet tilhører ikke sakens valgte person.');
   }
-  for(const c of p.cases){if(!(c.status==='handoff'||preview&&c.status==='proposed'))continue;await apply(c);applied.set(c.id,c);journal.push({caseId:c.id,kind:c.change.kind,source:c.source,reason:c.reason,reverses:c.change.reverses});}
+  for(const c of p.cases){
+   if(!(c.status==='handoff'||preview&&c.status==='proposed'))continue;
+   try{await apply(c);}catch(error){
+    // When an earlier staged proposal fails, identify that exact pair. Never
+    // misattribute the conflict to the main name chosen on the current form.
+    if(c.change?.kind==='merge'){
+     const pair=c.change.personIds.map(id=>history.people.find(person=>person.i===id)?.n||id);
+     throw Error('Konflikt i sammenslåing «'+pair.join(' / ')+'»: '+error.message);
+    }
+    throw error;
+   }
+   applied.set(c.id,c);journal.push({caseId:c.id,kind:c.change.kind,source:c.source,reason:c.reason,reverses:c.change.reverses});
+  }
   return {history:data,journal,productionApplied:false};
  }
  // Names are compared by role and complete tokens. Years never create identity evidence.
