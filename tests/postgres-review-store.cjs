@@ -100,10 +100,11 @@ test('optimistic CAS rejects concurrent first saves and lost updates; approval r
 test('PostgreSQL tenant AAD prevents ciphertext substitution even when private keys match',async()=>{
  const {store,service,rows,keys}=make();
  const common=randomBytes(32);keys.set('morothon',common);keys.set('skoglopet',common);
- await service.save({session:'owner',organizer:'morothon',expectedRevision:0,draft:draftFor('morothon')});
+ const draft=draftFor('morothon');
+ await service.save({session:'owner',organizer:'morothon',expectedRevision:0,draft});
  rows.set('skoglopet',{...rows.get('morothon')});
  await assert.rejects(()=>store.get('skoglopet'),/auth|authenticate|Unsupported state/i);
- assert.deepEqual((await store.get('morothon')).draft,draftFor('morothon'));
+ assert.deepEqual((await store.get('morothon')).draft,draft);
 });
 test('corrupted ciphertext and stale or mismatched history fail closed without rewriting stored bytes',async()=>{
  const {store,service,rows}=make(),draft=draftFor('morothon');
