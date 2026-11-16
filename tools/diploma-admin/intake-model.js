@@ -490,7 +490,10 @@
 
   // Source positions are historical evidence. Changed calculated order does not rewrite them.
   const place=changes.find(x=>x.area==='placements');if(place.status==='changed'){
-   const key=r=>JSON.stringify([r.personId,r.year,r.event,r.distance,r.className,r.bib]),beforeRanks=new Map(beforeView.placements.map(r=>[key(r),r]));for(const r of afterView.placements){const old=beforeRanks.get(key(r));if(old&&old.rank!==r.rank&&!affected.has(r.personId)&&r.sourcePlace!==r.rank)uncertain.push('Andre løperes kildeplasseringer avviker fra ny beregning. Kontroller og foreslå kildebaserte rettelser før overlevering.');}
+   // A runner can have several genuine starts with the same year, course, class and bib.
+   // Distinguish their source times/positions so Map does not compare a first start
+   // against the last matching start and report a false rank change on identity merges.
+   const key=r=>JSON.stringify([r.personId,r.year,r.event,r.distance,r.className,r.bib,r.time,r.sourcePlace]),beforeRanks=new Map(beforeView.placements.map(r=>[key(r),r]));for(const r of afterView.placements){const old=beforeRanks.get(key(r));if(old&&old.rank!==r.rank&&!affected.has(r.personId)&&r.sourcePlace!==r.rank)uncertain.push('Andre løperes kildeplasseringer avviker fra ny beregning. Kontroller og foreslå kildebaserte rettelser før overlevering.');}
   }
   const candidateModel=rules().create(all.history);
   for(const row of all.history.results)if(rules().isJuniorRace(row)&&/^[KM]\d/.test(row[7]||'')&&c.change.personIds.includes(row[1])){const g=candidateModel.person(row[1])?.g;if(row[7].startsWith('K')&&g==='Herre'||row[7].startsWith('M')&&g==='Dame')uncertain.push('Juniorklasse og kjønn må avklares før overlevering.');}
