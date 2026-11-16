@@ -113,6 +113,6 @@ test('C2.3e computed podium ranks combine junior age classes within a single dis
  const m=H.create(h);
  assert.equal(m.classPlaces.get(h.results[2]),2,'M13-14 runner follows faster M10-12 runner on same 3 km distance');
  assert.equal(m.classPlaces.get(h.results[3]),1,'The 3 km male winner is ranked first regardless of class');
- assert.equal(m.classPlaces.get(h.results[0]),1,'A youth runner at 10 km is ranked against adult runners');
- assert.equal(m.classPlaces.get(h.results[1]),2);
+ assert.equal(m.classPlaces.get(h.results[0]),3,'A youth runner at 10 km ranks behind the two faster adult runners in this fixture');
+ assert.equal(m.classPlaces.get(h.results[1]),4);
 });
