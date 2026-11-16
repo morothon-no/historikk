@@ -14,7 +14,8 @@ async function download(p){const waiting=p.waitForEvent('download');await p.getB
 async function selectSuggestion(p,a,b){await p.getByRole('button',{name:'Mulige duplikater',exact:true}).click();const card=p.locator('.correction-case').filter({has:p.getByRole('heading',{name:a+' / '+b,exact:true})});await card.first().getByRole('button',{name:'Åpne og sammenlign',exact:true}).click();}
 async function step(p,id){for(const details of ['#correctionOtherChoices','#correctionManualFlow'])if(await p.locator(details).getAttribute('open')===null)await p.locator(details+' > summary').click();await p.click(id);}
 async function checkImpact(p){await step(p,'#correctionCheck');await p.waitForFunction(()=>document.querySelector('#correctionImpact')||document.querySelector('#correctionStatus').dataset.error==='true');assert.equal(await p.locator('#correctionImpact').count(),1,await p.locator('#correctionStatus').innerText());}
-async function evidence(p){await p.fill('#correctionSource','Syntetisk arrangørarkiv, kontrollert testkilde 1');await p.fill('#correctionReason','Identitet og resultat er kontrollert mot syntetisk originalkilde.');}
+async function optionalReason(p,value){if(await p.locator('#correctionOtherChoices').getAttribute('open')===null)await p.locator('#correctionOtherChoices > summary').click();await p.fill('#correctionReason',value);}
+async function evidence(p){if(await p.locator('#correctionOtherChoices').getAttribute('open')===null)await p.locator('#correctionOtherChoices > summary').click();await p.fill('#correctionSource','Syntetisk arrangørarkiv, kontrollert testkilde 1');await optionalReason(p,'Identitet og resultat er kontrollert mot syntetisk originalkilde.');}
 test('C2.2 full browser merge workflow compares profiles, changes a historical badge, computes using existing engines, exports/reimports and reverses without production writes',async()=>{
  const {context,p}=await open(),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r));try{
  assert.equal(await p.locator('#navCorrections').getAttribute('aria-current'),'page');await selectSuggestion(p,'Syntetisk Kari Nord','Syntetisk Kari N. Nord');assert.equal(await p.locator('.correction-profile').count(),2);assert.match(await p.locator('#correctionEditor').innerText(),/3 tellende deltakelsesår/);assert.equal(await p.isDisabled('#correctionHandoff'),true);await evidence(p);await step(p,'#correctionPropose');assert.match(await p.locator('#correctionStatus').innerText(),/registrert/);
@@ -63,7 +64,7 @@ test('C2.2a refresh shows pending suggestions, keeps followed-up/completed cases
  const {context,p}=await open(),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r));try{
  await p.getByRole('button',{name:'Mulige duplikater',exact:true}).click();await p.locator('#correctionSuggestionScope').waitFor();assert.equal(await p.inputValue('#correctionSuggestionScope'),'pending');assert.equal(await p.locator('#correctionBody .correction-case').count(),2);
  await p.locator('.correction-case').filter({has:p.getByRole('heading',{name:'Syntetisk Kari Nord / Syntetisk Kari N. Nord',exact:true})}).getByRole('button',{name:'Åpne og sammenlign',exact:true}).click();await p.click('#correctionRefresh');await p.locator('#correctionSuggestionScope').waitFor();await p.locator('.correction-case').filter({hasText:'Syntetisk Kari Nord'}).getByRole('button',{name:'Fortsett saken',exact:true}).click();assert.equal((await download(p)).cases.length,1);
- await p.fill('#correctionReason','Syntetisk kontroll viser forskjellige personer.');await p.getByRole('button',{name:'Forskjellige personer',exact:true}).click();await p.click('#correctionRefresh');await p.locator('#correctionSuggestionScope').waitFor();assert.equal(await p.locator('#correctionBody .correction-case').count(),1);assert.doesNotMatch(await p.locator('#correctionBody').innerText(),/Syntetisk Kari Nord/);
+ await optionalReason(p,'Syntetisk kontroll viser forskjellige personer.');await p.getByRole('button',{name:'Forskjellige personer',exact:true}).click();await p.click('#correctionRefresh');await p.locator('#correctionSuggestionScope').waitFor();assert.equal(await p.locator('#correctionBody .correction-case').count(),1);assert.doesNotMatch(await p.locator('#correctionBody').innerText(),/Syntetisk Kari Nord/);
  await p.selectOption('#correctionSuggestionScope','finished');await p.locator('.correction-case').filter({hasText:'Syntetisk Kari Nord'}).waitFor();assert.match(await p.locator('#correctionBody').innerText(),/Avvist/);
  for(const width of [1440,768,390]){await p.setViewportSize({width,height:1050});await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(out,'matching-c22a-'+width+'.png'),fullPage:true});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
  await p.selectOption('#correctionSuggestionScope','pending');await p.locator('.correction-case').getByRole('button',{name:'Åpne og sammenlign',exact:true}).click();await p.getByRole('button',{name:'Undersøk senere',exact:true}).click();await p.click('#correctionRefresh');await p.locator('#correctionSuggestionScope').waitFor();assert.equal(await p.locator('#correctionBody .correction-case').count(),0);await p.selectOption('#correctionSuggestionScope','followup');await p.locator('.correction-case').waitFor();assert.match(await p.locator('#correctionBody').innerText(),/Til vurdering/);
@@ -80,7 +81,7 @@ test('C2.2a rapid opening of two suggestions preserves both cases without duplic
 test('C2.2b two-category worklist saves a reported error and exact original result without an automatic identity match, then preserves deferral and rejection on reload',async()=>{
  const {context,p}=await open(),requests=[],errors=[];p.on('request',r=>requests.push(r));p.on('pageerror',e=>errors.push(e.message));try{
   assert.deepEqual(await p.locator('[data-correction-tab]').allTextContents(),['Mulige duplikater','Innmeldte feil']);await p.locator('#correctionSuggestionScope').waitFor();assert.equal(await p.locator('#correctionStrength').count(),0);assert.equal(await p.locator('#correctionBody .correction-case').count(),2);
-  await p.getByRole('button',{name:'Innmeldte feil',exact:true}).click();await p.getByRole('button',{name:'Registrer innmeldt feil',exact:true}).click();await p.fill('#correctionDescription','Syntetisk melding fra arrangør: klubbopplysningen må undersøkes.');await p.fill('#correctionSource','Syntetisk e-postreferanse 77');await p.fill('#correctionReason','Undersøk den innmeldte opplysningen.');await p.getByRole('button',{name:'Lagre saksnotat',exact:true}).click();let packet=await download(p);assert.equal(packet.cases.length,1);assert.deepEqual(packet.cases[0].personIds,[]);assert.equal(packet.cases[0].change,null);
+  await p.getByRole('button',{name:'Innmeldte feil',exact:true}).click();await p.getByRole('button',{name:'Registrer innmeldt feil',exact:true}).click();await p.fill('#correctionDescription','Syntetisk melding fra arrangør: klubbopplysningen må undersøkes.');await p.fill('#correctionSource','Syntetisk e-postreferanse 77');await optionalReason(p,'Undersøk den innmeldte opplysningen.');await p.getByRole('button',{name:'Lagre saksnotat',exact:true}).click();let packet=await download(p);assert.equal(packet.cases.length,1);assert.deepEqual(packet.cases[0].personIds,[]);assert.equal(packet.cases[0].change,null);
   await p.fill('#correctionPersonSearch','Syntetisk Kari Nord');await p.selectOption('#correctionPersonChoice',ids[0]);await p.getByRole('button',{name:'Velg som hovedperson',exact:true}).click();await p.selectOption('#correctionResultChoice','1');await p.getByRole('button',{name:'Lagre saksnotat',exact:true}).click();packet=await download(p);assert.equal(packet.cases[0].registration.selector.index,1);assert.deepEqual(packet.cases[0].registration.before,sample.history().results[1]);assert.deepEqual(packet.cases[0].personIds,[ids[0]]);await p.getByRole('button',{name:'Utsett saken',exact:true}).click();await p.locator('#correctionSuggestionScope').waitFor();assert.equal(await p.locator('#correctionBody .correction-case').count(),0);await p.selectOption('#correctionSuggestionScope','followup');await p.locator('#correctionBody .correction-case').waitFor();packet=await download(p);
   const fresh=await open();try{await fresh.p.locator('#correctionAdvanced > summary').click();await fresh.p.locator('#correctionImport').setInputFiles({name:'syntetisk-arbeidsgrunnlag.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))});await fresh.p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('1 saker importert'));await fresh.p.getByRole('button',{name:'Innmeldte feil',exact:true}).click();await fresh.p.selectOption('#correctionSuggestionScope','followup');await fresh.p.getByRole('button',{name:'Fortsett saken',exact:true}).click();assert.equal(await fresh.p.inputValue('#correctionResultChoice'),'1');assert.equal(await fresh.p.inputValue('#correctionSource'),'Syntetisk e-postreferanse 77');await fresh.p.getByRole('button',{name:'Avvis feilmeldingen',exact:true}).click();await fresh.p.locator('#correctionSuggestionScope').waitFor();assert.equal(await fresh.p.locator('#correctionBody .correction-case').count(),0);await fresh.p.selectOption('#correctionSuggestionScope','finished');await fresh.p.locator('#correctionBody .correction-case').waitFor();assert.match(await fresh.p.locator('#correctionBody').innerText(),/Avvist/);assert.equal((await download(fresh.p)).cases[0].change,null);
   }finally{await fresh.context.close();}
@@ -102,7 +103,7 @@ test('C2.4a one confirmation chooses the main name, calculates real effects and 
   const c=await candidateDownload(p);assert.equal(c.publicationAuthorized,false);assert.equal(c.productionApplied,false);assert.equal(c.result.history.redirects[ids[1]],ids[0]);assert.equal(c.result.history.redirects['MOR-OLD2201'],ids[0]);assert.deepEqual(c.result.history.results,sample.history().results);assert.ok(c.result.history.aliases[ids[0]].includes('Syntetisk Kari N. Nord'));assert.ok(c.effects.find(x=>x.area==='diplomas').entries.some(x=>x.after?.some(d=>d.threshold===5&&d.year===2024)));assert.ok(c.effects.find(x=>x.area==='annual').entries.length);const restored=await p.evaluate(async packet=>(await MorothonCorrections.restoreCandidate(packet.result.history,packet)).history,c);assert.deepEqual(restored,sample.history());
   const fresh=await open();try{await fresh.p.locator('#correctionAdvanced > summary').click();await fresh.p.locator('#correctionImport').setInputFiles({name:'syntetisk-kandidat.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(c))});await fresh.p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('1 saker importert')||document.querySelector('#correctionStatus').dataset.error==='true');assert.match(await fresh.p.locator('#correctionStatus').innerText(),/1 saker importert/);assert.equal((await download(fresh.p)).cases[0].status,'proposed');assert.equal(await fresh.p.locator('#correctionCandidateDownload').count(),0);await fresh.p.selectOption('#correctionSuggestionScope','followup');await fresh.p.getByRole('button',{name:'Fortsett saken',exact:true}).click();await prepare(fresh.p);assert.equal(await fresh.p.locator('#correctionCandidate').count(),1);}finally{await fresh.context.close();}
   // Any subsequent form edit invalidates the ready artifact immediately.
-  await p.fill('#correctionReason','Ny syntetisk vurdering som trenger kontroll.');assert.equal(await p.locator('#correctionCandidateDownload').count(),0);assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));assert.deepEqual(errors,[]);assert.equal(await p.evaluate(()=>localStorage.length+sessionStorage.length),0);assert.deepEqual(await(await fetch(base+'data/history.json')).json(),sample.history());
+  await optionalReason(p,'Ny syntetisk vurdering som trenger kontroll.');assert.equal(await p.locator('#correctionCandidateDownload').count(),0);assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));assert.deepEqual(errors,[]);assert.equal(await p.evaluate(()=>localStorage.length+sessionStorage.length),0);assert.deepEqual(await(await fetch(base+'data/history.json')).json(),sample.history());
  }finally{await context.close();}
 });
 test('C2.4a the same primary action handles name/time/distance/status/owner corrections and invalid time remains blocked',async()=>{
@@ -123,7 +124,56 @@ test('C2.4a genuine overlap and conflicting source placements show concrete expl
 });
 test('C2.4a editing evidence during an asynchronous calculation discards the stale preparation and a retry uses the current evidence',async()=>{
  const {p,context}=await open();let release;const hold=new Promise(r=>release=r);let entered;const requested=new Promise(r=>entered=r);try{
-  await selectSuggestion(p,'Syntetisk Kari Nord','Syntetisk Kari N. Nord');await evidence(p);await p.route('**/admin/diploma-adapter.js?*',async route=>{entered();await hold;await route.continue();});await p.click('#correctionApprove');await requested;await p.fill('#correctionReason','Ny syntetisk kildekontroll mens beregningen ventet.');release();await p.waitForFunction(()=>document.querySelector('#correctionStatus').dataset.error==='true');assert.match(await p.locator('#correctionStatus').innerText(),/endret under kontrollen/);assert.equal(await p.locator('#correctionCandidateDownload').count(),0);assert.equal((await download(p)).cases[0].change,null);
+  await selectSuggestion(p,'Syntetisk Kari Nord','Syntetisk Kari N. Nord');await evidence(p);await p.route('**/admin/diploma-adapter.js?*',async route=>{entered();await hold;await route.continue();});await p.click('#correctionApprove');await requested;await optionalReason(p,'Ny syntetisk kildekontroll mens beregningen ventet.');release();await p.waitForFunction(()=>document.querySelector('#correctionStatus').dataset.error==='true');assert.match(await p.locator('#correctionStatus').innerText(),/endret under kontrollen/);assert.equal(await p.locator('#correctionCandidateDownload').count(),0);assert.equal((await download(p)).cases[0].change,null);
   await prepare(p);assert.equal(await p.locator('#correctionCandidate').count(),1);const c=await candidateDownload(p);assert.equal(c.corrections.cases[0].reason,'Ny syntetisk kildekontroll mens beregningen ventet.');
  }finally{release();await context.close();}
+});
+
+test('C2.5 quick decisions reject a suggested duplicate from the list without opening the editor or requiring a reason',async()=>{
+ const {context,p}=await open(),requests=[];p.on('request',r=>requests.push(r));
+ try{
+  await p.getByRole('button',{name:'Mulige duplikater',exact:true}).click();
+  const first=p.locator('.correction-case').filter({has:p.getByRole('heading',{name:'Syntetisk Kari Nord / Syntetisk Kari N. Nord',exact:true})});
+  assert.equal(await first.getByRole('button',{name:'Samme person – slå sammen'}).count(),1);
+  await first.getByRole('button',{name:'Ikke samme person – hold adskilt'}).click();
+  await p.waitForFunction(()=>document.querySelector('#correctionBody .correction-case')&&!document.querySelector('#correctionBody').textContent.includes('Syntetisk Kari Nord / Syntetisk Kari N. Nord'));
+  assert.equal(await p.locator('#correctionEditor').count(),0);
+  const saved=await download(p);assert.equal(saved.cases.length,1);assert.equal(saved.cases[0].status,'rejected');assert.match(saved.cases[0].reason,/Arrangøren bekrefter via hurtigvalg/);
+  assert.equal(saved.cases[0].change,null);assert.ok(saved.cases[0].events.some(e=>e.action==='rejected'));
+  await p.selectOption('#correctionSuggestionScope','finished');
+  assert.match(await p.locator('#correctionBody').innerText(),/Syntetisk Kari Nord/);
+  assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));
+ }finally{await context.close();}
+});
+test('C2.5 quick same-person action chooses the established main profile, audits the choice and prepares a reversible merge without writing history',async()=>{
+ const {context,p}=await open(),requests=[];p.on('request',r=>requests.push(r));
+ try{
+  await p.getByRole('button',{name:'Mulige duplikater',exact:true}).click();
+  const first=p.locator('.correction-case').filter({has:p.getByRole('heading',{name:'Syntetisk Kari Nord / Syntetisk Kari N. Nord',exact:true})});
+  assert.match(await first.innerText(),/Hovedprofil ved hurtigvalg: Syntetisk Kari Nord/);
+  await first.getByRole('button',{name:'Samme person – slå sammen'}).click();
+  await p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('lokalt klargjort')||document.querySelector('#correctionStatus').dataset.error==='true',{timeout:30000});
+  assert.notEqual(await p.locator('#correctionStatus').getAttribute('data-error'),'true',await p.locator('#correctionStatus').innerText());
+  assert.equal(await p.locator('#correctionEditor').count(),0);
+  const saved=await download(p);assert.equal(saved.cases.length,1);
+  assert.equal(saved.cases[0].status,'handoff');assert.equal(saved.cases[0].change.kind,'merge');
+  assert.deepEqual(saved.cases[0].change.personIds,[ids[1],ids[0]]);
+  assert.match(saved.cases[0].source,/Manuell arrangørbekreftelse/);assert.match(saved.cases[0].reason,/bekrefter/);
+  assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));
+  assert.equal((await(await fetch(base+'data/history.json')).json()).redirects[ids[1]],undefined);
+ }finally{await context.close();}
+});
+test('C2.5 reason is optional in the editor and automatically captured as a structured decision',async()=>{
+ const {context,p}=await open();
+ try{
+  await selectSuggestion(p,'Syntetisk Kari Nord','Syntetisk Kari N. Nord');
+  assert.equal(await p.getByText('Din vurdering',{exact:true}).count(),0);
+  assert.equal(await p.locator('#correctionReason').isVisible(),false);
+  assert.equal(await p.locator('#correctionDescription').isVisible(),false);
+  await p.selectOption('#correctionMainPerson',ids[0]);
+  await p.click('#correctionApprove');
+  await p.waitForFunction(()=>document.querySelector('#correctionCandidate')||document.querySelector('#correctionStatus').dataset.error==='true',{timeout:30000});
+  assert.notEqual(await p.locator('#correctionStatus').getAttribute('data-error'),'true',await p.locator('#correctionStatus').innerText());
+  const saved=await download(p);assert.match(saved.cases[0].reason,/bekrefter/);assert.match(saved.cases[0].source,/Manuell arrangørbekreftelse/);
+ }finally{await context.close();}
 });
