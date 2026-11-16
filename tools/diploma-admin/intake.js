@@ -335,6 +335,15 @@
  document.addEventListener('morothon:results-corrections',e=>{(async()=>{
   if(!state.package)throw Error('Kontrollsentralen er ikke klar.');const previous=state.package,reviewed=previous.cases.filter(c=>c.status==='handoff').map(c=>c.id),imported=C.importPackage(previous,e.detail.package);
   const prepareId=e.detail.prepareCaseId;if(prepareId&&!e.detail.package.cases.some(c=>c.id===prepareId&&['result','add'].includes(c.change?.kind)))throw Error('Velg et konkret resultatforslag før klargjøring.');
+  if(e.detail.stayOnImport&&!prepareId){
+   // One complete review, never an authorization to publish. The existing
+   // detailed per-case path remains available only through advanced actions.
+   const project=await projection(),report=await C.reviewStaged(state.history,imported.package,state.base,project,{linkedRunnerIds:state.linkedRunnerIds});
+   if(previous!==state.package)throw Error('Arbeidsgrunnlaget ble endret under samlet gjennomgang. Prøv igjen.');
+   state.package=imported.package;state.batchReview={package:state.package,report};state.candidate=null;state.impact=null;state.selected=null;state.tab='cases';state.suggestionScope='followup';
+   render();message(report.ready?'Resultatendringene er samlet kontrollert. Ingen endringer er publisert. Lagre arbeidsgrunnlaget.':'Samlet gjennomgang fant forhold som må avklares. Endringene er beholdt lokalt; ingen publisering.',!report.ready);
+   return {...imported,review:report};
+  }
   await C.applyCandidate(state.history,imported.package,state.base,{preview:true});if(previous!==state.package)throw Error('Arbeidsgrunnlaget ble endret under overføringen. Prøv igjen.');state.package=imported.package;state.selected=null;state.impact=null;state.suggestionScope='followup';activate('cases');location.hash='#rettelser';
   if(prepareId){
    selectCase(state.package.cases.find(c=>c.id===prepareId));const snapshot=state.package,version=state.editVersion,project=await projection();let work=snapshot,prepared;
@@ -437,7 +446,12 @@
   if(state.session?.key!==session.key){if(state.session)sourceChanged(state.session.source.sha256);state.decisions.clear();state.filter='pending';state.page=0;}state.session=session;state.analysis=R.review(state.context,session,state.decisions);render();status(session.rows.some(r=>!r.errors.length&&!r.relay)?'Sammenligningen er klar. Uendrede resultater krever ingen gjennomgang. Vurder avvik før forslag klargjøres.':'Filen er lest, men ingen individuelle rader har tilstrekkelige resultatopplysninger. Kontroller feltvalgene over. Ingen retting kan klargjøres fra disse radene.',!session.rows.some(r=>!r.errors.length&&!r.relay));
  }
  function resultBox(title,row){const box=node('section',undefined,'result-values');box.append(node('h4',title));if(!row){box.append(hint('Ingen koblet registrering.'));return box;}const list=node('dl');for(const [key,index]of Object.entries(R.columns)){list.append(node('dt',R.fields[key]),node('dd',row[index]===null||row[index]===''?'Ikke registrert':String(row[index])));}box.append(list);return box;}
- function change(item,action,personId,targetIndex,reason){state.decisions=R.decide(state.context,state.session,state.decisions,item.id,{action,runnerId:personId,targetIndex,reason});state.analysis=R.review(state.context,state.session,state.decisions);$('resultImpact').replaceChildren();render();status('Beslutningen er beholdt i denne fanen. Ingen resultater er endret. Last ned kontrollpakken før du lukker.');}
+ function change(item,action,personId,targetIndex,reason){
+   const auditReason=action==='confirm'&&!String(reason||'').trim()?'Arrangøren har kontrollert endringen mot den opplastede resultatfilen.':'';
+   state.decisions=R.decide(state.context,state.session,state.decisions,item.id,{action,runnerId:personId,targetIndex,reason:String(reason||'').trim()||auditReason});
+   state.analysis=R.review(state.context,state.session,state.decisions);$('resultImpact').replaceChildren();render();
+   status('Vurderingen er registrert lokalt. '+state.analysis.pending+' saker gjenstår. Når gjennomgangen er ferdig, bruk samlet sluttkontroll nederst. Ingenting er publisert.');
+  }
  async function confirmAnnualBatch(){
   const session=state.session,revision=state.revision,original=state.decisions,plan=R.bulkPlan(state.context,session,state.analysis);
   if(!plan.ready)throw Error(plan.problem);
@@ -472,14 +486,20 @@
    const options=node('details');manualOptions=options;options.open=!item.before;options.append(node('summary','Kontroller eller velg en annen person/registrering'),field('Søk etter eksisterende løper',search),field('Person',personSelect),field('Registrering i valgt år',targetSelect));card.append(options);
   }
   const actions=node('div',undefined,'actions');if(personSelect){const confirm=button('Bekreft resultatkoblingen',()=>{if(!personSelect.value||!targetSelect.value)throw Error('Velg person og nøyaktig resultat, eller Ny resultatregistrering.');change(item,'confirm',personSelect.value,targetSelect.value==='add'?null:Number(targetSelect.value),reason.value);});confirm.dataset.resultConfirm='';manualOptions.append(confirm);
-   const approve=button('Godkjenn og klargjør',async()=>{
-    if(!personSelect.value||!targetSelect.value)throw Error('Velg person og nøyaktig resultat, eller Ny resultatregistrering.');
-    const session=state.session,revision=state.revision;change(item,'confirm',personSelect.value,targetSelect.value==='add'?null:Number(targetSelect.value),reason.value);
+   const selected=()=>{if(!personSelect.value||!targetSelect.value)throw Error('Velg person og nøyaktig resultat, eller Ny resultatregistrering.');return {person:personSelect.value,target:targetSelect.value==='add'?null:Number(targetSelect.value)};};
+   const approve=button('Bekreft rettelsen',()=>{const choice=selected();change(item,'confirm',choice.person,choice.target,reason.value);});
+   approve.dataset.resultApprove='';actions.append(approve);
+   const advanced=node('details');advanced.className='result-single-advanced';
+   advanced.append(node('summary','Avansert: klargjør bare denne rettelsen'),hint('Kun ved særskilt behov. Dette gjør en tung enkeltvis konsekvenskontroll og åpner Rettelser og personkontroll. Normalt bekrefter du rettelsen over og bruker samlet sluttkontroll.'));
+   advanced.append(button('Klargjør denne enkeltrettelsen nå',async()=>{
+    const choice=selected(),session=state.session,revision=state.revision;
+    change(item,'confirm',choice.person,choice.target,reason.value);
     const p=await packet(),prepareCaseId='result-'+await C.hash([session.key,item.id]),entry=p.cases.find(c=>c.id===prepareCaseId);
     if(!entry?.change)throw Error('Avviket krever separat kontroll før en endring kan klargjøres. Det er beholdt som sak.');
     if(revision!==state.revision||session!==state.session)throw Error('Kildegrunnlaget er endret. Gjennomgå resultatet på nytt.');
     await request('morothon:results-corrections',{package:p,prepareCaseId});
-   });approve.dataset.resultApprove='';actions.append(approve);}
+   }));
+   card.append(advanced);}
   if(item.row&&!item.blocking)actions.append(button('Marker som ny person',()=>change(item,'new',null,null,reason.value)));
   actions.append(button(item.category==='missing'?'Behold eksisterende resultat':'Avvis forslaget',()=>change(item,'reject',null,null,reason.value)),button('Utsett saken',()=>change(item,'defer',null,null,reason.value)));card.append(actions);return card;
  }
@@ -546,7 +566,17 @@
    const layoutFile=input('file','resultLayoutImport');layoutFile.accept='.json,application/json';layoutFile.onchange=async()=>{try{const f=layoutFile.files[0];if(!f)return;if(f.size>R.layouts.MAX_BYTES)throw Error('Velg et filoppsett på maksimalt 128 KB.');const incoming=await R.layouts.parse(await f.text());let next=state.store;for(const template of incoming.templates)next=await R.layouts.remember(state.context,next,template);if(!window.confirm('Vil du bekrefte disse '+incoming.templates.length+' filoppsettene på denne enheten? Dette godkjenner bare feltvalg, ingen resultater eller personkoblinger.'))return;state.store=next;try{if(!state.storageUnavailable)localStorage.setItem(storageKey(),JSON.stringify(next));}catch{state.storageUnavailable=true;}if(state.staged)await automatic();status('Filoppsettene er åpnet som lokal konfigurasjon. Ingen resultater er lastet inn fra malfilen.');}catch(error){status(error.message,true);}finally{layoutFile.value='';}};
    fileTools.append(rememberButton);templatePanel.append(field('Leverandør for oppsettet',provider),button('Last ned filoppsett',async()=>{await R.layouts.validate(state.store);if(!state.store.templates.length)throw Error('Bekreft et oppsett med «Husk dette filoppsettet» først.');download(JSON.stringify(state.store,null,2)+'\n','morothon-filoppsett-v1.json');},'resultLayoutExport'),field('Åpne filoppsett fra en annen enhet',layoutFile));
    const summary=node('section');summary.id='resultSummary';const cases=node('section');cases.id='resultCases';const impact=node('section');impact.id='resultImpact';const actions=node('section',undefined,'result-actions');actions.id='resultActions';actions.hidden=true;
-   actions.append(node('h3','Klargjøring etter din kontroll'),hint('Bare uttrykkelige beslutninger overføres. Manglende rader slettes aldri. Nye personer opprettes ikke automatisk.'),button('Forhåndsvis konsekvenser',consequences,'resultCheck'),button('Åpne forslag i kontrollsentralen',async()=>{const p=await packet();if(!p.cases.length)throw Error('Registrer en beslutning først.');await request('morothon:results-corrections',{package:p});},'resultTransfer'),button('Last ned rettingspakke',async()=>download(C.serialize(await packet()),'morothon-'+state.session.source.year+'-resultatrettinger.json'),'resultExport'),button('Last ned kontrollrapport',async()=>download(await R.report(state.context,state.session,state.decisions),'morothon-'+state.session.source.year+'-resultatkontroll.json'),'resultReport'));
+   actions.append(node('h3','Gjennomgang ferdig'),hint('Når alle avvik er behandlet, utfører vi én samlet kontroll. Du skal ikke måtte bekrefte de samme resultatendringene på nytt. Bare uttrykkelige beslutninger overføres; manglende rader slettes aldri.'),button('Forhåndsvis konsekvenser',consequences,'resultCheck'),button('Gjennomgang ferdig – kontroller alle rettelser samlet',async()=>{
+     if(state.analysis.pending)throw Error(state.analysis.pending+' saker trenger fortsatt behandling. Bekreft eller avvis dem før samlet sluttkontroll.');
+     const revision=state.revision,session=state.session,decisions=state.decisions;
+     status('Kontrollerer alle godkjente rettelser samlet. Denne beregningen kan ta litt tid …');
+     const p=await packet();if(!p.cases.some(c=>c.change))throw Error('Ingen konkrete resultatendringer er godkjent ennå.');
+     if(revision!==state.revision||session!==state.session||decisions!==state.decisions)throw Error('Kilden eller vurderingene ble endret. Start samlet kontroll på nytt.');
+     const result=await request('morothon:results-corrections',{package:p,stayOnImport:true});
+     status(result.review?.ready?
+      'Samlet forhåndskontroll bestått for '+result.review.proposed+' endringsforslag. Ingen ekstra bekreftelser per løper. Lagre arbeidsgrunnlaget i Rettelser og personkontroll. Ingenting er publisert.':
+      'Samlet kontroll har registrert forslagene, men krever nærmere avklaring: '+[...(result.review?.uncertain||[]),...(result.review?.errors||[]).map(e=>String(e.code||e))].join(' '),!result.review?.ready);
+    },'resultTransfer'),button('Last ned rettingspakke',async()=>download(C.serialize(await packet()),'morothon-'+state.session.source.year+'-resultatrettinger.json'),'resultExport'),button('Last ned kontrollrapport',async()=>download(await R.report(state.context,state.session,state.decisions),'morothon-'+state.session.source.year+'-resultatkontroll.json'),'resultReport'));
    work.append(banner,hint('CSV og TSV fra ulike resultatleverandører · filen behandles bare i denne nettleseren. Ingen opplasting eller automatisk endring av historikken.'),settings,field('Velg endelig resultatfil',file),fileInfo,templateInfo,fileTools,statusNode,questionsBox,previewBox,stagesBox,summary,cases,templatePanel,advanced,actions,impact);
    await restoreLayouts();file.disabled=false;if(state.storageMessage)templateInfo.textContent=state.storageMessage;
    window.addEventListener('beforeunload',event=>{if(state.session){event.preventDefault();event.returnValue='';}});
