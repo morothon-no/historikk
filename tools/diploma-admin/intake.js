@@ -413,14 +413,14 @@
  async function confirmAnnualBatch(){
   const session=state.session,revision=state.revision,original=state.decisions,plan=R.bulkPlan(state.context,session,state.analysis);
   if(!plan.ready)throw Error(plan.problem);
-  const accepted=window.confirm('Godkjenn '+plan.total+' kontrollerte endringer i '+plan.year+' samlet? '+plan.timeChanged+' sluttider og '+plan.placeOnly+' rene plasseringsendringer. Filens startnummer og rangering etter kjønn/distanse er kontrollert. Beslutningene lagres bare i denne fanen – ingen publisering.');
+  const accepted=window.confirm('Godkjenn '+plan.total+' kontrollerte endringer i '+plan.year+' samlet? '+plan.timeChanged+' sluttider og '+plan.placeOnly+' rene plasseringsendringer.'+(plan.manual?' '+plan.manual+' mer sammensatte rettelser blir liggende til manuell kontroll.':'')+' Startnummer og rangering er kontrollert. Beslutningene lagres bare i denne fanen – ingen publisering.');
   if(!accepted)return;
   status('Kontrollerer kildefil, plasseringer og resultatkoblinger på nytt …');
   const out=await R.confirmSafeBatch(state.context,session,original);
   if(revision!==state.revision||session!==state.session||original!==state.decisions)throw Error('Kilden eller arbeidslisten er endret under godkjenningen. Prøv igjen.');
   state.decisions=out.decisions;state.analysis=R.review(state.context,session,state.decisions);
-  state.filter='processed';state.page=0;$('resultImpact').replaceChildren();render();
-  status(out.summary.total+' rettelser er bekreftet i ett valg: '+out.summary.timeChanged+' tidsendringer og '+out.summary.placeOnly+' rene plasseringsendringer. Ingen resultatdata er publisert. Last ned kontrollrapporten eller overfør rettelsene til kontrollsentralen.');
+  state.filter=out.summary.manual?'pending':'processed';state.page=0;$('resultImpact').replaceChildren();render();
+  status(out.summary.total+' rettelser er bekreftet i ett valg: '+out.summary.timeChanged+' tidsendringer og '+out.summary.placeOnly+' rene plasseringsendringer.'+(out.summary.manual?' '+out.summary.manual+' mer sammensatte endringer gjenstår i listen for manuell kontroll.':'')+' Ingen resultatdata er publisert. Last ned kontrollrapporten eller overfør rettelsene til kontrollsentralen.');
  }
  function caseCard(item){
   const card=node('article',undefined,'result-case');card.dataset.resultId=item.id;const name=item.row?.name||state.context.model.person(item.before?.[1])?.n||'Eksisterende kilderegistrering',bib=item.row?.bib||item.before?.[9]||'';
@@ -463,7 +463,7 @@
   if(needBatch){
    const plan=R.bulkPlan(state.context,state.session,a),box=node('section',undefined,'result-bulk-review');
    box.id='resultBulkReview';box.append(node('h4','Samlet kontroll av årsresultater'));
-   if(plan.ready){box.append(hint(plan.timeChanged+' endrede sluttider · '+plan.placeOnly+' rene plasseringsendringer · '+plan.total+' dokumenterte resultatendringer. Samme kjønn/distanse, fullført resultat og eksisterende startnummer er kontrollert.'));
+   if(plan.ready){box.append(hint(plan.timeChanged+' endrede sluttider · '+plan.placeOnly+' rene plasseringsendringer · '+plan.total+' sikre resultatendringer.'+(plan.manual?' '+plan.manual+' mer sammensatte endringer må kontrolleres separat.':'')+' Kildens kjønns-/distanserangering og eksisterende startnummer er kontrollert.'));
     box.append(button('Godkjenn '+plan.total+' sikre endringer samlet',confirmAnnualBatch,'resultBulkApprove'));}
    else box.append(hint('Samlet godkjenning er foreløpig sperret: '+plan.problem));
    box.append(hint('Andre avvik og nye personer kan ikke godkjennes automatisk. Ingen historikk oppdateres før separat autorisert publisering.'));summary.append(box);
