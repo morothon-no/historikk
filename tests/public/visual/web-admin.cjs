@@ -1,12 +1,12 @@
-// A static server mimics Pages at the REAL /historikk/ base. No Node admin/API.
+// A static server mimics Pages at the custom-domain / base. No Node admin/API.
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),http=require('node:http'),{execFileSync}=require('node:child_process');
 const {chromium}=require('playwright'),{buildSite,validatePublicSite}=require('../../../scripts/build-site.cjs'),{validate}=require('../../../web-admin/profile-contract.js');
 let dir,out,browser,server,base,profile,registry,build;
 before(async()=>{
  dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-web-admin-'));build=await buildSite(path.join(dir,'site'));profile=JSON.parse(await fs.readFile(path.join(build.out,'admin/event-profile.json')));registry=JSON.parse(await fs.readFile(path.join(build.out,'data/badges.json')));
  out=process.env.MOROTHON_C1_REVIEW_DIR?path.join(process.env.MOROTHON_C1_REVIEW_DIR,'web-c12'):path.join(dir,'review');await fs.mkdir(out,{recursive:true});const files=new Set(build.files);
- server=http.createServer(async(req,res)=>{let name=new URL(req.url,'http://static').pathname;if(req.method!=='GET'||!name.startsWith('/historikk/'))return res.writeHead(404).end();name=name.slice('/historikk/'.length);if(name.endsWith('/')||!name)name+='index.html';if(!files.has(name))return res.writeHead(404).end();try{res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.ico':'image/x-icon','.woff':'font/woff'})[path.extname(name)]||'application/octet-stream');res.end(await fs.readFile(path.join(build.out,name)));}catch{res.writeHead(404).end();}});
- await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port+'/historikk/';browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
+ server=http.createServer(async(req,res)=>{let name=new URL(req.url,'http://static').pathname;if(req.method!=='GET'||!name.startsWith('/'))return res.writeHead(404).end();name=name.slice('/'.length);if(name.endsWith('/')||!name)name+='index.html';if(!files.has(name))return res.writeHead(404).end();try{res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.ico':'image/x-icon','.woff':'font/woff'})[path.extname(name)]||'application/octet-stream');res.end(await fs.readFile(path.join(build.out,name)));}catch{res.writeHead(404).end();}});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port+'/';browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
 });
 after(async()=>{await browser?.close();if(server)await new Promise(r=>server.close(r));if(dir)await fs.rm(dir,{recursive:true,force:true});});
 test('C1.2 profile contract rejects unknown/private fields, CSS/URL injection and unimplemented policy changes',()=>{
@@ -76,7 +76,7 @@ test('C1.2 actual post-deploy smoke script requires the expected release and fai
  for(const stale of [false,true]){
   const process={env:{PAGES_URL:local.siteUrl},exitCode:0};let requested=0;
   const sandbox={process,URL,Buffer,AbortSignal,setTimeout:fn=>{fn();},console:{log(){},error(){}},require:name=>name==='node:fs/promises'?{readFile:(file,encoding)=>fs.readFile(path.join(build.out,file.slice('_site/'.length)),encoding)}:require(name),fetch:async url=>{
-   requested++;const file=new URL(url).pathname.slice('/historikk/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='admin/index.html'?Buffer.from('wrong release'):bytes};
+   requested++;const file=new URL(url).pathname.slice('/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='admin/index.html'?Buffer.from('wrong release'):bytes};
   }};
   await vm.runInNewContext(script,sandbox);assert.equal(process.exitCode,stale?1:0);assert.ok(requested>20);
  }
