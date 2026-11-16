@@ -120,9 +120,14 @@
   // The public Pages preview never adds the link or has an honors API route.
   function initHeder() {
     if (window.MorothonAdminTransport || document.body.dataset.adminMode === 'public-preview') return;
-    const nav = element('a', 'Heder'); nav.id = 'navHeder'; nav.href = '#heder';
+    const nav = element('a', 'Heder'); nav.id = 'navHeder'; nav.href = '#heder'; nav.hidden = true;
     const following = document.querySelector('.sidebar nav a[href="#premier"]');
     following.after(nav);
+    // The module is shown only after a successful local, token-protected
+    // lookup. An organizer that disables Heder must not see the menu.
+    api('honors').then(data => { if (data.enabled && data.readOnly && Array.isArray(data.people)) {
+      state.honorData = data; nav.hidden = false;
+    } }).catch(() => {});
     const section = element('section'); section.id = 'view-heder'; section.dataset.view = 'heder'; section.hidden = true;
     section.setAttribute('aria-label', 'Heder');
     const panel = element('div', undefined, 'panel');
