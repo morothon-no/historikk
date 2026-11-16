@@ -158,6 +158,20 @@
  function quickMainProfile(ids){
   if(ids.length!==2||ids.some(id=>!state.model.person(id)))return null;
   const [a,b]=ids,years=id=>state.model.stats(id)?.years.length||0;
+  // Choosing a *main name* is not proof of identity. When the organizer confirms
+  // two profiles, prefer an expanded middle name to its initial (or omission),
+  // not the shorter name solely because it has more recorded years.
+  const tokens=id=>state.model.person(id).n.normalize('NFKC').replace(/\./g,' ').trim().split(/\s+/).map(x=>x.toLocaleLowerCase('nb-NO')),
+   x=tokens(a),y=tokens(b),middle=t=>t.slice(1,-1);
+  if(x[0]===y[0]&&x.at(-1)===y.at(-1)){
+   const xm=middle(x),ym=middle(y),
+    matches=(short,long)=>short.every((v,i)=>v===long[i]||v.length===1&&long[i]?.startsWith(v)),
+    xf=xm.filter(v=>v.length>1).length,yf=ym.filter(v=>v.length>1).length;
+   if(xf!==yf){
+    if(xf>yf&&matches(ym,xm))return a;
+    if(yf>xf&&matches(xm,ym))return b;
+   }
+  }
   return years(a)===years(b)?null:years(a)>years(b)?a:b;
  }
  async function quickIdentity(s,action){
@@ -289,9 +303,23 @@
   }
   async function completeRequest(){const request=requestChange();if(['result','remove'].includes(state.kind))request.selector=await C.resultSelector(state.history,+$('correctionResultChoice').value,state.base);return request;}
   function notesPackage(){const updated=C.parse(C.serialize(state.package)),record=updated.cases.find(x=>x.id===c.id);record.description=description.value;return updated;}
-  const actions=node('div',undefined,'actions'),approve=button(state.kind==='merge'?'Bekreft samme person og klargjør':'Godkjenn og klargjør',async()=>{
-   if(state.preparing)return;state.preparing=true;const version=state.editVersion,work=state.package,selected=state.selected;state.candidate=null;message('Kontrollerer rettelsen og beregner alle konsekvensene …');
-   try{const next=await C.prepareCase(state.history,notesPackage(),c.id,await completeRequest(),state.base,await projection(),{linkedRunnerIds:state.linkedRunnerIds});
+  const othersPending=state.kind==='merge'&&state.package.cases.some(item=>item.id!==c.id&&item.change&&['proposed','handoff'].includes(item.status));
+  if(othersPending)box.append(hint('Du har allerede andre endringsforslag i arbeidslisten. Velg ønsket hovednavn og registrer denne sammenslåingen uten en ny tung kontroll. Kontroller alle forslagene samlet når gjennomgangen er ferdig.'));
+  const actions=node('div',undefined,'actions'),approve=button(state.kind==='merge'?(othersPending?'Registrer sammenslåing – kontroller samlet':'Bekreft samme person og klargjør'):'Godkjenn og klargjør',async()=>{
+   if(state.preparing)return;state.preparing=true;const version=state.editVersion,work=state.package,selected=state.selected;state.candidate=null;
+   message(othersPending?'Registrerer valgt hovednavn og sammenslåing lokalt …':'Kontrollerer rettelsen og beregner alle konsekvensene …');
+   try{
+    const request=await completeRequest();
+    if(othersPending){
+     const next=await C.propose(state.history,notesPackage(),c.id,request);
+     if(work!==state.package||selected!==state.selected||version!==state.editVersion)throw Error('Valgene ble endret under kontrollen. Kontroller innholdet og prøv igjen.');
+     state.package=next;state.impact=null;state.batchReview=null;state.manualMode=false;
+     state.picked=[...next.cases.find(x=>x.id===c.id).personIds];
+     state.selected=null;state.suggestionScope='followup';activate('suggestions');
+     message('Samme person er registrert med hovednavn «'+state.model.person(request.personIds[1]).n+'». Andre endringer er ikke kontrollert på nytt. Bruk samlet forhåndskontroll når du er ferdig, og lagre arbeidsgrunnlaget. Ingenting er publisert.');
+     return;
+    }
+    const next=await C.prepareCase(state.history,notesPackage(),c.id,request,state.base,await projection(),{linkedRunnerIds:state.linkedRunnerIds});
     if(work!==state.package||selected!==state.selected||version!==state.editVersion)throw Error('Valgene ble endret under kontrollen. Kontroller innholdet og prøv igjen.');
     state.package=next.package;state.impact=next.impact;state.candidate=next.candidate;state.manualMode=false;state.picked=[...state.package.cases.find(x=>x.id===c.id).personIds];render();
     message(!next.ready?'Rettelsen trenger en avklaring: '+next.impact.uncertain.join(' '):next.pending.length?'Denne rettelsen er kontrollert. Bekreft '+next.pending.length+' øvrige forslag før den samlede kandidaten lastes ned.':'Oppdateringen er klargjort. Du kan laste ned én komplett endringskandidat. Ingenting er publisert.',!next.ready);
