@@ -118,7 +118,7 @@ test('release planner fails closed on unauthorized tenants, stale source, profil
  await assert.rejects(()=>mismatched.planner.preview({session:'synthetic-session',organizer:'morothon',corrections:mismatched.packageDraft}),/annen arrangør/);
  const unsupported=await makePlanner({adapterSupports:()=>false});
  await assert.rejects(()=>unsupported.planner.preview({session:'synthetic-session',organizer:'morothon',corrections:unsupported.packageDraft}),/støttes ikke/);
- const empty=await makePlanner();
- await assert.rejects(()=>empty.planner.preview({session:'synthetic-session',organizer:'morothon',corrections:C.empty(await C.binding(history,F.meta))}),/Ingen konkrete/);
+ const empty=await makePlanner(),sourceBinding=await C.binding(history,F.meta);
+ await assert.rejects(()=>empty.planner.preview({session:'synthetic-session',organizer:'morothon',corrections:C.empty(sourceBinding)}),/Ingen konkrete/);
  assert.deepEqual(history,F.history(),'no rejection writes original data');
 });
