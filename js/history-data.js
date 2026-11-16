@@ -97,9 +97,10 @@
   }
   function assertValid(data){const report=validate(data);if(report.errors.length)throw new Error('Ugyldig løpshistorikk: '+report.errors.map(e=>e.code+' @ '+e.at).slice(0,8).join('; '));return report;}
   const participationYears=rows=>[...new Set(rows.filter(countsAsParticipation).map(r=>r[0]))].sort((a,b)=>a-b);
+  // Podium standings combine all age classes within the same event, distance and gender.
   function placements(rows,person){
     const map=new WeakMap(),groups=new Map();
-    for(const r of rows){if(!isCompletedResult(r)||isRelayRace(r))continue;const t=timeSeconds(r[5]),p=person(r[1]);if(t===null||!p?.g)continue;const key=JSON.stringify([r[0],r[2],r[3],p.g,juniorClass(r)]);if(!groups.has(key))groups.set(key,[]);groups.get(key).push({r,t});}
+    for(const r of rows){if(!isCompletedResult(r)||isRelayRace(r))continue;const t=timeSeconds(r[5]),p=person(r[1]);if(t===null||!p?.g)continue;const key=JSON.stringify([r[0],r[2],r[3],p.g]);if(!groups.has(key))groups.set(key,[]);groups.get(key).push({r,t});}
     for(const group of groups.values()){group.sort((a,b)=>a.t-b.t);let previous=null,rank=0;group.forEach(({r,t},i)=>{if(t!==previous){rank=i+1;previous=t;}map.set(r,rank);});}
     return map;
   }
