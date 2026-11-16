@@ -1,5 +1,8 @@
 # C2.3c – Gjenbruk av filoppsett og avklaringer uten ny opplasting
 
+Videreføring: [C2.3d – Resultatavstemming og DNS](c23d-resultatavstemming-og-dns.md)
+skiller DNS fra tellende resultater og gir direkte klargjøring gjennom C2.4a.
+
 Normalflyten er **velg resultatfil → automatisk analyse → gjennomgå avvik**.
 Dette viderefører [C2.3b](c23b-fleksibel-resultatimport.md), uten endring av
 historikk, personkoblinger, startlisteflyt eller C2.2s godkjenningskontroller.

@@ -35,3 +35,12 @@ function scenario454({combined=true,result=true}={}){
  return {history:{schemaVersion:1,people,results,yearStats:[[2026,0,0,0,0,0,0,0,0,0]],aliases:{},redirects:{}},text:table.map(r=>r.join(';')).join('\n')};
 }
 module.exports={ids,history,csv,corrected,meta,scenario454};
+// Reproduce only the reported totals, not the contents of a real export.
+function reconciliation454({ambiguous=false,dnsCount=52}={}){
+ const people=[],results=[];for(let i=0;i<398;i++){const suffix=String.fromCharCode(65+Math.floor(i/26))+String.fromCharCode(65+i%26),id='MOR-DNS'+String(i).padStart(4,'0'),status=i>=393?'DNF':'Fullført';people.push({i:id,n:'Syntetisk Historikkløper Historikk'+suffix,g:'Herre'});results.push([2026,id,'Kortmoro','10 km',status,status==='DNF'?'DNF':'50:00','','Herrer','Syntetisk klubb',String(i===0?301:i===1?318:1000+i)]);}
+ results[0][5]='1:08:51';results[1][5]='2:07:14';const h={schemaVersion:1,people,results,yearStats:[[2026,450,398,398,393,5,52,398,0,0]],updated:'2026-11-07',range:'2026–2026',aliases:{},redirects:{},teamResults:[]},source=structuredClone(h);source.results[0][2]='Morothon';source.results[0][3]='20 km';source.results[0][5]='2:07:14';source.results[1][5]='1:08:51';if(ambiguous){source.people[2].n=source.people[2].n.replace('Historikkløper','Historikkløpar');source.results[2][9]='';}
+ for(let i=0;i<dnsCount;i++){const id='MOR-ABS'+String(i).padStart(4,'0');source.people.push({i:id,n:'Syntetisk Ikkestartende Fravær'+String.fromCharCode(65+Math.floor(i/26))+String.fromCharCode(65+i%26),g:'Herre'});source.results.push([2026,id,'Kortmoro','10 km','DNS','DNS','','Herrer','','9000'+i]);}
+ for(let i=0;i<4;i++){const id='MOR-TEAM'+i;source.people.push({i:id,n:'Syntetisk Lag Lagbokstav'+i,g:''});source.results.push([2026,id,'Langmoro stafett','','Fullført','2:20:00','','Stafett','','']);}
+ return {history:h,text:csv(source)};
+}
+module.exports.reconciliation454=reconciliation454;

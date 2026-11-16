@@ -567,7 +567,8 @@
 })(function(I,C,initialRules){
  'use strict';
  const fields={name:'Navn',firstName:'Fornavn',lastName:'Etternavn',bib:'Startnummer',athleteId:'Ekstern utøver-ID',runnerId:'Morothon-ID (valgfritt)',year:'Arrangementsår/dato',event:'Øvelse',distance:'Eksakt distanse',className:'Klasse',gender:'Kjønn',club:'Klubb',time:'Sluttid',status:'Resultatstatus',place:'Kildeplassering'};
- const labels={unchanged:'Uendret',changed:'Endret resultat',new:'Ny registrering',missing:'Mangler i ny kilde',uncertain:'Mulig personkonflikt',conflict:'Person-/kildekonflikt',unassessable:'Kan ikke vurderes med tilgjengelige data',relay:'Stafett – separat'};
+ const labels={unchanged:'Uendret',changed:'Endret resultat',new:'Nytt tellende resultat',missing:'Mangler i ny kilde',uncertain:'Mulig personkonflikt',conflict:'Person-/kildekonflikt',registration:'Resultat til avklaring',unassessable:'Kan ikke vurderes med tilgjengelige data',dns:'Ikke startet (DNS)',unlinked:'Historikk knyttet til en avklaring',relay:'Stafett – separat'};
+ const needsAttention=item=>!['unchanged','dns','unlinked','relay'].includes(item.category)&&!item.decision;
  const columns={event:2,distance:3,status:4,time:5,place:6,className:7,club:8,bib:9};
  const aliases={
   name:['navn','name','fullname','participant','participantname','deltaker','deltakernavn','personnavn','athletename','competitor'],
@@ -795,8 +796,9 @@
    if(!rawStatus)r.status=seconds!==null?'Fullført':['DNS','DNF','Disket','Fullført','Deltatt'].includes(timeStatus)?timeStatus:'';
    else r.status=token(rawStatus);
    if(!['Fullført','Deltatt','DNS','DNF','Disket'].includes(r.status))r.errors.push('Sluttstatus mangler eller er ikke en gyldig resultatstatus. Dette kan være en startliste.');
-   if(r.time&&seconds===null&&!['DNS','DNF','Disket','Fullført','Deltatt'].includes(timeStatus))r.errors.push('Ugyldig sluttid. Bruk mm:ss eller hh:mm:ss.');
+   if(r.time&&seconds===null&&!['DNS','DNF','Disket','Fullført','Deltatt'].includes(timeStatus)&&!(r.status==='DNS'&&/^0{1,2}:00(?::00)?$/.test(r.time)))r.errors.push('Ugyldig sluttid. Bruk mm:ss eller hh:mm:ss.');
    if(['DNS','DNF','Disket'].includes(r.status)&&['DNS','DNF','Disket'].includes(timeStatus)&&r.status!==timeStatus)r.errors.push('Motstridende sluttstatuser.');
+   if(r.status==='DNF'&&seconds!==null){r.sourceTime=r.time;r.time='DNF';r.warnings.push('DNF har ingen sluttid. Kildens tidsfelt er bevart i kontrollrapporten og brukes ikke som fullføring.');}
    r.relay=/stafett|relay/i.test(r.event+' '+r.className);const km=rules.parseDistanceKm(r.distance);
    if(!r.relay&&(!/^\d+(?:[.,]\d+)?\s*km$/i.test(r.distance)||!km||km>1000)&&!(r.distance==='Ukjent'&&r.status==='Deltatt'))r.errors.push('Eksakt positiv distanse i km mangler. Ikke gjett distansen.');
    if(!r.event)r.errors.push('Øvelse mangler.');
@@ -844,7 +846,7 @@
   const duplicateBibs=new Set(),duplicateIds=new Set();
   for(const key of ['bib','athleteId']){const groups=new Map();for(const r of session.rows.filter(r=>!r.relay&&r[key])){if(!groups.has(r[key]))groups.set(r[key],[]);groups.get(r[key]).push(r);}for(const group of groups.values())if(group.length>1&&(key==='bib'&&new Set(group.map(r=>r.event+'|'+r.distance)).size<group.length||group.some((r,i)=>i&&C.compareNames(group[0].name,r.name)===null)))for(const r of group)(key==='bib'?duplicateBibs:duplicateIds).add(r.id);}
   for(const row of session.rows){
-   const item={id:row.id,row,category:'uncertain',reason:'Navn alene bekrefter ikke identitet. Kontroller personen og resultatregistreringen.',candidates:[],beforeIndex:null,before:null,after:null,differences:[],decision:null,blocking:false};
+   const item={id:row.id,row,category:'uncertain',reason:'Navn alene bekrefter ikke identitet. Kontroller personen og resultatregistreringen.',candidates:[],beforeIndex:null,before:null,after:null,differences:[],decision:null,blocking:false,newType:null,relatedIndices:[],conflictType:null};
    const decision=decisions.get(row.id);if(decision&&decision.basis!==session.key)throw Error('Avgjørelsen gjelder en annen fil eller tolkning. Vurder på nytt.');
    if(row.relay){if(decision)throw Error('Stafett må behandles separat, ikke som individuell retting.');item.category='relay';item.reason='Stafett holdes separat. Ingen individuell deltakelse, personkobling eller automatisk lagretting opprettes.';items.push(item);continue;}
    const bibRows=row.bib?old.filter(x=>clean(x.row[9])===row.bib):[],local=new Map();
@@ -864,13 +866,26 @@
     if(bibRows.length&&!supported.length){item.category='conflict';item.blocking=true;item.reason='Startnummeret tilhører et annet registrert navn. Startnummer kan ikke overstyre identitetskonflikten.';}
     else{
      if(!paired.length&&ids.length===1&&(explicit||external||item.candidates.find(p=>p.id===ids[0])?.strength==='strong')){paired=narrow(old.filter(x=>x.id===ids[0]&&x.row[2]===row.event&&sameDistance(x.row[3],row.distance)));why='Entydig fullt navn/alias og samme år, øvelse og distanse støtter resultatparet. Endringer krever din uttrykkelige bekreftelse.';}
+     // A documented person ID plus a compatible name and one historical start
+     // can identify the result even when its exercise/distance was corrected.
+     if(!paired.length&&(explicit||external)&&ids.length===1&&H.effectiveStatus([year,'','','',row.status,row.time])!=='DNS'){const starts=old.filter(x=>x.id===ids[0]);if(starts.length===1){paired=starts;why='Dokumentert personreferanse, støttende navn og én registrering i året. Endret øvelse/distanse vurderes som resultatkorrigering.';}}
      if(paired.length===1){const x=paired[0];item.beforeIndex=x.index;item.before=x.row;item.after=afterRow(row,x.id,x.row,history.redirects);item.category=differences(x.row,item.after).length?'changed':'unchanged';item.reason=why;}
-     else if(paired.length>1){item.category='conflict';item.reason='Flere historiske starter passer. Velg nøyaktig registrering manuelt.';}
-     else if(ids.length===0){item.category='new';item.reason='Ingen støttede navnetreff. En ny person må opprettes i en separat, autorisert prosess.';}
-     else if(ids.length===1&&!old.some(x=>x.id===ids[0])){item.category='new';item.reason='Mulig eksisterende person uten resultat i denne årgangen. Bekreft personen før et tillegg foreslås.';}
+     else if(paired.length>1){item.category=new Set(paired.map(x=>x.id)).size===1?'registration':'uncertain';item.relatedIndices=paired.map(x=>x.index);item.reason='Flere historiske starter passer. Velg hvilken registrering dette gjelder. Ingen starter fjernes.';}
+     else if(ids.length===0){item.category='new';item.newType='person';item.reason='Nytt tellende resultat uten støttet personkobling. En eventuell ny profil krever separat identitetskontroll; ingen person opprettes automatisk.';}
+     else if(ids.length===1&&!old.some(x=>x.id===ids[0])&&(explicit||external||strong.length===1)){item.category='new';item.newType='result';item.reason='Forslag til nytt resultat for en eksisterende løper. Bekreft person og registrering før tillegget klargjøres; navnet alene gir ingen permanent kobling.';}
+     else if(ids.length===1&&old.some(x=>x.id===ids[0])&&(explicit||external||strong.length===1)){item.category='registration';item.reason='Personreferansen eller navnet samsvarer, men resultatet passer ikke entydig med en tidligere start. Velg rett registrering eller bekreft at dette er en ekstra start.';}
     }
    }
+   if(['uncertain','registration'].includes(item.category)&&!item.relatedIndices.length)item.relatedIndices=old.filter(x=>ids.includes(x.id)&&(item.category==='registration'||x.row[2]===row.event&&sameDistance(x.row[3],row.distance))).map(x=>x.index);
+   const sourceStatus=H.effectiveStatus([year,'','','',row.status,row.time]);
+   if(sourceStatus==='DNS'&&!item.blocking){
+    const scoped=old.filter(x=>(ids.includes(x.id)&&x.row[2]===row.event&&sameDistance(x.row[3],row.distance))||bibRows.some(b=>b.index===x.index)),starts=scoped.filter(x=>H.countsAsParticipation(x.row));
+    if(H.timeSeconds(row.time)>0){item.category='unassessable';item.blocking=true;item.reason='DNS er kombinert med en positiv sluttid. Kontroller resultatstatusen i kilden.';}
+    else if(starts.length){item.category='conflict';item.conflictType='source';item.blocking=true;item.relatedIndices=starts.map(x=>x.index);if(starts.length===1){item.beforeIndex=starts[0].index;item.before=starts[0].row;}item.after=null;item.reason='DNS motsier en dokumentert start i historikken (fullføring, DNF eller annen tellende deltakelse). Avklar kilden før resultatet kan endres.';}
+    else if(item.category!=='unchanged'){item.category='dns';item.newType=null;item.relatedIndices=[];item.after=null;item.reason='Ikke startet. Ingen personprofil, resultattillegg eller tellende deltakelse foreslås. Historikken beholdes.';}
+   }
    if(decision){
+    if(item.category==='dns')throw Error('DNS uten dokumentert start er informasjon og skal ikke klargjøres som en retting.');
     if(!['confirm','new','reject','defer'].includes(decision.action)||typeof decision.reason!=='string'||!decision.reason.trim()||decision.reason.length>1000||/[<>\u0000-\u001f]/.test(decision.reason)||!Number.isFinite(Date.parse(decision.at)))throw Error('Registrer en gyldig, uttrykkelig beslutning og begrunnelse.');
     item.decision=clone(decision);
     if(decision.action==='confirm'){
@@ -878,9 +893,9 @@
      const owners=old.filter(x=>row.bib&&clean(x.row[9])===row.bib);if(owners.length&&!owners.some(x=>x.id===id))throw Error('Startnummeret peker på en annen person i historikken. Avklar konflikten i kontrollsentralen først.');
      const matched=decision.targetIndex===null?null:old.find(x=>x.index===decision.targetIndex&&x.id===id);if(decision.targetIndex!==null&&!matched)throw Error('Velg et eksakt resultat for personen i valgt år.');
      if(row.gender&&context.people.get(id).gender&&row.gender!==context.people.get(id).gender)throw Error('Kjønn motsier valgt person. Avklar i personkontrollen først.');
-     item.beforeIndex=matched?.index??null;item.before=matched?.row??null;item.after=afterRow(row,id,item.before,history.redirects);item.category=item.before?(differences(item.before,item.after).length?'changed':'unchanged'):'new';item.reason='Arrangøren har uttrykkelig bekreftet dette resultatvalget. '+decision.reason;
+     item.beforeIndex=matched?.index??null;item.before=matched?.row??null;item.after=afterRow(row,id,item.before,history.redirects);item.category=item.before?(differences(item.before,item.after).length?'changed':'unchanged'):'new';item.newType=item.before?null:'result';item.relatedIndices=[];item.reason='Arrangøren har uttrykkelig bekreftet dette resultatvalget. '+decision.reason;
     }
-    else if(decision.action==='new'){item.beforeIndex=null;item.before=null;item.after=null;item.category='new';item.reason='Markert som ny person. Ingen profil eller permanent person-ID opprettes i C2.3a.';}
+    else if(decision.action==='new'){item.beforeIndex=null;item.before=null;item.after=null;item.category='new';item.newType='person';item.relatedIndices=[];item.reason='Markert som ny person. Ingen profil eller permanent person-ID opprettes i C2.3a.';}
    }
    if(item.after){
     const id=context.model.resolve(item.after[1]),person=context.model.person(id),normalized=[...item.after];normalized[1]=id;
@@ -894,12 +909,12 @@
    items.push(item);
   }
   const claims=new Map();for(const i of items)if(i.beforeIndex!==null&&i.decision?.action!=='new'){if(!claims.has(i.beforeIndex))claims.set(i.beforeIndex,[]);claims.get(i.beforeIndex).push(i);}
-  for(const group of claims.values())if(group.length>1)for(const i of group){i.category='conflict';i.blocking=true;i.reason='Flere importerte rader peker på samme historiske resultat. Ingen av dem kan klargjøres før dette er avklart.';}
-  for(const x of old)if(!claims.has(x.index))items.push({id:'missing-'+x.index,row:null,category:'missing',reason:'Ikke koblet til ny eksport. Kan skyldes filtrert eksport eller uavklart identitet. Resultatet slettes aldri automatisk.',candidates:[],beforeIndex:x.index,before:x.row,after:null,differences:[],blocking:false,decision:decisions.get('missing-'+x.index)||null});
+  for(const group of claims.values())if(group.length>1)for(const i of group){i.category='conflict';i.conflictType='source';i.blocking=true;i.reason='Flere importerte rader peker på samme historiske resultat. Ingen av dem kan klargjøres før dette er avklart.';}
+  for(const x of old)if(!claims.has(x.index)){const related=items.filter(i=>!['reject','new','confirm'].includes(i.decision?.action)&&i.relatedIndices?.includes(x.index)).map(i=>i.id),category=related.length?'unlinked':'missing';if(category==='unlinked'&&decisions.has('missing-'+x.index))throw Error('Denne historiske registreringen inngår i en uavklart kobling. Vurder kildeavviket før en egen beslutning tas.');items.push({id:'missing-'+x.index,row:null,category,reason:related.length?'Kan være representert av et uavklart resultat i filen. Avklar den tilknyttede saken først; dette er ikke en egen bekreftet mangel.':'Ikke koblet til ny eksport. Kan skyldes filtrert eksport. Resultatet slettes aldri automatisk.',relatedItemIds:related,candidates:[],beforeIndex:x.index,before:x.row,after:null,differences:[],blocking:false,decision:decisions.get('missing-'+x.index)||null});}
   for(const key of decisions.keys())if(!items.some(i=>i.id===key))throw Error('Beslutningen gjelder en sak som ikke finnes i denne analysen.');
   const counts=Object.fromEntries(Object.keys(labels).map(key=>[key,items.filter(i=>i.category===key).length]));
-  const completeness=counts.missing?'partial':counts.conflict||counts.uncertain||counts.unassessable||counts.new||counts.relay||!session.source.completeClaim||!old.length?'uncertain':'apparent-complete';
-  return {items,counts,existing:old.length,read:session.rows.length,completeness,pending:items.filter(i=>!['unchanged','relay'].includes(i.category)&&!i.decision).length};
+  const completeness=counts.missing?'partial':counts.conflict||counts.uncertain||counts.registration||counts.unlinked||counts.unassessable||counts.new||counts.relay||!session.source.completeClaim||!old.length?'uncertain':'apparent-complete';
+  return {items,counts,existing:old.length,read:session.rows.length,completeness,pending:items.filter(needsAttention).length};
  }
  function decide(context,session,decisions,itemId,{action,runnerId=null,targetIndex=null,reason}){
   const next=new Map(decisions);next.set(itemId,{basis:session.key,action,runnerId,targetIndex,reason:clean(reason),at:new Date().toISOString()});const analysis=review(context,session,next);if(!analysis.items.some(i=>i.id===itemId))throw Error('Kontrollsaken finnes ikke i dette grunnlaget.');return next;
@@ -921,5 +936,5 @@
   await C.applyCandidate(context.model.data,packet,session.base,{preview:true});C.serialize(packet);return packet;
  }
  async function report(context,session,decisions){const packet=await prepare(context,session,decisions),analysis=review(context,session,decisions);const text=JSON.stringify({format:'morothon-results-review-v1',version:1,base:session.base,source:session.source,interpretationSha256:session.key,mapping:session.mapping,summary:{existing:analysis.existing,read:analysis.read,completeness:analysis.completeness,...analysis.counts},items:analysis.items,corrections:packet,productionApplied:false},null,2)+'\n';if(new TextEncoder().encode(text).length>8*1024*1024)throw Error('Kontrollrapporten overstiger 8 MB. Avgrens utvalget og gjennomgå på nytt. Ingen rader er utelatt stille.');return text;}
- return {fields,labels,columns,parse,detectFields,resolveFields,annualCourses,inspect,layouts,canContainFinish:v=>!notFinish(v),importedRows,createSession,validateSession,review,decide,prepare,report,differences};
+ return {fields,labels,needsAttention,columns,parse,detectFields,resolveFields,annualCourses,inspect,layouts,canContainFinish:v=>!notFinish(v),importedRows,createSession,validateSession,review,decide,prepare,report,differences};
 });
