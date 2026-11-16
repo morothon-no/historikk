@@ -351,6 +351,24 @@
   }
   return {history:data,journal,productionApplied:false};
  }
+ // Preference for the organizer-confirmed main *display name*, not evidence
+ // that profiles belong to one person. Full middle tokens outrank initials.
+ function preferredMainProfile(model,ids){
+  if(ids?.length!==2||ids.some(id=>!model.person(id)))return null;
+  const [a,b]=ids,years=id=>model.stats(id)?.years.length||0;
+  const tokens=id=>model.person(id).n.normalize('NFKC').replace(/\./g,' ').trim().split(/\s+/).map(x=>x.toLocaleLowerCase('nb-NO')),
+   x=tokens(a),y=tokens(b),middle=t=>t.slice(1,-1);
+  if(x[0]===y[0]&&x.at(-1)===y.at(-1)){
+   const xm=middle(x),ym=middle(y),
+    matches=(short,long)=>short.every((v,i)=>v===long[i]||v.length===1&&long[i]?.startsWith(v)),
+    xf=xm.filter(v=>v.length>1).length,yf=ym.filter(v=>v.length>1).length;
+   if(xf!==yf){
+    if(xf>yf&&matches(ym,xm))return a;
+    if(yf>xf&&matches(xm,ym))return b;
+   }
+  }
+  return years(a)===years(b)?null:years(a)>years(b)?a:b;
+ }
  // Names are compared by role and complete tokens. Years never create identity evidence.
  const identityCategories=new Set(['Navn eller alias','Mulige duplikater','Navnevariant','Mulig navnevariant','Mulig navneendring']);
  function nameParts(value){return String(value??'').normalize('NFKC').toLocaleLowerCase('nb-NO').replace(/[‐‑‒–—-]/g,' ').replace(/’/g,"'").match(/[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*/gu)||[];}
@@ -620,7 +638,7 @@
   const candidate=pending.length?null:await createCandidate(history,approved,base,view,options);
   return {package:approved,impact,candidate,ready:true,pending,productionApplied:false};
  }
- return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,CANDIDATE_FORMAT,CANDIDATE_BYTES,prepareCase,reviewStaged,createCandidate,verifyCandidate,serializeCandidate,parseCandidate,restoreCandidate,caseType,worklist,carryDecisions,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
+ return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,CANDIDATE_FORMAT,CANDIDATE_BYTES,prepareCase,reviewStaged,preferredMainProfile,createCandidate,verifyCandidate,serializeCandidate,parseCandidate,restoreCandidate,caseType,worklist,carryDecisions,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
 });
 
 /* C2.3a annual result reconciliation. Uses the existing parser, identity signals
