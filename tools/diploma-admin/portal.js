@@ -265,7 +265,18 @@
   async function route() {
     const profile = window.MorothonAdminTransport ? await MorothonAdminTransport.ready : null;
     if (profile) for (const [key, value] of Object.entries(profile.texts.pages)) pages[key] = [value.title, value.description];
-    let key = location.hash.slice(1); if (!pages[key] || profile && !['design','rettelser'].includes(key) && !profile.modules[key]) { key = 'oversikt'; history.replaceState(null, '', '#oversikt'); }
+    let key = location.hash.slice(1);
+    // Heder can be disabled for this organizer; direct #heder links must
+    // not bypass the same token-protected module check as sidebar navigation.
+    if (key === 'heder' && !state.honorData?.enabled) {
+      try {
+        const data = await api('honors');
+        if (!data?.enabled || !data.readOnly || !Array.isArray(data.people)) key = 'oversikt';
+        else { state.honorData = data; if ($('navHeder')) $('navHeder').hidden = false; }
+      } catch { key = 'oversikt'; }
+    }
+    if (!pages[key] || profile && !['design','rettelser'].includes(key) && !profile.modules[key]) { key = 'oversikt'; }
+    if (location.hash.slice(1) !== key) history.replaceState(null, '', '#' + key);
     state.section = key; closePerson(); if ($('preview').open) $('preview').close(); status();
     window.scrollTo({ top: 0, behavior: 'auto' });
     for (const view of document.querySelectorAll('[data-view]')) view.hidden = view.dataset.view !== key;
