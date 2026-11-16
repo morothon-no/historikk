@@ -35,6 +35,11 @@ publiserings- eller lagringsprosess. GitHub Pages er fremdeles skrivebeskyttet.
   Dette fanger feilaktig kobling til EQtimings `Rank Class`.
 - DNS/DNF gir ikke plassering og teller ikke inn i denne kontrollen. Stafett
   blir fortsatt holdt adskilt fra individuelle resultater.
+- EQtiming kan registrere **COMPLETED uten målt sluttid**. Slike starter
+  beholder sin historiske kildestatus og kildeplassering uten oppdiktet tid.
+  Kildeplasseringene må komme fortløpende **etter** de tidsregistrerte
+  fullføringene i samme kjønn/distanse, og en direkte endring av en slik
+  untidsatt registrering krever fortsatt egen manuell vurdering.
 
 Selv om et resultatark virker komplett, utgjør brukerens avkrysning ikke
 en attestasjon fra leverandøren. Derfor lagres bare beslutninger som lokalt
