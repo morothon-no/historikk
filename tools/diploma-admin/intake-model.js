@@ -702,7 +702,7 @@
   }
   const unresolved=[...groups.values()].filter(g=>!g.options.some(o=>o.value===profileChoices[g.id]));
   const structuralReady=!issues.length&&!choices.length;
-  let rows=[];if(structuralReady){rows=validateRows(context,{...staged,headers:canonical,records:normalized},Object.fromEntries(canonical.map((k,i)=>[k,i])),year).map((r,i)=>({...r,present:details[i].present,inference:details[i].evidence,errors:[...r.errors,...details[i].errors,...(details[i].width?['Antall felt stemmer ikke med kolonnene.']:[])]}));}
+  let rows=[];if(structuralReady){rows=validateRows(context,{...staged,headers:canonical,records:normalized},Object.fromEntries(canonical.map((k,i)=>[k,i])),year).map((r,i)=>({...r,present:{...details[i].present,place:details[i].present.place&&r.present.place},inference:details[i].evidence,errors:[...r.errors,...details[i].errors,...(details[i].width?['Antall felt stemmer ikke med kolonnene.']:[])]}));}
   const ready=structuralReady&&(!unresolved.length||rows.some(r=>!r.errors.length&&!r.relay));
   const sourceYears=mapping.year<0?[]:[...new Set(staged.records.map(r=>I.yearValue(r.cells[mapping.year])))];
   return {ready,mapping,issues,choices,groups:unresolved,allGroups:[...groups.values()],rows,suggestedYear:sourceYears.length===1&&sourceYears[0]>=1900?sourceYears[0]:null,stages:{format:true,interpreted:ready&&rows.every(r=>!r.errors.length),paired:false,reviewed:false}};
@@ -803,8 +803,16 @@
    if(!r.relay&&(!/^\d+(?:[.,]\d+)?\s*km$/i.test(r.distance)||!km||km>1000)&&!(r.distance==='Ukjent'&&r.status==='Deltatt'))r.errors.push('Eksakt positiv distanse i km mangler. Ikke gjett distansen.');
    if(!r.event)r.errors.push('Øvelse mangler.');
    if(!events.has(r.event)){const aliases=context.competitions.filter(c=>I.fold(c.label.split(' · ')[0])===I.fold(r.event));const names=[...new Set(aliases.map(c=>c.event))],race=context.race(r.event);if(names.length===1)r.event=names[0];else if(race&&!race.relay&&race.km===km)r.event=race.event;else r.warnings.push('Øvelsesnavnet er ikke kjent i arrangementsprofilen. Kontroller råverdien og konsekvensene før overlevering.');}
-   if(r.place&&!/^[1-9]\d{0,5}$/.test(r.place)&&!['DNS','DNF','Disket','DQ'].includes(r.place))r.errors.push('Ugyldig kildeplassering.');
-   r.place=/^[1-9]\d*$/.test(r.place)?Number(r.place):r.place||'';
+   if(!rules.isCompletedResult([year,'',r.event,r.distance,r.status,r.time])){
+    // Nonfinish results have no source placement, even if the provider exports a rank.
+    // Keep the source token in the inspection row without changing any old history record.
+    if(r.place)r.sourcePlace=r.place;
+    if(/^[1-9]\d*$/.test(r.place))r.warnings.push('Kilden oppgir plassering for en deltaker uten fullført resultat. Plasseringen er utelatt.');
+    r.place='';r.present.place=false;
+   }else{
+    if(r.place&&!/^[1-9]\d{0,5}$/.test(r.place)&&!['DNS','DNF','Disket','DQ'].includes(r.place))r.errors.push('Ugyldig kildeplassering.');
+    r.place=/^[1-9]\d*$/.test(r.place)?Number(r.place):r.place||'';
+   }
    return r;
   });
  }

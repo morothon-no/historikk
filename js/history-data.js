@@ -107,7 +107,7 @@
   }
   const eventLabel=r=>r[2]==='Morothon'?'Langmoro':r[2];
   const periodFor=r=>r[0]<2014?'historical':'since-2014';
-  const sourcePlace=r=>{const n=Number(r[6]);return Number.isInteger(n)&&n>0?n:null;};
+  const sourcePlace=r=>{if(!r||!isCompletedResult(r)||isRelayRace(r))return null;const n=Number(r[6]);return Number.isInteger(n)&&n>0?n:null;};
   function create(data){
     assertValid(data);
     const resolve=pid=>resolveId(pid,data.redirects||{}),people=new Map(data.people.filter(p=>resolve(p.i)===p.i).map(p=>[p.i,p])),byPerson=new Map();
