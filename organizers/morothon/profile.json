@@ -1,0 +1,113 @@
+{
+  "format": "adelskalender-organizer-profile-v1",
+  "schemaVersion": 1,
+  "organizerId": "morothon",
+  "name": "Søgne Morothon",
+  "locale": "nb-NO",
+  "timeZone": "Europe/Oslo",
+  "events": [
+    {
+      "id": "langmoro",
+      "label": "Langmoro",
+      "sourceNames": [
+        "Morothon"
+      ]
+    },
+    {
+      "id": "kortmoro",
+      "label": "Kortmoro",
+      "sourceNames": [
+        "Kortmoro"
+      ]
+    },
+    {
+      "id": "kort-kortmoro",
+      "label": "Kort Kortmoro",
+      "sourceNames": [
+        "Kort Kortmoro"
+      ]
+    },
+    {
+      "id": "ungdom",
+      "label": "Ungdom",
+      "sourceNames": [
+        "Junior"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "id": "morothon-legacy-year-rules-v1",
+      "fromYear": 1992,
+      "throughYear": null,
+      "participation": {
+        "unit": "person-year",
+        "countStatuses": [
+          "Fullført",
+          "DNF",
+          "Disket",
+          "DQ"
+        ],
+        "relayCounts": false
+      },
+      "ranking": {
+        "groupBy": [
+          "year",
+          "event",
+          "distance",
+          "gender"
+        ],
+        "tieMethod": "competition"
+      }
+    }
+  ],
+  "coursePeriods": [
+    {
+      "id": "langmoro-legacy",
+      "label": "Historisk trasé før 2014",
+      "eventIds": [
+        "langmoro"
+      ],
+      "fromYear": 1992,
+      "throughYear": 2013
+    },
+    {
+      "id": "langmoro-modern",
+      "label": "Trasé fra 2014",
+      "eventIds": [
+        "langmoro"
+      ],
+      "fromYear": 2014,
+      "throughYear": null
+    },
+    {
+      "id": "kortmoro-legacy",
+      "label": "Historisk trasé før 2014",
+      "eventIds": [
+        "kortmoro"
+      ],
+      "fromYear": 1992,
+      "throughYear": 2013
+    },
+    {
+      "id": "kortmoro-modern",
+      "label": "Trasé fra 2014",
+      "eventIds": [
+        "kortmoro"
+      ],
+      "fromYear": 2014,
+      "throughYear": null
+    }
+  ],
+  "badges": {
+    "registry": "data/badges.json"
+  },
+  "import": {
+    "formats": [
+      "eqtiming",
+      "delimited",
+      "historic-manual"
+    ],
+    "requiresCompleteYearConfirmation": true
+  }
+}
