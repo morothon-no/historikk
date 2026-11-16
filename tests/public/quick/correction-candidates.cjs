@@ -35,3 +35,22 @@ test('C2.4a imported review decisions require reconfirmation, and multiple propo
 test('C2.4a editing an already prepared case rechecks it and automatically withdraws its previous local preparation',async()=>{
  const {h,b,p}=await setup(),out=await C.prepareCase(h,p,'test-case',merge,b,project),next=await C.prepareCase(h,out.package,'test-case',{...merge,personIds:[ids[1],ids[0]]},b,project);assert.equal(next.ready,true);assert.equal(H.create(next.candidate.result.history).resolve(ids[1]),ids[0]);assert.ok(next.package.cases[0].events.some(e=>e.action==='review'));assert.notEqual(next.candidate.checksum,out.candidate.checksum);
 });
+
+test('C2.4 deferred identity decisions do not project until an explicit single aggregate check',async()=>{
+ const {h,b,p}=await setup(),before=structuredClone(h),initial=structuredClone(p);
+ let projects=0;const projector=async data=>{projects++;return project(data);};
+ const proposed=await C.propose(h,p,'test-case',merge);
+ assert.equal(projects,0,'one-click decision does not load full analysis');
+ assert.equal(proposed.cases[0].status,'proposed');
+ const checked=await C.reviewStaged(h,proposed,b,projector);
+ assert.equal(projects,2,'only one before and one after projection for the staged set');
+ assert.equal(checked.ready,true,JSON.stringify(checked.uncertain));
+ assert.equal(checked.productionApplied,false);
+ assert.equal(checked.publicationAuthorized,false);
+ assert.equal(proposed.cases[0].status,'proposed','aggregate preview cannot authorize any handoff');
+ assert.deepEqual(h,before,'published data remains identical');
+ assert.deepEqual(p,initial,'original workspace remains identical');
+ const withHeder=await C.reviewStaged(h,proposed,b,project,{linkedRunnerIds:[ids[0]]});
+ assert.equal(withHeder.ready,false,'linked heder runner still blocks an unchecked merge');
+ assert.match(withHeder.uncertain.join(' '),/Heder/);
+});
