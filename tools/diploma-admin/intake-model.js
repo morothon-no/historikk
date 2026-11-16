@@ -502,6 +502,55 @@
   const errors=rules().validate(all.history).errors;
   return {caseId,baseHash:base.snapshotSha256,packageFingerprint:fingerprint(p),changeHash:JSON.stringify(c.change),ready:!uncertain.length&&!errors.length,changes,uncertain:[...new Set(uncertain)],errors,candidate:all.history,journal:all.journal,productionApplied:false};
  }
+ // C2.4 staged decision preview: exactly one combined source validation and
+ // projection. This produces NO handoff, publication authorization or candidate.
+ // The existing C2.2 per-case full checks remain the publication gate.
+ async function reviewStaged(history,p,base,project,{linkedRunnerIds=[]}={}){
+  validatePackage(p);validateBinding(base);
+  if(typeof project!=='function')throw Error('Den etablerte konsekvensmotoren må være tilgjengelig.');
+  const active=p.cases.filter(c=>c.change&&['proposed','handoff'].includes(c.status));
+  if(!active.length)throw Error('Ingen sammenslåinger eller resultatforslag er registrert for samlet kontroll.');
+  const original=JSON.stringify(history);
+  const preview=await applyCandidate(history,p,base,{preview:true}),all=preview.history,H=rules(),uncertain=[],affected=new Set(active.flatMap(c=>c.change.personIds)),linked=new Set(linkedRunnerIds);
+  for(const c of active)if(c.change.kind==='merge')for(const id of c.change.personIds)if(linked.has(id))uncertain.push('Sammenslåingen berører en Heder-kobling og krever separat kontroll av autorisert forvalter.');
+  const model=H.create(all);
+  for(const row of all.results)if(H.isJuniorRace(row)&&/^[KM]\d/.test(row[7]||'')&&affected.has(row[1])){
+   const gender=model.person(row[1])?.g;
+   if(row[7].startsWith('K')&&gender==='Herre'||row[7].startsWith('M')&&gender==='Dame')
+    uncertain.push('Juniorklasse og kjønn må avklares før overlevering.');
+  }
+  for(const c of active)if(['person','alias'].includes(c.change.kind))for(const id of c.change.personIds){
+   const target=model.resolve(id),person=model.person(target);if(!person)continue;
+   const names=[person.n,...Object.entries(all.aliases||{}).filter(([k])=>model.resolve(k)===target).flatMap(([,a])=>a)].map(Intake.normal);
+   for(const other of model.people.values())if(other.i!==target&&names.includes(Intake.normal(other.n))){
+    uncertain.push('Navn eller alias treffer en annen eksisterende profil. Identiteten må avklares.');break;
+   }
+  }
+  if(active.some(c=>c.change.kind==='remove'&&history.results.filter(r=>same(r,c.change.before)).length<2))
+   uncertain.push('Et fjernet resultat er ikke en identisk dobbeltregistrering. Kildegrunnlaget må kontrolleres.');
+  const view=cachedProjection(project),beforeView=await view(history),afterView=await view(all),changed=[];
+  for(const area of projectionAreas){
+   if(!(area in beforeView)||!(area in afterView))throw Error('Konsekvensmotoren mangler '+area);
+   if(!same(beforeView[area],afterView[area]))changed.push(area);
+  }
+  for(const id of new Set([...Object.keys(beforeView.people),...Object.keys(afterView.people)]))
+   if(linked.has(id)&&(!same(beforeView.people[id],afterView.people[id])||!same(beforeView.diplomas[id],afterView.diplomas[id])||!same(beforeView.loyalty[id],afterView.loyalty[id])))
+    uncertain.push('Endret løpsgrunnlag for Heder-profil krever kontroll av diplom og hederstekst.');
+  if(changed.includes('placements')){
+   const key=r=>JSON.stringify([r.personId,r.year,r.event,r.distance,r.className,r.bib,r.time,r.sourcePlace]),
+    beforeRanks=new Map(beforeView.placements.map(r=>[key(r),r]));
+   for(const row of afterView.placements){
+    const old=beforeRanks.get(key(row));
+    if(old&&old.rank!==row.rank&&!affected.has(row.personId)&&row.sourcePlace!==row.rank)
+     uncertain.push('Andre løperes kildeplasseringer avviker fra ny beregning. Kontroller kilden før overlevering.');
+   }
+  }
+  const errors=H.validate(all).errors;
+  if(JSON.stringify(history)!==original)throw Error('Kontrollen må aldri endre den opprinnelige historikken.');
+  return {ready:!uncertain.length&&!errors.length,uncertain:[...new Set(uncertain)],errors,
+   proposed:active.length,changed,productionApplied:false,publicationAuthorized:false,
+   sourceSnapshotSha256:base.snapshotSha256};
+ }
  // C2.4a coordinates the existing case contract. A candidate is a local review
  // artifact, never an authenticated approval or an A1C publication package.
  const CANDIDATE_FORMAT='morothon-correction-candidate-v1',CANDIDATE_BYTES=16*1024*1024;
@@ -559,7 +608,7 @@
   const candidate=pending.length?null:await createCandidate(history,approved,base,view,options);
   return {package:approved,impact,candidate,ready:true,pending,productionApplied:false};
  }
- return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,CANDIDATE_FORMAT,CANDIDATE_BYTES,prepareCase,createCandidate,verifyCandidate,serializeCandidate,parseCandidate,restoreCandidate,caseType,worklist,carryDecisions,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
+ return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,CANDIDATE_FORMAT,CANDIDATE_BYTES,prepareCase,reviewStaged,createCandidate,verifyCandidate,serializeCandidate,parseCandidate,restoreCandidate,caseType,worklist,carryDecisions,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
 });
 
 /* C2.3a annual result reconciliation. Uses the existing parser, identity signals
