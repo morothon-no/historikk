@@ -17,6 +17,14 @@ test('C2.3a static annual portal imports, compares, explicitly reviews two corre
  const {p,context}=await open(),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r));const before=await fs.readFile(path.join(build.out,'data/history.json'));
  try{
   assert.equal(await p.locator('#annualStartlist').isVisible(),false);await upload(p);assert.match(await p.locator('#resultFileInfo').textContent(),/9 resultatlinjer/);await compare(p);
+  const bulk=p.locator('#resultBulkReview'),completeness=bulk.locator('#resultComplete');
+  assert.equal(await completeness.isVisible(),true,'completeness checkbox must be beside the annual bulk action');
+  assert.equal(await p.locator('.result-settings #resultComplete').count(),0,'no faraway duplicate checkbox at year selection');
+  assert.match(await bulk.innerText(),/For å aktivere samleknappen: Kryss av/);
+  assert.equal(await completeness.isChecked(),false);
+  await completeness.check();await p.waitForFunction(()=>document.querySelector('#resultComplete')?.checked===true&&document.querySelector('#resultBulkReview')&&!document.querySelector('#resultBulkReview .result-coverage-warning'));
+  assert.equal(await completeness.isChecked(),true,'confirmation survives reanalysis');
+  assert.match(await bulk.innerText(),/Jeg har kontrollert at denne resultatfilen omfatter alle individuelle øvelser/);
   assert.deepEqual(await p.locator('.result-summary-grid strong').allTextContents(),['7','2','0','0','0','0','0']);assert.equal(await p.locator('.result-case').count(),2);
   const first=p.locator('[data-result-id="result-1"]');assert.match(await first.textContent(),/Øvelse, Eksakt distanse, Sluttid/);assert.match(await first.textContent(),/1:08:51/);assert.match(await first.textContent(),/2:07:14/);
   for(const width of [1440,768,390]){await p.setViewportSize({width,height:1050});await p.evaluate(()=>scrollTo(0,0));await p.screenshot({path:path.join(out,'sammenligning-'+width+'.png'),fullPage:true});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
