@@ -172,3 +172,26 @@ test('C2.5 batch gate refuses partial, misranked, class-ranked, conflicting or n
  const untrusted=await check(base);
  await assert.rejects(()=>R.confirmSafeBatch(ctx,{...untrusted.session,key:'0'.repeat(64)}),/Importgrunnlaget er endret/);
 });
+
+test('C2.5 EQtiming COMPLETED without time and DNF with source rank are not fabricated into new times or false placement changes',async()=>{
+ const h=fixture.history();h.people=h.people.slice(0,5);h.results=[
+  [2026,fixture.ids[0],'Kortmoro','10 km','Fullført','50:00',1,'Herrer','','301'],
+  [2026,fixture.ids[1],'Kortmoro','10 km','Fullført','55:00',2,'Herrer','','302'],
+  [2026,fixture.ids[2],'Kortmoro','10 km','Fullført','COMPLETED',3,'Herrer','','303'],
+  [2026,fixture.ids[3],'Kortmoro','10 km','Fullført','COMPLETED',4,'Herrer','','304'],
+  [2026,fixture.ids[4],'Kortmoro','10 km','DNF','DNF',null,'Herrer','','305']
+ ];h.yearStats=[[2026,0,0,0,0,0,0,0,0,0]];
+ const header='Name;Bib;Race;Distance;Status;Time;Rank Gender;Class;Gender';
+ const source=h.people.map((p,i)=>[p.n,301+i,'Kortmoro','10 km',i===4?'DNF':'Fullført',['51:00','55:00','COMPLETED','COMPLETED','DNF'][i],i+1,'Herrer','M'].join(';'));
+ const csv=[header,...source].join('\n');
+ const ctx=context(h),parsed=R.parse(csv),session=await R.createSession(ctx,parsed,parsed.mapping,{year:2026,sourceSha256:await C.hash(csv),meta:fixture.meta,completeClaim:true});
+ const checked=R.review(ctx,session),plan=R.bulkPlan(ctx,session,checked);
+ assert.equal(plan.ready,true,plan.problem);assert.equal(plan.total,1);
+ assert.equal(session.rows[2].time,'COMPLETED');assert.equal(session.rows[2].place,3);
+ assert.equal(session.rows[4].status,'DNF');assert.equal(session.rows[4].place,'');assert.equal(session.rows[4].present.place,false);
+ const confirmed=await R.confirmSafeBatch(ctx,session,new Map()),pack=await R.prepare(ctx,session,confirmed.decisions),candidate=await C.applyCandidate(h,pack,session.base,{preview:true});
+ assert.deepEqual(candidate.history.results.slice(2),h.results.slice(2),'untimed COMPLETED and DNF originals remain exact');
+ assert.equal(candidate.history.results[0][5],'51:00');
+ const gap=csv.replace(';COMPLETED;3;',';COMPLETED;8;'),g=R.parse(gap),ss=await R.createSession(ctx,g,g.mapping,{year:2026,sourceSha256:await C.hash(gap),meta:fixture.meta,completeClaim:true});
+ assert.equal(R.bulkPlan(ctx,ss,R.review(ctx,ss)).ready,false,'untimed ranks with gaps require manual review');
+});
