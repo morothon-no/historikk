@@ -51,6 +51,10 @@ forskjellige kandidater med helt like navn. Resultatet inkluderer ID,
 deltakelsesantall, eksisterende koblingsstatus og indikator når løperen
 allerede er knyttet til en annen Heder-person.
 
+Søk kan også brukes **før en ny Heder-person registreres**, med fritekst og
+uten eksisterende Heder-ID. Ved registrering bør eksisterende Heder-profiler
+sjekkes for duplikater før en ny profil får egen ID.
+
 Dette er **kun forslag**. Administrator må bevisst bekrefte riktig person;
 søk treffer aldri automatisk. Løpsstarter og løpsmerker skal aldri telle som
 dugnadsår eller dugnadsmerker. Eksisterende, bekreftede `runnerLink`
