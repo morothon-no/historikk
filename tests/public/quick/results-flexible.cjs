@@ -74,10 +74,12 @@ test('C2.3d EQtiming Startnumber and Rank Class preserve exact result ownership 
  const stage=R.parse(text);
  assert.equal(stage.mapping.bib,0,'EQtiming Startnumber must not be silently omitted');
  assert.equal(stage.mapping.place,13,'Rank Class is the stored class placement, not Rank Gender or Rank Total');
- const mapping={...stage.mapping,time:9},inspection=R.inspect(ctx,stage,2026,{mapping,manual:true});
+ assert.equal(stage.mapping.event,6,'EQtiming Stage must be detected as the event and course field');
+ assert.equal(stage.mapping.time,9,'EQtiming Total Time must be detected as the finish result, not TimeOfDay/Total TimeHMS/Total Time2');
+ const inspection=R.inspect(ctx,stage,2026);
  assert.equal(inspection.ready,true);
  assert.ok(inspection.rows.every(r=>!r.errors.length));
- const s=await R.createSession(ctx,stage,mapping,{year:2026,sourceSha256:await C.hash(text),meta:fixture.meta,manual:true});
+ const s=await R.createSession(ctx,stage,stage.mapping,{year:2026,sourceSha256:await C.hash(text),meta:fixture.meta});
  const items=R.review(ctx,s).items.filter(i=>i.row);
  assert.equal(items.length,2);assert.ok(items.every(i=>i.category==='changed'));
  assert.deepEqual(items.map(i=>i.beforeIndex),[0,1]);
