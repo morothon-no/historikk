@@ -340,7 +340,7 @@
    // detailed per-case path remains available only through advanced actions.
    const project=await projection(),report=await C.reviewStaged(state.history,imported.package,state.base,project,{linkedRunnerIds:state.linkedRunnerIds});
    if(previous!==state.package)throw Error('Arbeidsgrunnlaget ble endret under samlet gjennomgang. Prøv igjen.');
-   state.package=imported.package;state.batchReview={package:state.package,report};state.candidate=null;state.impact=null;state.selected=null;state.suggestionScope='followup';
+   state.package=imported.package;state.batchReview={package:state.package,report};state.candidate=null;state.impact=null;state.selected=null;state.tab='cases';state.suggestionScope='followup';
    render();message(report.ready?'Resultatendringene er samlet kontrollert. Ingen endringer er publisert. Lagre arbeidsgrunnlaget.':'Samlet gjennomgang fant forhold som må avklares. Endringene er beholdt lokalt; ingen publisering.',!report.ready);
    return {...imported,review:report};
   }
