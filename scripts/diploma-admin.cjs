@@ -1,14 +1,11 @@
 // C1 local organizer pilot. Never imported by the public builder or a Pages route.
-const fs = require('node:fs/promises'), path = require('node:path'), os = require('node:os'), http = require('node:http');
+const fs = require('node:fs/promises'), { existsSync } = require('node:fs'), path = require('node:path'), os = require('node:os'), http = require('node:http');
 const { createHash, randomBytes } = require('node:crypto');
 const { buildSite, validatePublicSite } = require('./build-site.cjs');
 const { runtimeFiles, ADMIN_SOURCES } = require('./lib/runtime-files.cjs');
 const { createWorker } = require('../tools/diploma-admin/worker.cjs');
 const { createPortalData } = require('../tools/diploma-admin/portal-data.cjs');
 const { createApi } = require('../tools/diploma-admin/api.cjs');
-const { createHonorAdminRoster } = require('./admin/honor-roster.cjs');
-const { publicHonorAdminView } = require('./admin/honor-admin-view.cjs');
-const { findHonorRunnerCandidates } = require('./admin/honor-runner-search.cjs');
 const root = path.resolve(__dirname, '..'), uiRoot = path.join(root, 'tools/diploma-admin');
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff': 'font/woff', '.pdf': 'application/pdf' };
 async function snapshot(files) {
@@ -18,10 +15,14 @@ async function snapshot(files) {
 }
 async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
   const temp = await fs.mkdtemp(path.join(os.tmpdir(), 'morothon-c1-')); await fs.chmod(temp, 0o700);
-  let worker, portal, origin, honorView, honorRoster, honorHistory; const token = randomBytes(32).toString('hex');
+  // Public-only PR/CI checkouts deliberately omit all source administration
+  // modules and data/. Do not make the existing local C1 portal depend on them.
+  // In full trusted checkouts they are required, fail-closed and tested.
+  const trustedSourcesPresent = existsSync(path.join(root,'data/honors.json'));
+  let worker, portal, origin, honorView, honorRoster, honorHistory, runnerSearch; const token = randomBytes(32).toString('hex');
   const handleApi = createApi({ token, getOrigin: () => origin, getWorker: () => worker, getPortal: () => portal, assertSnapshot,
     getHonorView: () => honorView,
-    searchHonorRunner: ({ personId, query }) => findHonorRunnerCandidates({ roster: honorRoster, history: honorHistory, personId, query }) });
+    searchHonorRunner: ({ personId, query }) => runnerSearch({ roster: honorRoster, history: honorHistory, personId, query }) });
   const server = http.createServer(async (req, res) => {
     const send = (code, data) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); };
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'no-referrer');
@@ -55,24 +56,30 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
     inputFiles = [...runtimeFiles(registry).filter(f => !f.startsWith('data/')).map(f => path.join(root, ADMIN_SOURCES[f] || f)),
       ...['manifest.json', 'data/history.json', 'data/honors.json', 'data/volunteers.json', 'data/badges.json', 'data/event-dates.json'].map(f => path.join(root, 'public-data', f)),
       path.join(root, '.github/public-data-approval.json'), path.join(root, 'package.json'), path.join(root, 'scripts/diploma-admin.cjs'),
-      ...['honor-admin-view.cjs','honor-roster.cjs','honor-runner-search.cjs'].map(f => path.join(root, 'scripts/admin', f)),
+      ...(trustedSourcesPresent ? ['honor-admin-view.cjs','honor-roster.cjs','honor-runner-search.cjs'].map(f => path.join(root, 'scripts/admin', f)) : []),
       ...['engine.js','worker.cjs','api.cjs','portal-data.cjs'].map(f=>path.join(uiRoot,f)), ...result.files.map(f => path.join(site, f))];
     originalDigest = await snapshot(inputFiles);
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', resolve); }); origin = `http://127.0.0.1:${server.address().port}`;
     const approved = JSON.parse(await fs.readFile(path.join(root, '.github/public-data-approval.json'), 'utf8'));
     worker = await createWorker({ base: origin, directory: temp, assertSnapshot, beforeCheck,
       source: { manifestSha256: approved.manifestSha256, dataVersion: approved.dataVersion, buildVersion: result.version, snapshotSha256: originalDigest } });
-    honorHistory = JSON.parse(await fs.readFile(path.join(site, 'data/history.json'), 'utf8'));
-    const [honors, volunteers, eventProfile] = await Promise.all([
-      fs.readFile(path.join(site, 'data/honors.json'), 'utf8').then(JSON.parse),
-      fs.readFile(path.join(site, 'data/volunteers.json'), 'utf8').then(JSON.parse),
-      fs.readFile(path.join(site, 'admin/event-profile.json'), 'utf8').then(JSON.parse)
-    ]);
-    // Local C1 pilot only. An eventual new organizer is created with a blank
-    // tenant dataset; no Morothon profile or source is a general default.
-    honorRoster = createHonorAdminRoster({ organizerId: eventProfile.id, enabled: honorEnabled === true,
-      honors, volunteers, editionYears: honors.presentationPrintSet?.editionYears || [] });
-    honorView = publicHonorAdminView(honorRoster);
+    // Read-only Heder runs only when the trusted source-only modules are
+    // present. Public-only CI must keep C1's unrelated PDF/portal tests working.
+    if (trustedSourcesPresent) {
+      const { createHonorAdminRoster } = require('./admin/honor-roster.cjs');
+      const { publicHonorAdminView } = require('./admin/honor-admin-view.cjs');
+      const { findHonorRunnerCandidates } = require('./admin/honor-runner-search.cjs');
+      runnerSearch = findHonorRunnerCandidates;
+      honorHistory = JSON.parse(await fs.readFile(path.join(site, 'data/history.json'), 'utf8'));
+      const [honors, volunteers, eventProfile] = await Promise.all([
+        fs.readFile(path.join(site, 'data/honors.json'), 'utf8').then(JSON.parse),
+        fs.readFile(path.join(site, 'data/volunteers.json'), 'utf8').then(JSON.parse),
+        fs.readFile(path.join(site, 'admin/event-profile.json'), 'utf8').then(JSON.parse)
+      ]);
+      honorRoster = createHonorAdminRoster({ organizerId: eventProfile.id, enabled: honorEnabled === true,
+        honors, volunteers, editionYears: honors.presentationPrintSet?.editionYears || [] });
+      honorView = publicHonorAdminView(honorRoster);
+    }
     portal = createPortalData({ history: honorHistory, badges: registry, honorCount: worker.catalog.filter(p => p.kind === 'honor').length });
     return { origin, token, worker, site, assertSnapshot,
       async close() { await worker.close(); await new Promise(resolve => server.close(resolve)); await fs.rm(temp, { recursive: true, force: true }); } };
