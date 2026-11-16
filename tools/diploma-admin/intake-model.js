@@ -575,7 +575,7 @@
   firstName:['fornavn','firstname','givenname','given'],lastName:['etternavn','lastname','surname','familyname','family'],
   event:['ovelse','event','race','competition','course','lop','contest','stage'],distance:['distanse','distance','km','kilometer','length','distancekm','distansekm','distancem','meters','meter'],
   time:['tid','time','sluttid','finishtime','finish','resulttime','elapsedtime','elapsed','resultat','result','nettime','duration','totaltime'],
-  status:['status','resultstatus','resultatstatus','sluttstatus','state'],place:['plass','place','rank','rankclass','position','plassering','kildeplassering','overallrank'],
+  status:['status','resultstatus','resultatstatus','sluttstatus','state'],place:['plass','place','rank','rankgender','position','plassering','kildeplassering','overallrank'],
   bib:['startnummer','startnumber','startnr','bib','bibnumber','startno','number'],athleteId:['athleteid','eqid','eqtimingid','utoverid','personid','participantid'],
   runnerId:['morothonid','morid','canonicalid'],year:['ar','year','eventyear','raceyear','arrangementsar','eventdate','lopsar'],
   className:['klasse','class','classname','category'],gender:['kjonn','gender','sex'],club:['klubb','club','team','organisation','organization']
