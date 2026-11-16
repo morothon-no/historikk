@@ -954,18 +954,30 @@
    if(!id||!['Herre','Dame'].includes(gender)||row.gender&&context.model.person(id)?.g&&row.gender!==context.model.person(id).g)
     return denied('Kjønn eller resultatkobling kan ikke bekreftes for alle fullførte løpere.');
    const t=H.timeSeconds(row.time),rank=row.place;
-   if(t===null||row.present.place!==true||!Number.isSafeInteger(rank)||rank<1)
-    return denied('Alle fullførte løpere må ha en gyldig sluttid og kildeplassering for sikker rangkontroll.');
+   if(row.present.place!==true||!Number.isSafeInteger(rank)||rank<1)
+    return denied('Alle fullførte løpere må ha en gyldig kildeplassering for sikker rangkontroll.');
+   if(t===null&&I.fold(row.time)!=='completed')return denied('Fullført resultat mangler både sluttid og gjenkjent COMPLETED-status. Kontroller kildefilen.');
+   // Some EQtiming finishes are explicitly COMPLETED without a measured duration.
+   // Audit their source order *after* the timed finishers; never invent a time.
+   // If such a row itself changes, the organizer must review it individually.
+   if(t===null&&item?.category==='changed'&&!item.decision)
+    return denied('En COMPLETED-registrering uten sluttid har blitt endret. Den må kontrolleres separat.');
    const key=JSON.stringify([row.year,row.event,row.distance,gender]);
    if(!groups.has(key))groups.set(key,[]);groups.get(key).push({t,rank});
   }
   if(!groups.size)return denied('Filen mangler fullførte individuelle resultater som kan rangeres.');
-  for(const rows of groups.values()){
-   rows.sort((a,b)=>a.t-b.t);let last=null,rank=0;
-   for(let j=0;j<rows.length;j++){
-    if(rows[j].t!==last){rank=j+1;last=rows[j].t;}
-    if(rows[j].rank!==rank)return denied('Kildeplasseringene samsvarer ikke med samlet rangering etter kjønn og distanse. Kontroller at Rank Gender, ikke Rank Class, er valgt og at eksporten er komplett.');
+  for(const entries of groups.values()){
+   const timed=entries.filter(e=>e.t!==null).sort((a,b)=>a.t-b.t),untimed=entries.filter(e=>e.t===null);
+   let last=null,rank=0;
+   for(let j=0;j<timed.length;j++){
+    if(timed[j].t!==last){rank=j+1;last=timed[j].t;}
+    if(timed[j].rank!==rank)return denied('Kildeplasseringene samsvarer ikke med samlet rangering etter kjønn og distanse. Kontroller at Rank Gender, ikke Rank Class, er valgt og at eksporten er komplett.');
    }
+   // Untimed COMPLETED entries have no comparable durations. Check only that
+   // provider ranks continue contiguously after timed results; never infer times.
+   const untimedRanks=untimed.map(e=>e.rank).sort((a,b)=>a-b);
+   if(untimedRanks.some((r,j)=>r!==timed.length+j+1))
+    return denied('COMPLETED uten sluttid har uventede kildeplasseringer. Kontroller hele resultatgruppen manuelt.');
   }
   return {ready:true,problem:'',items:items.map(i=>i.id),total:items.length,
    timeChanged:items.filter(i=>i.differences.some(d=>d.field==='time')).length,
