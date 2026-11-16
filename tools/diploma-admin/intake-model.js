@@ -935,13 +935,16 @@
   const blocking=['missing','unlinked','new','uncertain','conflict','registration','unassessable'];
   if(blocking.some(k=>analysis.counts[k]))return denied('Filen har manglende resultater, nye personer eller uavklarte kilde-/personkonflikter. Behandle dem før samlet godkjenning.');
   if(!analysis.existing)return denied('Ingen eksisterende årsresultater er dokumentert for denne importen.');
-  const items=analysis.items.filter(i=>i.category==='changed'&&!i.decision);
-  if(!items.length)return denied('Ingen ubehandlede resultatendringer er klare for samlet godkjenning.');
-  if(items.some(i=>i.blocking||!i.before||!i.after||i.beforeIndex===null||i.limitation||
-    !i.row?.bib||String(i.before[9])!==String(i.row.bib)||
-    i.before[0]!==session.source.year||context.model.resolve(i.before[1])!==context.model.resolve(i.after[1])||
-    !i.differences.length||i.differences.some(d=>!['time','place'].includes(d.field))))
-   return denied('Minst én retting gjelder annet enn tid/plassering eller mangler sikker kobling til eksisterende startnummer. Vurder denne separat.');
+  const changed=analysis.items.filter(i=>i.category==='changed'&&!i.decision);
+  if(!changed.length)return denied('Ingen ubehandlede resultatendringer er klare for samlet godkjenning.');
+  const safe=i=>!i.blocking&&i.before&&i.after&&i.beforeIndex!==null&&!i.limitation&&
+    i.row?.bib&&String(i.before[9])===String(i.row.bib)&&
+    i.before[0]===session.source.year&&context.model.resolve(i.before[1])===context.model.resolve(i.after[1])&&
+    i.differences.length&&i.differences.every(d=>['time','place'].includes(d.field));
+  const items=changed.filter(safe),manual=changed.length-items.length;
+  if(!items.length)return denied('Ingen rene tids- eller plasseringsendringer har sikker startnummerkobling. De andre avvikene må kontrolleres enkeltvis.');
+  // More complex corrections remain visible for individual review, but cannot
+  // prevent independent, rank-audited time/place-only rows from being approved.
   // The source must rank every individual finisher by year+race+distance+gender,
   // across junior and adult classes, using competition ranking for equal times.
   // This catches mistakenly mapped Rank Class, partial source groups and rank drift.
@@ -962,7 +965,7 @@
    // A verified rank-only correction is safe when the untimed COMPLETED
    // source token itself is unchanged, and the complete group's positions are
    // contiguous after timed finishers. Never invent or alter an untimed finish.
-   if(t===null&&item?.category==='changed'&&!item.decision&&
+   if(t===null&&item&&items.includes(item)&&
     !(item.before?.[5]===row.time&&item.differences.length&&item.differences.every(d=>d.field==='place')))
     return denied('En COMPLETED-registrering uten sluttid har fått en annen endring enn kildeplassering. Kontroller denne manuelt.');
    const key=JSON.stringify([row.year,row.event,row.distance,gender]);
@@ -982,7 +985,7 @@
    if(untimedRanks.some((r,j)=>r!==timed.length+j+1))
     return denied('COMPLETED uten sluttid har uventede kildeplasseringer. Kontroller hele resultatgruppen manuelt.');
   }
-  return {ready:true,problem:'',items:items.map(i=>i.id),total:items.length,
+  return {ready:true,problem:'',items:items.map(i=>i.id),total:items.length,manual,
    timeChanged:items.filter(i=>i.differences.some(d=>d.field==='time')).length,
    placeOnly:items.filter(i=>i.differences.every(d=>d.field==='place')).length,
    year:session.source.year,sourceSha256:session.source.sha256};
@@ -1001,7 +1004,7 @@
   const after=review(context,session,next);
   if(plan.items.some(id=>{const row=after.items.find(i=>i.id===id);return !row||row.blocking||row.decision?.action!=='confirm'||!['changed','unchanged'].includes(row.category);}))
    throw Error('Samlet vurdering stemte ikke med resultatkoblingene. Ingen beslutninger er beholdt.');
-  return {decisions:next,summary:{year:plan.year,total:plan.total,timeChanged:plan.timeChanged,placeOnly:plan.placeOnly,sourceSha256:plan.sourceSha256}};
+  return {decisions:next,summary:{year:plan.year,total:plan.total,timeChanged:plan.timeChanged,placeOnly:plan.placeOnly,manual:plan.manual,sourceSha256:plan.sourceSha256}};
  }
  function decide(context,session,decisions,itemId,{action,runnerId=null,targetIndex=null,reason}){
   const next=new Map(decisions);next.set(itemId,{basis:session.key,action,runnerId,targetIndex,reason:clean(reason),at:new Date().toISOString()});const analysis=review(context,session,next);if(!analysis.items.some(i=>i.id===itemId))throw Error('Kontrollsaken finnes ikke i dette grunnlaget.');return next;
