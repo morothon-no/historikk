@@ -97,10 +97,11 @@
   }
   function assertValid(data){const report=validate(data);if(report.errors.length)throw new Error('Ugyldig løpshistorikk: '+report.errors.map(e=>e.code+' @ '+e.at).slice(0,8).join('; '));return report;}
   const participationYears=rows=>[...new Set(rows.filter(countsAsParticipation).map(r=>r[0]))].sort((a,b)=>a-b);
-  // Podium standings combine all age classes within the same event, distance and gender.
-  function placements(rows,person){
+  // Keep the established junior class ranking for archive/profile displays.
+  // Gender-wide placements are calculated independently for podium comparisons.
+  function placements(rows,person,rankByClass=true){
     const map=new WeakMap(),groups=new Map();
-    for(const r of rows){if(!isCompletedResult(r)||isRelayRace(r))continue;const t=timeSeconds(r[5]),p=person(r[1]);if(t===null||!p?.g)continue;const key=JSON.stringify([r[0],r[2],r[3],p.g]);if(!groups.has(key))groups.set(key,[]);groups.get(key).push({r,t});}
+    for(const r of rows){if(!isCompletedResult(r)||isRelayRace(r))continue;const t=timeSeconds(r[5]),p=person(r[1]);if(t===null||!p?.g)continue;const key=JSON.stringify(rankByClass?[r[0],r[2],r[3],p.g,juniorClass(r)]:[r[0],r[2],r[3],p.g]);if(!groups.has(key))groups.set(key,[]);groups.get(key).push({r,t});}
     for(const group of groups.values()){group.sort((a,b)=>a.t-b.t);let previous=null,rank=0;group.forEach(({r,t},i)=>{if(t!==previous){rank=i+1;previous=t;}map.set(r,rank);});}
     return map;
   }
@@ -111,7 +112,7 @@
     assertValid(data);
     const resolve=pid=>resolveId(pid,data.redirects||{}),people=new Map(data.people.filter(p=>resolve(p.i)===p.i).map(p=>[p.i,p])),byPerson=new Map();
     for(const r of data.results){const id=resolve(r[1]);if(!byPerson.has(id))byPerson.set(id,[]);byPerson.get(id).push(r);}
-    const person=pid=>people.get(resolve(pid))||null,resultsFor=pid=>byPerson.get(resolve(pid))||[],classPlaces=placements(data.results,person);
+    const person=pid=>people.get(resolve(pid))||null,resultsFor=pid=>byPerson.get(resolve(pid))||[],classPlaces=placements(data.results,person),genderPlaces=placements(data.results,person,false);
     function stats(pid){
       const p=person(pid);if(!p)return null;const rows=resultsFor(p.i),years=participationYears(rows);if(!years.length)return null;
       const finished=rows.filter(r=>isCompletedResult(r)&&!isRelayRace(r)),timed=finished.filter(r=>timeSeconds(r[5])!==null),groups=new Map();
@@ -125,7 +126,7 @@
         latestRows:rows.filter(countsAsParticipation).slice().sort((a,b)=>b[0]-a[0]),
         returns:years.slice(1).map((year,i)=>({year,previous:years[i],rows:rows.filter(r=>r[0]===year&&countsAsParticipation(r))})).filter(r=>r.year-r.previous>1)};
     }
-    return {data,people,person,resolve,resultsFor,stats,classPlaces};
+    return {data,people,person,resolve,resultsFor,stats,classPlaces,genderPlaces};
   }
   let pending;
   function load(){if(!pending)pending=fetch('data/history.json',{cache:'no-cache'}).then(async r=>{if(!r.ok)throw new Error('Løpshistorikken kunne ikke lastes.');return create(await r.json());}).catch(e=>{pending=null;throw e;});return pending;}

@@ -111,8 +111,12 @@ test('C2.3e computed podium ranks combine junior age classes within a single dis
  h.results[3]=[2026,fixture.ids[3],'Morothon 3 km','3 km','Fullført','12:48',1,'M10-12','','402'];
  h.results[0][7]='M15-17';h.results[1][7]='Herrer';
  const m=H.create(h);
- assert.equal(m.classPlaces.get(h.results[2]),2,'M13-14 runner follows faster M10-12 runner on same 3 km distance');
- assert.equal(m.classPlaces.get(h.results[3]),1,'The 3 km male winner is ranked first regardless of class');
- assert.equal(m.classPlaces.get(h.results[0]),3,'A youth runner at 10 km ranks behind the two faster adult runners in this fixture');
+ assert.equal(m.classPlaces.get(h.results[2]),1,'The M13-14 archive retains its own class-first place');
+ assert.equal(m.classPlaces.get(h.results[3]),1,'The M10-12 archive retains its own class-first place');
+ assert.equal(m.genderPlaces.get(h.results[2]),2,'M13-14 runner follows faster M10-12 runner in the overall male 3 km ranking');
+ assert.equal(m.genderPlaces.get(h.results[3]),1,'The 3 km male gender-wide winner is ranked first regardless of class');
+ assert.equal(m.classPlaces.get(h.results[0]),3,'M15-17 on a regular 10 km course is already part of the overall male ranking');
+ assert.equal(m.genderPlaces.get(h.results[0]),3,'Gender-wide 10 km podium covers youth and adult age classes');
  assert.equal(m.classPlaces.get(h.results[1]),4);
+ assert.equal(m.genderPlaces.get(h.results[1]),4);
 });
