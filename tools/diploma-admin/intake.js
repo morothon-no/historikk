@@ -335,6 +335,15 @@
  document.addEventListener('morothon:results-corrections',e=>{(async()=>{
   if(!state.package)throw Error('Kontrollsentralen er ikke klar.');const previous=state.package,reviewed=previous.cases.filter(c=>c.status==='handoff').map(c=>c.id),imported=C.importPackage(previous,e.detail.package);
   const prepareId=e.detail.prepareCaseId;if(prepareId&&!e.detail.package.cases.some(c=>c.id===prepareId&&['result','add'].includes(c.change?.kind)))throw Error('Velg et konkret resultatforslag før klargjøring.');
+  if(e.detail.stayOnImport&&!prepareId){
+   // One complete review, never an authorization to publish. The existing
+   // detailed per-case path remains available only through advanced actions.
+   const project=await projection(),report=await C.reviewStaged(state.history,imported.package,state.base,project,{linkedRunnerIds:state.linkedRunnerIds});
+   if(previous!==state.package)throw Error('Arbeidsgrunnlaget ble endret under samlet gjennomgang. Prøv igjen.');
+   state.package=imported.package;state.batchReview={package:state.package,report};state.candidate=null;state.impact=null;state.selected=null;state.suggestionScope='followup';
+   render();message(report.ready?'Resultatendringene er samlet kontrollert. Ingen endringer er publisert. Lagre arbeidsgrunnlaget.':'Samlet gjennomgang fant forhold som må avklares. Endringene er beholdt lokalt; ingen publisering.',!report.ready);
+   return {...imported,review:report};
+  }
   await C.applyCandidate(state.history,imported.package,state.base,{preview:true});if(previous!==state.package)throw Error('Arbeidsgrunnlaget ble endret under overføringen. Prøv igjen.');state.package=imported.package;state.selected=null;state.impact=null;state.suggestionScope='followup';activate('cases');location.hash='#rettelser';
   if(prepareId){
    selectCase(state.package.cases.find(c=>c.id===prepareId));const snapshot=state.package,version=state.editVersion,project=await projection();let work=snapshot,prepared;
