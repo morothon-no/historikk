@@ -49,7 +49,7 @@ test('two real starts can share a race and bib: legacy source ordinals stay dist
  }
  assert.ok(observed>0,'source contains genuine repeated starts with different times');
  const changed=copy(model);[changed.results[0],changed.results[1]]=[changed.results[1],changed.results[0]];
- assert.throws(()=>Domain.validateSnapshot(changed),/kilderekkefølgen|Datamodellen/);
+ assert.throws(()=>Domain.validateSnapshot(changed),/kilderekkefølgen|Datamodellen/i);
  assert.deepEqual(Domain.reconstructLegacy(model),history);
 });
 function another(){
