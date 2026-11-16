@@ -124,7 +124,7 @@ test('C1.2 local Heder admin previews all 43 approved persons, separate memorial
   const candidates=await (await request('honors/runner-candidates?personId=jon-fjeld&q=Jon')).json();
   assert.equal(candidates.readOnly,true);assert.equal(candidates.identityLinkedAutomatically,false);
   await page.goto(app.origin+'/#heder');
-  await page.locator('#honorCount').getByText('43 av 43 personer').waitFor();
+  await page.waitForFunction(() => document.querySelector('#honorCount')?.textContent === '43 av 43 personer');
   assert.equal(await page.locator('#honorList .honor-row').count(),43);
   await page.selectOption('#honorFilter','memorial');
   await page.waitForFunction(()=>document.querySelectorAll('#honorList .honor-row').length===2);
