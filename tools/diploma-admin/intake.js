@@ -155,25 +155,7 @@
  // Endringen klargjøres bare lokalt, og publiseres aldri her.
  const quickIdentitySource='Manuell arrangørbekreftelse i personkontroll (ingen ekstern dokumentasjon).';
  const decisionReason=identity=>identity?'Arrangøren bekrefter at profilene gjelder samme person.':'Rettelsen er bekreftet av arrangøren etter gjennomgang av registrering og kilde.';
- function quickMainProfile(ids){
-  if(ids.length!==2||ids.some(id=>!state.model.person(id)))return null;
-  const [a,b]=ids,years=id=>state.model.stats(id)?.years.length||0;
-  // Choosing a *main name* is not proof of identity. When the organizer confirms
-  // two profiles, prefer an expanded middle name to its initial (or omission),
-  // not the shorter name solely because it has more recorded years.
-  const tokens=id=>state.model.person(id).n.normalize('NFKC').replace(/\./g,' ').trim().split(/\s+/).map(x=>x.toLocaleLowerCase('nb-NO')),
-   x=tokens(a),y=tokens(b),middle=t=>t.slice(1,-1);
-  if(x[0]===y[0]&&x.at(-1)===y.at(-1)){
-   const xm=middle(x),ym=middle(y),
-    matches=(short,long)=>short.every((v,i)=>v===long[i]||v.length===1&&long[i]?.startsWith(v)),
-    xf=xm.filter(v=>v.length>1).length,yf=ym.filter(v=>v.length>1).length;
-   if(xf!==yf){
-    if(xf>yf&&matches(ym,xm))return a;
-    if(yf>xf&&matches(xm,ym))return b;
-   }
-  }
-  return years(a)===years(b)?null:years(a)>years(b)?a:b;
- }
+ function quickMainProfile(ids){return C.preferredMainProfile(state.model,ids);}
  async function quickIdentity(s,action){
   if(state.preparing)throw Error('En annen vurdering behandles allerede.');
   if(s.personIds?.length!==2||!['pending','followup'].includes(s.bucket))throw Error('Åpne saken og kontroller identiteten før hurtigvalget brukes.');
