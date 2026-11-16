@@ -26,9 +26,11 @@ publiserings- eller lagringsprosess. GitHub Pages er fremdeles skrivebeskyttet.
   motstridende kildedata eller uavklarte resultatregistreringer.
 - Alle berørte resultater må være entydig koblet til samme registrerte
   startnummer og person, i samme arrangementsår.
-- Alle endringer som bekreftes samlet må **kun** gjelde sluttid eller
+- Endringene som bekreftes samlet må **kun** gjelde sluttid eller
   kildeplassering. Distanse, konkurranse, klasse, status, klubb,
-  personkobling og nye starter behandles fortsatt enkeltvis.
+  personkobling og nye starter behandles fortsatt enkeltvis. Én slik
+  manuell rettelse skal ikke stanse godkjenningen av andre sikre tids- og
+  plasseringsendringer i samme fullstendige årsfil.
 - For hver fullførte individuelle start med tid kontrolleres
   kildeplassering mot beregnet **kjønn + øvelse + distanse**, ikke
   aldersklasse. Delt plassering beregnes med konkurranserang (1, 2, 2, 4).
