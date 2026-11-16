@@ -36,3 +36,27 @@ test('C2.3d does not assume all 52 extra source records are DNS; real new finish
  const f=F.reconciliation454(),lines=f.text.split('\r\n');lines[399]=lines[399].replace('"DNS";"DNS"','"Fullført";"51:00"');const mixed=await setup(lines.join('\r\n'),f.history);assert.equal(mixed.a.counts.dns,51);assert.equal(mixed.a.counts.new,1);assert.equal(mixed.a.pending,3);const again=await setup(lines.join('\r\n'),f.history);assert.deepEqual(again.a.counts,mixed.a.counts);
  const h=F.history(),partial=await setup(F.csv(h,h.results.slice(0,1)));assert.equal(partial.a.counts.missing,8);assert.equal(partial.a.completeness,'partial');const ds=R.decide(partial.ctx,partial.session,new Map(),partial.a.items.find(i=>i.category==='missing').id,{action:'reject',reason:'Syntetisk eksport er filtrert; behold registreringen.'}),packet=await R.prepare(partial.ctx,partial.session,ds);assert.deepEqual((await C.applyCandidate(h,packet,partial.session.base,{preview:true})).history,h);
 });
+
+test('C2.3e DNF never gains an official place in the profile or imported result, even with a provider gender rank',async()=>{
+ const h=F.history();h.results[2][6]=7; // Legacy nonfinish rank; preserve old source bytes, do not show the rank.
+ assert.equal(H.effectiveStatus(h.results[2]),'DNF');
+ assert.equal(H.sourcePlace(h.results[2]),null,'legacy DNF must not display numeric source placement');
+ assert.equal(H.create(h).stats(F.ids[2]).sourceResults.length,0,'DNF must not award wins or podiums');
+ const text='Name;Bib;Race;Distance;Status;Time;Rank Gender\nSyntetisk Frida Bruddvik;401;Morothon;20 km;DNF;DNF;7';
+ const ctx=context(h),stage=R.parse(text),inspection=R.inspect(ctx,stage,2026);
+ assert.equal(stage.mapping.place,6);
+ assert.equal(inspection.ready,true);
+ assert.equal(inspection.rows[0].sourcePlace,'7','provider token retained only for source inspection');
+ assert.equal(inspection.rows[0].place,'','no placement in imported result row');
+ assert.equal(inspection.rows[0].present.place,false,'nonfinish rank must not overwrite historic result');
+ assert.ok(inspection.rows[0].warnings.some(w=>w.includes('Plasseringen er utelatt')));
+ const session=await R.createSession(ctx,stage,stage.mapping,{year:2026,sourceSha256:await C.hash(text),meta:F.meta});
+ const review=R.review(ctx,session);
+ assert.equal(review.counts.unchanged,1,'legacy source rank must not generate a false correction');
+ assert.equal(review.items.find(i=>i.row)?.after?.[6],7,'existing raw source value is preserved until separately corrected');
+ const publicSource=require('node:fs').readFileSync(require('node:path').join(__dirname,'../../../index.html'),'utf8');
+ assert.match(publicSource,/function sourcePlaceLabel\(r\)\{const n=MorothonHistoryData\.sourcePlace\(r\)/,'profile and year result display must use status-aware rank');
+ for(const status of ['DNS','DNF','Disket']){
+  assert.equal(H.sourcePlace([2026,F.ids[2],'Morothon','20 km',status,status,1,'Herrer','','401']),null);
+ }
+});
