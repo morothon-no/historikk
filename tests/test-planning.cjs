@@ -29,6 +29,7 @@ test('B1 rename, deletion and unavailable Git range never lower test coverage; o
   git('mv','docs/a.md','unknown.file');await fs.writeFile(path.join(dir,'tests/one.cjs'),'changed');git('add','.');git('commit','-m','head');const head=git('rev-parse','HEAD');
   const changed=await gitChanges(dir,base,head);assert.ok(changed.includes('docs/a.md'));assert.ok(changed.includes('unknown.file'));assert.equal(classify(changed).level,'full');
   assert.equal((await plan({root:dir,base,head})).level,'full');
+  const required=(await plan({root:dir,base,head})).prSource;assert.equal(required.required,true);assert.equal(required.levelIndependent,true);assert.equal(required.tests.length,4);
   assert.equal((await plan({root:dir,base:'0'.repeat(40),head})).level,'full');
   assert.equal((await plan({root:dir,base:'0'.repeat(40),head})).public.pdf,true);
  }finally{await fs.rm(dir,{recursive:true,force:true});}

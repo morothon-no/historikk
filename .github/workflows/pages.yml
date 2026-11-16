@@ -24,6 +24,124 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  pr_source_checks:
+    name: Public-safe source regression
+    needs: plan
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Public repository: anonymous sparse fetch. No GITHUB_TOKEN, even for checkout.
+    permissions: {}
+    steps:
+      - name: Require successful trusted plan
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+        run: test "$PLAN_RESULT" = success
+      - name: Fetch public and reviewed source dependencies anonymously
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$BASE_SHA" =~ ^[a-f0-9]{40}$ && "$HEAD_SHA" =~ ^[a-f0-9]{40}$ ]]
+          cat > "$RUNNER_TEMP/pr-source-base-paths" <<'PATHS'
+          /.github/workflows/
+          /.github/public-data-approval.json
+          /package.json
+          /scripts/check-public-policy.cjs
+          /scripts/lib/public-schema.cjs
+          /scripts/lib/public-package.cjs
+          /scripts/lib/runtime-files.cjs
+          /scripts/testing/
+          PATHS
+          cat > "$RUNNER_TEMP/pr-source-head-paths" <<'PATHS'
+          /.github/workflows/
+          /.github/public-data-approval.json
+          /package.json
+          /scripts/check-public-policy.cjs
+          /scripts/lib/public-schema.cjs
+          /scripts/lib/public-package.cjs
+          /scripts/lib/runtime-files.cjs
+          /scripts/testing/
+          /public-data/
+          /assets/medals/approved/
+          /assets/medals/service/
+          /assets/medals/identity/
+          /assets/medals/watermarks/
+          /assets/fonts/
+          /assets/icons/
+          /assets/social/
+          /js/history-data.js
+          /tools/diploma-admin/intake-model.js
+          /tests/public/quick/fixtures/corrections-data.js
+          /tests/organizer-domain.cjs
+          /tests/postgres-review-store.cjs
+          /tests/organizer-profiles.cjs
+          /tests/c24-review-workspace.cjs
+          /scripts/organizers/domain-model.cjs
+          /scripts/organizers/profile.cjs
+          /scripts/admin/release-plan.cjs
+          /scripts/admin/postgres-review-store.cjs
+          /scripts/admin/review-workspace.cjs
+          /scripts/admin/storage.cjs
+          /scripts/admin/common.cjs
+          /organizers/morothon/profile.json
+          PATHS
+          checkout() {
+            directory="$1"; revision="$2"; paths="$3"
+            git init --quiet "$directory"
+            git -C "$directory" remote add origin https://github.com/morothon-no/historikk.git
+            git -C "$directory" config remote.origin.promisor true
+            git -C "$directory" config remote.origin.partialclonefilter blob:none
+            git -C "$directory" sparse-checkout set --no-cone --stdin < "$paths"
+            git -C "$directory" fetch --no-tags --depth=1 --filter=blob:none origin "$revision"
+            git -C "$directory" checkout --quiet --detach FETCH_HEAD
+            test "$(git -C "$directory" rev-parse HEAD)" = "$revision"
+            test "$(git -C "$directory" config remote.origin.partialclonefilter)" = blob:none
+            test ! -e "$directory/data"
+            test ! -e "$directory/scripts/export-public-data.cjs"
+            test ! -e "$directory/scripts/lib/public-data.cjs"
+          }
+          checkout policy-base "$BASE_SHA" "$RUNNER_TEMP/pr-source-base-paths"
+          checkout public "$HEAD_SHA" "$RUNNER_TEMP/pr-source-head-paths"
+      - name: Setup Node without dependencies or cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify public data and security rules with trusted base
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MOROTHON_PUBLIC_DATA_SHA256: ${{ vars.MOROTHON_PUBLIC_DATA_SHA256 }}
+          MOROTHON_REVIEWED_POLICY_HEAD: ${{ vars.MOROTHON_REVIEWED_POLICY_HEAD }}
+        run: |
+          node "$GITHUB_WORKSPACE/policy-base/scripts/check-public-policy.cjs" "$GITHUB_WORKSPACE/public" "$GITHUB_WORKSPACE/policy-base" "$PR_HEAD_SHA" "$GITHUB_WORKSPACE/policy-base/accepted-approval.json"
+      - name: Run required source tests in disposable public-only snapshot
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MOROTHON_REVIEWED_POLICY_HEAD: ${{ vars.MOROTHON_REVIEWED_POLICY_HEAD }}
+        run: |
+          runner="$GITHUB_WORKSPACE/policy-base/scripts/testing/run.cjs"
+          if [ "$MOROTHON_REVIEWED_POLICY_HEAD" = "$PR_HEAD_SHA" ]; then
+            runner="$GITHUB_WORKSPACE/public/scripts/testing/run.cjs"
+          fi
+          node "$runner" --root "$GITHUB_WORKSPACE/public" --scope pr-source --approval "$GITHUB_WORKSPACE/policy-base/accepted-approval.json" --report "$RUNNER_TEMP/pr-source-report.json"
+      - name: Report remaining unverified source controls explicitly
+        if: always()
+        run: |
+          node <<'JS'
+          const fs=require('node:fs'),path=require('node:path');
+          const file=path.join(process.env.RUNNER_TEMP,'pr-source-report.json');
+          let summary='## Source regression before merge\n\n';
+          if(!fs.existsSync(file)) summary+='**NOT VERIFIED:** required PR source tests did not complete.\n';
+          else {
+            const r=JSON.parse(fs.readFileSync(file,'utf8'));
+            summary+='Required public-safe source group: **'+r.status+'**\n\n';
+            summary+='### NOT VERIFIED before merge\n\n'+r.notVerifiedBeforeMerge.map(f=>'- `'+f+'`').join('\n')+'\n\n';
+            summary+=r.remainingControl+'\n';
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,summary);
+          JS
+
   plan:
     name: Trusted policy and test plan
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'

@@ -1,7 +1,8 @@
 // Portable test entry point. Never trusts a PR-generated list of files or arbitrary commands.
 const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),{spawnSync}=require('node:child_process');
 const {levels,publicFiles,sourceFiles,discoverTests}=require('./catalog.cjs');
-async function run({root=path.resolve(__dirname,'../..'),level='full',scope='public'}={}){
+async function run({root=path.resolve(__dirname,'../..'),level='full',scope='public',approval,report}={}){
+ if(scope==='pr-source')return require('./pr-source.cjs').run({root,approvalFile:approval||path.join(root,'.github/public-data-approval.json'),reportFile:report});
  if(!levels.includes(level)||!['public','source','all'].includes(scope))throw Error('Invalid test level/scope');
  root=path.resolve(root);const {all,extras}=await discoverTests(root);
  const files=scope==='all'?(level==='full'?all:[...publicFiles(level,extras),...sourceFiles(level,all,extras)]):scope==='source'?sourceFiles(level,all,extras):publicFiles(level,extras);
@@ -30,7 +31,7 @@ async function run({root=path.resolve(__dirname,'../..'),level='full',scope='pub
 }
 module.exports={run};
 if(require.main===module){
- const flags=process.argv.slice(2);if(flags.length%2||flags.some((f,i)=>i%2===0&&!['--level','--scope','--root'].includes(f)))throw Error('Use --level quick|functional|visual|full --scope public|source|all [--root path]');
+ const flags=process.argv.slice(2);if(flags.length%2||flags.some((f,i)=>i%2===0&&!['--level','--scope','--root','--approval','--report'].includes(f)))throw Error('Use --level quick|functional|visual|full --scope public|source|all|pr-source [--root path] [--approval trusted-file] [--report file]');
  const options=Object.fromEntries(Array.from({length:flags.length/2},(_,i)=>[flags[i*2].slice(2),flags[i*2+1]]));
  run(options).catch(e=>{console.error(e.message);process.exitCode=1;});
 }

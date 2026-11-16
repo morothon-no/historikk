@@ -31,7 +31,7 @@ test('PR-local approvals and safety edits cannot replace protected-base or exter
  const base=await temp(),candidate=await temp(),head='a'.repeat(40);try{await copyPublic(base);await copyPublic(candidate);
   const currentVersion=JSON.parse(await fs.readFile(path.join(base,'public-data/manifest.json'))).dataVersion,nextVersion=currentVersion+1;
   assert.equal((await checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head})).visiblePeople,43);
-  for(const file of ['scripts/lib/public-schema.cjs','scripts/testing/run.cjs']){
+  for(const file of ['scripts/lib/public-schema.cjs','scripts/testing/run.cjs','scripts/testing/pr-source.cjs']){
    await fs.appendFile(path.join(candidate,file),'\n// untrusted security edit');await assert.rejects(()=>checkPolicy({baseRoot:base,candidateRoot:candidate,headSha:head}),/exact PR head/);
    await fs.copyFile(path.join(base,file),path.join(candidate,file));
   }
