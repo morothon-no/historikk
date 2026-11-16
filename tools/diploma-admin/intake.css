@@ -28,3 +28,11 @@
 /* C2.4a: one preparation action, concise consequences, explicit local artifact. */
 .correction-candidate{margin:20px 0;padding:20px;border:1px solid #8eb6a7;border-radius:12px;background:#eef6ef}.correction-candidate h3{margin-top:0}.correction-key-facts{font-size:16px;line-height:1.7}#correctionMainPerson{width:100%;max-width:520px;min-height:44px}#correctionManualFlow{padding:12px 0}#correctionManualFlow button{margin:8px 10px 8px 0}#correctionTechnicalImpact{margin:16px 0}#correctionEditor [hidden]{display:none!important}
 @media(max-width:560px){.correction-candidate{padding:15px}.correction-candidate button{width:100%}#correctionManualFlow button{width:100%;margin:8px 0}}
+
+/* C2.5: one annual-source decision, shown separately from individual correction cards. */
+.result-bulk-review{margin:18px 0;padding:18px 20px;background:#eaf4f1;border:1px solid #a3c6bf;border-radius:12px;max-width:100%}
+.result-bulk-review h4{margin:0 0 8px;color:#12464b}
+.result-bulk-review p{margin:8px 0;line-height:1.6;overflow-wrap:anywhere}
+.result-bulk-review button{margin:10px 0 6px;background:#14616b;color:#fff;border-color:#14616b;font-weight:700}
+.result-bulk-review button:hover{background:#0f4b54}
+@media(max-width:560px){.result-bulk-review{padding:14px}.result-bulk-review button{width:100%;white-space:normal}}
