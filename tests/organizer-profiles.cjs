@@ -69,10 +69,10 @@ test('another organizer config can choose age-class rankings and own course peri
  other.policies=[{id:'skog-policy-2020',fromYear:2020,throughYear:null,
   participation:{unit:'person-edition',countStatuses:['Fullført','DNF'],relayCounts:true},
   ranking:{groupBy:['year','event','distance','class'],tieMethod:'dense'}}];
- other.coursePeriods=[{id:'skog-trasé',label:'Løypa rundt tjernet',eventIds:['skog-fem'],fromYear:2020,throughYear:null}];
+ other.coursePeriods=[{id:'skog-trase',label:'Løypa rundt tjernet',eventIds:['skog-fem'],fromYear:2020,throughYear:null}];
  const p=Profile.validateProfile(other);
  assert.equal(Profile.policyForYear(p,2025).ranking.groupBy.includes('gender'),false);
- assert.equal(Profile.recordPeriod(p,2025,'skog-fem').id,'skog-trasé');
+ assert.equal(Profile.recordPeriod(p,2025,'skog-fem').id,'skog-trase');
  assert.equal(Profile.eventBySource(p,'Skog 5 km').id,'skog-fem');
  assert.notEqual(Profile.digest(other),Profile.digest(morothon));
  assert.throws(()=>Profile.policyForYear(p,2015),/Ingen entydig regelperiode/);
@@ -81,6 +81,7 @@ test('another organizer config can choose age-class rankings and own course peri
 test('profile rejects overlapping rule/course eras, ambiguous source names, unsafe identifiers and unknown fields',()=>{
  const changed=mutate=>{const p=clone(morothon);mutate(p);assert.throws(()=>Profile.validateProfile(p));};
  changed(p=>p.organizerId='../kunde');
+ changed(p=>p.coursePeriods[0].id='løype-trasé'); // Label may be Unicode, technical slug must be ASCII.
  changed(p=>p.events.push({...p.events[0],id:'another'}));
  changed(p=>p.policies.push({...p.policies[0],id:'another-policy',fromYear:2020}));
  changed(p=>p.coursePeriods.push({...p.coursePeriods[0],id:'overlap',fromYear:2010}));
