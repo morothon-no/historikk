@@ -1,5 +1,9 @@
 # C2.2 – Rettelser og personkontroll
 
+> [C2.4a – Én arbeidsflyt for kontrollerte rettelser](c24a-enkel-rettingsflyt.md)
+> er nå normalflyten. Den tidligere trinnvise kontrollen nedenfor finnes under
+> **Andre valg → Trinnvis kontroll og tilbakeføring**.
+
 > Gjeldende arbeidsliste og beslutningsregler er beskrevet i
 > [C2.2b – Forenklet personkontroll](c22b-enkel-personkontroll.md).
 

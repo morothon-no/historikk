@@ -2,6 +2,9 @@
 
 Formatet er en lokal, portabel saks- og forslagspakke. Det er ikke en offentlig
 dataeksport, signatur, skriveautorisasjon eller produksjonsutgivelse.
+
+C2.4a gir [én klargjøringshandling og en komplett kandidatkonvolutt](../c24a-enkel-rettingsflyt.md).
+Den omslutter denne kontrakten; saksformatet og tillitsgrensene beholdes.
 Normativ kode: [intake-model.js](../../tools/diploma-admin/intake-model.js),
 `Corrections` / `window.MorothonCorrections`.
 
@@ -68,6 +71,12 @@ eldre klienter som ikke kjenner feltet avviser pakken i stedet for å tape data.
 
 `binding`, `empty`, `report`, `updateNotes`, `propose`, `transition`, `serialize`, `parse`,
 `importPackage`, `discover`, `resultSelector`, `applyCandidate`, `consequences`.
+
+C2.4a samordner disse gjennom `prepareCase()` og legger til
+`createCandidate`, `verifyCandidate`, `serializeCandidate`, `parseCandidate`
+og `restoreCandidate`. Ingen av funksjonene gir publiseringsautorisasjon eller
+skriver produksjonsdata. Kandidatimport bruker fremdeles `importPackage()` og
+nedgraderer importerte overleveringsbeslutninger.
 
 C2.2b har i tillegg `caseType`, `worklist` og `carryDecisions`.
 `carryDecisions` erstatter ikke den strenge versjonssperren i `importPackage`:
