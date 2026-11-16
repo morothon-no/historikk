@@ -111,11 +111,19 @@ ubehandlet PR-valg. Lokalt må filen hentes fra et betrodd, godkjent grunnlag.
 
 ## Nødvendige GitHub-innstillinger
 
-Ingen repository-innstillinger er endret eller verifisert gjennom API i denne
-oppgaven. GitHub-API-et er blokkert i arbeidsmiljøet. Utfør/kontroller:
+Ingen repository-innstillinger er endret. GitHub-API-et er blokkert, men den
+[offentlige regelvisningen for main](https://github.com/morothon-no/historikk/rules?ref=refs%2Fheads%2Fmain)
+ble kontrollert 16. november 2026. Aktivt regelsett **Morothon – beskytt main**
+(ID `26984942`) krever bare **Public package, policy and site build** og
+**Independent trusted artifact gate**. Antall obligatoriske godkjenninger er
+**0**, avvisning av gamle godkjenninger er deaktivert, og oppdatert gren er
+ikke påkrevd. Bypass-rettigheter var ikke synlige i den offentlige visningen.
+Den nye sjekken og uavhengig gjennomgang er dermed **ikke bekreftet påkrevd**.
 
-1. Åpne **Settings → Rules → Rulesets**, rediger aktiv regel for `main`
-   (eller eksisterende **Settings → Branches → Branch protection rules**).
+Utfør følgende én gang før denne PR-en merges:
+
+1. Åpne [regelsettet](https://github.com/morothon-no/historikk/settings/rules/26984942)
+   under **Settings → Rules → Rulesets**, for `main`.
 2. Behold **Require a pull request before merging** og eksisterende
    godkjenningskrav. Krev minst én uavhengig godkjenning og avvis foreldede
    godkjenninger etter nye commits, dersom dette ikke allerede er satt.
@@ -152,7 +160,16 @@ Ingen policygodkjenning settes automatisk fra PR-en.
 - A1D-testen av PR-grensen er presisert til det eksakte femfilers modulutvalget;
   backup/migrering, private repositoryreferanser og produksjonsruntime er fortsatt
   sperret. Separat A1D-regresjon: 18/18 bestått.
-- Full regresjon, byggekontroll og aktuell PR-status rapporteres i PR-leveransen.
+- Offentlig bygg og uavhengig artefaktkontroll: bestått, 74 filer, 43 synlige
+  Heder-profiler. Alle eksisterende workflow-jobber er byte-identiske; bare den
+  nye isolerte jobben er lagt til. YAML, Bash- og Node-syntaks er kontrollert.
+- Første `npm test`: 469/470 bestått. Den ene feilen var A1D-testens gamle
+  totalforbud mot servermoduler i PR-checkout. Testen er rettet til det eksakte
+  isolerte filutvalget og består ved målrettet omkjøring (18/18). De øvrige
+  469 testene var grønne. Hele den tunge renderingspakken ble ikke kjørt om
+  bare for denne testassertjonen. Siste målrettede samletest av A1D, de fire
+  kildekodetestfilene, planleggeren og sikkerhetssperrene: **58/58 bestått**.
+  Aktuell PR-status rapporteres i PR-leveransen.
 
 Ingen endringer i nettsidens funksjonskode, resultatdata, medaljer, diplomer,
 arrangørregistre eller offentlig design. Ingen arbeid fra issue #72 er inkludert.
