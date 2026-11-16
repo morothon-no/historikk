@@ -185,3 +185,30 @@ test('C2.5 reason is optional in the editor and automatically captured as a stru
   const saved=await download(p);assert.match(saved.cases[0].reason,/bekrefter/);assert.match(saved.cases[0].source,/Manuell arrangørbekreftelse/);
  }finally{await context.close();}
 });
+
+test('C2.5 detail main-name choice stages locally with existing proposals; combined review attributes conflict to the actual pair',async()=>{
+ const {context,p}=await open(),requests=[];p.on('request',r=>requests.push(r));
+ try{
+  await p.getByRole('button',{name:'Mulige duplikater',exact:true}).click();
+  const first=p.locator('.correction-case').filter({has:p.getByRole('heading',{name:'Syntetisk Kari Nord / Syntetisk Kari N. Nord',exact:true})});
+  await first.getByRole('button',{name:'Samme person – slå sammen'}).click();
+  await p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('registrert som forslag'));
+  await selectSuggestion(p,'Syntetisk Samme Navn','Syntetisk Samme Navn');
+  const chosen=p.locator('#correctionMainPerson');await chosen.selectOption(ids[3]);
+  assert.equal(await chosen.inputValue(),ids[3],'selected canonical main identity is respected');
+  await p.click('#correctionApprove');
+  await p.waitForFunction(()=>document.querySelector('#correctionStatus').textContent.includes('registrert med hovednavn')||document.querySelector('#correctionStatus').dataset.error==='true');
+  assert.notEqual(await p.locator('#correctionStatus').getAttribute('data-error'),'true',await p.locator('#correctionStatus').innerText());
+  let saved=await download(p);
+  assert.equal(saved.cases.length,2);
+  assert.equal(saved.cases[1].status,'proposed','no automatic per-case handoff');
+  assert.deepEqual(saved.cases[1].change.personIds,[ids[2],ids[3]]);
+  assert.equal(await p.locator('#correctionEditor').count(),0);
+  await p.click('#correctionBatchCheck');
+  await p.waitForFunction(()=>document.querySelector('#correctionStatus').dataset.error==='true');
+  assert.match(await p.locator('#correctionStatus').innerText(),/Konflikt i sammenslåing.*Syntetisk Samme Navn/);
+  saved=await download(p);assert.equal(saved.cases[1].status,'proposed');
+  assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));
+  assert.equal((await(await fetch(base+'data/history.json')).json()).redirects[ids[2]],undefined);
+ }finally{await context.close();}
+});
