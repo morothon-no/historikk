@@ -222,7 +222,7 @@
  'use strict';
  const FORMAT='morothon-corrections-v1',MAX_BYTES=2*1024*1024,MAX_CASES=500;
  const statuses=['reported','review','proposed','handoff','rejected'];
- const labels={reported:'Meldt inn',review:'Til vurdering',proposed:'Foreslått retting',handoff:'Godkjent for overlevering',rejected:'Avvist'};
+ const labels={reported:'Meldt inn',review:'Til vurdering',proposed:'Foreslått retting',handoff:'Lokalt klargjort',rejected:'Avvist'};
  const kinds=['merge','person','alias','result','add','remove','reverse'];
  const clone=v=>JSON.parse(JSON.stringify(v)),same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
  const rules=()=>initialRules||globalThis.MorothonHistoryData;
@@ -499,7 +499,64 @@
   const errors=rules().validate(all.history).errors;
   return {caseId,baseHash:base.snapshotSha256,packageFingerprint:fingerprint(p),changeHash:JSON.stringify(c.change),ready:!uncertain.length&&!errors.length,changes,uncertain:[...new Set(uncertain)],errors,candidate:all.history,journal:all.journal,productionApplied:false};
  }
- return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,caseType,worklist,carryDecisions,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
+ // C2.4a coordinates the existing case contract. A candidate is a local review
+ // artifact, never an authenticated approval or an A1C publication package.
+ const CANDIDATE_FORMAT='morothon-correction-candidate-v1',CANDIDATE_BYTES=16*1024*1024;
+ const candidateRequirements=()=>({authenticatedApproval:true,verifiedBackup:true,privateSourceReview:true,freshPublicExport:true});
+ const projectionAreas=['people','annual','records','placements','rankings','diplomas','loyalty','redirects','aliases'];
+ function cachedProjection(project){const cache=new Map();return async history=>{const key=await hash(history);if(!cache.has(key))cache.set(key,Promise.resolve().then(()=>project(clone(history))));return cache.get(key);};}
+ function exactDelta(before,after){return [...new Set([...Object.keys(before),...Object.keys(after)])].filter(k=>!same(before[k],after[k])).map(field=>({field,beforePresent:Object.hasOwn(before,field),afterPresent:Object.hasOwn(after,field),before:clone(before[field]??null),after:clone(after[field]??null)}));}
+ function compactEffects(before,after){return projectionAreas.map(area=>{
+  if(!(area in before)||!(area in after))throw Error('Konsekvensmotoren mangler '+area);
+  const a=before[area],b=after[area];return {area,status:same(a,b)?'unchanged':'changed',entries:exactDelta(a,b)};
+ });}
+ const candidateBody=packet=>{const body={...packet};delete body.checksum;return body;};
+ function candidateShape(packet){
+  keys(packet,['format','version','base','corrections','result','delta','effects','audit','rollback','requirements','publicationAuthorized','productionApplied','checksum'],'endringskandidat');safeTree(packet);
+  if(packet.format!==CANDIDATE_FORMAT||packet.version!==1||packet.publicationAuthorized!==false||packet.productionApplied!==false||!same(packet.requirements,candidateRequirements()))throw Error('Kandidaten gir ingen publiseringsautorisasjon.');
+  validateBinding(packet.base);validatePackage(packet.corrections);keys(packet.result,['snapshotSha256','history'],'kandidatresultat');keys(packet.rollback,['fromSnapshotSha256','toSnapshotSha256','mode'],'tilbakeføring');
+  if(!same(packet.base,packet.corrections.base)||!Array.isArray(packet.delta)||!Array.isArray(packet.effects)||!Array.isArray(packet.audit)||packet.rollback.mode!=='reverse-delta-v1'||packet.rollback.fromSnapshotSha256!==packet.result.snapshotSha256||packet.rollback.toSnapshotSha256!==packet.base.snapshotSha256||![packet.checksum,packet.result.snapshotSha256].every(v=>/^[a-f0-9]{64}$/.test(v)))throw Error('Ugyldig eller ubundet endringskandidat.');
+  for(const d of packet.delta){keys(d,['field','beforePresent','afterPresent','before','after'],'eksakte verdier');if(typeof d.field!=='string'||['__proto__','prototype','constructor'].includes(d.field)||typeof d.beforePresent!=='boolean'||typeof d.afterPresent!=='boolean')throw Error('Ugyldig tilbakeføringsgrunnlag.');}
+  if(new Set(packet.delta.map(d=>d.field)).size!==packet.delta.length)throw Error('Dupliserte felt i tilbakeføringsgrunnlaget.');
+  if(!same(packet.effects.map(e=>e.area),projectionAreas))throw Error('Konsekvensrapporten mangler påkrevde beregninger.');for(const effect of packet.effects){keys(effect,['area','status','entries'],'konsekvensområde');if(!['changed','unchanged'].includes(effect.status)||!Array.isArray(effect.entries))throw Error('Ugyldig konsekvensrapport.');for(const entry of effect.entries)keys(entry,['field','beforePresent','afterPresent','before','after'],'beregnet før- og etterverdi');}
+  for(const event of packet.audit)keys(event,['caseId','kind','source','reason','reverses'],'kandidatjournal');
+  rules().assertValid(packet.result.history);if(new TextEncoder().encode(JSON.stringify(packet)).length>CANDIDATE_BYTES)throw Error('Endringskandidaten overstiger 16 MB. Avgrens rettingsutvalget.');return packet;
+ }
+ function serializeCandidate(packet){candidateShape(packet);const text=JSON.stringify(packet,null,2)+'\n';if(new TextEncoder().encode(text).length>CANDIDATE_BYTES)throw Error('Endringskandidaten overstiger 16 MB. Avgrens rettingsutvalget.');return text;}
+ async function parseCandidate(text){if(typeof text!=='string'||new TextEncoder().encode(text).length>CANDIDATE_BYTES)throw Error('Velg en endringskandidat på maksimalt 16 MB.');let packet;try{packet=JSON.parse(text);}catch{throw Error('Endringskandidaten er ikke gyldig JSON.');}candidateShape(packet);if(await hash(candidateBody(packet))!==packet.checksum||await hash(packet.result.history)!==packet.result.snapshotSha256)throw Error('Kontrollsummen for endringskandidaten stemmer ikke.');return clone(packet);}
+ async function createCandidate(history,p,base,project,options={}){
+  validatePackage(p);validateBinding(base);const active=p.cases.filter(c=>['proposed','handoff'].includes(c.status));
+  if(!active.length)throw Error('Ingen konkrete rettelser er klargjort.');if(active.some(c=>c.status!=='handoff'))throw Error('Bekreft de øvrige rettingsforslagene før den samlede kandidaten kan lastes ned.');
+  const view=cachedProjection(project);
+  for(const c of active){const impact=await consequences(history,p,c.id,base,view,options);if(!impact.ready)throw Error([...impact.uncertain,...impact.errors.map(e=>e.code)].join(' '));}
+  const out=await applyCandidate(history,p,base),snapshotSha256=await hash(out.history),before=await view(history),after=await view(out.history);
+  const packet={format:CANDIDATE_FORMAT,version:1,base:clone(base),corrections:parse(serialize(p)),result:{snapshotSha256,history:out.history},delta:exactDelta(history,out.history),effects:compactEffects(before,after),audit:out.journal,rollback:{fromSnapshotSha256:snapshotSha256,toSnapshotSha256:base.snapshotSha256,mode:'reverse-delta-v1'},requirements:candidateRequirements(),publicationAuthorized:false,productionApplied:false};
+  packet.checksum=await hash(packet);candidateShape(packet);return packet;
+ }
+ async function verifyCandidate(history,packet,base,project,options={}){
+  candidateShape(packet);if(!same(packet.base,base)||await hash(candidateBody(packet))!==packet.checksum)throw Error('Endringskandidaten er foreldet eller endret.');
+  const expected=await createCandidate(history,packet.corrections,base,project,options);if(!same(packet,expected))throw Error('Kandidat, konsekvenser eller tilbakeføringsgrunnlag stemmer ikke med en ny kontroll.');return {valid:true,publicationAuthorized:false,productionApplied:false};
+ }
+ async function restoreCandidate(history,packet){
+  candidateShape(packet);if(await hash(candidateBody(packet))!==packet.checksum||await hash(history)!==packet.rollback.fromSnapshotSha256)throw Error('Tilbakeføring krever nøyaktig kandidatversjon. Senere endringer må gjennomgås på nytt.');
+  const out=clone(history);for(const d of packet.delta){if(Object.hasOwn(out,d.field)!==d.afterPresent||!same(out[d.field]??null,d.after))throw Error('Tilbakeføringens forventede verdier er endret.');if(d.beforePresent)out[d.field]=clone(d.before);else delete out[d.field];}
+  if(await hash(out)!==packet.rollback.toSnapshotSha256)throw Error('Tilbakeføringen gjenoppretter ikke det eksakte originalgrunnlaget.');rules().assertValid(out);return {history:out,publicationAuthorized:false,productionApplied:false};
+ }
+ async function prepareCase(history,p,caseId,request,base,project,options={}){
+  validatePackage(p);const current=p.cases.find(c=>c.id===caseId);if(!current)throw Error('Saken finnes ikke.');
+  // Reconfirming an unchanged proposal does not invalidate other reviewed cases.
+  // An actual edit still uses the existing package-wide invalidation rule.
+  const shadow=clone(p);if(current.status==='handoff')shadow.cases.find(c=>c.id===caseId).status='proposed';
+  let proposed=await propose(history,shadow,caseId,request);const next=proposed.cases.find(c=>c.id===caseId);
+  if(same(current.change,next.change)&&current.source===next.source&&current.reason===next.reason)proposed=clone(p);
+  else if(current.status==='handoff')proposed=await propose(history,transition(p,caseId,'review','Klargjøringen trekkes tilbake fordi rettingsinnholdet er endret.'),caseId,request);
+  const view=cachedProjection(project),impact=await consequences(history,proposed,caseId,base,view,options);
+  if(!impact.ready)return {package:proposed,impact,candidate:null,ready:false,pending:[],productionApplied:false};
+  const approved=transition(proposed,caseId,'handoff',request.reason,impact),pending=approved.cases.filter(c=>c.status==='proposed').map(c=>c.id);
+  const candidate=pending.length?null:await createCandidate(history,approved,base,view,options);
+  return {package:approved,impact,candidate,ready:true,pending,productionApplied:false};
+ }
+ return {FORMAT,MAX_BYTES,MAX_CASES,statuses,labels,kinds,CANDIDATE_FORMAT,CANDIDATE_BYTES,prepareCase,createCandidate,verifyCandidate,serializeCandidate,parseCandidate,restoreCandidate,caseType,worklist,carryDecisions,hash,binding,empty,validatePackage,serialize,parse,importPackage,report,updateNotes,transition,resultSelector,propose,applyCandidate,compareNames,suggestionKey,reviewSuggestions,openSuggestion,discover,consequences};
 });
 
 /* C2.3a annual result reconciliation. Uses the existing parser, identity signals
