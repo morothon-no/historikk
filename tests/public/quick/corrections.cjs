@@ -80,3 +80,22 @@ test('C2.2 approved retraction of an unapproved draft leaves exact source data u
 test('C2.2 explicitly reported start-list issues retain separate row references and source hash without automatic case generation',async()=>{
  const {h,p}=await setup(),source='Startliste 2027 · SHA-256 '+'f'.repeat(64);let work=p;for(const line of [1,2])work=C.report(work,{id:'reported-row-'+line,category:'Innmeldt feil',description:'Syntetisk startliste · rad '+line+': Uavklart identitet',source:source+' · r'+line});assert.equal(C.discover(h,{intake:{reviewCases:[]}}).filter(s=>s.category==='Startlistekontroll').length,0);const list=C.parse(C.serialize(work)).cases;assert.equal(list.length,2);assert.match(list[0].description,/rad 1/);assert.match(list[1].description,/rad 2/);assert.ok(list.every(s=>s.source.includes('f'.repeat(64))));
 });
+
+test('C2.5 quick merge tolerates unrelated runners with repeated real starts in one course and no bib, without suppressing genuine rank checks',async()=>{
+ const {h}=await setup();
+ // Two separate genuine starts share the original six-column lookup identity, but have
+ // different finish times and distinct source positions. The old Map picked the last.
+ h.results.push(
+  [2023,ids[4],'Kortmoro','10 km','Fullført','57:10',91,'M','Syntetisk klubb',''],
+  [2023,ids[4],'Kortmoro','10 km','Fullført','58:20',92,'M','Syntetisk klubb','']
+ );
+ const b=await C.binding(h,sample.meta),p=C.empty(b),q=add(p);
+ const request={kind:'merge',personIds:ids.slice(0,2),source:'Syntetisk bekreftet identitet',reason:'Syntetisk test av godkjent personsammenslåing'};
+ const merged=await C.prepareCase(h,q,'case-1',request,b,project);
+ assert.equal(merged.ready,true,'unrelated legitimate repeated starts must not block a one-click merge');
+ assert.deepEqual(merged.impact.uncertain,[]);
+ assert.equal(merged.package.cases[0].status,'handoff');
+ assert.deepEqual(merged.candidate.result.history.results,h.results,'every original start and recorded source position remains unchanged');
+ assert.equal(H.create(merged.candidate.result.history).resolve(ids[0]),ids[1]);
+ assert.deepEqual((await C.restoreCandidate(merged.candidate.result.history,merged.candidate)).history,h);
+});
