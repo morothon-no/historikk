@@ -141,3 +141,16 @@ test('C1.2 local Heder admin previews all 43 approved persons, separate memorial
   assert.deepEqual(errors,[]);
  } finally {await context.close();}
 });
+
+test('Heder can be disabled per local organizer without exposing an admin menu or API',async()=>{
+ const disabled=await startAdmin({honorEnabled:false}),context=await browser.newContext();
+ try {
+  const response=await fetch(disabled.origin+'/api/honors',{headers:{'X-Morothon-Token':disabled.token}});
+  assert.equal(response.status,404);
+  const search=await fetch(disabled.origin+'/api/honors/runner-candidates?q=Jon',{headers:{'X-Morothon-Token':disabled.token}});
+  assert.equal(search.status,404);
+  const page=await context.newPage();await page.goto(disabled.origin);
+  await page.locator('#overviewMetrics .metric-card').first().waitFor();
+  assert.equal(await page.locator('#navHeder').isHidden(),true);
+ } finally {await context.close();await disabled.close();}
+});
