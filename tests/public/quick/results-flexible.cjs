@@ -62,7 +62,7 @@ test('C2.3b preserves explicit historical untimed participation and equivalent r
  for(const value of ['Kortmoro 10 km/ 20 km','Kortmoro 10 km / 20 km']){const malformed=await session('Name;Race;Time\nSyntetisk Eksempel;'+value+';50:00');assert.ok(malformed.session.rows[0].errors.length);}
 });
 
-test('C2.3d EQtiming Startnumber and Rank Class preserve exact result ownership through a corrected race and swapped finish times',async()=>{
+test('C2.3d EQtiming Startnumber and Rank Gender preserve exact result ownership through a corrected race and swapped finish times',async()=>{
  // Fictional names and values; the headings mirror the documented EQtiming CSV field names.
  const h=fixture.history(),ctx=context(h);
  const headings=['Startnumber','Firstname','Surname','Gender','Nat','Club','Stage','Class','Group','Total Time','Total TimeHMS','Total Time2','Lap','Rank Class','Diff Winner Class','Rank Gender','Diff Winner Gender','Rank Total','Diff Winner Total','TimeOfDay','City',''];
@@ -73,7 +73,7 @@ test('C2.3d EQtiming Startnumber and Rank Class preserve exact result ownership 
  const text=lines.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\r\n')+'\r\n';
  const stage=R.parse(text);
  assert.equal(stage.mapping.bib,0,'EQtiming Startnumber must not be silently omitted');
- assert.equal(stage.mapping.place,13,'Rank Class is the stored class placement, not Rank Gender or Rank Total');
+ assert.equal(stage.mapping.place,15,'Rank Gender is the official gender-wide distance placement, not Rank Class or Rank Total');
  assert.equal(stage.mapping.event,6,'EQtiming Stage must be detected as the event and course field');
  assert.equal(stage.mapping.time,9,'EQtiming Total Time must be detected as the finish result, not TimeOfDay/Total TimeHMS/Total Time2');
  const inspection=R.inspect(ctx,stage,2026);
@@ -83,11 +83,24 @@ test('C2.3d EQtiming Startnumber and Rank Class preserve exact result ownership 
  const items=R.review(ctx,s).items.filter(i=>i.row);
  assert.equal(items.length,2);assert.ok(items.every(i=>i.category==='changed'));
  assert.deepEqual(items.map(i=>i.beforeIndex),[0,1]);
- assert.deepEqual(items[0].after.slice(2),['Morothon','20 km','Fullført','2:07:14',36,'Herrer','Syntetisk klubb A','301']);
- assert.deepEqual(items[1].after.slice(2),['Kortmoro','10 km','Fullført','1:08:51',13,'Herrer','Syntetisk klubb B','318']);
+ assert.deepEqual(items[0].after.slice(2),['Morothon','20 km','Fullført','2:07:14',39,'Herrer','Syntetisk klubb A','301']);
+ assert.deepEqual(items[1].after.slice(2),['Kortmoro','10 km','Fullført','1:08:51',16,'Herrer','Syntetisk klubb B','318']);
  let decisions=new Map();for(const item of items)decisions=R.decide(ctx,s,decisions,item.id,{action:'confirm',runnerId:item.before[1],targetIndex:item.beforeIndex,reason:'Kontrollert syntetisk kilde og startnummer.'});
  const packet=await R.prepare(ctx,s,decisions),candidate=await C.applyCandidate(h,packet,s.base,{preview:true});
  assert.equal(packet.cases.length,2);assert.ok(packet.cases.every(c=>c.change.kind==='result'));
  assert.deepEqual(candidate.history.people,h.people);assert.equal(candidate.history.results.length,h.results.length);
  assert.deepEqual(candidate.history.results.slice(0,2),items.map(i=>i.after));
+});
+
+test('C2.3e junior age classes retain the same gender-wide distance ranking, never class-only rank',()=>{
+ const csv='Name;Stage;Class;Gender;Total Time;Rank Class;Rank Gender;Rank Total\nSyntetisk Junior;10 km - Kortmoro;M15-17;M;49:22;1;4;5';
+ const parsed=R.parse(csv),inspected=R.inspect(context(),parsed,2026);
+ assert.equal(parsed.mapping.place,6);
+ assert.equal(inspected.ready,true);assert.deepEqual(inspected.rows[0].errors,[]);
+ assert.equal(inspected.rows[0].className,'M15-17');
+ assert.equal(inspected.rows[0].place,4,'Junior competes for overall men podium on this distance');
+ const withoutGenderRank=R.parse('Name;Stage;Class;Gender;Total Time;Rank Class\nSyntetisk Junior;10 km - Kortmoro;M15-17;M;49:22;1');
+ const inspectedWithout=R.inspect(context(),withoutGenderRank,2026);
+ assert.equal(withoutGenderRank.mapping.place,-1,'Class-only rank must not be mislabeled as gender-wide placement');
+ assert.equal(inspectedWithout.rows[0].present.place,false,'Absent gender-wide placement must not overwrite an existing source place');
 });
