@@ -61,3 +61,31 @@ test('C2.3b preserves explicit historical untimed participation and equivalent r
  assert.deepEqual(s.session.rows.map(r=>r.errors),[[],[]]);const a=R.review(ctx,s.session),first=a.items.find(i=>i.beforeIndex===0);assert.deepEqual(first.differences.map(d=>d.field),['time']);assert.equal(first.after[3],'10,0 km');assert.equal(a.items.find(i=>i.beforeIndex===9).category,'unchanged');
  for(const value of ['Kortmoro 10 km/ 20 km','Kortmoro 10 km / 20 km']){const malformed=await session('Name;Race;Time\nSyntetisk Eksempel;'+value+';50:00');assert.ok(malformed.session.rows[0].errors.length);}
 });
+
+test('C2.3d EQtiming Startnumber and Rank Class preserve exact result ownership through a corrected race and swapped finish times',async()=>{
+ // Fictional names and values; the headings mirror the documented EQtiming CSV field names.
+ const h=fixture.history(),ctx=context(h);
+ const headings=['Startnumber','Firstname','Surname','Gender','Nat','Club','Stage','Class','Group','Total Time','Total TimeHMS','Total Time2','Lap','Rank Class','Diff Winner Class','Rank Gender','Diff Winner Gender','Rank Total','Diff Winner Total','TimeOfDay','City',''];
+ const record=(bib,first,last,club,stage,time,rankClass,rankGender,rankTotal)=>[bib,first,last,'M','NOR',club,stage,'Herrer','Hovedstart',time,time,time,'1',rankClass,'',rankGender,'',rankTotal,'','','',''];
+ const lines=[headings,
+  record('301','Syntetisk Asmund','Steinvik','Syntetisk klubb A','20 km - Morothon','2:07:14','36','39','41'),
+  record('318','Syntetisk Bjarne','Skogdal','Syntetisk klubb B','10 km - Kortmoro','1:08:51','13','16','20')];
+ const text=lines.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\r\n')+'\r\n';
+ const stage=R.parse(text);
+ assert.equal(stage.mapping.bib,0,'EQtiming Startnumber must not be silently omitted');
+ assert.equal(stage.mapping.place,13,'Rank Class is the stored class placement, not Rank Gender or Rank Total');
+ const mapping={...stage.mapping,time:9},inspection=R.inspect(ctx,stage,2026,{mapping,manual:true});
+ assert.equal(inspection.ready,true);
+ assert.ok(inspection.rows.every(r=>!r.errors.length));
+ const s=await R.createSession(ctx,stage,mapping,{year:2026,sourceSha256:await C.hash(text),meta:fixture.meta,manual:true});
+ const items=R.review(ctx,s).items.filter(i=>i.row);
+ assert.equal(items.length,2);assert.ok(items.every(i=>i.category==='changed'));
+ assert.deepEqual(items.map(i=>i.beforeIndex),[0,1]);
+ assert.deepEqual(items[0].after.slice(2),['Morothon','20 km','Fullført','2:07:14',36,'Herrer','Syntetisk klubb A','301']);
+ assert.deepEqual(items[1].after.slice(2),['Kortmoro','10 km','Fullført','1:08:51',13,'Herrer','Syntetisk klubb B','318']);
+ let decisions=new Map();for(const item of items)decisions=R.decide(ctx,s,decisions,item.id,{action:'confirm',runnerId:item.before[1],targetIndex:item.beforeIndex,reason:'Kontrollert syntetisk kilde og startnummer.'});
+ const packet=await R.prepare(ctx,s,decisions),candidate=await C.applyCandidate(h,packet,s.base,{preview:true});
+ assert.equal(packet.cases.length,2);assert.ok(packet.cases.every(c=>c.change.kind==='result'));
+ assert.deepEqual(candidate.history.people,h.people);assert.equal(candidate.history.results.length,h.results.length);
+ assert.deepEqual(candidate.history.results.slice(0,2),items.map(i=>i.after));
+});
