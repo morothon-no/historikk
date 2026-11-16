@@ -1,5 +1,8 @@
 # C2.4a – Én arbeidsflyt for kontrollerte rettelser
 
+[C2.3d](c23d-resultatavstemming-og-dns.md) bruker den samme klargjøringen
+direkte fra et konkret avvik i resultatimporten, uten ny saksmodell.
+
 **Godkjenn og klargjør** foreslår rettelsen, kontrollerer den med eksisterende
 C2.2-motor, beregner konsekvensene og klargjør én nedlastbar endringskandidat.
 Det er fortsatt ingen produksjonsskriving, autentisering eller publisering.
