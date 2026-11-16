@@ -4,6 +4,9 @@ const { chromium } = require('playwright');
 const { startAdmin } = require('../../../scripts/diploma-admin.cjs');
 const { createPortalData } = require('../../../tools/diploma-admin/portal-data.cjs');
 const root = path.resolve(__dirname, '../../..');
+// Public-only CI deliberately omits internal Heder source modules.
+const trustedHonorPresent = require('node:fs').existsSync(path.join(root,'data/honors.json'));
+
 let app, browser, out, history, badges;
 before(async () => {
   [history, badges] = await Promise.all(['history', 'badges'].map(n => fs.readFile(path.join(root, 'public-data/data', n + '.json'), 'utf8').then(JSON.parse)));
@@ -114,6 +117,13 @@ test('C1.2 local Heder admin previews all 43 approved persons, separate memorial
  page.on('pageerror',e=>errors.push(e.message));
  try {
   assert.equal((await fetch(app.origin+'/api/honors')).status,403);
+  if (!trustedHonorPresent) {
+    // Public-only CI exercises absence of privileged admin modules; the
+    // entire Heder view is verified during trusted full source regression.
+    assert.equal((await request('honors')).status,404);
+    assert.equal((await request('honors/runner-candidates?q=Jon')).status,404);
+    return;
+  }
   assert.equal((await request('honors')).status,200);
   const roster=await (await request('honors')).json();
   assert.equal(roster.people.length,43);assert.equal(roster.canEdit,false);
