@@ -124,11 +124,47 @@ test('C2.3d a genuine name review remains visible while its historical row is li
  }finally{await context.close();}
 });
 async function completeCandidate(p){const wait=p.waitForEvent('download');await p.click('#correctionCandidateDownload');const file=path.join(dir,'synthetic-complete-'+Math.random()+'.json');await(await wait).saveAs(file);return JSON.parse(await fs.readFile(file,'utf8'));}
-async function approveImported(p,id){const card=p.locator('[data-result-id="'+id+'"]');await card.locator('textarea').fill('Syntetisk kilde bekrefter den konkrete resultatkorrigeringen.');await card.getByRole('button',{name:'Godkjenn og klargjør',exact:true}).click();await p.waitForURL(/#rettelser$/);await p.waitForFunction(()=>document.querySelector('#correctionCandidate')||document.querySelector('#correctionStatus').dataset.error==='true');assert.equal(await p.locator('#correctionCandidate').count(),1,await p.locator('#correctionStatus').innerText());}
-test('C2.3d one explicit action transfers a result directly into C2.4a preparation; a second action rechecks earlier local work and yields one reversible candidate',async()=>{
+async function approveImported(p,id){const card=p.locator('[data-result-id="'+id+'"]');await card.locator('textarea').fill('Syntetisk kilde bekrefter den konkrete resultatkorrigeringen.');await card.locator('.result-single-advanced > summary').click();await card.getByRole('button',{name:'Klargjør denne enkeltrettelsen nå',exact:true}).click();await p.waitForURL(/#rettelser$/);await p.waitForFunction(()=>document.querySelector('#correctionCandidate')||document.querySelector('#correctionStatus').dataset.error==='true');assert.equal(await p.locator('#correctionCandidate').count(),1,await p.locator('#correctionStatus').innerText());}
+test('C2.3d optional advanced preparation retains the old reversible and source-bound per-case gate',async()=>{
  const {p,context}=await open(),requests=[],errors=[];p.on('request',r=>requests.push(r));p.on('pageerror',e=>errors.push(e.message));try{
   const h=sample.history();h.results[0][8]='Syntetisk korrigert klubb A';h.results[1][8]='Syntetisk korrigert klubb B';const text=sample.csv(h);await upload(p,text);await compare(p);await approveImported(p,'result-1');let c=await completeCandidate(p);assert.equal(c.corrections.cases.length,1);assert.equal(c.corrections.cases[0].status,'handoff');assert.equal(c.publicationAuthorized,false);
   await p.locator('a[href="#import"]').click();await p.selectOption('#annualImportKind','results');assert.match(await p.locator('#resultAttentionCount').innerText(),/^1 saker/);await approveImported(p,'result-2');c=await completeCandidate(p);assert.equal(c.corrections.cases.length,2);assert.ok(c.corrections.cases.every(c=>c.status==='handoff'));assert.equal(c.result.history.results[0][8],h.results[0][8]);assert.equal(c.result.history.results[1][8],h.results[1][8]);assert.equal(c.productionApplied,false);const restored=await p.evaluate(async c=>(await MorothonCorrections.restoreCandidate(c.result.history,c)).history,c);assert.deepEqual(restored,sample.history());assert.deepEqual(await(await fetch(base+'data/history.json')).json(),sample.history());assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));assert.deepEqual(errors,[]);assert.equal(await p.evaluate(()=>localStorage.length+sessionStorage.length),0);
+ }finally{await context.close();}
+});
+test('C2.5 manual result approvals stay in annual import, with a single explicit aggregate consequence check',async()=>{
+ const {p,context}=await open(),requests=[],errors=[];
+ p.on('request',r=>requests.push(r));p.on('pageerror',e=>errors.push(e.message));
+ try{
+  const before=await fs.readFile(path.join(build.out,'data/history.json'));
+  await upload(p);await compare(p);
+  const first=p.locator('[data-result-id="result-1"]');
+  assert.equal(await first.locator('.result-single-advanced').isVisible(),true);
+  assert.equal(await first.getByRole('button',{name:'Klargjør denne enkeltrettelsen nå'}).isVisible(),false);
+  assert.equal(await first.getByRole('button',{name:'Bekreft rettelsen'}).count(),1);
+  await first.getByRole('button',{name:'Bekreft rettelsen'}).click();
+  await p.waitForFunction(()=>document.querySelector('#resultAttentionCount')?.textContent.startsWith('1 saker'));
+  assert.match(p.url(),/#import$/);
+  assert.equal(await p.locator('#correctionCandidate').count(),0);
+  const second=p.locator('[data-result-id="result-2"]');
+  await second.getByRole('button',{name:'Bekreft rettelsen'}).click();
+  await p.waitForFunction(()=>document.querySelector('#resultAttentionCount')?.textContent.startsWith('0 saker'));
+  assert.match(await p.locator('#resultStatus').innerText(),/0 saker gjenstår/);
+  assert.match(p.url(),/#import$/);
+  const work=await download(p,'#resultExport');
+  assert.equal(work.cases.length,2);
+  assert.ok(work.cases.every(c=>c.status==='proposed'&&c.change?.kind==='result'));
+  assert.ok(work.cases.every(c=>/SHA-256 [a-f0-9]{64}/.test(c.source)));
+  await p.click('#resultTransfer');
+  await p.waitForFunction(()=>!document.querySelector('#resultTransfer').disabled,{timeout:30000});
+  assert.match(p.url(),/#import$/,'the final batch does not force another per-case editor');
+  assert.equal(await p.locator('#correctionEditor').count(),0);
+  const saved=await download(p,'#correctionSave');
+  assert.equal(saved.cases.length,2);
+  assert.ok(saved.cases.every(c=>c.status==='proposed'&&c.change?.kind==='result'),'aggregate check grants no publish right');
+  assert.equal(await p.locator('#correctionCandidate').count(),0);
+  assert.deepEqual(await fs.readFile(path.join(build.out,'data/history.json')),before);
+  assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));
+  assert.deepEqual(errors,[]);
  }finally{await context.close();}
 });
 test('C2.3d DNS conflicting with a documented start is still a blocked control case; the unrelated DNS line stays informational',async()=>{
