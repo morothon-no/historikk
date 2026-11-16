@@ -52,3 +52,13 @@ test('Heder participant lookup rejects invalid person and excessive or malformed
  assert.throws(()=>findHonorRunnerCandidates({roster:r,history,personId:'jon-fjeld',limit:100}),/antall/);
  assert.deepEqual(findHonorRunnerCandidates({roster:r,history,personId:'jon-fjeld',query:'A'}).candidates,[]);
 });
+
+test('new Heder person can search existing runners before creating an honor record',()=>{
+ const r=roster(),history=F.history();
+ const result=findHonorRunnerCandidates({roster:r,history,query:'Syntetisk Kari'});
+ assert.equal(result.personId,null);
+ assert.deepEqual(result.candidates.map(p=>p.runnerId).sort(),['MOR-C220001','MOR-C220002']);
+ assert.equal(result.confirmationRequired,true);
+ assert.equal(result.identityLinkedAutomatically,false);
+ assert.throws(()=>findHonorRunnerCandidates({roster:r,history}),/Oppgi et søk/);
+});
