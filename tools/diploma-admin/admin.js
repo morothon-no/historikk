@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id), token = document.querySelector('[name="local-session"]')?.content;
-  const state = { people: [], jobs: [], checked: null, busy: false, limit: 40, max: 100 };
+  const state = { people: [], jobs: [], checked: null, busy: false, limit: 40, max: 100, honorEnabled: true };
   const words = { approved: 'Godkjent', control: 'Kontrollkopi', blocked: 'Sperret', pending: 'Ikke kontrollert' };
   const itemKey = i => [i.kind, i.personId, i.key, i.display].join('|');
   const node = (tag, text, cls) => { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; };
@@ -108,7 +108,7 @@
   $('more').onclick = () => { state.limit += 40; renderResults(); };
   $('addAll').onclick = () => run(() => add(filtered().map(selected)));
   $('demo').onclick = () => run(() => {
-    const names = ['Inger Katherin Dahl Frantzen', 'Finn Gerhard Olsen', 'Gunnar Kåsa', 'Oscar Lohne', 'Einar Danielsen'];
+    const names = ['Inger Katherin Dahl Frantzen', 'Finn Gerhard Olsen', 'Gunnar Kåsa', ...(state.honorEnabled?['Oscar Lohne', 'Einar Danielsen']:[])];
     add(names.map(name => { const p = state.people.find(p => p.name === name && p.kind === (['Oscar Lohne', 'Einar Danielsen'].includes(name) ? 'honor' : 'runner')); if (!p) throw Error('Eksempelmottakeren finnes ikke i denne historikken: ' + name); return { kind: p.kind, personId: p.personId, key: p.defaultKey, display: 'latest' }; }));
   });
   $('clear').onclick = () => { invalidate(); state.jobs = []; render(); };
@@ -138,6 +138,8 @@
   });
   api('catalog').then(data => {
     state.people = data.people; state.max = data.maxItems;
+    state.honorEnabled=data.honorEnabled!==false;
+    if(!state.honorEnabled){$('kind').querySelector('option[value="honor"]')?.remove();if($('kind').value==='honor')$('kind').value='runner';$('demo').textContent='Prøv tre løpere';}
     const years = [...new Set(data.people.flatMap(p => p.options.map(o => o.year)).filter(Number.isInteger))].sort((a, b) => b - a);
     for (const year of years) { const option = node('option', String(year)); option.value = year; $('year').append(option); }
     render(); message('Klar. Velg et utvalg eller prøv fem mottakere.');

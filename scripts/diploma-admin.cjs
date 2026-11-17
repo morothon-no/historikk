@@ -19,9 +19,11 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
   // modules and data/. Do not make the existing local C1 portal depend on them.
   // In full trusted checkouts they are required, fail-closed and tested.
   const trustedSourcesPresent = existsSync(path.join(root,'data/honors.json'));
-  let worker, portal, origin, honorView, honorRoster, honorHistory, runnerSearch; const token = randomBytes(32).toString('hex');
+  let worker, portal, origin, honorView, honorRoster, honorHistory, runnerSearch, honorDrafts; const token = randomBytes(32).toString('hex');
   const handleApi = createApi({ token, getOrigin: () => origin, getWorker: () => worker, getPortal: () => portal, assertSnapshot,
+    isHonorEnabled: () => honorEnabled === true,
     getHonorView: () => honorView,
+    getHonorDrafts: () => honorDrafts,
     searchHonorRunner: ({ personId, query }) => runnerSearch({ roster: honorRoster, history: honorHistory, personId, query }) });
   const server = http.createServer(async (req, res) => {
     const send = (code, data) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); };
@@ -42,6 +44,7 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
         res.setHeader('Content-Type', types[path.extname(route)]); return res.end(await fs.readFile(path.join(uiRoot, route.slice(1))));
       }
       const relative = route.startsWith('/site/') ? route.slice(6) : null;
+      if(honorEnabled!==true&&relative==='heder.html')return send(404,{error:'Heder-modulen er ikke aktiv.'});
       if (!siteFiles?.has(relative)) return send(404, { error: 'Filen er ikke tilgjengelig i det lokale verktøyet.' });
       res.setHeader('Content-Type', types[path.extname(relative)] || 'application/octet-stream');
       return res.end(await fs.readFile(path.join(site, relative)));
@@ -57,7 +60,7 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
     inputFiles = [...runtimeFiles(registry).filter(f => !f.startsWith('data/')).map(f => path.join(root, ADMIN_SOURCES[f] || f)),
       ...['manifest.json', 'data/history.json', 'data/honors.json', 'data/volunteers.json', 'data/badges.json', 'data/event-dates.json'].map(f => path.join(root, 'public-data', f)),
       path.join(root, '.github/public-data-approval.json'), path.join(root, 'package.json'), path.join(root, 'scripts/diploma-admin.cjs'),
-      ...(trustedSourcesPresent ? ['honor-admin-view.cjs','honor-roster.cjs','honor-runner-search.cjs'].map(f => path.join(root, 'scripts/admin', f)) : []),
+      ...(trustedSourcesPresent ? ['honor-admin-view.cjs','honor-roster.cjs','honor-runner-search.cjs','honor-drafts.cjs'].map(f => path.join(root, 'scripts/admin', f)) : []),
       ...['engine.js','worker.cjs','api.cjs','portal-data.cjs'].map(f=>path.join(uiRoot,f)), ...result.files.map(f => path.join(site, f))];
     originalDigest = await snapshot(inputFiles);
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', resolve); }); origin = `http://127.0.0.1:${server.address().port}`;
@@ -71,6 +74,7 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
       const { createHonorAdminRoster } = require('./admin/honor-roster.cjs');
       const { publicHonorAdminView } = require('./admin/honor-admin-view.cjs');
       const { findHonorRunnerCandidates } = require('./admin/honor-runner-search.cjs');
+      const { createHonorDrafts, legacyEditionCatalog } = require('./admin/honor-drafts.cjs');
       runnerSearch = findHonorRunnerCandidates;
       const [honors, volunteers, eventProfile] = await Promise.all([
         fs.readFile(path.join(site, 'data/honors.json'), 'utf8').then(JSON.parse),
@@ -80,8 +84,10 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
       honorRoster = createHonorAdminRoster({ organizerId: eventProfile.id, enabled: honorEnabled === true,
         honors, volunteers, editionYears: honors.presentationPrintSet?.editionYears || [] });
       honorView = publicHonorAdminView(honorRoster);
+      honorDrafts = createHonorDrafts({organizerId:eventProfile.id,enabled:honorEnabled===true,
+        honors,volunteers,editions:legacyEditionCatalog(honorHistory,eventProfile.id),history:honorHistory,badges:registry.badges});
     }
-    portal = createPortalData({ history: honorHistory, badges: registry, honorCount: worker.catalog.filter(p => p.kind === 'honor').length });
+    portal = createPortalData({ history: honorHistory, badges: registry, honorCount: honorEnabled===true?worker.catalog.filter(p => p.kind === 'honor').length:0 });
     return { origin, token, worker, site, assertSnapshot,
       async close() { await worker.close(); await new Promise(resolve => server.close(resolve)); await fs.rm(temp, { recursive: true, force: true }); } };
   } catch (e) { if (worker) await worker.close(); if (server.listening) await new Promise(resolve => server.close(resolve)); await fs.rm(temp, { recursive: true, force: true }); throw e; }

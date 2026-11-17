@@ -54,10 +54,11 @@ function findHonorRunnerCandidates({roster,history,personId,query,limit=10}={}){
   const isExact=normalized.some(n=>n===needle);
   const isPrefix=normalized.some(n=>n.startsWith(needle));
   const linked=existing.get(p.i)||[];
+  const stats=model.stats(p.i);
   candidates.push({
    runnerId:p.i,name:p.n,
    aliases:names.filter(n=>n!==p.n),
-   participationCount:model.stats(p.i)?.count||0,
+   participationCount:stats?.count||0,participationYears:[...(stats?.years||[])],
    linkedToThisHonor:person!==null&&linked.includes(personId),
    linkedToOtherHonor:linked.some(id=>id!==personId),
    matchKind:isExact?'exact':isPrefix?'prefix':'name-search'

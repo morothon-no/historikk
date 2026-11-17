@@ -6,7 +6,7 @@ const H=require('../../js/honors-data.js');
 const ID=/^[a-z][a-z0-9-]{1,62}$/;
 const validYear=y=>Number.isSafeInteger(y)&&y>=1900&&y<=2200;
 const copy=x=>structuredClone(x);
-function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYears}={}){
+function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYears,editionCatalog}={}){
  if(typeof organizerId!=='string'||!ID.test(organizerId))
   throw Error('Heder krever en gyldig arrangør-ID.');
  if(typeof enabled!=='boolean')throw Error('Heder krever en eksplisitt modulinnstilling.');
@@ -17,6 +17,8 @@ function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYe
  // Existing Morothon sources use one edition per year. The future edition-ID
  // domain model must take over before counting multiple editions in one year.
  const years=[...new Set(editionYears)].sort((a,b)=>a-b);
+ if(editionCatalog!==undefined&&!Array.isArray(editionCatalog))throw Error('Ugyldig utgavekatalog.');
+ const calculationEditions=editionCatalog??years;
  if(honors.volunteerList&&(!volunteers||volunteers.schemaVersion!==1))
   throw Error('Heder mangler den tilhørende dugnadslisten.');
  if(!honors.volunteerList&&volunteers!==undefined)
@@ -38,14 +40,14 @@ function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYe
    }
    const detail=copy(data.personDetails?.[member.id]||{});
    const merged=H.personRecord(data,member);
-   const profile=H.honorProfile(data,member,years);
+   const profile=H.honorProfile(data,member,calculationEditions);
    const tenure=profile.tenure;
    const memorial=group.id==='memorial'||member.deceased===true||
     member.memorialRecognition?.badgeId==='service-memorial';
    const contribution=member.contribution||{};
    // A registered open period is not the same as documented individual years.
-   const openPeriod=!memorial&&Number.isInteger(contribution.fromYear)&&
-    contribution.toYear===undefined&&contribution.confirmedYears===undefined&&
+   const openPeriod=!memorial&&contribution.countingBasis!=='unknown'&&(Number.isInteger(contribution.fromYear)||typeof contribution.fromEditionId==='string')&&
+    contribution.toYear===undefined&&contribution.toEditionId===undefined&&contribution.confirmedYears===undefined&&contribution.confirmedEditionIds===undefined&&
     contribution.approvedTotal===undefined;
    const visibleUnderProfile=H.isVisibleOnHonorPage(data,member.id);
    people.push({
@@ -73,7 +75,7 @@ function createHonorAdminRoster({organizerId,enabled,honors,volunteers,editionYe
     badges:{
      qualified:copy(profile.earnedBadgeIds),
      highest:profile.main.badgeId,
-     next:copy(H.tenureMilestones(data,member,years).next),
+     next:copy(H.tenureMilestones(data,member,calculationEditions).next),
      automaticallyAwarded:false,
      planned:copy(member.plannedHonors||[]),
      formallyAwarded:copy(member.awards||[]),
