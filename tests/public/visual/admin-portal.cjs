@@ -56,7 +56,10 @@ test('C1.1 desktop and tablet navigation, participant history, upcoming mileston
   p.on('pageerror', e => errors.push(e.message)); p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   try {
     await p.goto(app.origin); await p.locator('#overviewMetrics .metric-card').first().waitFor();
-    await p.locator('#navCorrections').waitFor();assert.equal(await p.locator('.sidebar nav a').count(), 9); assert.equal(await p.locator('#pageTitle').innerText(), 'Oversikt');
+    await p.locator('#navCorrections').waitFor();
+    if (trustedHonorPresent) await p.locator('#navHeder').waitFor();
+    assert.equal(await p.locator('.sidebar nav a').count(), trustedHonorPresent ? 9 : 8);
+    assert.equal(await p.locator('#pageTitle').innerText(), 'Oversikt');
     await p.getByRole('navigation').getByRole('link', { name: 'Deltakere' }).click();
     await p.fill('#participantSearch', 'Inger Katherin'); await p.waitForFunction(() => document.querySelectorAll('.participant-row').length === 1);
     await p.getByRole('button', { name: 'Se historikk', exact: true }).click(); await p.locator('#participantDialog[open]').waitFor();
