@@ -9,12 +9,13 @@ test('historical source preservation still rejects unrelated identities, other r
  const source=await fs.readFile(path.join(root,'data/history.json'));
  // Keep failing assertion diffs small: use the exact authorized row guards,
  // fictional unrelated fields and no copy of the full historical register.
- const data={people:[{i:'synthetic',n:'Syntetisk Profil'}],results:[...changes.map(c=>[...c.after]),[2000,'synthetic','Kortmoro','13 km','Fullført','51:00',1,'','','']],updated:'2026-11-15'},current=Buffer.from(JSON.stringify(data)),expected=helper.beforeApprovedResultCorrections(current);
+ const data={people:[{i:'synthetic',n:'Syntetisk Profil'}],results:[...changes.map(c=>[...c.after]),[2000,'synthetic','Kortmoro','13 km','Fullført','51:00',1,'','','']],updated:'2026-11-15'},current=Buffer.from(JSON.stringify(data)),journal={schemaVersion:1,baselineSha256:digest(current),entries:[]},expected=helper.beforeApprovedResultCorrections(current,journal);
+ helper.assertPreservedPresentation(current,expected,'data/history.json',journal);
  const changeRow=data.results.findIndex(r=>JSON.stringify(r)===JSON.stringify(changes[0].after));assert.ok(changeRow>=0);
  for(const mutate of [d=>{d.people[0].n='Syntetisk uautorisert navneendring';},d=>{d.results.at(-1)[5]='9:59:59';},d=>{d.updated='1900-01-01';},d=>{d.results[changeRow][6]=999;},d=>{d.results[changeRow][5]='02:10:00';}]){
-  const altered=structuredClone(data);mutate(altered);assert.throws(()=>helper.assertPreservedPresentation(Buffer.from(JSON.stringify(altered)),expected,'data/history.json'));
+  const altered=structuredClone(data);mutate(altered);assert.throws(()=>helper.assertPreservedPresentation(Buffer.from(JSON.stringify(altered)),expected,'data/history.json',journal));
  }
- assert.throws(()=>helper.assertPreservedPresentation(Buffer.concat([current,Buffer.from('\n')]),expected,'data/history.json'));
+ assert.throws(()=>helper.assertPreservedPresentation(Buffer.concat([current,Buffer.from('\n')]),expected,'data/history.json',journal));
  assert.deepEqual(await fs.readFile(path.join(root,'data/history.json')),source);
 });
 test('historical normalization never applies result allowances to another protected file',()=>{

@@ -1,5 +1,8 @@
 # #82 – innlogging og varige resultatkorrigeringer, første leveranse
 
+Dette dokumenterer #82. Den separate, valgfritt aktiverte publiseringsleveransen
+er beskrevet i [#87 – resultatpublisering](admin-resultatpublisering-87.md).
+
 Dette kobler den **eksisterende** adminportalen til en autentisert Node-tjeneste.
 Arrangøren bruker nettleseren: finn deltaker → «Rett et resultat» → rediger →
 «Vis før/etter» → «Lagre utkast» → gjenåpne → «Godkjenn lagret utkast».

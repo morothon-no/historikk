@@ -280,7 +280,7 @@
    if(state.kind==='merge'){if(!state.picked[1])throw Error('Velg to profiler.');const target=$('correctionMainPerson')?.value||state.picked[1];personIds=[state.picked.find(id=>id!==target),target];}
    if(state.kind==='person')after={n:$('correctionName').value,g:$('correctionGender').value};
    if(state.kind==='alias')after=$('correctionAliases').value.split('\n').map(v=>v.trim()).filter(Boolean);
-   if(['result','add'].includes(state.kind)){after=Array.from({length:10},(_,i)=>$('correctionField'+i).value);after[0]=Number(after[0]);after[6]=/^\d+$/.test(after[6])?+after[6]:after[6]||null;}
+   if(['result','add'].includes(state.kind)){after=Array.from({length:10},(_,i)=>$('correctionField'+i).value);after[0]=Number(after[0]);const original=state.kind==='result'?state.history.results[+$('correctionResultChoice').value]:null;after[6]=/^\d+$/.test(after[6])?+after[6]:after[6]||(original?.[6]===''?'':null);}
    return {kind:state.kind,personIds,after,source:source.value.trim()||(identity?quickIdentitySource:''),reason:reason.value.trim()||decisionReason(identity),selector:null};
   }
   async function completeRequest(){const request=requestChange();if(['result','remove'].includes(state.kind))request.selector=await C.resultSelector(state.history,+$('correctionResultChoice').value,state.base);return request;}

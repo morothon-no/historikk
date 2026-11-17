@@ -10,7 +10,7 @@ const copy=v=>JSON.parse(JSON.stringify(v));
 function organizerId(id){if(typeof id!=='string'||!ORG.test(id))fail('Ugyldig arrangør-ID.');return id;}
 function rev(n){if(!Number.isSafeInteger(n)||n<0)fail('Ugyldig forventet revisjon.');return n;}
 function checkedRecord(record,revision){
- if(!record||record.v!==1||record.revision!==revision||!['draft','review-approved'].includes(record.status)||
+ if(!record||record.v!==1||record.revision!==revision||!['draft','review-approved','published'].includes(record.status)||
     !Array.isArray(record.events)||record.events.length>MAX_EVENTS||
     typeof record.base!=='object'||!record.base||
     typeof record.draft!=='object'||!record.draft)

@@ -12,7 +12,7 @@ function membershipPrincipal(user,memberships){
 }
 function authorize(principal,organizer,action){
  const role=principal?.roles?.[organizer];
- if(!role||!({read:['owner','editor','viewer'],write:['owner','editor'],approve:['owner']}[action]||[]).includes(role))throw denied('Ingen tilgang til denne arrangørhandlingen.');
+ if(!role||!({read:['owner','editor','viewer'],write:['owner','editor'],approve:['owner'],publish:['owner']}[action]||[]).includes(role))throw denied('Ingen tilgang til denne arrangørhandlingen.');
  return principal;
 }
 module.exports={membershipPrincipal,authorize,denied};

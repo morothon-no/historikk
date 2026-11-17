@@ -1,8 +1,18 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{createHash}=require('node:crypto');
 const R=require('../../../js/history-data.js'),{changes,previousHistory,previousSha256}=require('./fixtures/historical-corrections.js');
-const root=path.resolve(__dirname,'../../..'),bytes=fs.readFileSync(path.join(root,'public-data/data/history.json')),data=JSON.parse(bytes),previous=previousHistory(data);
+const root=path.resolve(__dirname,'../../..'),bytes=fs.readFileSync(path.join(root,'public-data/data/history.json'));
+// These assertions describe the November historical correction, not later,
+// separately approved releases. Reconstruct only the exact journalled rows.
+const D=require('../../../tools/diploma-admin/result-release-data.cjs'),journal=require('./fixtures/result-publications.json');
+const data=JSON.parse(D.undoPublishedResults(bytes,journal)),previous=previousHistory(data);
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const thresholds=[5,10,15,20,25,30,35,40,45,50];
+test('live history matches the trusted manifest and only exact journalled result changes differ from the historical baseline',()=>{
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,'public-data/manifest.json'))),approval=JSON.parse(fs.readFileSync(path.join(root,'.github/public-data-approval.json')));
+ assert.equal(D.hash(bytes),approval.historySha256);assert.equal(manifest.historySha256,approval.historySha256);assert.equal(D.hash(fs.readFileSync(path.join(root,'public-data/manifest.json'))),approval.manifestSha256);
+ if(journal.entries.length){assert.equal(journal.entries.at(-1).dataVersion,approval.dataVersion);assert.equal(journal.entries.at(-1).manifestSha256,approval.manifestSha256);}
+ assert.deepEqual(R.validate(JSON.parse(bytes)).errors,[]);assert.equal(D.hash(D.undoPublishedResults(bytes,journal)),journal.baselineSha256);
+});
 function yearsByPerson(h){const groups=new Map();for(const p of h.people)groups.set(R.resolveId(p.i,h.redirects),[]);for(const r of h.results){const id=R.resolveId(r[1],h.redirects);if(groups.has(id))groups.get(id).push(r);}return [...groups].map(([id,rows])=>[id,R.participationYears(rows)]);}
 
 test('November result corrections change exactly four complete rows and six cells, preserving every other historical byte',()=>{
