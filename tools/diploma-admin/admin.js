@@ -149,7 +149,7 @@
     const oldYear=$('year').value;$('year').replaceChildren();const all=node('option','Alle opptjeningsår');all.value='all';$('year').append(all);
     const years=[...new Set(data.people.flatMap(p=>p.options.map(o=>o.year)).filter(Number.isInteger))].sort((a,b)=>b-a);
     for(const year of years){const option=node('option',String(year));option.value=year;$('year').append(option);}
-    $('year').value=years.includes(Number(oldYear))?oldYear:'all';invalidate();render();message('Klar. Velg et utvalg eller prøv mottakere.');
+    $('year').value=years.includes(Number(oldYear))?oldYear:'all';invalidate();render();message(state.honorEnabled?'Klar. Velg et utvalg eller prøv fem mottakere.':'Klar. Velg et utvalg eller prøv tre løpere.');
   }
   document.addEventListener('morothon:honor-module',()=>refreshCatalog().catch(e=>message(e.message)));
   refreshCatalog().catch(e=>message(e.message));
