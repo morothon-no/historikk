@@ -34,7 +34,8 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
       if (req.method !== 'GET') return send(405, { error: 'Handling ikke tillatt.' });
       if (route === '/') {
         // The per-session CSRF capability is delivered only to this loopback UI.
-        const html = (await fs.readFile(path.join(uiRoot, 'index.html'), 'utf8')).replace('__LOCAL_TOKEN__', token);
+        const html = (await fs.readFile(path.join(uiRoot, 'index.html'), 'utf8')).replace('__LOCAL_TOKEN__', token)
+          .replace('__HONOR_ENABLED__', honorView?.enabled === true ? 'true' : 'false');
         res.setHeader('Content-Type', types['.html']); return res.end(html);
       }
       if (['/admin.js', '/admin.css', '/portal.js', '/design-model.js', '/design-studio.js', '/design-studio.css', '/intake-model.js', '/intake.js', '/intake.css'].includes(route)) {
