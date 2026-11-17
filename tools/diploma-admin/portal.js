@@ -119,7 +119,8 @@
   // C1 Heder read-only preview: only the local loopback admin may display this.
   // The public Pages preview never adds the link or has an honors API route.
   function initHeder() {
-    if (window.MorothonAdminTransport || document.body.dataset.adminMode === 'public-preview') return;
+    if (window.MorothonAdminTransport || document.body.dataset.adminMode === 'public-preview' ||
+        document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') return;
     const nav = element('a', 'Heder'); nav.id = 'navHeder'; nav.href = '#heder'; nav.hidden = true;
     const following = document.querySelector('.sidebar nav a[href="#premier"]');
     following.after(nav);
@@ -268,6 +269,7 @@
     let key = location.hash.slice(1);
     // Heder can be disabled for this organizer; direct #heder links must
     // not bypass the same token-protected module check as sidebar navigation.
+    if (key === 'heder' && document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') key = 'oversikt';
     if (key === 'heder' && !state.honorData?.enabled) {
       try {
         const data = await api('honors');
