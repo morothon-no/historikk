@@ -73,3 +73,6 @@
 #honorDraftStatus{padding:10px;border-left:3px solid #b79549;background:#f6f2e7;overflow-wrap:anywhere}
 @media(min-width:1000px){.honor-draft-role{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}.honor-draft-role label:has(input[type=checkbox]){grid-column:1/-1}}
 @media(min-width:901px){.honor-controls{grid-template-columns:minmax(0,2fr) minmax(140px,1fr) auto auto}}
+
+/* Heder web integration follows the existing portal layout. */
+.honor-web-settings{margin-top:1.25rem}.honor-web-settings label{display:flex;align-items:center;gap:.65rem}.honor-web-settings input{width:1.2rem;height:1.2rem}.honor-list-heading{font-size:.82rem;letter-spacing:.04em;padding:.8rem .6rem .3rem;margin:0;color:var(--muted)}

@@ -26,7 +26,8 @@
     const data = await r.json(); if (!r.ok) throw Error(data.error || 'Kunne ikke hente historikken.'); return data;
   }
   async function honorDraftApi(action,body){
-    if(window.MorothonAdminTransport||document.body.dataset.adminMode==='public-preview')throw Error('Heder-utkast er bare tilgjengelige i det lokale verkstedet.');
+    if(window.MorothonAdminTransport)return MorothonAdminTransport.request('honors/drafts/'+action,body);
+    if(document.body.dataset.adminMode==='public-preview')throw Error('Nettadapteren kunne ikke lastes.');
     const r=await fetch('/api/honors/drafts/'+action,{method:'POST',headers:{'X-Morothon-Token':token,'Content-Type':'application/json'},body:JSON.stringify(body)});
     const value=await r.json();if(!r.ok)throw Error(value.error||'Utkastet kunne ikke kontrolleres.');return value;
   }
@@ -41,12 +42,12 @@
     const data = state.overview || await api('overview'); state.overview = data;
     $('overviewRunner').src = data.watermarkSrc; $('overviewRunner').hidden = false;
     $('overviewMetrics').replaceChildren(
-      metric(`Deltakere i ${data.latestYear}`, data.latestParticipants, 'Individuelle deltakere'),
-      metric('Løpere i historikken', data.runnerCount, `${data.editionCount} utgaver · ${data.firstYear}–${data.latestYear}`),
-      metric('Nye merker i ' + data.latestYear, data.newBadges, `${format(data.debutants)} debutanter samme år`),
+      metric(data.latestYear?`Deltakere i ${data.latestYear}`:'Deltakere', data.latestParticipants, 'Individuelle deltakere'),
+      metric('Løpere i historikken', data.runnerCount, data.firstYear?`${data.editionCount} utgaver · ${data.firstYear}–${data.latestYear}`:'Ingen registrerte resultater'),
+      metric(data.latestYear?'Nye merker i '+data.latestYear:'Nye merker', data.newBadges, `${format(data.debutants)} debutanter samme år`),
       ...(data.honorEnabled===false?[]:[metric('Menneskene bak løpet', data.honorCount, 'Synlige Heder-profiler')]));
-    $('milestoneTitle').textContent = `Årets milepæler · ${data.latestYear}`;
-    $('milestoneSummary').textContent = `${format(data.newBadges)} nye deltakelsesmerker. Her er noen av årets milepæler.`;
+    $('milestoneTitle').textContent = data.latestYear?`Årets milepæler · ${data.latestYear}`:'Årets milepæler';
+    $('milestoneSummary').textContent = data.latestYear?`${format(data.newBadges)} nye deltakelsesmerker. Her er noen av årets milepæler.`:'Ingen registrerte milepæler ennå.';
     $('overviewMilestones').replaceChildren(...data.milestones.map(p => {
       const row = element('div', undefined, 'milestone-row'), action = button(p.name, () => showPerson(p.id), '');
       action.append(element('small', `${p.badge.name} · ${p.badge.level} deltakelser`)); row.append(image(p.badge), action); return row;
@@ -121,11 +122,11 @@
     } catch (e) { if (seq === state.detailSequence) status(e.message); }
   }
   function closePerson() { ++state.detailSequence; if ($('participantDialog').open) { $('participantDialog').close(); state.returnFocus?.focus(); } }
-  // C1 Heder read-only preview: only the local loopback admin may display this.
-  // The public Pages preview never adds the link or has an honors API route.
+  // Shared Heder UI: token-protected local session or approved-data browser preview.
+  // The web adapter has no HTTP writer, identity authority or persistent save capability.
   function initHeder() {
-    if (window.MorothonAdminTransport || document.body.dataset.adminMode === 'public-preview' ||
-        document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') return;
+    const web=window.MorothonAdminTransport;
+    if (!web && document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') return;
     const nav = element('a', 'Heder'); nav.id = 'navHeder'; nav.href = '#heder'; nav.hidden = true;
     const following = document.querySelector('.sidebar nav a[href="#premier"]');
     following.after(nav);
@@ -134,13 +135,33 @@
     api('honors').then(data => { if (data.enabled && data.readOnly && Array.isArray(data.people)) {
       state.honorData = data; nav.hidden = false;
     } }).catch(() => {});
+    if(web){
+      const settings=element('section',undefined,'panel honor-web-settings');settings.id='honorWebSettings';
+      settings.append(element('h2','Heder i nettportalen'));
+      const label=element('label'),toggle=element('input');toggle.type='checkbox';toggle.id='honorWebEnabled';toggle.checked=web.capabilities.honorEnabled;
+      label.append(toggle,document.createTextNode('Vis Heder i denne fanen'));settings.append(label,
+        element('p','Les registeret og prøv endringer direkte her. Permanent lagring er ikke tilgjengelig før en autentisert webtjeneste er tilkoblet.','hint'),
+        element('p','Valget gjelder bare denne fanen og tilbakestilles ved ny lasting. Deaktivering tømmer Heder-forhåndsvisninger og Heder-diplomvalg her. Offentlig Heder-meny aktiveres aldri.','hint'));
+      document.querySelector('#view-oversikt').append(settings);
+      toggle.onchange=async()=>{
+        if(state.honorEditor?.dirty&&!confirm('Deaktivere Heder og forkaste forhåndsvisningen i denne fanen?')){toggle.checked=!toggle.checked;return;}
+        try{
+          web.setHonorEnabled(toggle.checked);state.honorEditor=null;state.honorData=null;state.overview=null;
+          nav.hidden=!toggle.checked;$('honorDetail').replaceChildren();$('honorSessionDrafts').replaceChildren();$('view-heder').hidden=true;
+          if(toggle.checked)state.honorData=await api('honors');
+          document.dispatchEvent(new CustomEvent('morothon:honor-module'));
+          await overview();if(state.section==='heder')location.hash='#oversikt';
+          status(toggle.checked?'Heder vises i denne fanen. Ingen innstillinger er lagret på server.':'Heder er deaktivert i denne fanen. Registrene er uendret.');
+        }catch(error){toggle.checked=web.capabilities.honorEnabled;status(error.message);}
+      };
+    }
     const section = element('section'); section.id = 'view-heder'; section.dataset.view = 'heder'; section.hidden = true;
     section.setAttribute('aria-label', 'Heder');
     const panel = element('div', undefined, 'panel');
     const heading = element('div', undefined, 'section-heading'), title = element('h2', 'Heder – personregister');
     const counter = element('span', '', 'hint'); counter.id = 'honorCount';
     heading.append(title, counter);
-    const description = element('p', 'Gjeldende register beholdes uendret. Rediger et separat øktutkast og gjennomgå forskjellene før du beholder det. Ingen endringer publiseres.', 'hint');
+    const description = element('p', web?'Gjeldende register beholdes uendret. Prøv og forhåndsvis endringer i denne fanen. Lagring i registeret krever en autentisert webtjeneste og er ikke tilgjengelig ennå. Ikke skriv inn private kildeopplysninger.':'Gjeldende register beholdes uendret. Rediger et separat øktutkast og gjennomgå forskjellene før du beholder det. Ingen endringer publiseres.', 'hint');
     const controls = element('div', undefined, 'honor-controls');
     const label = element('label', 'Finn person, rolle eller navn');
     const search = element('input'); search.type = 'search'; search.id = 'honorSearch'; search.maxLength = 100;
@@ -172,6 +193,8 @@
       detail.append(heading, note);
     } else {
       detail.append(element('h3', person.name));
+      const badgeAssets=new Map((state.honorData.badgeAssets||[]).map(b=>[b.id,b])),collection=element('div',undefined,'honor-draft-badges');
+      for(const id of [...new Set([person.badges.highest,...person.badges.secondary||[],...person.badges.qualified].filter(Boolean))]){const b=badgeAssets.get(id);if(!b)continue;const item=element('span',b.name);item.prepend(image({name:b.name,src:new URL(b.src,window.MorothonAdminTransport?.rootUrl||new URL('/site/',location.href)).href},id===person.badges.highest?'honor-draft-main':'honor-draft-badge'));collection.append(item);}detail.append(collection);
       const edit=button('Rediger',()=>openHonorEditor(person.id).catch(e=>status(e.message)));edit.id='honorEdit';detail.append(edit);
       const type = person.memorial ? 'Til minne om' : person.tenure.openPeriod ? 'Fortsatt aktiv · registrert periode' : 'Registrert dugnadsperson';
       detail.append(element('p', type, 'hint'));
@@ -207,7 +230,7 @@
         }).join(' · ')); detail.append(badges);
       }
       if (person.badges.next) detail.append(element('p', 'Neste nivå: ' + person.badges.next.editions + ' utgaver (' + person.badges.next.remaining + ' igjen)', 'hint'));
-      detail.append(element('p', 'Kvalifisering er ikke en formell tildeling. År kan velges og korrigeres i en senere, sikker redigeringsfase.', 'hint'));
+      detail.append(element('p', 'Kvalifisering er ikke en formell tildeling. Redigeringsvisningen lar deg prøve utgavevalg uten å endre registeret.', 'hint'));
       if (person.stories?.length) {
         detail.append(element('h4', 'Historier'));
         for (const story of person.stories) {
@@ -229,8 +252,9 @@
     const candidates = element('div'); candidates.id = 'honorRunnerCandidates'; candidates.className = 'honor-candidates';
     detail.append(label, action, candidates);
   }
-  function selectHonor(person) {
+  async function selectHonor(person) {
     if(state.honorEditor?.dirty&&!confirm('Forhåndsvisningsendringene er ikke beholdt. Vil du forlate redigeringen?'))return;
+    if(window.MorothonAdminTransport&&state.honorEditor){try{await honorDraftApi('discard',honorBinding(state.honorEditor));}catch(e){status(e.message);return;}}
     state.honorEditor=null;
     state.honorSelected = person?.id || null;
     ++state.honorRequest;
@@ -244,7 +268,9 @@
       (!term || [p.name, ...p.roles.map(r => r.title)].some(v => v.toLocaleLowerCase('nb-NO').includes(term))));
     $('honorCount').textContent = people.length + ' av ' + data.people.length + ' personer';
     const list = $('honorList'), nodes = [];
-    for (const p of people) {
+    let group;
+    for (const p of [...people.filter(p=>!p.memorial),...people.filter(p=>p.memorial)]) {
+      if(group!==p.memorial){group=p.memorial;nodes.push(element('h3',p.memorial?'Til minne om':'Menneskene bak løpet','honor-list-heading'));}
       const item = element('div', undefined, 'honor-row'), kind = p.memorial ? 'Til minne om' : p.tenure.openPeriod ? 'Fortsatt aktiv' : p.tenure.registeredEditions === null ? 'Uavklart antall' : p.tenure.registeredEditions + ' utgaver';
       const name = button(p.name, () => selectHonor(p), 'secondary');
       if (p.id === state.honorSelected) name.setAttribute('aria-current','true');
@@ -270,13 +296,16 @@
     for(const draft of data.items)target.append(button('Utkast · '+draft.name,()=>openHonorEditor(null,draft.draftId).catch(e=>status(e.message))));
     target.append(element('p','Disse er ikke skrevet til personregisteret. De forsvinner når serveren avsluttes.','hint'));
   }
+  const honorBinding=editor=>({draftId:editor.session.draftId,revision:editor.session.revision,baseVersion:editor.session.baseVersion});
   async function openHonorEditor(personId,draftId){
     if(state.honorEditor?.dirty&&!confirm('Forhåndsvisningsendringene er ikke beholdt. Vil du åpne et annet utkast?'))return;
+    if(window.MorothonAdminTransport&&state.honorEditor)await honorDraftApi('discard',honorBinding(state.honorEditor));
     const e=await honorDraftApi('open',draftId?{draftId}:personId?{personId}:{});
     const editor={session:e,dirty:false,request:0,preview:null,identity:e.identityReview};state.honorEditor=editor;
     const detail=$('honorDetail');detail.replaceChildren();
     detail.append(element('h3',e.isNew?'Ny person · øktutkast':'Rediger · '+e.fields.name));
-    const message=element('p','Kun midlertidig utkast i serverminnet. Ikke lagret varig, publisert eller godkjent for utdeling.','hint');message.id='honorDraftStatus';detail.append(message);
+    const web=!!window.MorothonAdminTransport;
+    const message=element('p',web?'Bare forhåndsvisning i denne fanens minne. Endringene forsvinner ved ny lasting. Ingen lagring i registeret, publisering eller utdeling.':'Kun midlertidig utkast i serverminnet. Ikke lagret varig, publisert eller godkjent for utdeling.','hint');message.id='honorDraftStatus';detail.append(message);
     const form=element('form');form.id='honorDraftForm';form.onsubmit=event=>{event.preventDefault();preview();};detail.append(form);
     const field=(label,id,value,type='text',parent=form)=>{
       const l=element('label',label),input=element(type==='textarea'?'textarea':'input');input.id=id;
@@ -366,16 +395,17 @@
     runnerBox.append(identityNote,runnerResults);
     const previewBox=element('div',undefined,'honor-draft-preview');previewBox.id='honorDraftPreview';detail.append(previewBox);
     const reviewLabel=element('label'),reviewed=element('input');reviewed.type='checkbox';reviewed.id='honorDraftReviewed';reviewLabel.append(reviewed,document.createTextNode('Jeg har gjennomgått de konkrete utgavene og fraværet i denne forhåndsvisningen.'));detail.append(reviewLabel);
-    const keep=button('Behold utkast i økten',async()=>{
+    const keep=button(web?'Lagring krever innlogging':'Behold utkast i økten',async()=>{
       if(!editor.preview)return;
       try{
         const result=await honorDraftApi('keep',{...binding(),previewId:editor.preview.previewId,editionsReviewed:reviewed.checked});e.revision=result.revision;editor.dirty=false;editor.preview=null;keep.disabled=true;await loadHonorDrafts();message.textContent=result.message;
       }catch(error){message.textContent=error.message;}
     });keep.id='honorDraftKeep';keep.disabled=true;
+    if(web){keep.title=e.storageBlocker;detail.append(element('p',e.storageBlocker,'web-limitations'));}
     detail.append(button('Forhåndsvis endringene',preview),keep,button('Forkast øktutkast',async()=>{
       if(!confirm('Forkaste øktutkastet? Gjeldende personregister blir ikke endret.'))return;
       try{await honorDraftApi('discard',binding());state.honorEditor=null;selectHonor(e.existing);await loadHonorDrafts();status('Øktutkastet er forkastet. Gjeldende register er uendret.');}catch(error){message.textContent=error.message;}
-    }),button('Lukk redigering',()=>{if(editor.dirty&&!confirm('Forhåndsvisningsendringene er ikke beholdt. Vil du lukke?'))return;state.honorEditor=null;selectHonor(e.existing);}));
+    }),button('Lukk redigering',async()=>{if(editor.dirty&&!confirm('Forhåndsvisningsendringene er ikke beholdt. Vil du lukke?'))return;if(web)await honorDraftApi('discard',binding());state.honorEditor=null;selectHonor(e.existing);}));
     const binding=()=>({draftId:e.draftId,revision:e.revision,baseVersion:e.baseVersion});
     const number=input=>input.value===''?null:Number(input.value);
     function values(){
@@ -391,7 +421,7 @@
       active.disabled=memorial.checked;to.disabled=active.checked;
       for(const row of yearRows.values())row.selected.disabled=row.excluded.disabled=!['period','documented'].includes(mode.value);
     }
-    function syncKeep(){keep.disabled=!editor.preview||editor.preview.needsEditionReview&&!reviewed.checked||!!runnerChoice&&!identityConfirmed.checked;}
+    function syncKeep(){keep.disabled=web||!editor.preview||editor.preview.needsEditionReview&&!reviewed.checked||!!runnerChoice&&!identityConfirmed.checked;}
     let timer;
     function changed(){
       editor.dirty=true;editor.preview=null;editor.request++;reviewed.checked=false;keep.disabled=true;syncMode();clearTimeout(timer);timer=setTimeout(preview,300);
@@ -405,8 +435,8 @@
         editor.preview=result;previewBox.replaceChildren(element('h4','Forhåndsvisning · ikke publisert'));
         const profile=result.profile;previewBox.append(element('h3',profile.name),metric('Dugnadsutgaver',profile.tenure.registeredEditions??'Ukjent',profile.tenure.basis==='documented'?'Eksplisitte utgavevalg i utkastet':profile.tenure.basis==='registered-period'?'Foreslåtte utgaver – ikke dokumenterte enkeltår':profile.tenure.basis==='approved-total'?'Godkjent total uten konstruerte enkeltår':'Ingen sikker opptelling'));
         previewBox.append(element('p','Gjeldende register: '+(result.consequences.beforeCount??'ukjent antall')+' · Øktutkast: '+(result.consequences.afterCount??'ukjent antall')+' utgaver.','hint'));
-        if(result.mainBadge){const medal=image({src:'/site/'+result.mainBadge.src,name:result.mainBadge.name},'honor-draft-main');previewBox.append(medal,element('strong',result.mainBadge.name));}
-        const collection=element('div',undefined,'honor-draft-badges');for(const b of result.badges.filter(b=>b.id!==result.mainBadge?.id)){const item=element('span',b.name);if(b.src)item.prepend(image({src:'/site/'+b.src,name:b.name},'honor-draft-badge'));collection.append(item);}previewBox.append(collection);
+        if(result.mainBadge){const medal=image({src:new URL(result.mainBadge.src,window.MorothonAdminTransport?.rootUrl||new URL('/site/',location.href)).href,name:result.mainBadge.name},'honor-draft-main');previewBox.append(medal,element('strong',result.mainBadge.name));}
+        const collection=element('div',undefined,'honor-draft-badges');for(const b of [...(result.secondaryBadges||[]),...result.badges].filter((b,i,all)=>b.id!==result.mainBadge?.id&&all.findIndex(x=>x.id===b.id)===i)){const item=element('span',b.name);if(b.src)item.prepend(image({src:new URL(b.src,window.MorothonAdminTransport?.rootUrl||new URL('/site/',location.href)).href,name:b.name},'honor-draft-badge'));collection.append(item);}previewBox.append(collection);
         if(profile.badges.next)previewBox.append(element('p',profile.badges.next.remaining+' utgaver til neste nivå ('+profile.badges.next.editions+').'));
         previewBox.append(element('p',result.qualifier,'hint'),element('p','Valgte utgaver: '+(result.selectedEditionIds.map(id=>editionLabel(held.find(x=>x.editionId===id))).join(', ')||'Ingen kjente enkeltutgaver')));
         if(profile.shortDescription)previewBox.append(element('p',profile.shortDescription));
@@ -415,7 +445,7 @@
         const diff=element('details');diff.open=true;diff.append(element('summary','Endringer mot gjeldende register: '+result.diff.length));
         for(const change of result.diff){const row=element('div',undefined,'honor-draft-diff');row.append(element('h5',change.label),element('pre','Før: '+JSON.stringify(change.before,null,2)),element('pre','Utkast: '+JSON.stringify(change.after,null,2)));diff.append(row);}previewBox.append(diff);
         if(runnerChoice&&!identityConfirmed.checked)previewBox.append(element('p','Kandidaten er ikke tatt med før du bekrefter identiteten separat.','hint'));
-        message.textContent='Forhåndsvisningen er kontrollert. Ingen endringer er lagret varig.';syncKeep();
+        message.textContent=web?'Forhåndsvisningen er kontrollert. Endringene finnes bare i denne fanen og er ikke lagret.':'Forhåndsvisningen er kontrollert. Ingen endringer er lagret varig.';syncKeep();
       }catch(error){if(state.honorEditor===editor&&ticket===editor.request){editor.preview=null;keep.disabled=true;previewBox.replaceChildren(element('p',error.message));message.textContent='Kontroller feltene før du beholder utkastet.';}}
     }
     let previousMode=mode.value;
@@ -451,7 +481,7 @@
     let key = location.hash.slice(1);
     // Heder can be disabled for this organizer; direct #heder links must
     // not bypass the same token-protected module check as sidebar navigation.
-    if (key === 'heder' && document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') key = 'oversikt';
+    if (key === 'heder' && (window.MorothonAdminTransport?!MorothonAdminTransport.capabilities.honorEnabled:document.querySelector('[name="local-honor-enabled"]')?.content !== 'true')) key = 'oversikt';
     if (key === 'heder' && !state.honorData?.enabled) {
       try {
         const data = await api('honors');
@@ -459,8 +489,10 @@
         else { state.honorData = data; if ($('navHeder')) $('navHeder').hidden = false; }
       } catch { key = 'oversikt'; }
     }
-    if (!pages[key] || profile && !['design','rettelser'].includes(key) && !profile.modules[key]) { key = 'oversikt'; }
+    if (!pages[key] || profile && !['design','rettelser','heder'].includes(key) && !profile.modules[key]) { key = 'oversikt'; }
     if (location.hash.slice(1) !== key) history.replaceState(null, '', '#' + key);
+    if(state.section==='heder'&&key!=='heder'&&state.honorEditor?.dirty&&!confirm('Forhåndsvisningen er ikke lagret. Vil du forlate redigeringen?')){history.replaceState(null,'','#heder');return;}
+    if(window.MorothonAdminTransport&&state.section==='heder'&&key!=='heder'&&state.honorEditor){await honorDraftApi('discard',honorBinding(state.honorEditor));state.honorEditor=null;$('honorDetail').replaceChildren();}
     state.section = key; closePerson(); if ($('preview').open) $('preview').close(); status();
     window.scrollTo({ top: 0, behavior: 'auto' });
     for (const view of document.querySelectorAll('[data-view]')) view.hidden = view.dataset.view !== key;
@@ -481,7 +513,7 @@
   $('closeParticipant').onclick = closePerson; $('participantDialog').addEventListener('cancel', e => { e.preventDefault(); closePerson(); });
   document.addEventListener('morothon:diploma-count', e => { const count = e.detail.count; $('navDiplomaCount').textContent = count; $('navDiplomaCount').hidden = !count; });
   document.querySelector('.skip-link').addEventListener('click', e => { e.preventDefault(); $('portalMain').focus(); });
-  initHeder();
+  if(window.MorothonAdminTransport)MorothonAdminTransport.ready.then(initHeder).catch(e=>status(e.message));else initHeder();
   const navigate = () => route().catch(e => status(e.message));
   window.addEventListener('hashchange', navigate); navigate();
 })();

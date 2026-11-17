@@ -1,5 +1,9 @@
 # C1.2 – offentlig testportal på GitHub Pages
 
+Nyere Heder-funksjoner i nettportalen og den konkrete lagringsblokkeringen er
+beskrevet i [Heder i web-admin (#80)](heder-web-admin-80.md). Tallene og
+sluttkontrollen nedenfor dokumenterer den opprinnelige C1.2-leveransen.
+
 Utgangspunkt: `main` etter PR #35 (`8128c36`). Den ferdige byggepakken inneholder
 `admin/index.html` og kan publiseres direkte til:
 

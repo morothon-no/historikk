@@ -63,7 +63,7 @@ function createApi({ token, getOrigin, getWorker, getPortal, assertSnapshot, get
     if(draftAction){
       if([...url.searchParams.keys()].length)return send(400,{error:'Ukjente søkefelt.'});
       const drafts=getHonorDrafts?.();if(!drafts)return send(404,{error:'Utkast er ikke tilgjengelig.'});
-      try{return send(200,drafts[draftAction[1]](input));}catch(e){return send(400,{error:e.message});}
+      try{return send(200,await drafts[draftAction[1]](input));}catch(e){return send(400,{error:e.message});}
     }
     if (!input || Object.keys(input).some(k => !['items', 'allowControlCopies'].includes(k)) || input.allowControlCopies !== undefined && typeof input.allowControlCopies !== 'boolean') return send(400, { error: 'Ugyldig jobb.' });
     if (route === '/api/preview' && input.items?.length !== 1) return send(400, { error: 'Velg ett diplom for forhåndsvisning.' });
