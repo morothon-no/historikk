@@ -57,7 +57,7 @@ function privateFileStore({directory,key}={}){
   const record=JSON.parse(plain.toString('utf8'));
   if(!record||record.v!==1||!Number.isSafeInteger(record.revision)||record.revision<1||
     !Array.isArray(record.events)||record.events.length>MAX_EVENTS||
-    !['draft','review-approved'].includes(record.status))fail('Ugyldig lagret arbeidsgrunnlag.');
+    !['draft','review-approved','published'].includes(record.status))fail('Ugyldig lagret arbeidsgrunnlag.');
   return record;
  }
  async function readUnlocked(org){
@@ -123,6 +123,7 @@ function createReviewService({authenticate,getTrustedBinding,store,clock=()=>Dat
   if(!equal(normalized.base,base))fail('Resultatgrunnlaget er foreldet. Oppdater historikkversjonen før ny vurdering.');
   const sha=digest(normalized),at=stamp();
   const next=await store.transact(organizer,expectedRevision,previous=>{
+   if(previous?.publicationLock)fail('En publisering pågår. Vent til den er ferdig før utkastet endres.');
    if(previous&&!equal(previous.base,base))fail('Lagret sak gjelder en foreldet historikkversjon.');
    const rev=expectedRevision+1,events=[...(previous?.events||[]),event('draft-saved',actor,at,rev,sha)];
    return {v:1,revision:rev,status:'draft',base:copy(base),draft:normalized,approval:null,events};
@@ -135,6 +136,7 @@ function createReviewService({authenticate,getTrustedBinding,store,clock=()=>Dat
   if(typeof expectedDigest!=='string'||!/^[a-f0-9]{64}$/.test(expectedDigest))fail('Manglende eksakt kontrollsum.');
   const at=stamp();
   const next=await store.transact(organizer,expectedRevision,previous=>{
+   if(previous?.publicationLock)fail('En publisering pågår. Vent til den er ferdig før ny godkjenning.');
    if(!previous||!previous.draft||!equal(previous.base,base))fail('Ingen oppdatert rettingspakke kan godkjennes.');
    C.validatePackage(previous.draft);
    if(digest(previous.draft)!==expectedDigest)fail('Godkjenningen gjelder en annen rettingspakke.');

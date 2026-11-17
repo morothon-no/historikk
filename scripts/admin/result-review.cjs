@@ -33,7 +33,7 @@ function createResultReview({authenticate,loadContext,store}){
   const changes=active.map(c=>({caseId:c.id,name:history.people.find(p=>p.i===c.personIds[0])?.n||c.personIds[0],before:c.change.before,after:c.change.after,source:c.source,reason:c.reason}));
   return {draft:normalized,review:{ready:review.ready,uncertain:review.uncertain,errors:review.errors,changed:review.changed,changes},digest:digest(normalized),productionApplied:false,publicationAuthorized:false};
  }
- async function load(input){await access(input,'read');const result=await service.load(input);return {...result,digest:result.draft?digest(result.draft):null,productionApplied:false,publicationAuthorized:false};}
+ async function load(input){await access(input,'read');const result=await service.load(input);return {...result,digest:result.draft?digest(result.draft):null,productionApplied:result.status==='published',publicationAuthorized:false};}
  async function preview({session,organizer,draft}){
   // Enforce server-verified access before any costly calculation.
   await access({session,organizer},'write');await service.load({session,organizer});return check(organizer,draft);

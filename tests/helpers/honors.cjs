@@ -4,7 +4,8 @@ const {mergeVolunteers}=require('../../js/honors-data.js');
 // retain their original references; undo only those exact approved rows in
 // memory. The public historical-corrections suite locks the current values
 // and the SHA-256 of the entire reconstructed previous history independently.
-function beforeApprovedResultCorrections(bytes){
+function beforeApprovedResultCorrections(bytes,journal=require('../public/quick/fixtures/result-publications.json')){
+ bytes=require('../../tools/diploma-admin/result-release-data.cjs').undoPublishedResults(bytes,journal);
  const {changes,previousHistory}=require('../public/quick/fixtures/historical-corrections.js');
  previousHistory(JSON.parse(bytes)); // Enforce all four complete after-row guards.
  let text=bytes.toString('utf8');
@@ -14,13 +15,13 @@ function beforeApprovedResultCorrections(bytes){
 // A2 deliberately changes result logic inside index.html, not its markup/CSS.
 // Keep historical presentation checks; status/identity/participation contracts
 // are covered by data-quality.cjs and the existing behavioural regressions.
-function assertPreservedPresentation(actual,expected,file){
+function assertPreservedPresentation(actual,expected,file,journal){
  const assert=require('node:assert/strict');
  if(file==='index.html'){
   const presentation=bytes=>bytes.toString().replace(/<script>const initialCalendarLimit=[\s\S]*?<\/script>/,'<script>RESULT-LOGIC</script>');
   assert.deepEqual(presentation(actual),presentation(expected),file+' presentation');
  }else if(file==='data/history.json'&&!Buffer.from(actual).equals(Buffer.from(expected))){
-  assert.deepEqual(beforeApprovedResultCorrections(actual),expected,file+' with only PR #43 result corrections reversed');
+  assert.deepEqual(beforeApprovedResultCorrections(actual,journal),expected,file+' with only exact approved result corrections reversed');
  }else assert.deepEqual(actual,expected,file);
 }
 // Historical snapshot checks undo only the four organizer-approved corrections.
