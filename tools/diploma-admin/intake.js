@@ -285,6 +285,16 @@
   }
   async function completeRequest(){const request=requestChange();if(['result','remove'].includes(state.kind))request.selector=await C.resultSelector(state.history,+$('correctionResultChoice').value,state.base);return request;}
   function notesPackage(){const updated=C.parse(C.serialize(state.package)),record=updated.cases.find(x=>x.id===c.id);record.description=description.value;return updated;}
+  state.captureEditor=async()=>{
+   if(state.preparing)throw Error('Vent til den pågående kontrollen er ferdig.');
+   if(state.kind!=='result')throw Error('Serverlagring støtter foreløpig bare rettelser av eksisterende resultater.');
+   const previous=state.package,version=state.editVersion,request=await completeRequest(),shadow=notesPackage();
+   const item=shadow.cases.find(x=>x.id===c.id);if(item.status==='handoff')item.status='proposed';
+   const proposed=await C.propose(state.history,shadow,c.id,request);await C.applyCandidate(state.history,proposed,state.base,{preview:true});
+   if(previous!==state.package||version!==state.editVersion)throw Error('Skjemaet er endret under kontrollen. Prøv igjen.');
+   const next=proposed.cases.find(x=>x.id===c.id);
+   if(JSON.stringify([c.change,c.description,c.source,c.reason])!==JSON.stringify([next.change,next.description,next.source,next.reason])){state.package=proposed;state.impact=null;state.candidate=null;render();}
+  };
   const othersPending=state.kind==='merge'&&state.package.cases.some(item=>item.id!==c.id&&item.change&&['proposed','handoff'].includes(item.status));
   if(othersPending)box.append(hint('Du har allerede andre endringsforslag i arbeidslisten. Velg ønsket hovednavn og registrer denne sammenslåingen uten en ny tung kontroll. Kontroller alle forslagene samlet når gjennomgangen er ferdig.'));
   const actions=node('div',undefined,'actions'),approve=button(state.kind==='merge'?(othersPending?'Registrer sammenslåing – kontroller samlet':'Bekreft samme person og klargjør'):'Godkjenn og klargjør',async()=>{
@@ -341,6 +351,13 @@
   }
  }
  document.addEventListener('morothon:intake-analysis',e=>{state.intake=e.detail;});
+ document.addEventListener('morothon:edit-existing-result',e=>{(async()=>{
+  if(!state.package)throw Error('Vent til resultatkontrollen er klar.');
+  const id=state.model.resolve(e.detail.id);if(!state.model.person(id))throw Error('Velg en eksisterende løper.');
+  const index=state.history.results.findIndex(r=>state.model.resolve(r[1])===id);if(index<0)throw Error('Løperen har ingen registrerte resultater.');
+  const key=caseId();state.package=C.report(state.package,{id:key,category:'Innmeldt feil',personIds:[id],description:'Rett et registrert resultat',source:''});
+  state.selected=key;state.picked=[id];state.resultIndex=index;state.resultPersonId=id;state.kind='result';state.impact=null;activate('cases');
+ })().catch(error=>message(error.message,true));});
  document.addEventListener('morothon:request-result-projection',e=>{projection().then(e.detail.resolve,e.detail.reject);});
  document.addEventListener('morothon:results-corrections',e=>{(async()=>{
   if(!state.package)throw Error('Kontrollsentralen er ikke klar.');const previous=state.package,reviewed=previous.cases.filter(c=>c.status==='handoff').map(c=>c.id),imported=C.importPackage(previous,e.detail.package);
@@ -383,6 +400,20 @@
     }else result=C.importPackage(state.package,incoming);
     await C.applyCandidate(state.history,result.package,state.base,{preview:true});state.package=result.package;state.selected=null;state.impact=null;state.suggestionScope='pending';render();message(carried?result.added+' tidligere avvisninger beholdt · '+result.skipped+' øvrige saker ligger i originalfilen.':result.added+' saker importert · '+result.duplicates+' like saker beholdt. Importerte godkjenninger krever ny lokal gjennomgang.');}catch(e){message(e.message,true);}finally{file.value='';}};
    const refresh=button('Oppdater arbeidslisten',refreshSuggestions);refresh.id='correctionRefresh';const saveButton=button('Lagre arbeidsgrunnlag',save);saveButton.id='correctionSave';const advanced=node('details');advanced.id='correctionAdvanced';advanced.append(node('summary','Arbeidsfiler og tidligere behandling'),field('Åpne lagret arbeidsgrunnlag',file),button('Endringshistorikk',()=>activate('history')));tools.append(refresh,saveButton);const status=node('p');status.id='correctionStatus';status.setAttribute('role','status');const summaryNode=node('div');summaryNode.id='correctionSummary';const body=node('div');body.id='correctionBody';host.replaceChildren(banner,notice,tools,tabs,summaryNode,status,body,advanced);render();
+   // A workspace bridge, never an authorization or storage adapter. The separately
+   // hosted authenticated client may export/restore the same established contract.
+   window.MorothonCorrectionWorkspace={
+    exportDraft:()=>C.parse(C.serialize(state.package)),
+    async captureDraft(){if(state.selected&&$('correctionEditor')&&state.captureEditor)await state.captureEditor();return C.parse(C.serialize(state.package));},
+    async restoreDraft(draft){
+     const previous=state.package,version=state.editVersion;
+     const work=C.importPackage(C.empty(state.base),C.parse(C.serialize(draft))).package;
+     await C.applyCandidate(state.history,work,state.base,{preview:true});
+     if(previous!==state.package||version!==state.editVersion)throw Error('Arbeidet ble endret mens utkastet ble kontrollert. Ingen lokale endringer er erstattet.');
+     state.package=work;state.selected=null;state.impact=null;state.candidate=null;state.editorNotes.clear();state.suggestionScope='followup';activate('cases');
+    }
+   };
+   document.dispatchEvent(new CustomEvent('morothon:correction-workspace-ready'));
    window.addEventListener('beforeunload',e=>{if(state.package?.cases.length){e.preventDefault();e.returnValue='';}});
   }catch(error){host.replaceChildren(node('p','Rettelser kunne ikke starte: '+error.message));}
  });

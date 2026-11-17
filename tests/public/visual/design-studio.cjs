@@ -50,6 +50,10 @@ test('C1.3 export/import round-trip contains actual raster assets, rejects modif
  pack.draft.profile.name='Tampered';await p.locator('#studioImport').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(pack))});await p.waitForFunction(()=>document.querySelector('#studioStatus').textContent.includes('kontrollsum'));assert.deepEqual(await p.evaluate(()=>MorothonStudio.current()),original);
  await diploma(p);await p.fill('#studio-diploma-place','Søgne');await p.selectOption('#studioSource','inger');await p.waitForFunction(()=>document.querySelector('#studioDiplomaFrame').contentDocument?.querySelector('.diploma-achievement')?.textContent==='10');assert.match(await p.frameLocator('#studioDiplomaFrame').locator('.diploma-date').innerText(),/Søgne, 9\. november 2024/);assert.match(await p.frameLocator('#studioDiplomaFrame').locator('.diploma-left small').innerText(),/2015–2024/);
  await p.selectOption('#studioSource','einar');await p.waitForFunction(()=>document.querySelector('#studioDiplomaFrame').contentDocument?.querySelector('.diploma-recipient h2')?.textContent==='Einar Danielsen');assert.match(await p.frameLocator('#studioDiplomaFrame').locator('.diploma-date').innerText(),/UTDELINGSDATO.*Søgne, 7\. november 2026/s);assert.equal(await p.frameLocator('#studioDiplomaFrame').locator('.diploma-service-founder img').count(),1);
- for(const source of ['inger','oscar','einar'])for(const display of ['latest','all']){await p.selectOption('#studioSource',source);await p.selectOption('#studio-diploma-medalDisplay',display);await ready(p);assert.equal(await p.getByRole('button',{name:/Utskrift\/PDF sperret/}).isDisabled(),true);}
+ // A loaded recipient is not proof that the ongoing font/layout check is done.
+ // Wait for each real A4 check before starting the next independent choice;
+ // under CI load the two select actions may exceed the preview debounce.
+ await ready(p);
+ for(const source of ['inger','oscar','einar'])for(const display of ['latest','all']){await p.selectOption('#studioSource',source);await ready(p);await p.selectOption('#studio-diploma-medalDisplay',display);await ready(p);assert.equal(await p.getByRole('button',{name:/Utskrift\/PDF sperret/}).isDisabled(),true);}
  }finally{await context.close();}
 });

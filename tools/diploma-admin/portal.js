@@ -112,6 +112,7 @@
       metrics.append(metric('Deltakelser', p.count, 'Unike deltakelsesår'), metric('Periode', period(p), 'DNS teller ikke · DNF teller'), metric('Høyeste merke', p.highestBadge?.name || 'Ikke opptjent', p.highestBadge?.year ? `Oppnådd ${p.highestBadge.year}` : 'Første merke ved 5 deltakelser'));
       const actions = element('div', undefined, 'actions'), pick = button('Velg diplom', () => chooseDiploma(p), ''); pick.disabled = !p.count;
       const profile = element('a', 'Åpne løperprofil', 'action-link'); profile.href = new URL('index.html#lop=' + encodeURIComponent(p.id), window.MorothonAdminTransport?.rootUrl || new URL('/site/', location.href)).href; profile.target = '_blank'; profile.rel = 'noopener'; actions.append(pick, profile);
+      if(window.MorothonReviewClient?.canEdit)actions.append(button('Rett et resultat',()=>{closePerson();location.hash='#rettelser';document.dispatchEvent(new CustomEvent('morothon:edit-existing-result',{detail:{id:p.id}}));}));
       const collection = element('div', undefined, 'badge-collection');
       for (const b of p.earned) { const figure = element('figure'); figure.append(image(b), element('figcaption', `${b.level} · ${b.year}`)); collection.append(figure); }
       const wrapper = element('div', undefined, 'history-wrapper'), table = element('table', undefined, 'history-table'), caption = element('caption', 'Registrerte løpsresultater'); caption.className = 'hint';
