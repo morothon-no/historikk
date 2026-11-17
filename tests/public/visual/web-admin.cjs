@@ -81,3 +81,18 @@ test('C1.2 actual post-deploy smoke script requires the expected release and fai
   await vm.runInNewContext(script,sandbox);assert.equal(process.exitCode,stale?1:0);assert.ok(requested>20);
  }
 });
+
+test('Heder-only local admin is not exposed by public Pages or cross-organizer hash navigation',async()=>{
+ const c=await browser.newContext(),p=await c.newPage();
+ try {
+  await p.goto(base+'admin/#heder');
+  await p.waitForFunction(()=>location.hash==='#oversikt');
+  assert.equal(await p.locator('#navHeder').count(),0);
+  assert.equal(await p.locator('#view-heder').count(),0);
+  const result=await p.evaluate(async()=>{
+   try {await MorothonAdminTransport.request('honors');return 'unexpected-available';}
+   catch(e){return e.message;}
+  });
+  assert.match(result,/ikke.*offentlige testversjonen|Diplommodulen er deaktivert/i);
+ } finally {await c.close();}
+});

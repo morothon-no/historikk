@@ -6,13 +6,15 @@
     oversikt: ['Oversikt', 'Et godt utgangspunkt for neste Morothon.'],
     deltakere: ['Deltakere', 'Menneskene på startstreken. Historikken de har skapt.'],
     merker: ['Merker', 'Se oppnådde milepæler og veien til neste merke.'],
+    heder: ['Heder', 'Menneskene bak arrangementet, deres roller og dugnadsår.'],
     diplomer: ['Diplomer', 'Velg mottakere, kontroller hvert diplom og lag én samlet A4-PDF.'],
     import: ['Årets arrangement', 'Startlister, merkeprognoser og kontroll av endelige resultater.'],
     premier: ['Premier', 'Grunnlaget for en enklere utdeling.'],
     rettelser: ['Rettelser og personkontroll', 'Lokale saker, før/etter-visning og kontrollert overlevering.'],
     design: ['Design og tilpasning', 'Ditt arrangement, dine merker og ditt diplom – i et separat utkast.']
   };
-  const state = { overview: null, participantOffset: 0, badgeOffset: 0, section: null, sequence: {}, detailSequence: 0, returnFocus: null };
+  const state = { overview: null, participantOffset: 0, badgeOffset: 0, section: null, sequence: {}, detailSequence: 0, returnFocus: null,
+    honorData: null, honorSelected: null, honorRequest: 0 };
   const format = n => new Intl.NumberFormat('nb-NO').format(n);
   const element = (tag, text, cls) => { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; };
   function button(text, action, cls = 'secondary') { const e = element('button', text, cls); e.type = 'button'; e.onclick = action; return e; }
@@ -114,10 +116,176 @@
     } catch (e) { if (seq === state.detailSequence) status(e.message); }
   }
   function closePerson() { ++state.detailSequence; if ($('participantDialog').open) { $('participantDialog').close(); state.returnFocus?.focus(); } }
+  // C1 Heder read-only preview: only the local loopback admin may display this.
+  // The public Pages preview never adds the link or has an honors API route.
+  function initHeder() {
+    if (window.MorothonAdminTransport || document.body.dataset.adminMode === 'public-preview' ||
+        document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') return;
+    const nav = element('a', 'Heder'); nav.id = 'navHeder'; nav.href = '#heder'; nav.hidden = true;
+    const following = document.querySelector('.sidebar nav a[href="#premier"]');
+    following.after(nav);
+    // The module is shown only after a successful local, token-protected
+    // lookup. An organizer that disables Heder must not see the menu.
+    api('honors').then(data => { if (data.enabled && data.readOnly && Array.isArray(data.people)) {
+      state.honorData = data; nav.hidden = false;
+    } }).catch(() => {});
+    const section = element('section'); section.id = 'view-heder'; section.dataset.view = 'heder'; section.hidden = true;
+    section.setAttribute('aria-label', 'Heder');
+    const panel = element('div', undefined, 'panel');
+    const heading = element('div', undefined, 'section-heading'), title = element('h2', 'Heder – personregister');
+    const counter = element('span', '', 'hint'); counter.id = 'honorCount';
+    heading.append(title, counter);
+    const description = element('p', 'Lesende forhåndsvisning fra godkjent datagrunnlag. Ingen personer, dugnadsår eller utmerkelser blir endret her.', 'hint');
+    const controls = element('div', undefined, 'honor-controls');
+    const label = element('label', 'Finn person, rolle eller navn');
+    const search = element('input'); search.type = 'search'; search.id = 'honorSearch'; search.maxLength = 100;
+    search.placeholder = 'Søk i Heder'; label.append(search);
+    const filterLabel = element('label', 'Vis');
+    const filter = element('select'); filter.id = 'honorFilter';
+    for (const [key, text] of [['all','Alle'],['active','Fortsatt aktive'],['memorial','Til minne om']]) {
+      const option = element('option', text); option.value = key; filter.append(option);
+    }
+    filterLabel.append(filter);
+    const newPerson = button('Søk etter ny person', () => selectHonor(null), 'secondary');
+    controls.append(label, filterLabel, newPerson);
+    const content = element('div', undefined, 'honor-layout');
+    const list = element('div'); list.id = 'honorList'; list.className = 'honor-list';
+    const detail = element('div'); detail.id = 'honorDetail'; detail.className = 'honor-detail';
+    detail.append(element('p', 'Velg en person for å se registrert innsats, omtaler og mulig løperkobling.', 'hint'));
+    content.append(list, detail); panel.append(heading, description, controls, content);
+    section.append(panel); document.querySelector('#view-deltakere').after(section);
+    search.addEventListener('input', () => renderHonorList());
+    filter.addEventListener('change', () => renderHonorList());
+  }
+  function readHonorPerson(person) {
+    const detail = $('honorDetail'); detail.replaceChildren();
+    if (!person) {
+      const heading = element('h3', 'Søk etter løper før ny Heder-person');
+      const note = element('p', 'Søket foreslår eksisterende løperprofiler, men oppretter eller kobler ingen personer. Selve registreringen åpnes når sikker lagring er klar.', 'hint');
+      detail.append(heading, note);
+    } else {
+      detail.append(element('h3', person.name));
+      const type = person.memorial ? 'Til minne om' : person.tenure.openPeriod ? 'Fortsatt aktiv · registrert periode' : 'Registrert dugnadsperson';
+      detail.append(element('p', type, 'hint'));
+      if (person.shortDescription) detail.append(element('p', person.shortDescription));
+      if (person.roles.length) {
+        detail.append(element('h4', 'Roller'));
+        const roles = element('ul');
+        for (const role of person.roles) roles.append(element('li', role.title + (role.fromYear ? ' · fra ' + role.fromYear : '') + (role.countsForTenure === false ? ' · teller ikke som dugnadsår' : '')));
+        detail.append(roles);
+      }
+      if (person.memorial) {
+        detail.append(element('h4', 'Til minne om'));
+        if (person.memorialInfo?.deathYear) detail.append(element('p', 'Dødsår: ' + person.memorialInfo.deathYear));
+        if (person.memorialInfo?.tribute) detail.append(element('p', person.memorialInfo.tribute));
+        if (person.memorialInfo?.hasMemorialRecognition) detail.append(element('p', 'Eget minnemerke registrert', 'hint'));
+      }
+      const years = person.tenure;
+      detail.append(element('h4', 'Dugnadsår'));
+      const basis = years.basis === 'documented' ? 'Dokumenterte enkeltår' :
+        years.basis === 'registered-period' ? 'Registrert periode, ikke individuelt dokumenterte år' :
+        years.basis === 'approved-total' ? 'Arrangørgodkjent samlet antall' : 'Ikke tilstrekkelig grunnlag for opptelling';
+      detail.append(element('p', basis + (years.registeredEditions === null ? '' : ' · ' + years.registeredEditions + ' utgaver'), 'hint'));
+      const chips = element('div', undefined, 'honor-years');
+      for (const y of years.years) chips.append(element('span', String(y), 'honor-year'));
+      for (const y of years.excludedYears) chips.append(element('span', String(y) + ' · fravær', 'honor-year excluded'));
+      if (chips.children.length) detail.append(chips);
+      if (years.fromYear && !years.years.length) detail.append(element('p', 'Oppgitt startår: ' + years.fromYear, 'hint'));
+      if (years.approvedTotal) detail.append(element('p', 'Godkjent samlet antall: ' + years.approvedTotal.editions + ' utgaver', 'hint'));
+      if (person.badges.qualified.length) {
+        detail.append(element('h4', 'Kvalifiserte merker'));
+        const badges = element('p', person.badges.qualified.map(id => {
+          const match = /-(\d+)$/.exec(id); return match ? match[1] + ' års dugnad' : id.replace(/^service-/,'').replaceAll('-', ' ');
+        }).join(' · ')); detail.append(badges);
+      }
+      if (person.badges.next) detail.append(element('p', 'Neste nivå: ' + person.badges.next.editions + ' utgaver (' + person.badges.next.remaining + ' igjen)', 'hint'));
+      detail.append(element('p', 'Kvalifisering er ikke en formell tildeling. År kan velges og korrigeres i en senere, sikker redigeringsfase.', 'hint'));
+      if (person.stories?.length) {
+        detail.append(element('h4', 'Historier'));
+        for (const story of person.stories) {
+          if (story.title) detail.append(element('h5', story.title));
+          detail.append(element('p', story.text));
+        }
+      }
+      if (person.honorDiplomaText) {
+        detail.append(element('h4', 'Eksisterende personlig diplomtekst'));
+        detail.append(element('p', person.honorDiplomaText));
+      }
+      if (person.runnerLink) detail.append(element('p', 'Eksisterende bekreftet løperkobling: ' + person.runnerLink.runnerId, 'hint'));
+    }
+    const label = element('label', 'Søk i deltakerhistorikken');
+    const search = element('input'); search.id = 'honorRunnerSearch'; search.type = 'search';
+    search.maxLength = 100; search.placeholder = 'Skriv navn'; search.value = person?.name || '';
+    label.append(search);
+    const action = button('Finn løperkandidater', () => lookupHonorRunner(person?.id, search.value), 'secondary');
+    const candidates = element('div'); candidates.id = 'honorRunnerCandidates'; candidates.className = 'honor-candidates';
+    detail.append(label, action, candidates);
+  }
+  function selectHonor(person) {
+    state.honorSelected = person?.id || null;
+    ++state.honorRequest;
+    readHonorPerson(person);
+  }
+  function renderHonorList() {
+    const data = state.honorData; if (!data) return;
+    const term = $('honorSearch').value.toLocaleLowerCase('nb-NO').trim(), filter = $('honorFilter').value;
+    const people = data.people.filter(p => (filter === 'all' || filter === 'memorial' && p.memorial ||
+      filter === 'active' && p.tenure.openPeriod && !p.memorial) &&
+      (!term || [p.name, ...p.roles.map(r => r.title)].some(v => v.toLocaleLowerCase('nb-NO').includes(term))));
+    $('honorCount').textContent = people.length + ' av ' + data.people.length + ' personer';
+    const list = $('honorList'), nodes = [];
+    for (const p of people) {
+      const item = element('div', undefined, 'honor-row'), kind = p.memorial ? 'Til minne om' : p.tenure.openPeriod ? 'Fortsatt aktiv' : p.tenure.registeredEditions === null ? 'Uavklart antall' : p.tenure.registeredEditions + ' utgaver';
+      const name = button(p.name, () => selectHonor(p), 'secondary');
+      if (p.id === state.honorSelected) name.setAttribute('aria-current','true');
+      item.append(name, element('small', kind));
+      nodes.push(item);
+    }
+    list.replaceChildren(...(nodes.length ? nodes : [element('p','Ingen personer i dette utvalget.','empty-state')]));
+  }
+  async function loadHeder() {
+    if (!state.honorData) {
+      const data = await api('honors');
+      if (!data.readOnly || data.canEdit !== false || !Array.isArray(data.people)) throw Error('Ugyldig Heder-visning.');
+      state.honorData = data;
+    }
+    renderHonorList();
+  }
+  async function lookupHonorRunner(personId, query) {
+    const ticket = ++state.honorRequest, target = $('honorRunnerCandidates');
+    if (!target || query.trim().length < 2) { if (target) target.replaceChildren(element('p','Skriv minst to tegn.','hint')); return; }
+    target.replaceChildren(element('p','Søker …','hint'));
+    try {
+      const params = new URLSearchParams({q:query}); if (personId) params.set('personId',personId);
+      const result = await api('honors/runner-candidates?' + params);
+      if (ticket !== state.honorRequest || state.section !== 'heder') return;
+      target.replaceChildren(...(result.candidates.length ? result.candidates.map(c => {
+        const item = element('div',undefined,'honor-candidate');
+        item.append(element('strong',c.name),element('small','ID ' + c.runnerId + ' · ' + c.participationCount + ' løpsdeltakelser'));
+        if (c.linkedToOtherHonor) item.append(element('small','Allerede koblet til en annen Heder-person'));
+        if (c.linkedToThisHonor) item.append(element('small','Kobling allerede bekreftet'));
+        return item;
+      }) : [element('p','Ingen aktuelle løpere funnet.','hint')]));
+    } catch (e) {
+      if (ticket === state.honorRequest) target.replaceChildren(element('p',e.message,'hint'));
+    }
+  }
   async function route() {
     const profile = window.MorothonAdminTransport ? await MorothonAdminTransport.ready : null;
     if (profile) for (const [key, value] of Object.entries(profile.texts.pages)) pages[key] = [value.title, value.description];
-    let key = location.hash.slice(1); if (!pages[key] || profile && !['design','rettelser'].includes(key) && !profile.modules[key]) { key = 'oversikt'; history.replaceState(null, '', '#oversikt'); }
+    let key = location.hash.slice(1);
+    // Heder can be disabled for this organizer; direct #heder links must
+    // not bypass the same token-protected module check as sidebar navigation.
+    if (key === 'heder' && document.querySelector('[name="local-honor-enabled"]')?.content !== 'true') key = 'oversikt';
+    if (key === 'heder' && !state.honorData?.enabled) {
+      try {
+        const data = await api('honors');
+        if (!data?.enabled || !data.readOnly || !Array.isArray(data.people)) key = 'oversikt';
+        else { state.honorData = data; if ($('navHeder')) $('navHeder').hidden = false; }
+      } catch { key = 'oversikt'; }
+    }
+    if (!pages[key] || profile && !['design','rettelser'].includes(key) && !profile.modules[key]) { key = 'oversikt'; }
+    if (location.hash.slice(1) !== key) history.replaceState(null, '', '#' + key);
     state.section = key; closePerson(); if ($('preview').open) $('preview').close(); status();
     window.scrollTo({ top: 0, behavior: 'auto' });
     for (const view of document.querySelectorAll('[data-view]')) view.hidden = view.dataset.view !== key;
@@ -128,6 +296,7 @@
       if (state.section !== key) return;
       if (key === 'deltakere') await loadList('participants');
       if (key === 'merker') await loadList('badges');
+      if (key === 'heder') await loadHeder();
     } catch (e) { if (state.section === key) status(e.message); }
   }
   function search(id, kind) { let timer; $(id).addEventListener('input', () => { clearTimeout(timer); state[kind === 'participants' ? 'participantOffset' : 'badgeOffset'] = 0; timer = setTimeout(() => loadList(kind), 180); }); }
@@ -137,6 +306,7 @@
   $('closeParticipant').onclick = closePerson; $('participantDialog').addEventListener('cancel', e => { e.preventDefault(); closePerson(); });
   document.addEventListener('morothon:diploma-count', e => { const count = e.detail.count; $('navDiplomaCount').textContent = count; $('navDiplomaCount').hidden = !count; });
   document.querySelector('.skip-link').addEventListener('click', e => { e.preventDefault(); $('portalMain').focus(); });
+  initHeder();
   const navigate = () => route().catch(e => status(e.message));
   window.addEventListener('hashchange', navigate); navigate();
 })();

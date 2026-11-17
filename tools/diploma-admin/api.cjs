@@ -2,7 +2,7 @@
 // middleware belongs in front of this handler, never in client navigation.
 const fs = require('node:fs/promises');
 const { timingSafeEqual } = require('node:crypto');
-function createApi({ token, getOrigin, getWorker, getPortal, assertSnapshot }) {
+function createApi({ token, getOrigin, getWorker, getPortal, assertSnapshot, getHonorView, searchHonorRunner }) {
   let busy = false; const jobs = new Map();
   return async function handleApi(req, res, url) {
     const send = (code, data) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data)); };
@@ -17,6 +17,24 @@ function createApi({ token, getOrigin, getWorker, getPortal, assertSnapshot }) {
       if (route === '/api/overview') return send(200, portal.overview());
       if (route === '/api/participants') return send(200, portal.participants(url.searchParams));
       if (route === '/api/badges') return send(200, portal.badgeList(url.searchParams));
+      // Heder admin data are approved-public-derived and deliberately allowlisted.
+      // Route exists ONLY on the local loopback process, behind its session token.
+      if (route === '/api/honors' || route === '/api/honors/runner-candidates') {
+        const view = getHonorView?.();
+        if (!view?.enabled) return send(404, { error: 'Heder-modulen er ikke aktiv.' });
+        if (route === '/api/honors') {
+          if ([...url.searchParams.keys()].length) return send(400, { error: 'Ukjente søkefelt.' });
+          return send(200, view);
+        }
+        const keys = [...url.searchParams.keys()];
+        if (keys.some(k => !['q','personId'].includes(k) || url.searchParams.getAll(k).length !== 1))
+          return send(400, { error: 'Ugyldige søkefelt.' });
+        const query = url.searchParams.get('q') ?? undefined;
+        const personId = url.searchParams.get('personId') ?? undefined;
+        if (query !== undefined && query.length > 100) return send(400, { error: 'For langt navn.' });
+        try { return send(200, searchHonorRunner({ personId, query })); }
+        catch (e) { return send(400, { error: e.message }); }
+      }
       if (/^\/api\/participants\/[A-Za-z0-9_-]{1,128}$/.test(route)) {
         try { return send(200, portal.participant(route.slice('/api/participants/'.length))); }
         catch (e) { return send(404, { error: e.message }); }

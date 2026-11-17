@@ -4,6 +4,9 @@ const { chromium } = require('playwright');
 const { startAdmin } = require('../../../scripts/diploma-admin.cjs');
 const { createPortalData } = require('../../../tools/diploma-admin/portal-data.cjs');
 const root = path.resolve(__dirname, '../../..');
+// Public-only CI deliberately omits internal Heder source modules.
+const trustedHonorPresent = require('node:fs').existsSync(path.join(root,'data/honors.json'));
+
 let app, browser, out, history, badges;
 before(async () => {
   [history, badges] = await Promise.all(['history', 'badges'].map(n => fs.readFile(path.join(root, 'public-data/data', n + '.json'), 'utf8').then(JSON.parse)));
@@ -53,7 +56,10 @@ test('C1.1 desktop and tablet navigation, participant history, upcoming mileston
   p.on('pageerror', e => errors.push(e.message)); p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   try {
     await p.goto(app.origin); await p.locator('#overviewMetrics .metric-card').first().waitFor();
-    await p.locator('#navCorrections').waitFor();assert.equal(await p.locator('.sidebar nav a').count(), 8); assert.equal(await p.locator('#pageTitle').innerText(), 'Oversikt');
+    await p.locator('#navCorrections').waitFor();
+    if (trustedHonorPresent) await p.locator('#navHeder').waitFor();
+    assert.equal(await p.locator('.sidebar nav a').count(), trustedHonorPresent ? 9 : 8);
+    assert.equal(await p.locator('#pageTitle').innerText(), 'Oversikt');
     await p.getByRole('navigation').getByRole('link', { name: 'Deltakere' }).click();
     await p.fill('#participantSearch', 'Inger Katherin'); await p.waitForFunction(() => document.querySelectorAll('.participant-row').length === 1);
     await p.getByRole('button', { name: 'Se historikk', exact: true }).click(); await p.locator('#participantDialog[open]').waitFor();
@@ -107,4 +113,59 @@ test('C1.1 participant loading failures show a clear error instead of stale resu
     await p.waitForFunction(() => document.querySelector('#participantList').textContent.includes('Kunne ikke laste listen'));
     assert.equal(await p.locator('#portalStatus').innerText(), ''); assert.equal(await p.locator('#pageTitle').innerText(), 'Oversikt');
   } finally { await context.close(); }
+});
+
+test('C1.2 local Heder admin previews all 43 approved persons, separate memorials and safe runner lookup',async()=>{
+ const context=await browser.newContext({viewport:{width:1100,height:980}}),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ try {
+  assert.equal((await fetch(app.origin+'/api/honors')).status,403);
+  if (!trustedHonorPresent) {
+    // Public-only CI exercises absence of privileged admin modules; the
+    // entire Heder view is verified during trusted full source regression.
+    assert.equal((await request('honors')).status,404);
+    assert.equal((await request('honors/runner-candidates?q=Jon')).status,404);
+    return;
+  }
+  assert.equal((await request('honors')).status,200);
+  const roster=await (await request('honors')).json();
+  assert.equal(roster.people.length,43);assert.equal(roster.canEdit,false);
+  assert.equal(roster.publicationAuthorized,false);
+  assert.equal(JSON.stringify(roster).includes('"sourceMember"'),false);
+  assert.equal((await request('honors?unknown=1')).status,400);
+  assert.equal((await request('honors/runner-candidates?q=a&q=b')).status,400);
+  const candidates=await (await request('honors/runner-candidates?personId=jon-fjeld&q=Jon')).json();
+  assert.equal(candidates.readOnly,true);assert.equal(candidates.identityLinkedAutomatically,false);
+  await page.goto(app.origin+'/#heder');
+  await page.waitForFunction(() => document.querySelector('#honorCount')?.textContent === '43 av 43 personer');
+  assert.equal(await page.locator('#honorList .honor-row').count(),43);
+  await page.selectOption('#honorFilter','memorial');
+  await page.waitForFunction(()=>document.querySelectorAll('#honorList .honor-row').length===3);
+  assert.deepEqual((await page.locator('#honorList .honor-row button').allTextContents()).sort(),
+    ['Einar Danielsen','Floke Bredland','Leif Wiig']);
+  await page.getByRole('button',{name:'Floke Bredland'}).click();
+  assert.match(await page.locator('#honorDetail').innerText(),/Til minne om/);
+  await page.selectOption('#honorFilter','all');
+  await page.fill('#honorSearch','Jon Fjeld');
+  await page.waitForFunction(()=>document.querySelectorAll('#honorList .honor-row').length===1);
+  await page.locator('#honorList').getByRole('button',{name:'Jon Fjeld'}).click();
+  assert.match(await page.locator('#honorDetail').innerText(),/Eksisterende bekreftet løperkobling/);
+  await page.getByRole('button',{name:'Finn løperkandidater'}).click();
+  await page.locator('#honorRunnerCandidates').getByText(/ID MOR-/).first().waitFor();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  assert.deepEqual(errors,[]);
+ } finally {await context.close();}
+});
+
+test('Heder can be disabled per local organizer without exposing an admin menu or API',async()=>{
+ const disabled=await startAdmin({honorEnabled:false}),context=await browser.newContext();
+ try {
+  const response=await fetch(disabled.origin+'/api/honors',{headers:{'X-Morothon-Token':disabled.token}});
+  assert.equal(response.status,404);
+  const search=await fetch(disabled.origin+'/api/honors/runner-candidates?q=Jon',{headers:{'X-Morothon-Token':disabled.token}});
+  assert.equal(search.status,404);
+  const page=await context.newPage();await page.goto(disabled.origin);
+  await page.locator('#overviewMetrics .metric-card').first().waitFor();
+  assert.equal(await page.locator('#navHeder').isHidden(),true);
+ } finally {await context.close();await disabled.close();}
 });

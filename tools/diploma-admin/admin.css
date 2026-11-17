@@ -39,3 +39,22 @@
 .brand-mark img{width:100%;height:100%;object-fit:contain}.web-engine{position:fixed;left:-10000px;top:0;width:1123px;height:794px;border:0;pointer-events:none}
 .web-limitations{background:#f9efd9;border:1px solid #e7d6ad;padding:15px;border-radius:8px;color:#705529;font-size:12px;line-height:1.65}
 .portal-app .milestone-row button{background:transparent;color:var(--event-text,#173d41)}
+
+/* Local Heder administration: read-only preview. No form writes or public routes. */
+.honor-controls{display:grid;grid-template-columns:minmax(0,2fr) minmax(160px,1fr) auto;gap:12px;align-items:end;margin:22px 0}
+.honor-controls label{font-size:11px}.honor-controls button{margin-bottom:0}
+.honor-layout{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,1.6fr);gap:18px;align-items:start}
+.honor-list{max-height:660px;overflow:auto;border:1px solid #dfe5dc;border-radius:10px;padding:4px}
+.honor-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;border-bottom:1px solid #e8ece5;padding:7px 10px}
+.honor-row:last-child{border-bottom:0}.honor-row button{border:0;background:transparent;min-height:34px;padding:6px 5px;text-align:left;color:#153f47;flex:1}
+.honor-row button[aria-current=true]{background:#e9ede3;border-radius:5px}.honor-row small{color:#78877e;font-size:10px}
+.honor-detail{min-width:0;border:1px solid #dfe5dc;border-radius:10px;background:#fbfcf8;padding:19px}
+.honor-detail h3{font-size:20px;margin-bottom:9px}.honor-detail h4{font-size:12px;margin:21px 0 8px}.honor-detail h5{font-size:12px;margin:13px 0 4px;color:#29584f}
+.honor-detail p{font-size:12px;line-height:1.6}.honor-detail li{font-size:12px;line-height:1.65;margin:3px 0}
+.honor-detail>label{margin-top:20px}.honor-detail>button{margin-top:12px}.honor-years{display:flex;flex-wrap:wrap;gap:6px}
+.honor-year{border:1px solid #b9cfbd;border-radius:6px;padding:3px 7px;background:#e8f0e7;color:#28554f;font-size:10px}
+.honor-year.excluded{border-color:#d9c9be;background:#f6ebe3;color:#815d4c;text-decoration:line-through}
+.honor-candidate{display:grid;gap:4px;border-top:1px solid #dfe5dc;margin-top:10px;padding-top:9px;font-size:12px}
+.honor-candidate small{color:#697e77;font-size:10px}
+@media(max-width:900px){.honor-controls{grid-template-columns:minmax(0,1fr) minmax(140px,1fr)}.honor-controls button{grid-column:1/-1}.honor-layout{grid-template-columns:1fr}.honor-list{max-height:360px}}
+@media(max-width:550px){.honor-controls{grid-template-columns:1fr}.honor-controls button{grid-column:auto}.honor-detail{padding:14px}}
