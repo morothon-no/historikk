@@ -25,7 +25,7 @@
     const tenure=serviceTenure(data,member,editionYears),count=tenure.count||0,policy=data.awardPolicy?.milestones||[];
     const qualified=policy.filter(m=>count>=m.minimumDocumentedEditions).map(m=>({badgeId:m.badgeId,editions:m.minimumDocumentedEditions}));
     const next=policy.find(m=>count<m.minimumDocumentedEditions);
-    return {registeredEditions:tenure.count,documentedEditions:contribution(member).count,qualified,highestQualified:qualified.at(-1)||null,
+    return {registeredEditions:tenure.count,documentedEditions:member.contribution?.confirmedEditionIds!==undefined?(tenure.basis==='documented'?tenure.count:0):contribution(member).count,qualified,highestQualified:qualified.at(-1)||null,
       next:next?{badgeId:next.badgeId,editions:next.minimumDocumentedEditions,remaining:next.minimumDocumentedEditions-count}:null,automaticallyAwarded:false};
   }
   const validYear=y=>Number.isInteger(y)&&y>=1900&&y<=9999;
@@ -47,7 +47,58 @@
   }
   // The one registered-service calculation used by cards, profiles, diplomas
   // and reports. Source provenance remains separate from formal issuance.
+  // Native edition IDs are used by the draft editor. Legacy integer-year
+  // callers retain their existing calculation and return contract below.
+  function editionTenure(data,member,catalog){
+    const id=value=>typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9:_-]{0,100}$/.test(value);
+    const seen=new Set();
+    const all=catalog.map((e,index)=>{
+      if(!e||!id(e.editionId)||seen.has(e.editionId)||!validYear(e.year)||!['held','planned','cancelled'].includes(e.status))throw Error('Ugyldig utgavekatalog.');
+      seen.add(e.editionId);return {...e,index};
+    }).sort((a,b)=>a.year-b.year||(a.order??a.index)-(b.order??b.index));
+    const held=all.filter(e=>e.status==='held'),byId=new Map(held.map(e=>[e.editionId,e]));
+    const c=member.contribution||{};validateTenure(c);
+    const checked=(values,label)=>{
+      if(!Array.isArray(values)||new Set(values).size!==values.length||values.some(v=>!id(v)||!byId.has(v)))throw Error('Ugyldige '+label+'. Velg bare gjennomførte utgaver.');
+      return values;
+    };
+    const from=c.fromEditionId==null?null:byId.get(c.fromEditionId),to=c.toEditionId==null?null:byId.get(c.toEditionId);
+    if(c.fromEditionId!=null&&!from||c.toEditionId!=null&&!to||from&&to&&held.indexOf(to)<held.indexOf(from))throw Error('Ugyldig dugnadsperiode.');
+    const excluded=checked(c.excludedEditionIds||[],'fraværsutgaver');
+    const memorial=member.deceased===true||member.memorialRecognition?.badgeId==='service-memorial'||data.groups?.find(g=>g.id==='memorial')?.members.some(m=>m.id===member.id);
+    let selected=[],basis='not-established',count=null;
+    if(c.confirmedEditionIds!==undefined&&c.sourceIds?.length){
+      const ids=checked(c.confirmedEditionIds,'dokumenterte utgaver');
+      if(ids.some(v=>excluded.includes(v)||(c.excludedYears||[]).includes(byId.get(v).year)))throw Error('En utgave kan ikke være både dokumentert innsats og fravær.');
+      selected=held.filter(e=>ids.includes(e.editionId));basis='documented';count=selected.length;
+    }else if(c.confirmedYears!==undefined&&c.sourceIds?.length){
+      if(c.confirmedYears.some(y=>held.filter(e=>e.year===y).length!==1))throw Error('År alene identifiserer ikke en entydig gjennomført utgave.');
+      selected=held.filter(e=>c.confirmedYears.includes(e.year));basis='documented';count=selected.length;
+    }else if(c.approvedTotal?.approved===true&&c.approvedTotal.sourceIds?.length){
+      if(!held.length||c.approvedTotal.asOfYear==null||c.approvedTotal.asOfYear<=(held.at(-1)?.year??0)){basis='approved-total';count=c.approvedTotal.editions;}
+    }else if(c.countingBasis!=='unknown'&&(from||c.fromYear!==undefined)&&(!memorial||to||c.toYear!==undefined)){
+      selected=held.filter(e=>(from?held.indexOf(e)>=held.indexOf(from):e.year>=c.fromYear)&&
+        (to?held.indexOf(e)<=held.indexOf(to):e.year<=Math.min(c.toYear??Infinity,held.at(-1)?.year??0))&&
+        !excluded.includes(e.editionId)&&!(c.excludedYears||[]).includes(e.year));
+      if(c.proposedEditionIds!==undefined){
+        const ids=checked(c.proposedEditionIds,'foreslåtte utgaver');
+        if(ids.some(id=>!selected.some(e=>e.editionId===id)))throw Error('En foreslått utgave ligger utenfor perioden eller er registrert som fravær.');
+        selected=selected.filter(e=>ids.includes(e.editionId));
+      }
+      basis='registered-period';count=selected.length;
+    }
+    const years=[...new Set(selected.map(e=>e.year))];
+    const highest=count===null?null:(data.awardPolicy?.milestones||[]).filter(m=>count>=m.minimumDocumentedEditions).at(-1);
+    return {basis,count,years,editionIds:selected.map(e=>e.editionId),asOfYear:held.at(-1)?.year??null,
+      fromYear:c.fromYear??from?.year??years[0]??null,toYear:c.toYear??to?.year??null,
+      excludedYears:[...(c.excludedYears||[])],excludedEditionIds:[...excluded],
+      first:years[0]??null,last:years.at(-1)??null,toYearStatus:c.toYearStatus||null,
+      milestoneYears:Object.fromEntries((data.awardPolicy?.milestones||[]).map(m=>[m.minimumDocumentedEditions,selected[m.minimumDocumentedEditions-1]?.year??null])),
+      milestoneEditionIds:Object.fromEntries((data.awardPolicy?.milestones||[]).map(m=>[m.minimumDocumentedEditions,selected[m.minimumDocumentedEditions-1]?.editionId??null])),
+      highest:highest?{badgeId:highest.badgeId,editions:highest.minimumDocumentedEditions}:null,automaticallyAwarded:false};
+  }
   function serviceTenure(data,member,editionYears){
+    if(Array.isArray(editionYears)&&(data.editionBasis==='edition-id'||editionYears.some(e=>e!==null&&typeof e==='object')))return editionTenure(data,member,editionYears);
     const editions=[...new Set((editionYears??data.editionYears??data.presentationPrintSet?.editionYears??[]).filter(validYear))].sort((a,b)=>a-b);
     const c=member.contribution||{},asOfYear=editions.at(-1)??null;
     // An unknown memorial end year never implies ongoing service. Explicit

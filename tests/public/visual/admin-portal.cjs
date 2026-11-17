@@ -167,5 +167,83 @@ test('Heder can be disabled per local organizer without exposing an admin menu o
   const page=await context.newPage();await page.goto(disabled.origin);
   await page.locator('#overviewMetrics .metric-card').first().waitFor();
   assert.equal(await page.locator('#navHeder').isHidden(),true);
+  await page.waitForFunction(()=>document.querySelector('#message').textContent.startsWith('Klar.'));
+  assert.equal(await page.locator('#kind option[value="honor"]').count(),0);
+  assert.equal((await page.locator('#overviewMetrics').innerText()).includes('Menneskene bak løpet'),false);
+  const localHeaders={'X-Morothon-Token':disabled.token};
+  const catalog=await(await fetch(disabled.origin+'/api/catalog',{headers:localHeaders})).json();assert.ok(catalog.people.every(p=>p.kind==='runner'));
+  assert.equal((await fetch(disabled.origin+'/site/heder.html')).status,404);
+  for(const action of ['preview','check','export'])assert.equal((await fetch(disabled.origin+'/api/'+action,{method:'POST',headers:{...localHeaders,Origin:disabled.origin,'Content-Type':'application/json'},body:JSON.stringify({items:[{kind:'honor',personId:'synthetic-person',key:'thanks',display:'latest'}]})})).status,404);
  } finally {await context.close();await disabled.close();}
+});
+
+test('Heder drafts retain only reviewed session overlays and enforce token, origin, version and disabled boundaries',async()=>{
+ const post=(action,body,extra={})=>fetch(app.origin+'/api/honors/drafts/'+action,{method:'POST',headers:{'X-Morothon-Token':app.token,Origin:app.origin,'Content-Type':'application/json',...extra},body:JSON.stringify(body)});
+ if(!trustedHonorPresent){for(const action of ['open','preview','keep','discard'])assert.equal((await post(action,{})).status,404);return;}
+ const baseline=await(await request('honors')).json(),catalog=await(await request('catalog')).json();
+ assert.equal((await post('open',{}, {'X-Morothon-Token':'wrong'})).status,403);
+ assert.equal((await post('open',{}, {Origin:'https://foreign.example'})).status,403);
+ const opened=await(await post('open',{})).json(),bind={draftId:opened.draftId,revision:opened.revision,baseVersion:opened.baseVersion};
+ const fields=structuredClone(opened.fields);fields.name='Syntetisk Øktperson';fields.tenure.mode='documented';
+ fields.tenure.selectedEditionIds=opened.editions.filter(e=>e.status==='held').slice(0,opened.rules[0].editions).map(e=>e.editionId);
+ const response=await post('preview',{...bind,fields});assert.equal(response.status,200);const preview=await response.json();
+ assert.equal(preview.profile.tenure.registeredEditions,opened.rules[0].editions);assert.equal(preview.publicationAuthorized,false);assert.equal(preview.persisted,false);
+ for(const word of ['sourceMember','sourceDetails','sourceIds','internalNotes'])assert.equal(JSON.stringify([opened,preview]).includes('"'+word+'"'),false);
+ assert.equal((await post('keep',{...bind,previewId:preview.previewId,editionsReviewed:false})).status,400);
+ assert.equal((await post('preview',{...bind,baseVersion:'bad',fields})).status,400);
+ const kept=await(await post('keep',{...bind,previewId:preview.previewId,editionsReviewed:true})).json();assert.equal(kept.revision,1);assert.equal(kept.productionApplied,false);
+ assert.equal((await post('keep',{...bind,previewId:preview.previewId,editionsReviewed:true})).status,400);
+ assert.deepEqual(await(await request('honors')).json(),baseline);assert.deepEqual(await(await request('catalog')).json(),catalog);
+ assert.equal((await(await request('honors/drafts')).json()).items.length,1);
+ assert.equal((await post('discard',{...bind,revision:kept.revision})).status,200);
+ assert.equal((await(await request('honors/drafts')).json()).items.length,0);await app.assertSnapshot();
+ const disabled=await startAdmin({honorEnabled:false});
+ try{
+  assert.equal((await fetch(disabled.origin+'/api/honors/drafts',{headers:{'X-Morothon-Token':disabled.token}})).status,404);
+  for(const action of ['open','preview','keep','discard'])assert.equal((await fetch(disabled.origin+'/api/honors/drafts/'+action,{method:'POST',headers:{'X-Morothon-Token':disabled.token,Origin:disabled.origin,'Content-Type':'application/json'},body:'{}'})).status,404);
+ }finally{await disabled.close();}
+});
+
+test('Heder editable drafts show year choices, safe text, explicit identity review and reversible previews on desktop/tablet/mobile',async()=>{
+ if(!trustedHonorPresent){assert.equal((await request('honors/drafts')).status,404);return;}
+ const context=await browser.newContext({viewport:{width:1440,height:1050}}),page=await context.newPage(),errors=[];
+ await context.addInitScript(()=>{window.__honorXss=0;});page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ const baseline=await(await request('honors')).json(),person=baseline.people.find(p=>!p.memorial&&p.tenure.basis==='documented');
+ try{
+  await page.goto(app.origin+'/#heder');await page.locator('#honorList').getByRole('button',{name:person.name,exact:true}).click();
+  await page.getByRole('button',{name:'Rediger',exact:true}).click();await page.locator('#honorDraftName').waitFor();
+  const payload='Syntetisk <img src=x onerror="window.__honorXss=1">';
+  await page.fill('#honorDraftName',payload);await page.fill('#honorDraftText','Syntetisk diplomtekst <svg onload="window.__honorXss=1">');
+  await page.selectOption('#honorDraftMode','period');await page.check('#honorDraftActive');
+  const editions=await page.locator('#honorDraftFrom option').evaluateAll(nodes=>nodes.filter(n=>n.value).map(n=>n.value));
+  await page.selectOption('#honorDraftFrom',editions.at(-5));
+  await page.getByRole('button',{name:'Foreslå gjennomførte utgaver i perioden',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='5');
+  await page.check('#honorAbsent-'+editions.at(-1));
+  await page.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='4');
+  assert.match(await page.locator('#honorDraftPreview').innerText(),/Foreslåtte utgaver/);
+  assert.equal(await page.locator('#honorDraftKeep').isDisabled(),true);
+  const linked=new Set(baseline.people.filter(p=>p.runnerLink).map(p=>p.runnerLink.runnerId));
+  const runner=history.people.find(p=>!linked.has(p.i)&&!Object.hasOwn(history.redirects||{},p.i));
+  await page.fill('#honorDraftRunnerSearch',runner.n);await page.getByRole('button',{name:'Finn løperkandidater for utkastet',exact:true}).click();
+  await page.locator('#honorDraftRunnerResults .honor-candidate').filter({hasText:runner.i}).getByRole('button',{name:'Velg kandidat',exact:true}).click();
+  assert.equal(await page.locator('#honorDraftIdentityConfirmed').isChecked(),false);assert.equal(await page.locator('#honorDraftKeep').isDisabled(),true);
+  await page.check('#honorDraftIdentityConfirmed');
+  await page.waitForFunction(id=>document.querySelector('#honorDraftPreview').textContent.includes(id),runner.i);
+  await page.check('#honorDraftReviewed');await page.waitForFunction(()=>!document.querySelector('#honorDraftKeep').disabled);
+  assert.equal(await page.locator('#honorDraftPreview img[src="x"]').count(),0);assert.equal(await page.evaluate(()=>window.__honorXss),0);
+  for(const width of [1440,768,390]){
+   await page.setViewportSize({width,height:1050});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   await page.screenshot({path:path.join(out,'heder-utkast-'+width+'.png'),fullPage:true});
+  }
+  await page.click('#honorDraftKeep');await page.waitForFunction(()=>document.querySelector('#honorDraftStatus').textContent.includes('kun i denne serverøkten'));
+  await page.locator('#honorSessionDrafts button').waitFor();assert.equal(await page.locator('#honorSessionDrafts button').count(),1);assert.deepEqual(await(await request('honors')).json(),baseline);
+  await page.getByRole('button',{name:'Lukk redigering',exact:true}).click();
+  await page.locator('#honorSessionDrafts button').click();await page.locator('#honorDraftName').waitFor();assert.equal(await page.inputValue('#honorDraftName'),payload);
+  await page.getByRole('button',{name:'Forkast øktutkast',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('#honorSessionDrafts button').length===0);
+  await page.click('#honorNewDraft');await page.fill('#honorDraftName','Syntetisk Ny Person');
+  await page.waitForFunction(()=>document.querySelector('#honorDraftPreview h3')?.textContent==='Syntetisk Ny Person');
+  assert.equal(await page.locator('#honorDraftPreview .metric-card strong').textContent(),'Ukjent');
+  await page.getByRole('button',{name:'Forkast øktutkast',exact:true}).click();assert.deepEqual(await(await request('honors')).json(),baseline);assert.deepEqual(errors,[]);
+ }finally{await context.close();}
 });

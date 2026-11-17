@@ -58,3 +58,18 @@
 .honor-candidate small{color:#697e77;font-size:10px}
 @media(max-width:900px){.honor-controls{grid-template-columns:minmax(0,1fr) minmax(140px,1fr)}.honor-controls button{grid-column:1/-1}.honor-layout{grid-template-columns:1fr}.honor-list{max-height:360px}}
 @media(max-width:550px){.honor-controls{grid-template-columns:1fr}.honor-controls button{grid-column:auto}.honor-detail{padding:14px}}
+
+/* Session-only Heder drafts. The published person register is never edited here. */
+.honor-session-drafts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}.honor-session-drafts:empty{display:none}.honor-session-drafts p{flex-basis:100%}
+#honorDraftForm{display:grid;gap:14px}#honorDraftForm label{display:grid;gap:6px;font-size:12px}#honorDraftForm textarea{width:100%;min-height:85px;resize:vertical;padding:10px;border:1px solid #b9c9c4;border-radius:7px;font:inherit;line-height:1.5}
+#honorDraftForm fieldset{min-width:0;border:1px solid #dce3db;border-radius:8px;padding:12px}#honorDraftForm legend{font-size:12px;font-weight:700;padding:0 5px}
+.honor-draft-role,.honor-draft-story{display:grid;gap:9px;border-bottom:1px solid #dce3db;padding:10px 0;margin-bottom:8px}
+.honor-draft-role input[type=checkbox],#honorDraftForm input[type=checkbox],#honorDraftReviewed{width:20px;height:20px;min-height:20px}
+.honor-draft-period{display:grid;gap:10px}.honor-draft-edition{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid #e8ece5;padding:7px 0}
+.honor-draft-years{max-height:360px;overflow:auto;padding-right:8px}
+#honorDraftForm .honor-draft-edition label{display:flex;align-items:center;gap:8px}.honor-draft-preview{margin:18px 0;padding:14px;border:1px solid #c7cfba;border-radius:9px;background:#f4f5eb;overflow-wrap:anywhere}
+.honor-draft-preview .metric-card{margin:12px 0}.honor-draft-main{display:block;width:110px;height:110px;object-fit:contain;margin:12px auto}.honor-draft-badges{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.honor-draft-badges span{display:grid;justify-items:center;max-width:95px;font-size:10px;text-align:center}.honor-draft-badge{width:55px;height:55px;object-fit:contain}
+.honor-draft-diff{display:grid;gap:6px;margin:12px 0;border-top:1px solid #cbd2c4;padding-top:8px}.honor-draft-diff pre{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.5;padding:8px;background:#fff;border-radius:6px}
+#honorDraftStatus{padding:10px;border-left:3px solid #b79549;background:#f6f2e7;overflow-wrap:anywhere}
+@media(min-width:1000px){.honor-draft-role{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}.honor-draft-role label:has(input[type=checkbox]){grid-column:1/-1}}
+@media(min-width:901px){.honor-controls{grid-template-columns:minmax(0,2fr) minmax(140px,1fr) auto auto}}
