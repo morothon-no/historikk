@@ -17,7 +17,7 @@ function publicHonorAdminView(roster){
     ...(own(r,'fromYear')?{fromYear:r.fromYear}:{}),
     ...(own(r,'countsForTenure')?{countsForTenure:r.countsForTenure}:{} )})),
    shortDescription:p.shortDescription??null,
-   stories:(p.stories||[]).map(s=>({text:s.text,confirmed:s.confirmed===true})),
+   stories:(p.stories||[]).map(s=>({title:s.title??null,text:s.text,confirmed:s.confirmed===true})),
    honorDiplomaText:p.honorDiplomaText??null,
    runnerLink:p.runnerLink?.confirmed===true?{runnerId:p.runnerLink.runnerId,confirmed:true}:null,
    memorialInfo:p.memorial===true?{
