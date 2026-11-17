@@ -22,6 +22,9 @@ test('Heder local projection uses 43 publicly approved people and never leaks pr
  const json=JSON.stringify(view);
  for(const forbidden of ['sourceMember','sourceDetails','internalNotes','sourceIds','suppressedLegacyIds','revisionHistory'])
   assert.equal(json.includes('"'+forbidden+'"'),false,'unexpected private field '+forbidden);
+ const erling=view.people.find(p=>p.id==='erling-askildsen');
+ assert.equal(erling.stories[0].title,'En idé det ble tradisjon av');
+ assert.match(erling.honorDiplomaText,/Du fikk ideen/);
  assert.equal(view.people.some(p=>p.id==='erling-danielsen'),false);
  assert.ok(view.people.some(p=>p.id==='floke-bredland'&&p.memorial));
  assert.ok(view.people.some(p=>p.id==='leif-wiig'&&p.memorial));
