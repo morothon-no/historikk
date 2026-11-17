@@ -136,12 +136,21 @@
     $('achievement').value = p.defaultKey.startsWith('badge:') ? 'highest' : p.defaultKey.startsWith('record:') ? 'record' : 'debut';
     state.limit = 40; renderResults();
   });
-  api('catalog').then(data => {
-    state.people = data.people; state.max = data.maxItems;
+  async function refreshCatalog(){
+    const data=await api('catalog');state.people=data.people;state.max=data.maxItems;
     state.honorEnabled=data.honorEnabled!==false;
-    if(!state.honorEnabled){$('kind').querySelector('option[value="honor"]')?.remove();if($('kind').value==='honor')$('kind').value='runner';$('demo').textContent='Prøv tre løpere';}
-    const years = [...new Set(data.people.flatMap(p => p.options.map(o => o.year)).filter(Number.isInteger))].sort((a, b) => b - a);
-    for (const year of years) { const option = node('option', String(year)); option.value = year; $('year').append(option); }
-    render(); message('Klar. Velg et utvalg eller prøv fem mottakere.');
-  }).catch(e => message(e.message));
+    if(!state.honorEnabled){
+      $('kind').querySelector('option[value="honor"]')?.remove();if($('kind').value==='honor')$('kind').value='runner';
+      state.jobs=state.jobs.filter(j=>j.item.kind!=='honor');$('demo').textContent='Prøv tre løpere';
+    }else{
+      if(!$('kind').querySelector('option[value="honor"]')){const option=node('option','Heder-diplomer');option.value='honor';$('kind').append(option);}
+      $('demo').textContent='Prøv fem mottakere';
+    }
+    const oldYear=$('year').value;$('year').replaceChildren();const all=node('option','Alle opptjeningsår');all.value='all';$('year').append(all);
+    const years=[...new Set(data.people.flatMap(p=>p.options.map(o=>o.year)).filter(Number.isInteger))].sort((a,b)=>b-a);
+    for(const year of years){const option=node('option',String(year));option.value=year;$('year').append(option);}
+    $('year').value=years.includes(Number(oldYear))?oldYear:'all';invalidate();render();message(state.honorEnabled?'Klar. Velg et utvalg eller prøv fem mottakere.':'Klar. Velg et utvalg eller prøv tre løpere.');
+  }
+  document.addEventListener('morothon:honor-module',()=>refreshCatalog().catch(e=>message(e.message)));
+  refreshCatalog().catch(e=>message(e.message));
 })();

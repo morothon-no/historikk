@@ -83,8 +83,8 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
       ]);
       honorRoster = createHonorAdminRoster({ organizerId: eventProfile.id, enabled: honorEnabled === true,
         honors, volunteers, editionYears: honors.presentationPrintSet?.editionYears || [] });
-      honorView = publicHonorAdminView(honorRoster);
-      honorDrafts = createHonorDrafts({organizerId:eventProfile.id,enabled:honorEnabled===true,
+      honorView = publicHonorAdminView(honorRoster,registry.badges);
+      honorDrafts = await createHonorDrafts({organizerId:eventProfile.id,enabled:honorEnabled===true,
         honors,volunteers,editions:legacyEditionCatalog(honorHistory,eventProfile.id),history:honorHistory,badges:registry.badges});
     }
     portal = createPortalData({ history: honorHistory, badges: registry, honorCount: honorEnabled===true?worker.catalog.filter(p => p.kind === 'honor').length:0 });
