@@ -211,3 +211,10 @@ offentlig data-policy eller sikkerhetssperre endres for å få grønne sjekker.
 Eksakte SHA-er, testantall og CI-status oppgis i PR-/leveranserapporten.
 Reell OAuth-innlogging og proxy/lagring på ønsket nettadresse må verifiseres
 etter at driftskonfigurasjonen er godkjent og etablert; de er ikke testet live.
+
+Fullkontrollen avdekket også en eksisterende timingfeil i Designstudio-testen:
+to påfølgende valg kunne starte overlappende diplomkontroller under høy last.
+Testen venter nå på eksisterende `pending=false`/A4-resultat etter hvert valg.
+Alle kontroller av datoer, bilder, kontrollsummer, layout og sperret utskrift
+beholdes; produksjonskoden og dens opptatt-sperre er uendret. Dette endrer ikke
+eller omgår reell feilhåndtering for samtidige forhåndsvisninger.
