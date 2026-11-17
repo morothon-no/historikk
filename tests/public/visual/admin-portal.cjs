@@ -16,6 +16,13 @@ before(async () => {
 });
 after(async () => { await browser?.close(); await app?.close(); if (!process.env.MOROTHON_C1_REVIEW_DIR && out) await fs.rm(out, { recursive: true, force: true }); });
 const request = route => fetch(app.origin + '/api/' + route, { headers: { 'X-Morothon-Token': app.token } });
+
+async function openHonorDetails(page,id){
+ const ids=await page.locator('#'+id).evaluate(el=>{const found=[];for(let n=el;n;n=n.parentElement)if(n.tagName==='DETAILS')found.unshift(n.id);return found;});
+ for(const key of ids){const section=page.locator('#'+key);if(!await section.evaluate(e=>e.open))await section.locator(':scope > summary').click();}
+}
+async function editHonorSection(page,id,label){await openHonorDetails(page,id);await page.locator('#'+id).getByRole('button',{name:label,exact:true}).click();}
+
 test('C1.1 portal derives current edition, participation, milestones, canonical identities and historical badges from the shared data model', async () => {
   const p = createPortalData({ history, badges, honorCount: 43 }), overview = p.overview();
   assert.equal(overview.latestParticipants, 398); assert.equal(overview.debutants, 195); assert.equal(overview.newBadges, 22); assert.equal(overview.latestYear, 2026); assert.equal(overview.honorCount, 43);
@@ -149,9 +156,9 @@ test('C1.2 local Heder admin previews all 43 approved persons, separate memorial
   await page.fill('#honorSearch','Jon Fjeld');
   await page.waitForFunction(()=>document.querySelectorAll('#honorList .honor-row').length===1);
   await page.locator('#honorList').getByRole('button',{name:'Jon Fjeld'}).click();
-  assert.match(await page.locator('#honorDetail').innerText(),/Eksisterende bekreftet løperkobling/);
-  await page.getByRole('button',{name:'Finn løperkandidater'}).click();
-  await page.locator('#honorRunnerCandidates').getByText(/ID MOR-/).first().waitFor();
+  await openHonorDetails(page,'honorReadLink');assert.match(await page.locator('#honorDetail').innerText(),/Eksisterende bekreftet løperkobling/);
+  await openHonorDetails(page,'honorReadRunner');await page.getByRole('button',{name:'Finn løperkandidater'}).click();
+  await page.locator('#honorRunnerCandidates .honor-candidate').first().locator(':scope > details > summary').click();await page.locator('#honorRunnerCandidates').getByText(/ID MOR-/).first().waitFor();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.deepEqual(errors,[]);
  } finally {await context.close();}
@@ -213,13 +220,13 @@ test('Heder editable drafts show year choices, safe text, explicit identity revi
   await page.goto(app.origin+'/#heder');await page.locator('#honorList').getByRole('button',{name:person.name,exact:true}).click();
   await page.getByRole('button',{name:'Rediger',exact:true}).click();await page.locator('#honorDraftName').waitFor();
   const payload='Syntetisk <img src=x onerror="window.__honorXss=1">';
-  await page.fill('#honorDraftName',payload);await page.fill('#honorDraftText','Syntetisk diplomtekst <svg onload="window.__honorXss=1">');
-  await page.selectOption('#honorDraftMode','period');await page.check('#honorDraftActive');
+  await page.fill('#honorDraftName',payload);await editHonorSection(page,'honorDraftDiploma','Rediger personlig diplomtekst');await page.fill('#honorDraftText','Syntetisk diplomtekst <svg onload="window.__honorXss=1">');
+  await openHonorDetails(page,'honorDraftBasis');await page.selectOption('#honorDraftMode','period');await page.check('#honorDraftActive');
   const editions=await page.locator('#honorDraftFrom option').evaluateAll(nodes=>nodes.filter(n=>n.value).map(n=>n.value));
   await page.selectOption('#honorDraftFrom',editions.at(-5));
   await page.getByRole('button',{name:'Foreslå gjennomførte utgaver i perioden',exact:true}).click();
   await page.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='5');
-  await page.check('#honorAbsent-'+editions.at(-1));
+  await openHonorDetails(page,'honorDraftAbsences');await page.check('#honorAbsent-'+editions.at(-1));
   await page.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='4');
   assert.match(await page.locator('#honorDraftPreview').innerText(),/Foreslåtte utgaver/);
   assert.equal(await page.locator('#honorDraftKeep').isDisabled(),true);

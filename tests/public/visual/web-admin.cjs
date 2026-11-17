@@ -9,6 +9,13 @@ before(async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port+'/';browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
 });
 after(async()=>{await browser?.close();if(server)await new Promise(r=>server.close(r));if(dir)await fs.rm(dir,{recursive:true,force:true});});
+
+async function openHonorDetails(page,id){
+ const ids=await page.locator('#'+id).evaluate(el=>{const found=[];for(let n=el;n;n=n.parentElement)if(n.tagName==='DETAILS')found.unshift(n.id);return found;});
+ for(const key of ids){const section=page.locator('#'+key);if(!await section.evaluate(e=>e.open))await section.locator(':scope > summary').click();}
+}
+async function editHonorSection(page,id,label){await openHonorDetails(page,id);await page.locator('#'+id).getByRole('button',{name:label,exact:true}).click();}
+
 test('C1.2 profile contract rejects unknown/private fields, CSS/URL injection and unimplemented policy changes',()=>{
  assert.equal(validate(profile,registry).id,'sogne-morothon');
  for(const alter of [p=>p.internalNotes='private',p=>p.colors.primary='url(https://bad.example/x)',p=>p.fonts.ui='https://bad.example/font',p=>p.logoAssetId='https://bad.example/logo',p=>p.references.participationPolicy='automatic-awards',p=>p.references.diplomaTemplate='free-html',p=>p.modules.oversikt=false,p=>p.texts.welcomeTitle='<script>bad</script>',p=>p.modules.import='enabled']){const bad=structuredClone(profile);alter(bad);assert.throws(()=>validate(bad,registry));}
@@ -92,7 +99,7 @@ test('Issue 80 web Heder exposes 43 approved profiles, separate memorials and no
   for(const width of [1440,768,390]){await p.setViewportSize({width,height:1050});await p.screenshot({path:path.join(out,'heder-web-oversikt-'+width+'.png'),fullPage:true});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
   for(const x of data.people.filter(x=>x.memorial)){
    await p.locator('#honorList').getByRole('button',{name:x.name,exact:true}).click();assert.match(await p.locator('#honorDetail').innerText(),/Til minne om/);
-   if(x.memorialInfo.tribute)assert.ok((await p.locator('#honorDetail').innerText()).includes(x.memorialInfo.tribute));
+   if(x.memorialInfo.tribute){assert.equal(await p.locator('#honorReadMemorial').isVisible(),false);await openHonorDetails(p,'honorReadMemorial');assert.ok((await p.locator('#honorDetail').innerText()).includes(x.memorialInfo.tribute));}
   }
   for(const x of data.people.filter(x=>x.stories.length||x.honorDiplomaText)){
    await p.locator('#honorList').getByRole('button',{name:x.name,exact:true}).click();const text=await p.locator('#honorDetail').textContent();
@@ -111,15 +118,15 @@ test('Issue 80 web editor reuses reviewed year/role/identity logic, keeps text i
   await loaded(p,'heder');await p.locator('#honorList button').first().waitFor();
   const before=await p.evaluate(()=>MorothonAdminTransport.request('honors')),person=before.people.find(x=>!x.memorial&&x.tenure.basis==='documented');
   await p.locator('#honorList').getByRole('button',{name:person.name,exact:true}).click();await p.click('#honorEdit');await p.locator('#honorDraftForm').waitFor();
-  await p.fill('#honorDraftName','Syntetisk <img src=x onerror="window.__hederXss=1">');await p.fill('#honorDraftDescription','Syntetisk omtale i fanen');await p.fill('#honorDraftText','Syntetisk personlig diplomtekst');
-  await p.getByRole('button',{name:'Legg til rolle',exact:true}).click();const role=p.locator('.honor-draft-role').last();await role.locator('[data-field="title"]').fill('Syntetisk styreverv');await role.locator('[data-field="countsForTenure"]').uncheck();
-  await p.getByRole('button',{name:'Legg til historie',exact:true}).click();const story=p.locator('.honor-draft-story').last();await story.locator('[data-field="title"]').fill('Syntetisk tittel');await story.locator('[data-field="text"]').fill('<svg onload="window.__hederXss=1">Syntetisk historie');
-  await p.selectOption('#honorDraftMode','period');await p.check('#honorDraftActive');const ids=await p.locator('#honorDraftFrom option').evaluateAll(ns=>ns.filter(n=>n.value).map(n=>n.value));await p.selectOption('#honorDraftFrom',ids.at(-5));
+  await p.fill('#honorDraftName','Syntetisk <img src=x onerror="window.__hederXss=1">');await p.fill('#honorDraftDescription','Syntetisk omtale i fanen');await editHonorSection(p,'honorDraftDiploma','Rediger personlig diplomtekst');await p.fill('#honorDraftText','Syntetisk personlig diplomtekst');
+  await editHonorSection(p,'honorDraftRoles','Rediger roller og oppgaver');await p.getByRole('button',{name:'Legg til rolle',exact:true}).click();const role=p.locator('.honor-draft-role').last();await role.locator('[data-field="title"]').fill('Syntetisk styreverv');await role.locator('[data-field="countsForTenure"]').uncheck();
+  await editHonorSection(p,'honorDraftStories','Rediger historier og kilder');await p.getByRole('button',{name:'Legg til historie',exact:true}).click();const story=p.locator('.honor-draft-story').last();await story.locator('[data-field="title"]').fill('Syntetisk tittel');await story.locator('[data-field="text"]').fill('<svg onload="window.__hederXss=1">Syntetisk historie');
+  await openHonorDetails(p,'honorDraftBasis');await p.selectOption('#honorDraftMode','period');await p.check('#honorDraftActive');const ids=await p.locator('#honorDraftFrom option').evaluateAll(ns=>ns.filter(n=>n.value).map(n=>n.value));await p.selectOption('#honorDraftFrom',ids.at(-5));
   await p.getByRole('button',{name:'Foreslå gjennomførte utgaver i perioden',exact:true}).click();await p.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='5');
-  await p.check('#honorAbsent-'+ids.at(-1));await p.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='4');assert.match(await p.locator('#honorDraftPreview').innerText(),/Foreslåtte utgaver/);
+  await openHonorDetails(p,'honorDraftAbsences');await p.check('#honorAbsent-'+ids.at(-1));await p.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='4');assert.match(await p.locator('#honorDraftPreview').innerText(),/Foreslåtte utgaver/);
   const linked=new Set(before.people.filter(x=>x.runnerLink).map(x=>x.runnerLink.runnerId));const candidates=await p.evaluate(()=>MorothonAdminTransport.request('participants'));const runner=candidates.people.find(x=>!linked.has(x.id));
   await p.fill('#honorDraftRunnerSearch',runner.name);await p.getByRole('button',{name:'Finn løperkandidater for utkastet',exact:true}).click();await p.locator('#honorDraftRunnerResults .honor-candidate').filter({hasText:runner.id}).getByRole('button',{name:'Velg kandidat',exact:true}).click();
-  assert.equal(await p.locator('#honorDraftIdentityConfirmed').isChecked(),false);await p.check('#honorDraftIdentityConfirmed');await p.waitForFunction(id=>document.querySelector('#honorDraftPreview').textContent.includes(id),runner.id);await p.check('#honorDraftReviewed');
+  assert.equal(await p.locator('#honorDraftIdentityConfirmed').isChecked(),false);await p.check('#honorDraftIdentityConfirmed');await p.waitForFunction(id=>document.querySelector('#honorDraftPreview').textContent.includes(id),runner.id);await openHonorDetails(p,'honorDraftChecks');await p.check('#honorDraftReviewed');
   assert.equal(await p.locator('#honorDraftKeep').isDisabled(),true);assert.match(await p.locator('#honorDraftKeep').innerText(),/krever innlogging/);
   assert.equal(await p.evaluate(()=>window.__hederXss||0),0);assert.equal(await p.locator('#honorDraftPreview svg,#honorDraftPreview img[src="x"]').count(),0);
   const denied=await p.evaluate(async()=>{try{await MorothonAdminTransport.request('honors/drafts/keep',{});return {};}catch(e){return {status:e.status,message:e.message};}});assert.equal(denied.status,503);assert.match(denied.message,/autentisert webtjeneste/);
@@ -160,6 +167,7 @@ test('Issue 80 verified public-only Heder works under the historical /historikk/
  try{
   await p.goto(base+'historikk/admin/#heder');await p.locator('#honorList button').first().waitFor();const before=await p.evaluate(()=>MorothonAdminTransport.request('honors'));assert.equal(before.people.length,43);
   await p.locator('#honorList').getByRole('button',{name:before.people[0].name,exact:true}).click();await p.click('#honorEdit');await p.waitForFunction(()=>document.querySelector('#honorDraftPreview .honor-draft-main'));
+  await openHonorDetails(p,'honorPreviewMore');await p.locator('#honorPreviewMore').scrollIntoViewIfNeeded();await p.locator('#honorDetail img').evaluateAll(ns=>Promise.all(ns.map(n=>n.decode())));
   const images=await p.locator('#honorDetail img').evaluateAll(ns=>ns.map(n=>({src:n.src,complete:n.complete&&n.naturalWidth>0})));assert.ok(images.length>1);assert.ok(images.every(x=>x.src.startsWith(base+'historikk/')&&x.complete));
   assert.ok(requests.every(url=>url.startsWith(base+'historikk/')));assert.deepEqual(errors,[]);
  }finally{await c.close();}
@@ -178,5 +186,78 @@ test('Issue 80 stale releases, private payload fields and client approval claims
   await p.route('**/build-info.json',async route=>{const response=await route.fetch(),data=await response.json();data.version='0'.repeat(16);await route.fulfill({json:data});});
   const stale=await p.evaluate(async input=>{try{await MorothonAdminTransport.request('honors/drafts/preview',input);return false;}catch(e){return e.message;}},{...binding,fields});assert.match(stale,/oppdatert/);
   const denied=await fetch(base+'api/honors/drafts/keep',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});assert.equal(denied.status,404);
+ }finally{await c.close();}
+});
+
+test('Issue 83 compact cards hide advanced and memorial fields; all 43 closed forms round-trip without data loss',async()=>{
+ const c=await browser.newContext({viewport:{width:1440,height:1050}}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ try{
+  await loaded(p,'heder');await p.locator('#honorList button').first().waitFor();const baseline=await p.evaluate(()=>MorothonAdminTransport.request('honors'));
+  await p.evaluate(()=>{const original=MorothonAdminTransport.request.bind(MorothonAdminTransport),seeds=new Map();window.__honorRoundtrips=[];MorothonAdminTransport.request=async(route,body)=>{const result=await original(route,body);if(route==='honors/drafts/open')seeds.set(result.draftId,structuredClone(result.fields));if(route==='honors/drafts/preview')window.__honorRoundtrips.push({same:JSON.stringify(body.fields)===JSON.stringify(seeds.get(body.draftId)),unchanged:result.diff.length===0});return result;};});
+  for(const person of baseline.people){
+   await p.locator('#honorList').getByRole('button',{name:person.name,exact:true}).click();
+   assert.equal(await p.locator('#honorReadMore').evaluate(e=>e.open),false);assert.equal(await p.locator('#honorDetail').getByText(/Dødsår:/).isVisible(),false);
+   await p.click('#honorEdit');await p.waitForFunction(name=>document.querySelector('#honorDraftPreview h3')?.textContent===name,person.name);
+   assert.equal(await p.locator('#honorDraftMore').evaluate(e=>e.open),false);assert.equal(await p.locator('#honorDraftYears').evaluate(e=>e.open),false);
+   assert.equal(await p.locator('#honorDraftText').isVisible(),false);assert.equal(await p.locator('#honorDraftDeathYear').isVisible(),false);assert.equal(await p.locator('#honorDraftTribute').isVisible(),false);
+   assert.equal(await p.locator('#honorDraftMemorialSection').evaluate(e=>e.hidden),!person.memorial);
+   assert.equal(await p.locator('#honorDraftForm input[type="text"]:visible,#honorDraftForm input[type="search"]:visible,#honorDraftForm textarea:visible').count(),3);
+   assert.equal(await p.locator('#honorPreviewDiff').evaluate(e=>e.open),false);
+   await p.getByRole('button',{name:'Lukk redigering',exact:true}).click();await p.locator('#honorEdit').waitFor();
+  }
+  const evidence=await p.evaluate(()=>window.__honorRoundtrips);assert.equal(evidence.length,43);assert.ok(evidence.every(e=>e.same&&e.unchanged));assert.deepEqual(await p.evaluate(()=>MorothonAdminTransport.request('honors')),baseline);assert.deepEqual(errors,[]);
+ }finally{await c.close();}
+});
+
+test('Issue 83 search before creation confirms identity before copying the canonical name, preserving the optional display name',async()=>{
+ const c=await browser.newContext(),p=await c.newPage();p.on('dialog',d=>d.accept());
+ try{
+  await loaded(p,'heder');await p.locator('#honorNewDraft').waitFor();
+  const baseline=await p.evaluate(()=>MorothonAdminTransport.request('honors')),linked=new Set(baseline.people.filter(x=>x.runnerLink).map(x=>x.runnerLink.runnerId));
+  const history=JSON.parse(await fs.readFile(path.join(build.out,'data/history.json'))),H=require('../../../js/history-data.js').create(history);
+  const entry=Object.entries(history.aliases).find(([id,names])=>!linked.has(H.resolve(id))&&names.length&&H.person(id)&&names.some(n=>n!==H.person(id).n));assert.ok(entry);
+  const runner=H.person(entry[0]),alias=entry[1].find(n=>n!==runner.n);
+  await p.getByRole('button',{name:'Søk etter ny person',exact:true}).click();await p.fill('#honorRunnerSearch',alias);await p.locator('#honorRunnerSearch').press('Enter');
+  const row=p.locator('#honorRunnerCandidates .honor-candidate').filter({hasText:runner.i});await row.getByRole('button',{name:'Opprett Heder-utkast',exact:true}).click();await p.locator('#honorNameChoice').waitFor();
+  assert.equal(await p.inputValue('#honorDraftName'),'');assert.equal(await p.locator('#honorDraftIdentityConfirmed').isChecked(),false);assert.equal(await p.locator('#honorUseRunnerName').isDisabled(),true);
+  await p.fill('#honorDraftName','Syntetisk Heder-visningsnavn');await p.fill('#honorDraftDescription','Syntetisk omtale som skal bevares');await p.check('#honorDraftIdentityConfirmed');
+  assert.equal(await p.inputValue('#honorDraftName'),'Syntetisk Heder-visningsnavn');assert.match(await p.locator('#honorNameBefore').innerText(),/Syntetisk Heder-visningsnavn/);assert.ok((await p.locator('#honorNameAfter').innerText()).includes(runner.n));
+  await p.click('#honorUseRunnerName');assert.equal(await p.inputValue('#honorDraftName'),runner.n);assert.equal(await p.inputValue('#honorDraftDescription'),'Syntetisk omtale som skal bevares');
+  await p.click('#honorKeepDisplayName');assert.equal(await p.inputValue('#honorDraftName'),'Syntetisk Heder-visningsnavn');assert.equal(await p.locator('#honorDraftIdentityConfirmed').isChecked(),true);
+  await p.waitForFunction(()=>document.querySelector('#honorDraftPreview h3')?.textContent==='Syntetisk Heder-visningsnavn');assert.match(await p.locator('#honorNameChoice').innerText(),/Bare navnet kan kopieres/);assert.equal(await p.locator('#honorDraftKeep').isDisabled(),true);
+  assert.deepEqual(await p.evaluate(()=>MorothonAdminTransport.request('honors')),baseline);
+ }finally{await c.close();}
+});
+
+test('Issue 83 an already confirmed link can reuse its canonical name without a new link decision or changes to hidden facts',async()=>{
+ const c=await browser.newContext(),p=await c.newPage();p.on('dialog',d=>d.accept());
+ try{
+  await loaded(p,'heder');await p.locator('#honorList button').first().waitFor();const baseline=await p.evaluate(()=>MorothonAdminTransport.request('honors'));
+  const history=require('../../../js/history-data.js').create(JSON.parse(await fs.readFile(path.join(build.out,'data/history.json')))),person=baseline.people.find(x=>x.runnerLink&&history.person(x.runnerLink.runnerId)?.n!==x.name);assert.ok(person);const canonical=history.person(person.runnerLink.runnerId).n;
+  await p.locator('#honorList').getByRole('button',{name:person.name,exact:true}).click();await p.click('#honorEdit');
+  await p.fill('#honorDraftRunnerSearch',canonical);await p.locator('#honorDraftRunnerSearch').press('Enter');await p.locator('#honorDraftRunnerResults .honor-candidate').filter({hasText:person.runnerLink.runnerId}).getByRole('button',{name:'Velg kandidat',exact:true}).click();
+  assert.equal(await p.inputValue('#honorDraftName'),person.name);assert.equal(await p.locator('#honorDraftIdentityConfirmed').isDisabled(),true);await p.click('#honorUseRunnerName');
+  await p.waitForFunction(name=>document.querySelector('#honorDraftPreview h3')?.textContent===name,canonical);
+  assert.equal(await p.locator('#honorDraftMore').evaluate(e=>e.open),false);const changes=await p.locator('#honorPreviewDiff h5').allTextContents();assert.deepEqual(changes,['Navn']);assert.deepEqual(await p.evaluate(()=>MorothonAdminTransport.request('honors')),baseline);
+ }finally{await c.close();}
+});
+
+test('Issue 83 native year tiles, keyboard disclosures and explicit memorial controls work on PC/tablet/mobile without clearing hidden data',async()=>{
+ const c=await browser.newContext(),p=await c.newPage();p.on('dialog',d=>d.accept());
+ try{
+  await loaded(p,'heder');await p.locator('#honorNewDraft').waitFor();
+  await p.evaluate(async()=>{
+   const M=MorothonPortalData.Honors,model=await M.createHonorDrafts({organizerId:'synthetic-organizer',enabled:true,honors:{schemaVersion:1,groups:[],personDetails:{}},history:{schemaVersion:1,people:[],results:[],yearStats:[]},badges:[],editions:[{editionId:'spring-2026',year:2026,label:'Vårutgaven',status:'held'},{editionId:'autumn-2026',year:2026,label:'Høstutgaven',status:'held'}]}),original=MorothonAdminTransport.request.bind(MorothonAdminTransport);
+   MorothonAdminTransport.request=async(route,body)=>{const action=/^honors\/drafts\/(open|preview|discard)$/.exec(route);return action?model[action[1]](body):original(route,body);};
+  });
+  await p.click('#honorNewDraft');await p.fill('#honorDraftName','Syntetisk Utgaveperson');
+  await p.locator('#honorDraftMore>summary').focus();await p.keyboard.press('Enter');assert.equal(await p.locator('#honorDraftMore').evaluate(e=>e.open),true);
+  await openHonorDetails(p,'honorDraftBasis');await p.selectOption('#honorDraftMode','documented');await p.locator('#honorDraftMore>summary').click();
+  await p.locator('#honorDraftYears>summary').focus();await p.keyboard.press('Space');await p.check('#honorEdition-spring-2026');await p.check('#honorEdition-autumn-2026');await p.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='2');
+  await openHonorDetails(p,'honorDraftAbsences');await p.check('#honorAbsent-spring-2026');await p.waitForFunction(()=>document.querySelector('#honorDraftPreview .metric-card strong')?.textContent==='1');assert.equal(await p.locator('#honorEdition-spring-2026').isChecked(),false);assert.equal(await p.locator('#honorEdition-autumn-2026').isChecked(),true);
+  await p.locator('#honorDraftYears>summary').click();await p.locator('#honorDraftYears>summary').click();assert.equal(await p.locator('#honorAbsent-spring-2026').isChecked(),true);
+  await openHonorDetails(p,'honorDraftMore');assert.equal(await p.locator('#honorDraftMemorialSection').isVisible(),false);await p.getByRole('button',{name:'Åpne minneopplysninger',exact:true}).click();assert.equal(await p.locator('#honorDraftDeathYear').isVisible(),true);assert.equal(await p.locator('#honorDraftMemorial').isChecked(),false);assert.equal(await p.locator('#honorDraftDeathYear').isDisabled(),true);
+  await p.locator('#honorDraftMore>summary').click();await p.locator('#honorDraftYears>summary').click();
+  for(const width of [1440,768,390]){await p.setViewportSize({width,height:1050});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await p.locator('#honorDraftText').isVisible(),false);await p.screenshot({path:path.join(out,'heder-83-kompakt-'+width+'.png'),fullPage:true});}
  }finally{await c.close();}
 });
