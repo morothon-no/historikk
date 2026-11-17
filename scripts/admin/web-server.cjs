@@ -4,7 +4,7 @@ const path=require('node:path'),fs=require('node:fs/promises');
 const {authorize,denied}=require('./access-control.cjs');
 const own=(obj,names)=>obj&&typeof obj==='object'&&!Array.isArray(obj)&&Object.keys(obj).sort().join('|')===names.slice().sort().join('|');
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.woff':'font/woff','.ico':'image/x-icon'};
-function createWebHandler({auth,review,runtime,publication,clock=Date.now}){
+function createWebHandler({auth,review,runtime,publication,healthy=()=>true,clock=Date.now}){
  const limits=new Map();let working=false;
  const csp="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'";
  function rate(req){
@@ -26,7 +26,8 @@ function createWebHandler({auth,review,runtime,publication,clock=Date.now}){
   try{
    if(req.headers.host!==new URL(auth.origin).host)throw denied('Ugyldig vertsadresse.');
    const url=new URL(req.url,auth.origin),route=url.pathname;
-   if(route.startsWith('/auth/')||route.startsWith('/admin-api/'))rate(req);
+   if(route.startsWith('/auth/')||route.startsWith('/admin-api/')||route==='/admin-healthz')rate(req);
+   if(route==='/admin-healthz'&&req.method==='GET'){const ready=await healthy();return json(ready?200:503,{status:ready?'ok':'unavailable'});}
    if(route==='/auth/github'&&req.method==='GET'){const out=auth.begin();return redirect(out.location,out.cookie);}
    if(route==='/auth/github/callback'&&req.method==='GET'){const out=await auth.complete(req,url.searchParams);return redirect(out.location,out.cookies);}
    if(route==='/admin/login'&&req.method==='GET'){

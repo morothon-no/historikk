@@ -57,6 +57,6 @@ async function createProjector(runtime,{executablePath=process.env.CHROMIUM_PATH
   const key=await C.hash(history);
   if(!cache.has(key)){const job=queue.then(()=>calculate(history));queue=job.catch(()=>{cache.delete(key);});cache.set(key,job);if(cache.size>2)cache.delete(cache.keys().next().value);}
   return structuredClone(await cache.get(key));
- },verifyProfiles,close:()=>providedBrowser?Promise.resolve():browser.close()};
+ },verifyProfiles,healthy:()=>browser.isConnected(),async checkSandbox(){const context=await browser.newContext({locale:'en-US'});try{const page=await context.newPage();await page.goto('chrome://sandbox');const text=await page.locator('body').innerText();if(!/PID namespaces\s+Yes/i.test(text)||!/Seccomp-BPF sandbox\s+Yes/i.test(text)||!/adequately sandboxed/i.test(text))throw Error('Chromium-sandbox kunne ikke bekreftes.');}finally{await context.close();}},close:()=>providedBrowser?Promise.resolve():browser.close()};
 }
 module.exports={approvedRuntime,createProjector};
