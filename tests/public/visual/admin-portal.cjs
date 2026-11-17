@@ -140,7 +140,9 @@ test('C1.2 local Heder admin previews all 43 approved persons, separate memorial
   await page.waitForFunction(() => document.querySelector('#honorCount')?.textContent === '43 av 43 personer');
   assert.equal(await page.locator('#honorList .honor-row').count(),43);
   await page.selectOption('#honorFilter','memorial');
-  await page.waitForFunction(()=>document.querySelectorAll('#honorList .honor-row').length===2);
+  await page.waitForFunction(()=>document.querySelectorAll('#honorList .honor-row').length===3);
+  assert.deepEqual((await page.locator('#honorList .honor-row button').allTextContents()).sort(),
+    ['Einar Danielsen','Floke Bredland','Leif Wiig']);
   await page.getByRole('button',{name:'Floke Bredland'}).click();
   assert.match(await page.locator('#honorDetail').innerText(),/Til minne om/);
   await page.selectOption('#honorFilter','all');

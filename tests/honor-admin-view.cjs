@@ -4,7 +4,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {createHonorAdminRoster}=require('../scripts/admin/honor-roster.cjs');
 const {publicHonorAdminView}=require('../scripts/admin/honor-admin-view.cjs');
-const read=name=>JSON.parse(fs.readFileSync(path.join(__dirname,'../public-data/data',name),'utf8'));
+const read=name=>JSON.parse(fs.readFileSync(path.join(__dirname,'../public-data/data',name+'.json'),'utf8'));
 function present(enabled=true){
  const honors=read('honors'),volunteers=read('volunteers');
  return createHonorAdminRoster({organizerId:'sogne-morothon',enabled,
@@ -14,7 +14,11 @@ test('Heder local projection uses 43 publicly approved people and never leaks pr
  const input=present(),original=structuredClone(input),view=publicHonorAdminView(input);
  assert.equal(view.people.length,43);
  assert.equal(view.summary.total,43);
- assert.equal(view.summary.memorial,2);
+ assert.equal(view.summary.memorial,3);
+ assert.deepEqual(view.people.filter(p=>p.memorial).map(p=>p.id).sort(),
+  ['einar-danielsen','floke-bredland','leif-wiig']);
+ assert.equal(view.people.find(p=>p.id==='einar-danielsen').groupId,'founders',
+  'an existing memorial flag must preserve the founder role without adding a second person');
  assert.equal(view.readOnly,true);
  assert.equal(view.canEdit,false);
  assert.equal(view.publicationAuthorized,false);
