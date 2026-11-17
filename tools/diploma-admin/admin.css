@@ -49,7 +49,7 @@
 .honor-row:last-child{border-bottom:0}.honor-row button{border:0;background:transparent;min-height:34px;padding:6px 5px;text-align:left;color:#153f47;flex:1}
 .honor-row button[aria-current=true]{background:#e9ede3;border-radius:5px}.honor-row small{color:#78877e;font-size:10px}
 .honor-detail{min-width:0;border:1px solid #dfe5dc;border-radius:10px;background:#fbfcf8;padding:19px}
-.honor-detail h3{font-size:20px;margin-bottom:9px}.honor-detail h4{font-size:12px;margin:21px 0 8px}
+.honor-detail h3{font-size:20px;margin-bottom:9px}.honor-detail h4{font-size:12px;margin:21px 0 8px}.honor-detail h5{font-size:12px;margin:13px 0 4px;color:#29584f}
 .honor-detail p{font-size:12px;line-height:1.6}.honor-detail li{font-size:12px;line-height:1.65;margin:3px 0}
 .honor-detail>label{margin-top:20px}.honor-detail>button{margin-top:12px}.honor-years{display:flex;flex-wrap:wrap;gap:6px}
 .honor-year{border:1px solid #b9cfbd;border-radius:6px;padding:3px 7px;background:#e8f0e7;color:#28554f;font-size:10px}
