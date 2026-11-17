@@ -202,7 +202,14 @@
       detail.append(element('p', 'Kvalifisering er ikke en formell tildeling. År kan velges og korrigeres i en senere, sikker redigeringsfase.', 'hint'));
       if (person.stories?.length) {
         detail.append(element('h4', 'Historier'));
-        for (const story of person.stories) detail.append(element('p', story.text));
+        for (const story of person.stories) {
+          if (story.title) detail.append(element('h5', story.title));
+          detail.append(element('p', story.text));
+        }
+      }
+      if (person.honorDiplomaText) {
+        detail.append(element('h4', 'Eksisterende personlig diplomtekst'));
+        detail.append(element('p', person.honorDiplomaText));
       }
       if (person.runnerLink) detail.append(element('p', 'Eksisterende bekreftet løperkobling: ' + person.runnerLink.runnerId, 'hint'));
     }
