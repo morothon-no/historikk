@@ -25,22 +25,14 @@ async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(
  const version=hash.digest('hex').slice(0,16),packageInfo=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
  const siteUrl=new URL(packageInfo.homepage);if(siteUrl.protocol!=='https:'||!siteUrl.pathname.endsWith('/'))throw Error('homepage must be an absolute HTTPS directory URL');
  const code=new Set(files.filter(f=>/\.(css|js)$/.test(f)));
- const profile=JSON.parse(sources.get('admin/event-profile.json'));require('../web-admin/profile-contract.js').validate(profile,verified.data.badges);
+ // Validate the selected event profile without publishing admin-only files.
+ const profile=JSON.parse(await safeRead(root,'web-admin/event-profile.json'));require('../web-admin/profile-contract.js').validate(profile,verified.data.badges);
  function assetUrl(value){const match=value.match(/^((?:\.\/)?(?:css|js|admin)\/[^?#]+)(\?[^#]*)?(#.*)?$/);if(!match||!code.has(match[1].replace(/^\.\//,'')))return value;const params=new URLSearchParams(match[2]||'');params.set('v',version);return match[1]+'?'+params.toString()+(match[3]||'');}
  for(const name of files){
   let bytes=sources.get(name);
   if(/\.(html|js|css)$/.test(name)){
    let text=bytes.toString('utf8');
-   if(name==='admin/index.html'){
-    text=text.replace(/<meta name="local-session"[^>]*>/,'').replace('<body class="portal-app">','<body class="portal-app" data-admin-mode="public-preview">')
-      .replace('sandbox="allow-same-origin"','sandbox="allow-same-origin allow-modals"')
-      .replaceAll('/site/assets/','../assets/').replace('Utviklingsversjon · lokal tilgang','Offentlig testversjon · ingen innlogging').replace('Lokalt arbeidsrom','Offentlig testversjon').replace('Utviklingsversjon.<br>Ingen innlogging eller produksjonsdrift.','Offentlig tilgjengelig test.<br>Kun godkjente offentlige data.').replace('Kun lokal utvikling. Jobblisten lagres i nettleserøkten.','Offentlig testversjon · ingen innlogging eller administrative skrivefunksjoner.');
-    // Enable a read-only OAuth verification surface; the result service remains disabled.
-    text=text.replace('<meta name="morothon-admin-service" content="">','<meta name="morothon-admin-service" content=""><meta name="morothon-admin-auth-probe" content="https://morothon-admin.damofra75.workers.dev">');
-    for(const f of ['admin.css','admin.js','portal.js','design-model.js','design-studio.js','design-studio.css','intake-model.js','intake.js','intake.css'])text=text.replaceAll('/'+f,'./'+f+'?v='+version);
-    const extra=['../js/history-data.js','portal-data.js','profile-contract.js','web-transport.js'].map(f=>'<script defer src="'+f+'?v='+version+'"></script>').join('');
-    text=text.replace('<script defer src="./admin.js',extra+'<script defer src="./admin.js');
-   }
+   // Admin HTML/JS/CSS are never part of the public Pages package.
 
    // Covers HTML href/src as well as new URL('css/diplomas.css', document.baseURI).
    text=text.replace(/(['"])((?:\.\/)?(?:css|js|admin)\/[^'"\s<>]+)\1/g,(full,quote,value)=>quote+assetUrl(value)+quote);
