@@ -33,6 +33,30 @@ function getCookie(request) {
 function response(body, status = 200, extra = {}) {
   return new Response(body, { status, headers: { ...headers, ...extra } });
 }
+async function smallJson(request) {
+  const reader = request.body?.getReader();
+  if (!reader) throw Error("Missing request body");
+  const chunks = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 4096) throw Error("Request too large");
+      chunks.push(value);
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } finally {
+    reader.releaseLock();
+  }
+}
 function loginPage(apiOrigin) {
   // The only anonymous JavaScript is an OAuth bootstrap; no admin app code is delivered.
   const bootstrap = `
@@ -117,7 +141,7 @@ function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource,
           return response("Invalid request", 413);
         let input;
         try {
-          input = await request.json();
+          input = await smallJson(request);
           if (!input || Object.keys(input).sort().join(",") !== "code,verifier")
             throw Error();
         } catch { return response("Invalid request", 400); }
