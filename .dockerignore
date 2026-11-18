@@ -1,0 +1,3 @@
+# Never send this checkout (including administrative originals and Git history)
+# to a container builder. Generate the explicit public-only admin bundle first.
+**

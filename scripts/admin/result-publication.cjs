@@ -116,6 +116,6 @@ function createResultPublication({authenticate,authorizeActor,review,reviewStore
   job.stage=job.remote?'checking':'submitting';job.error=null;job.authorizedAt=stamp();await writeJob(job,'publication-recheck-authorized');return publicJob(job);
  }
  async function resume(organizer){const job=await latest(organizer);if(job?.stage==='published'){const context=await loadContext(organizer);if(context.base.manifestSha256!==job.approval.manifestSha256){const verified=await verifyLive(job);await onPublished(job,verified);}}else await progress(organizer);}
- return {prepare:input=>exclusive(()=>prepare(input)),publish:input=>exclusive(()=>publish(input)),status,progress:org=>exclusive(()=>progress(org)),reverse:input=>exclusive(()=>reverse(input)),retry:input=>exclusive(()=>retry(input)),resume:org=>exclusive(()=>resume(org))};
+ return {drain:()=>mutation,prepare:input=>exclusive(()=>prepare(input)),publish:input=>exclusive(()=>publish(input)),status,progress:org=>exclusive(()=>progress(org)),reverse:input=>exclusive(()=>reverse(input)),retry:input=>exclusive(()=>retry(input)),resume:org=>exclusive(()=>resume(org))};
 }
 module.exports={createResultPublication,checkReleaseBuild};
