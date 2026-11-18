@@ -16,6 +16,7 @@ const ADMIN_SOURCES={
  'admin/diploma-adapter.js':'tools/diploma-admin/engine.js',
  'admin/profile-contract.js':'web-admin/profile-contract.js',
  'admin/web-transport.js':'web-admin/web-transport.js',
+ 'admin/auth-check.js':'web-admin/auth-check.js',
  'admin/event-profile.json':'web-admin/event-profile.json'
 };
 // New administrative code must not become public just by appearing in js/.
