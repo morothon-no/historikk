@@ -2,6 +2,9 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { createAdminGateway } = require("../scripts/admin/serverless/admin-gateway.cjs");
+const { buildProtectedAdmin } = require("../scripts/build-protected-admin.cjs");
+const { ADMIN_SOURCES, PUBLIC_CODE, runtimeFiles } = require("../scripts/lib/runtime-files.cjs");
+const fs = require("node:fs/promises"), path = require("node:path"), os = require("node:os");
 const origin = "https://historikk.morothon.no";
 const TOKEN = "x".repeat(43);
 function fixture() {
@@ -77,4 +80,32 @@ test("path traversal, reserved endpoints and malformed paths cannot reach asset 
     assert.equal((await f.gate(f.req(p,{cookie:TOKEN}))).status,404,p);
   }
   assert.equal(f.reads(),0);
+});
+
+test("protected owner can retrieve existing result API bearer only after server validation", async () => {
+  const f=fixture();
+  assert.equal((await f.gate(f.req("/admin/_session"))).status,401);
+  const res=await f.gate(f.req("/admin/_session",{cookie:TOKEN}));
+  assert.equal(res.status,200);
+  assert.equal((await res.json()).sessionToken,TOKEN);
+  f.deny();
+  assert.equal((await f.gate(f.req("/admin/_session",{cookie:TOKEN}))).status,401);
+});
+test("public runtime excludes all admin files; protected bundle contains only explicit source assets", async () => {
+  assert.ok(!PUBLIC_CODE.some(n=>n.startsWith("admin/")));
+  const runtime=runtimeFiles({badges:[],watermark:{src:"assets/medals/watermarks/example.png"}});
+  assert.ok(!runtime.some(n=>n.startsWith("admin/")));
+  const temp=await fs.mkdtemp(path.join(os.tmpdir(),"morothon-gated-assets-"));
+  try{
+    const output=path.join(temp,"private");
+    const result=await buildProtectedAdmin(output);
+    assert.equal(result.count,Object.keys(ADMIN_SOURCES).length);
+    const files=await fs.readdir(path.join(output,"admin"));
+    assert.deepEqual(files.sort(),Object.keys(ADMIN_SOURCES).map(n=>path.basename(n)).sort());
+    const html=await fs.readFile(path.join(output,"admin/index.html"),"utf8");
+    assert.match(html,/data-admin-mode="protected"/);
+    assert.match(html,/morothon-admin-service" content="https:\/\/morothon-admin/);
+    assert.doesNotMatch(html,/morothon-admin-auth-probe/);
+    assert.ok(!files.some(n=>/history\.json|original|private/i.test(n)));
+  } finally{await fs.rm(temp,{recursive:true,force:true});}
 });
