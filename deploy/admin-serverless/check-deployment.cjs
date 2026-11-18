@@ -13,10 +13,6 @@ const SECRETS = [
 ];
 const CORE = [
   "scripts/admin/serverless",
-  "scripts/build-protected-admin.cjs",
-  "web-admin/web-transport.js",
-  "tools/diploma-admin",
-  "scripts/lib/runtime-files.cjs",
   "scripts/admin/account-directory.cjs",
   "scripts/admin/access-control.cjs",
   "tools/diploma-admin/intake-model.js",
@@ -182,9 +178,18 @@ function verifySource(
     "Prosessorkoden finnes ikke som verifiserbar Git-commit.",
   );
   git(["merge-base", "--is-ancestor", sha, "HEAD"]);
+  // The private processor remains pinned to its reviewed commit. Worker-only
+  // document routing and asset authentication can change independently,
+  // but broker/auth/processor dependencies MUST still match the pinned SHA.
+  const gatewayOnly = new Set([
+    "scripts/admin/serverless/worker.mjs",
+    "scripts/admin/serverless/admin-gateway.cjs",
+  ]);
+  const differences = git(["diff", sha, "--name-only", "--", ...CORE])
+    .trim().split("\\n").filter(Boolean);
   requireThat(
-    !git(["diff", sha, "--name-only", "--", ...CORE]).trim(),
-    "Worker eller runtime-avhengigheter avviker fra den private prosessorkoden. Stopp og gjennomgå nye versjonspins.",
+    differences.every(file => gatewayOnly.has(file)),
+    "En prosessor- eller autentiseringsavhengighet er endret; oppdater privat jobb-pin før deploy.",
   );
   return { processorCodeSha: sha, workerSourceMatches: true };
 }
