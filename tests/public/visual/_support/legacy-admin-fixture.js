@@ -4,8 +4,8 @@
 "use strict";
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const { ADMIN_SOURCES } = require("../../../scripts/lib/runtime-files.cjs");
-const root = path.resolve(__dirname, "../../..");
+const { ADMIN_SOURCES } = require("../../../../scripts/lib/runtime-files.cjs");
+const root = path.resolve(__dirname, "../../../..");
 async function legacyAdminFixture(site, target) {
   const targetDir = path.resolve(target);
   await fs.mkdir(path.join(targetDir, "admin"), { recursive:true });
