@@ -19,7 +19,7 @@
       honors:ownsPackage?honors:{schemaVersion:1,groups:[],personDetails:{}},...(ownsPackage?{volunteers}:{})};
     context=MorothonPortalData.createPortalData({history:publicHistory,badges:ownsPackage?badges:{...badges,badges:badges.badges.filter(b=>b.id===profile.logoAssetId)},honorCount:0,assetBase:rootUrl.href,profile});
     await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL(info.assets[['js','honors-data.js'].join('/')],rootUrl).href;script.onload=resolve;script.onerror=()=>reject(Error('Heder-modellen kunne ikke lastes.'));document.head.append(script);});
-    release={version:info.version,manifest:JSON.stringify(manifest),adapterUrl:new URL(info.assets[['admin','diploma-adapter.js'].join('/')],rootUrl).href};
+    release={version:info.version,manifest:JSON.stringify(manifest),adapterUrl:new URL(info.assets['admin/diploma-adapter.js']||'./diploma-adapter.js',info.assets['admin/diploma-adapter.js']?rootUrl:adminUrl).href};
     $('webLimitations').hidden=false;$('webPrintControls').hidden=false;
     $('export').textContent='Samlet PDF krever C1-server';$('exportHeading').textContent='Kontroll og videre utskrift';
     document.querySelector('.export-panel>p.hint').textContent='Lagre en kontrollrapport her. Åpne «Vis» for enkeltutskrift via nettleseren. Samlet, kontrollert PDF-produksjon finnes bare i C1-serveren.';
@@ -29,6 +29,12 @@
     document.querySelector('.sidebar-note strong').textContent='Offentlig testversjon';
     document.querySelector('.sidebar-note p').textContent='Kun godkjente offentlige data. Ingen lagring eller formell utstedelse.';
     document.querySelector('.portal-footer>span:last-child').textContent='Testversjon uten innlogging · ingen administrative skrivefunksjoner';
+    if(document.body.dataset.adminMode==='protected'){
+      document.querySelector('.local-tag').textContent='Beskyttet administrasjon';
+      document.querySelector('.sidebar-note strong').textContent='Innlogget arbeidsrom';
+      document.querySelector('.sidebar-note p').textContent='Endringer krever særskilt kontroll og godkjenning før publisering.';
+      document.querySelector('.portal-footer>span:last-child').textContent='Beskyttet arbeidsrom · publisering krever godkjenning';
+    }
     return profile;
   })();
   function $(id){return document.getElementById(id);}
@@ -121,6 +127,7 @@
 /* Optional authenticated result service. Same Pages portal; no secret in this file. */
 (() => {
   "use strict";
+  const protectedPortal = document.body.dataset.adminMode === "protected";
   const configured = document.querySelector(
     'meta[name="morothon-admin-service"]',
   )?.content;
@@ -304,7 +311,7 @@
     const pending =
         saved?.task && !["completed", "failed"].includes(saved.task.state),
       editable = !!principal && !pending;
-    actions.login.hidden = !!principal;
+    actions.login.hidden = protectedPortal || !!principal;
     actions.login.disabled = busy;
     actions.logout.hidden = !principal;
     actions.logout.disabled = busy;
@@ -549,8 +556,17 @@
     historyBox = node("div");
     const controls = node("div");
     controls.className = "actions";
-    actions.login = button("Logg inn med GitHub", "resultServiceLogin", login);
+    actions.login = button("Logg inn med GitHub", "resultServiceLogin",
+      protectedPortal ? () => location.reload() : login);
     actions.logout = button("Logg ut", "resultServiceLogout", async () => {
+      if (protectedPortal) {
+        await fetch("/admin/_logout", {
+          method: "POST", credentials: "same-origin",
+          headers: { "Content-Type": "application/json" }, body: "{}",
+        });
+        location.replace("/admin/");
+        return;
+      }
       await api("/logout", {});
       sessionToken = null;
       principal = null;
@@ -719,7 +735,16 @@
     });
     render();
     try {
-      await completeLogin();
+      if (protectedPortal) {
+        const response = await fetch("/admin/_session", {
+          cache: "no-store", credentials: "same-origin",
+        });
+        if (!response.ok) throw Error("Innloggingen er utløpt. Last siden på nytt.");
+        sessionToken = (await response.json()).sessionToken;
+        principal = await api("/session");
+      } else {
+        await completeLogin();
+      }
       if (principal) {
         await read();
         if (saved?.task && !["completed", "failed"].includes(saved.task.state))
