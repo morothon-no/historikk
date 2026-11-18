@@ -41,6 +41,14 @@ const deployments = () => ({
 test("active deployment config reuses the exact Worker and confirmed non-secret identities, with a stable internal UUID", async () => {
   const c = await readConfig();
   assert.equal(c.name, "morothon-admin");
+  assert.deepEqual(c.routes, [{
+    pattern: "historikk.morothon.no/admin/*", zone_name: "morothon.no",
+  }]);
+  assert.deepEqual(c.assets, {
+    directory: "../../.worker-admin-assets",
+    binding: "ADMIN_ASSETS",
+    run_worker_first: true,
+  });
   assert.equal(c.vars.OWNER_USER_ID, "2932a52f-6831-40a4-b566-bc97a0ab344f");
   assert.equal(c.vars.OWNER_GITHUB_ID, "322168409");
   assert.equal(c.vars.GITHUB_APP_ID, "5815769");
@@ -69,6 +77,10 @@ test("config rejects secret values, alternate target/name/env, routes, paid reso
     (x) => (x.main = "./another.mjs"),
     (x) => (x.env = {}),
     (x) => (x.routes = ["*/*"]),
+    (x) => (x.routes[0].pattern = "historikk.morothon.no/*"),
+    (x) => (x.routes[0].zone_name = "other.invalid"),
+    (x) => (x.assets.run_worker_first = false),
+    (x) => (x.assets.binding = "UNSAFE"),
     (x) => (x.kv_namespaces = []),
     (x) => (x.vars.STORAGE_KEY = "not-allowed"),
     (x) => (x.vars.OAUTH_CLIENT_SECRET = "not-allowed"),
