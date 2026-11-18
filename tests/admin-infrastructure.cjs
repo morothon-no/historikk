@@ -162,5 +162,5 @@ test('A1D migration tools and private credentials remain outside public runtime 
  assert.deepEqual(paths.sort(),expected.map(f=>'/scripts/admin/'+f).sort());
  assert.match(isolated,/permissions: \{\}/);
  assert.ok(!/\/scripts\/admin\//.test(workflow.split('  plan:')[1]));
- assert.deepEqual(await fs.readdir(path.join(repo,'.github/workflows')),['deploy-admin-worker.yml','pages.yml']);
+ assert.deepEqual(await fs.readdir(path.join(repo,'.github/workflows')),['deploy-admin-worker.yml','inspect-admin-worker.yml','pages.yml']);
 });
