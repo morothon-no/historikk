@@ -36,6 +36,7 @@ function validateConfig(c) {
     "compatibility_date",
     "compatibility_flags",
     "workers_dev",
+    "routes",
     "preview_urls",
     "observability",
     "keep_vars",
@@ -67,6 +68,13 @@ function validateConfig(c) {
       same(c.observability, { enabled: false }) &&
       c.keep_vars === false,
     "Uventet eksponering eller konfigurasjonsoverstyring.",
+  );
+  requireThat(
+    same(c.routes, [{
+      pattern: "historikk.morothon.no/admin/*",
+      zone_name: "morothon.no",
+    }]),
+    "Kun admin-stien på eksisterende Cloudflare-domene kan rutes til Worker.",
   );
   requireThat(
     same(c.assets, {
