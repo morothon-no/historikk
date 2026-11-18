@@ -21,7 +21,7 @@ function fixture() {
       revoked = true;
     },
   };
-  const gate = createAdminGateway({portalOrigin:origin,auth,assetSource:async name => {
+  const gate = createAdminGateway({portalOrigin:origin,apiOrigin:"https://morothon-admin.example.test",auth,assetSource:async name => {
     assetReads++;
     return { bytes: "PRIVATE:" + name };
   }});
