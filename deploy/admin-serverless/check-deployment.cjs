@@ -334,10 +334,45 @@ async function verifyHealth(c, { fetchImpl = fetch } = {}) {
     denied.status === 401,
     "Anonym resultattilgang er ikke korrekt sperret. Stopp.",
   );
+  // Read-only deployment acceptance: an anonymously visible admin shell is
+  // a security failure even when /health and /review return healthy codes.
+  const portal = new URL(c.vars.PORTAL_URL);
+  const entry = await fetchImpl(portal.href, {
+    method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  requireThat(entry.status === 200 &&
+    (entry.headers.get("content-type") || "").includes("text/html"),
+    "Beskyttet adminadresse leverer ikke innloggingssiden.");
+  const markup = await entry.text();
+  requireThat(markup.includes("Logg inn med GitHub") &&
+    !markup.includes("portal-shell") && !markup.includes("resultServiceSave"),
+    "Anonym besøkende får se administrasjonen. Utrulling er ikke godkjent.");
+  for (const asset of ["admin.js", "web-transport.js", "event-profile.json"]) {
+    const blocked = await fetchImpl(new URL(asset, portal), {
+      method: "GET", redirect: "error", cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+    requireThat(blocked.status === 401,
+      "Adminfil er offentlig tilgjengelig uten innlogging: " + asset);
+  }
+  const pagesAlias = await fetchImpl(
+    "https://morothon-no.github.io/historikk/admin/admin.js", {
+      method: "GET", redirect: "manual", cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+  const redirect = pagesAlias.headers.get("location") || "";
+  requireThat([404,410].includes(pagesAlias.status) ||
+    ([301,302,307,308].includes(pagesAlias.status) &&
+      redirect.startsWith(c.vars.PORTAL_URL)),
+    "Den gamle offentlige Pages-adressen leverer fortsatt admin.");
   return {
     health: "ok",
     anonymousReview: "denied",
-    publicTransportActivated: false,
+    protectedPortal: "login-only",
+    protectedAssets: "denied",
+    publicPagesAlias: "no-admin-content",
+    publicTransportActivated: true,
   };
 }
 module.exports = {
