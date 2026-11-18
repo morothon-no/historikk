@@ -264,12 +264,14 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
   assert.equal(calls[1].o.headers.Origin, "https://historikk.morothon.no");
   await assert.rejects(
     verifyHealth(c, {
+      sleep: async () => {},
       fetchImpl: async () => new Response("{}", { status: 503 }),
     }),
     /helse/,
   );
   await assert.rejects(
     verifyHealth(c, {
+      sleep: async () => {},
       fetchImpl: async (url) => Response.json({ status: "ok" }),
     }),
     /Anonym/,
