@@ -1,0 +1,54 @@
+name: Read-only Cloudflare Worker preflight
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: morothon-admin-readonly-preflight
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/main' && github.repository == 'morothon-no/historikk'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Inspect existing Worker metadata using GET only
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'JS'
+          const account='7abd3bf4d65ed1b4395258ef99938ee5';
+          const worker='morothon-admin';
+          const token=process.env.CLOUDFLARE_API_TOKEN;
+          if(!token||process.env.CLOUDFLARE_ACCOUNT_ID!==account)throw Error('Cloudflare credentials/account mismatch');
+          const base='https://api.cloudflare.com/client/v4/accounts/'+account+'/workers/scripts/'+worker;
+          async function read(route){
+            const r=await fetch(base+route,{method:'GET',redirect:'error',signal:AbortSignal.timeout(20000),headers:{Authorization:'Bearer '+token}});
+            if(!r.ok)throw Error(route+' metadata GET failed: HTTP '+r.status);
+            const body=await r.json();
+            if(body.success!==true)throw Error(route+' metadata GET rejected');
+            return body.result;
+          }
+          (async()=>{
+            const settings=await read('/settings');
+            const deployments=await read('/deployments');
+            if(!Array.isArray(settings?.bindings))throw Error('Missing binding metadata');
+            const bindings=settings.bindings;
+            const expectedSecrets=['OAUTH_CLIENT_SECRET','GITHUB_APP_PRIVATE_KEY','STORAGE_KEY'];
+            const secrets=expectedSecrets.map(name=>({name,present:bindings.some(b=>b.name===name&&b.type==='secret_text')}));
+            const limiterNames=['AUTH_LIMITER','API_LIMITER'];
+            const limiters=limiterNames.map(name=>{
+              const b=bindings.find(x=>x.name===name);
+              return {name,present:!!b,type:b?.type||null,namespace_id:b?.namespace_id==null?null:String(b.namespace_id),limit:b?.simple?.limit??null,period:b?.simple?.period??null};
+            });
+            const versions=deployments?.deployments?.[0]?.versions;
+            if(!Array.isArray(versions)||versions.length!==1||versions[0].percentage!==100||!/^[a-f0-9-]{36}$/i.test(versions[0].version_id))throw Error('No single active 100% version UUID');
+            const result={worker,activeVersionId:versions[0].version_id,trafficPercentage:100,secrets,limiters,otherBindingNames:bindings.filter(b=>!expectedSecrets.includes(b.name)&&!limiterNames.includes(b.name)).map(b=>b.name)};
+            const fs=require('node:fs');
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## Read-only Worker metadata\n\n'+'\`\`\`json\n'+JSON.stringify(result,null,2)+'\n\`\`\`\n');
+            console.log('Read-only metadata fetched; see run summary. No deployment or writes.');
+          })().catch(e=>{console.error(e.message);process.exitCode=1});
+          JS
