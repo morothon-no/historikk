@@ -81,3 +81,27 @@ Senere endringer gjøres i en gjennomgått PR, med bevaring av intern UUID og ek
 Dry-run er bundling/konfigurasjonskontroll, ikke bevis på eksisterende Cloudflare-secrets, kontoens namespace-bruk eller fungerende innlogging. Ikke kjør `remote`, `health` eller ekte deploy som del av lokal gjennomgang; de er til den separat godkjente manuelle utrullingen.
 
 Referanser: [Cloudflare secrets](https://developers.cloudflare.com/workers/configuration/secrets/), [rate-limit-bindinger](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/), [Wrangler 4.164.0](https://www.npmjs.com/package/wrangler/v/4.164.0). Secret-bevaringen er i tillegg kontrollert i den installerte 4.164.0-koden (`createWorkerUploadForm` og deploy-helpers), ikke bare i dagens nettdokumentasjon.
+
+## PR #93: hvorfor den betrodde planen stopper
+
+Kjøring `44310754811` gjaldt PR-head `fa57a4b2470c7411181da08626f280c9d6c3107e`. GitHub sin offentlige jobbsiden bekrefter at steg «Verify checkout and trusted policy before running PR code» avsluttet med kode 1. Den detaljerte loggen og repository-variabelens faktiske verdi var utilgjengelige fra arbeidsmiljøet (`api.github.com`: Forbidden). Detaljfeilen nedenfor er derfor lokalt reprodusert, ikke hentet fra den utilgjengelige loggen.
+
+Med nøyaktig denne PR-head-en, uendret policy fra `main` (`d5c907d…`) og de faktiske sparse-filutvalgene finner kontrollen én ny beskyttet workflow: `.github/workflows/deploy-admin-worker.yml`. Uten godkjent head, eller med en eldre head, avvises pakken med:
+
+```text
+Security policy changes require maintainer approval of this exact PR head
+```
+
+Med eksakt godkjent head passerer samme kontroll lokalt med 43 synlige Heder-profiler. Godkjenningsverdier i lokale reproduksjoner/tester er bare fixture-parametre; de endrer ikke repository-innstillingene og godkjenner ikke en virkelig utrulling. Jobbene som krever en vellykket betrodd plan skal fortsatt stoppe når planen ikke er godkjent.
+
+Utrullingskontrollen `deploy/admin-serverless/check-deployment.cjs` og målkonfigurasjonen `deploy/admin-serverless/wrangler.jsonc` er nå også eksplisitt beskyttet i eksisterende policy. Fremtidige endringer i disse kan dermed ikke behandles som vanlige appendringer. Public/sparse-jobbene kontrollerer Git tree-ID-er uten å hente disse filene inn i den offentlige pakken. Ingen nye eksportfelt, tokens, checkout-tilganger eller unntak fra påkrevde tester er innført.
+
+**Repository-eierens nødvendige godkjenning:**
+
+1. Gjennomgå siste versjon av PR #93, inkludert workflow, utrullingskontroll, konfigurasjon og policyendring.
+2. Kopier **siste PR-head-SHA** fra PR-ens siste commit. Bruk ikke den gamle fa57a4b-verdien fra den opprinnelig feilede kjøringen dersom PR-en er oppdatert.
+3. GitHub → repository **Settings → Secrets and variables → Actions → Variables → MOROTHON_REVIEWED_POLICY_HEAD**: sett verdien til den nøyaktige, gjennomgåtte 40-tegns SHA-en. Dette er en eksplisitt godkjenning av sikkerhetspolicyen, ikke deploy-, merge- eller resultatgodkjenning. Variabelen skal ikke settes av PR-kode eller av en workflow som godkjenner seg selv.
+4. Åpne **nyeste Actions-kjøring for samme PR-head** og velg **Re-run all jobs**. Ikke kjør bare kjøring 44310754811 på gammel head etter at variabelen er oppdatert til en nyere SHA.
+5. Kontroller at planen, påkrevde kildekodetester, offentlig bygg/test og uavhengig artifact-gate faktisk blir grønne. En lokal reproduksjon eller godkjenningsvariabel alene er ikke dokumentasjon på beståtte GitHub-kontroller. Ved ny commit kreves ny gjennomgang og korrekt head-verdi så lenge PR-en fortsatt endrer beskyttet policy.
+
+Denne godkjenningen gjør ingen endringer i `CLOUDFLARE_API_TOKEN`, Cloudflare Account ID eller de tre eksisterende Worker-secrets. Den manuelle deploy-workflowen skal fortsatt ikke startes som del av PR-kontrollen.
