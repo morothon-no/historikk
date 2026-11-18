@@ -186,7 +186,7 @@ function verifySource(
     "scripts/admin/serverless/admin-gateway.cjs",
   ]);
   const differences = git(["diff", sha, "--name-only", "--", ...CORE])
-    .trim().split("\\n").filter(Boolean);
+    .trim().split("\n").filter(Boolean);
   requireThat(
     differences.every(file => gatewayOnly.has(file)),
     "En prosessor- eller autentiseringsavhengighet er endret; oppdater privat jobb-pin før deploy.",
