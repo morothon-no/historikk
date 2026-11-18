@@ -2,7 +2,6 @@
 // Server-side admin document/asset gate. This module does not expose any
 // administrative bytes to callers without an authorized server-side session.
 // Deployment MUST separately stop public GitHub Pages from shipping admin files.
-const { fail } = require("./github-store.cjs");
 const COOKIE = "__Host-morothon-admin";
 const TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -93,7 +92,8 @@ function loginPage(apiOrigin) {
     '<button id="login" type="button">Logg inn med GitHub</button>' +
     '<p id="status" role="status"></p></main><script>' + safeScript + '</script></body></html>';
 }
-function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource }) {
+function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource,
+  rateLimit = async () => true }) {
   if (new URL(portalOrigin).origin !== portalOrigin ||
       !portalOrigin.startsWith("https://") ||
       new URL(apiOrigin).origin !== apiOrigin || !apiOrigin.startsWith("https://") ||
@@ -112,6 +112,7 @@ function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource }) {
       if (request.headers.get("origin") !== portalOrigin)
         return response("Forbidden", 403);
       if (url.pathname === "/admin/_session") {
+        if (!(await rateLimit(request))) return response("Too many requests", 429);
         if ((Number(request.headers.get("content-length")) || 0) > 4096)
           return response("Invalid request", 413);
         let input;
