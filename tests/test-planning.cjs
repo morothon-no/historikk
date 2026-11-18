@@ -61,3 +61,13 @@ test('B1 CI plans before PR code, installs only required tools, keeps independen
  }
 
 });
+
+test('B1 public test runner has a bounded subprocess timeout and forces cleanup of leaked Node test handles', async()=>{
+ const runner=await fs.readFile(path.join(__dirname,'../scripts/testing/run.cjs'),'utf8');
+ const workflow=await fs.readFile(path.join(__dirname,'../.github/workflows/pages.yml'),'utf8');
+ assert.match(runner,/--test-force-exit/);
+ assert.match(runner,/--test-timeout=120000/);
+ assert.match(runner,/timeout:limitMs/);
+ assert.match(runner,/killSignal:'SIGKILL'/);
+ assert.match(workflow,/name: Public package, policy and site build\n    timeout-minutes: 25/);
+});
