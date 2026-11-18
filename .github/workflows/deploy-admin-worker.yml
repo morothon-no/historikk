@@ -64,7 +64,24 @@ jobs:
           /scripts/admin/serverless/
           /scripts/admin/account-directory.cjs
           /scripts/admin/access-control.cjs
+          /tools/diploma-admin/index.html
+          /tools/diploma-admin/admin.css
+          /tools/diploma-admin/admin.js
+          /tools/diploma-admin/portal.js
+          /tools/diploma-admin/design-model.js
+          /tools/diploma-admin/design-studio.js
+          /tools/diploma-admin/design-studio.css
           /tools/diploma-admin/intake-model.js
+          /tools/diploma-admin/intake.js
+          /tools/diploma-admin/intake.css
+          /tools/diploma-admin/portal-data.cjs
+          /tools/diploma-admin/engine.js
+          /web-admin/profile-contract.js
+          /web-admin/web-transport.js
+          /web-admin/event-profile.json
+          /scripts/build-protected-admin.cjs
+          /scripts/lib/runtime-files.cjs
+          /tests/admin-gateway.cjs
           /js/history-data.js
           /tests/manual-worker-deploy.cjs
           PATHS
@@ -84,7 +101,7 @@ jobs:
       - name: Verify dispatch, fixed target and existing Worker source
         run: node deploy/admin-serverless/check-deployment.cjs dispatch
       - name: Run isolated deployment safeguards
-        run: node --test tests/manual-worker-deploy.cjs
+        run: node --test tests/manual-worker-deploy.cjs tests/admin-gateway.cjs
       - name: Require latest main and green Pages production controls
         env:
           GH_TOKEN: ${{ github.token }}
@@ -100,6 +117,12 @@ jobs:
           const run=runs.filter(r=>r.head_sha===process.env.GITHUB_SHA&&r.event==='push'&&r.path==='.github/workflows/pages.yml').sort((a,b)=>b.id-a.id)[0];
           if(!run||run.status!=='completed'||run.conclusion!=='success')throw Error('Siste Pages-kontroll på denne main-versjonen må være grønn.');
           JS
+      - name: Assemble private Worker-only admin assets
+        run: |
+          node scripts/build-protected-admin.cjs
+          test -f .worker-admin-assets/admin/index.html
+          test ! -e .worker-admin-assets/data
+          test ! -e public-data
       - name: Install exact temporary Wrangler without lifecycle scripts
         shell: bash
         run: |
