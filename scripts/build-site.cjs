@@ -36,7 +36,9 @@ async function buildSite(destination=path.join(root,'_site'),{dataDir=path.join(
       .replace('sandbox="allow-same-origin"','sandbox="allow-same-origin allow-modals"')
       .replaceAll('/site/assets/','../assets/').replace('Utviklingsversjon · lokal tilgang','Offentlig testversjon · ingen innlogging').replace('Lokalt arbeidsrom','Offentlig testversjon').replace('Utviklingsversjon.<br>Ingen innlogging eller produksjonsdrift.','Offentlig tilgjengelig test.<br>Kun godkjente offentlige data.').replace('Kun lokal utvikling. Jobblisten lagres i nettleserøkten.','Offentlig testversjon · ingen innlogging eller administrative skrivefunksjoner.');
     for(const f of ['admin.css','admin.js','portal.js','design-model.js','design-studio.js','design-studio.css','intake-model.js','intake.js','intake.css'])text=text.replaceAll('/'+f,'./'+f+'?v='+version);
-    const extra=['../js/history-data.js','portal-data.js','profile-contract.js','web-transport.js'].map(f=>'<script defer src="'+f+'?v='+version+'"></script>').join('');
+    // Opt-in authentication check: never activates the result write/publish transport.
+    text=text.replace('<meta name="morothon-admin-service" content="">','<meta name="morothon-admin-service" content=""><meta name="morothon-admin-auth-check" content="https://morothon-admin.damofra75.workers.dev">');
+    const extra=['../js/history-data.js','portal-data.js','profile-contract.js','web-transport.js','auth-check.js'].map(f=>'<script defer src="'+f+'?v='+version+'"></script>').join('');
     text=text.replace('<script defer src="./admin.js',extra+'<script defer src="./admin.js');
    }
 
