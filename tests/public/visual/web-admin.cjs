@@ -21,7 +21,7 @@ test('C1.2 profile contract rejects unknown/private fields, CSS/URL injection an
  assert.equal(validate(profile,registry).id,'sogne-morothon');
  for(const alter of [p=>p.internalNotes='private',p=>p.colors.primary='url(https://bad.example/x)',p=>p.fonts.ui='https://bad.example/font',p=>p.logoAssetId='https://bad.example/logo',p=>p.references.participationPolicy='automatic-awards',p=>p.references.diplomaTemplate='free-html',p=>p.modules.oversikt=false,p=>p.texts.welcomeTitle='<script>bad</script>',p=>p.modules.import='enabled']){const bad=structuredClone(profile);alter(bad);assert.throws(()=>validate(bad,registry));}
 });
-test('C1.2 exact public inventory accepts fifteen web files and refuses local server, original data, unknown files and invalid public profiles',async()=>{
+test('C1.2 public inventory excludes admin; isolated preview verifies legacy UI and rejects private profile fields',async()=>{
  assert.equal(build.files.length,59);assert.equal(build.files.filter(f=>f.startsWith('admin/')).length,0);assert.equal(legacy.files.size,15);
  for(const file of ['admin/worker.cjs','admin/api.cjs','scripts/diploma-admin.cjs','data/private.json'])assert.equal(build.files.includes(file),false);
  assert.deepEqual(await fs.readFile(path.join(build.out,'data/history.json')),await fs.readFile(path.resolve(__dirname,'../../../public-data/data/history.json')));
@@ -76,9 +76,9 @@ test('C1.2 a changed release refuses further preview/print instead of silently r
  const c=await browser.newContext(),p=await c.newPage();try{await loaded(p);await p.route('**/build-info.json',async route=>{const r=await route.fetch(),j=await r.json();j.version='0'.repeat(16);await route.fulfill({json:j});});const error=await p.evaluate(async()=>{try{await MorothonAdminTransport.request('check',{items:[{kind:'runner',personId:'MOR-C788866',key:'badge:10',display:'latest'}]});return false;}catch(e){return e.message;}});assert.match(error,/oppdatert/);}finally{await c.close();}
 });
 
-test('C1.2 actual post-deploy smoke script requires the expected release and fails on stale published bytes',async()=>{
+test('C1.2 Pages smoke script verifies public site bytes, not protected admin assets, and rejects stale releases',async()=>{
  const vm=require('node:vm'),workflow=await fs.readFile(path.resolve(__dirname,'../../../.github/workflows/pages.yml'),'utf8');
- const step=workflow.split('      - name: Verify published admin files after deployment')[1];assert.ok(step);
+ const step=workflow.split('      - name: Verify public site and absence of admin files after deployment')[1];assert.ok(step);
  const script=step.split("node <<'JS'\n")[1].split('          JS')[0].split('\n').map(line=>line.slice(10)).join('\n');
  const local=JSON.parse(await fs.readFile(path.join(build.out,'build-info.json'),'utf8'));
  for(const stale of [false,true]){
@@ -86,7 +86,7 @@ test('C1.2 actual post-deploy smoke script requires the expected release and fai
   const sandbox={process,URL,Buffer,AbortSignal,setTimeout:fn=>{fn();},console:{log(){},error(){}},require:name=>name==='node:fs/promises'?{readFile:(file,encoding)=>fs.readFile(path.join(build.out,file.slice('_site/'.length)),encoding)}:require(name),fetch:async url=>{
    requested++;const file=new URL(url).pathname.slice('/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='index.html'?Buffer.from('wrong release'):bytes};
   }};
-  await vm.runInNewContext(script,sandbox);assert.equal(process.exitCode,stale?1:0);assert.ok(requested>20);
+  await vm.runInNewContext(script,sandbox);assert.equal(process.exitCode,stale?1:0);assert.ok(requested>15);
  }
 });
 
