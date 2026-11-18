@@ -174,6 +174,10 @@ export default {
           portalOrigin: new URL(env.PORTAL_URL).origin,
           apiOrigin: env.API_ORIGIN,
           auth,
+          rateLimit: async request =>
+            (await env.AUTH_LIMITER.limit({
+              key: storeModule.sha(request.headers.get("CF-Connecting-IP") || "unavailable"),
+            })).success,
           assetSource: async (filename) => {
             if (!env.ADMIN_ASSETS) return null; // fail closed until cutover
             const source = new URL("/admin/" + filename, env.PORTAL_URL);
