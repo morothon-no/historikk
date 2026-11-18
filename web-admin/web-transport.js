@@ -117,3 +117,621 @@
   window.MorothonAdminTransport={ready,request,printPreview,rootUrl,setHonorEnabled,capabilities:{batchPdf:false,browserPrint:true,honorPreview:true,honorPersistence:false,get honorEnabled(){return honorEnabled;}},get profile(){return context&&window.__eventProfile;}};
   ready.then(p=>{window.__eventProfile=p;}).catch(()=>{});
 })();
+
+/* Optional authenticated result service. Same Pages portal; no secret in this file. */
+(() => {
+  "use strict";
+  const configured = document.querySelector(
+    'meta[name="morothon-admin-service"]',
+  )?.content;
+  if (!configured) return;
+  let origin;
+  try {
+    const u = new URL(configured);
+    if (u.protocol !== "https:" || u.origin !== configured) throw Error();
+    origin = u.origin;
+  } catch {
+    return;
+  }
+  const $ = (id) => document.getElementById(id),
+    node = (tag, text) => {
+      const e = document.createElement(tag);
+      if (text !== undefined) e.textContent = text;
+      return e;
+    };
+  let sessionToken = null,
+    principal = null,
+    saved = null,
+    localSaved = null,
+    busy = false,
+    edits = 0,
+    polling = false,
+    box,
+    status,
+    diff,
+    historyBox,
+    actions = {},
+    home;
+  const flowKey = "morothon-one-use-login-proof",
+    workspace = () => window.MorothonCorrectionWorkspace;
+  // Capture the one-use return before the existing portal router normalizes hashes.
+  const loginReturn = new URLSearchParams(location.hash.slice(1));
+  if (
+    loginReturn.has("morothon-auth") ||
+    loginReturn.has("morothon-auth-error")
+  )
+    history.replaceState(null, "", "#rettelser");
+  const b64 = (bytes) =>
+    btoa(String.fromCharCode(...bytes))
+      .replaceAll("+", "-")
+      .replaceAll("/", "_")
+      .replaceAll("=", "");
+  const digest = async (value) =>
+    b64(
+      new Uint8Array(
+        await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
+      ),
+    );
+  async function api(path, value) {
+    const r = await fetch(origin + path, {
+      method: value === undefined ? "GET" : "POST",
+      cache: "no-store",
+      credentials: "omit",
+      headers: {
+        ...(sessionToken ? { Authorization: "Bearer " + sessionToken } : {}),
+        ...(value === undefined ? {} : { "Content-Type": "application/json" }),
+      },
+      ...(value === undefined ? {} : { body: JSON.stringify(value) }),
+    });
+    const data = await r.json();
+    if (r.status === 401) {
+      sessionToken = null;
+      principal = null;
+      render();
+      throw Error("Logg inn på nytt. Lagret arbeid er bevart.");
+    }
+    if (!r.ok)
+      throw Error(
+        data.error ||
+          "Kunne ikke fullføre handlingen. Lagret arbeid er bevart.",
+      );
+    return data;
+  }
+  async function login() {
+    const verifier = b64(crypto.getRandomValues(new Uint8Array(32))),
+      state = b64(crypto.getRandomValues(new Uint8Array(32)));
+    sessionStorage.setItem(
+      flowKey,
+      JSON.stringify({ verifier, state, expires: Date.now() + 5 * 60000 }),
+    );
+    const url = new URL("/auth/begin", origin);
+    url.search = new URLSearchParams({
+      challenge: await digest(verifier),
+      state,
+    });
+    location.assign(url.href);
+  }
+  async function completeLogin() {
+    const params = loginReturn;
+    if (params.has("morothon-auth-error")) {
+      history.replaceState(null, "", "#rettelser");
+      sessionStorage.removeItem(flowKey);
+      throw Error(
+        "GitHub-innlogging ble avbrutt eller kontoen har ikke tilgang.",
+      );
+    }
+    if (!params.has("morothon-auth")) return;
+    const proof = JSON.parse(sessionStorage.getItem(flowKey) || "null");
+    sessionStorage.removeItem(flowKey);
+    history.replaceState(null, "", "#rettelser");
+    if (
+      !proof ||
+      proof.expires < Date.now() ||
+      proof.state !== params.get("state")
+    )
+      throw Error(
+        "Innloggingen er utløpt eller gjelder en annen fane. Start på nytt.",
+      );
+    const result = await api("/auth/exchange", {
+      code: params.get("morothon-auth"),
+      verifier: proof.verifier,
+    });
+    sessionToken = result.sessionToken;
+    principal = await api("/session");
+  }
+  const matches = () =>
+    !!localSaved &&
+    !!saved &&
+    localSaved.snapshot === JSON.stringify(workspace()?.exportDraft()) &&
+    localSaved.revision === saved.revision &&
+    localSaved.digest === saved.digest;
+  function button(label, id, action) {
+    const b = node("button", label);
+    b.type = "button";
+    b.id = id;
+    b.onclick = async () => {
+      if (busy) return;
+      busy = true;
+      render();
+      try {
+        await action();
+      } catch (e) {
+        status.textContent = e.message;
+        home.textContent = e.message;
+      } finally {
+        busy = false;
+        showHistory();
+        renderControls();
+      }
+    };
+    return b;
+  }
+  function stage() {
+    const p = saved?.publication,
+      t = saved?.task;
+    if (t && !["completed", "failed"].includes(t.state))
+      return t.action === "validate"
+        ? "Kontrollerer rettelsen …"
+        : t.action === "reverse"
+          ? "Forbereder tilbakeføring …"
+          : "Behandler godkjent endring …";
+    if (t?.state === "failed")
+      return t.error || "Kontrollen stoppet. Lagret arbeid er bevart.";
+    if (
+      saved?.draft?.cases.length &&
+      ["validate", "reverse"].includes(t?.action)
+    )
+      return "Lagret utkast. Ingen endring er publisert.";
+    return (
+      {
+        prepared: "Rettelsen er klar til publisering.",
+        submitting: "Sender godkjent endring …",
+        checking: "Tester endringen …",
+        deploying: "Oppdaterer nettsiden …",
+        verifying: "Kontrollerer offentlig resultat …",
+        published: "Publisert og kontrollert.",
+        failed: "Publisering feilet. Se kontrollinformasjon.",
+        "needs-review": "En godkjenning eller avklaring gjenstår.",
+        cancelled: "Publisering avbrutt.",
+      }[p?.stage] ||
+      (saved?.draft?.cases.length
+        ? "Lagret utkast. Ingen endring er publisert."
+        : "Ingen lagret rettelse.")
+    );
+  }
+  function renderControls() {
+    if (!box) return;
+    const pending =
+        saved?.task && !["completed", "failed"].includes(saved.task.state),
+      editable = !!principal && !pending;
+    actions.login.hidden = !!principal;
+    actions.login.disabled = busy;
+    actions.logout.hidden = !principal;
+    actions.logout.disabled = busy;
+    for (const k of ["save", "load", "discard"])
+      actions[k].disabled = busy || !editable;
+    actions.save.disabled ||=
+      !!saved?.draft &&
+      JSON.stringify(saved.draft.base) !==
+        JSON.stringify(workspace()?.exportDraft().base);
+    actions.load.disabled ||= !saved?.draft?.cases.length;
+    actions.discard.disabled ||= !saved?.draft?.cases.length;
+    actions.publish.disabled =
+      busy ||
+      !editable ||
+      !matches() ||
+      !saved?.validation?.ready ||
+      saved.stale;
+    actions.publish.textContent = saved?.reversalOf
+      ? "Bekreft og publiser tilbakeføring"
+      : "Godkjenn og publiser";
+    actions.continue.hidden =
+      !saved?.publication ||
+      ["published", "cancelled"].includes(saved.publication.stage);
+    actions.continue.disabled = busy || !editable;
+    actions.retry.hidden = saved?.task?.state !== "queued";
+    actions.retry.disabled = busy || !principal;
+    actions.cancel.hidden = actions.retry.hidden;
+    actions.cancel.disabled = busy || !principal;
+    actions.reload.hidden = saved?.publication?.stage !== "published";
+    actions.reload.disabled = busy;
+  }
+  function showReview() {
+    diff.replaceChildren();
+    const v = saved?.validation;
+    if (!v) return;
+    diff.append(
+      node(
+        "h3",
+        v.ready ? "Kontrollert før og etter" : "Rettelsen krever avklaring",
+      ),
+    );
+    for (const c of v.review?.changes || []) {
+      const table = node("table"),
+        row = node("tr");
+      row.append(
+        node("th", "Felt"),
+        node("th", "Registrert"),
+        node("th", "Forslag"),
+      );
+      table.append(row);
+      const labels = [
+        "År",
+        "Løper",
+        "Øvelse",
+        "Distanse",
+        "Status",
+        "Tid",
+        "Plassering",
+        "Klasse",
+        "Klubb",
+        "Startnummer",
+      ];
+      c.before.forEach((value, i) => {
+        if (JSON.stringify(value) === JSON.stringify(c.after[i])) return;
+        const tr = node("tr");
+        tr.append(
+          node("th", labels[i]),
+          node("td", String(value ?? "–")),
+          node("td", String(c.after[i] ?? "–")),
+        );
+        table.append(tr);
+      });
+      diff.append(node("h4", c.name), table);
+    }
+    for (const warning of [
+      ...(v.review?.uncertain || []),
+      ...(v.review?.errors || []).map((e) => e.code || String(e)),
+    ])
+      diff.append(node("p", warning));
+  }
+  function showHistory() {
+    historyBox.replaceChildren();
+    const current = saved?.publication;
+    if (current && current.stage !== "published") {
+      const info = node("details"); info.id = "resultServicePublicationDetails";
+      info.append(node("summary", "Kontrollinformasjon for pågående endring"));
+      if (current.error) info.append(node("p", current.error));
+      if (current.remote?.url) {
+        const link = node("a", current.stage === "needs-review" ? "Åpne nødvendig godkjenning" : "Åpne endringen");
+        link.href = current.remote.url; link.target = "_blank"; link.rel = "noopener"; info.append(link);
+      }
+      historyBox.append(info);
+    }
+    historyBox.append(node("h3", "Publiserte rettelser"));
+    for (const entry of saved?.history || []) {
+      const card = node("article");
+      card.style.padding = "1rem 0";
+      card.append(
+        node("h4", (entry.names || ["Løper"]).join(", ")),
+        node(
+          "p",
+          new Date(entry.publishedAt).toLocaleString("nb-NO") +
+            " · Godkjent av " +
+            (entry.actor === principal?.userId ? "deg" : "administrator"),
+        ),
+      );
+      for (const c of entry.changes || []) {
+        card.append(node("p", c.before[0] + " · " + c.before[2]));
+        const labels = ["År", "Løper", "Øvelse", "Distanse", "Status", "Tid", "Plassering", "Klasse", "Klubb", "Startnummer"];
+        c.before.forEach((value, i) => {
+          if (JSON.stringify(value) !== JSON.stringify(c.after[i]))
+            card.append(node("p", labels[i] + ": " + String(value ?? "–") + " → " + String(c.after[i] ?? "–")));
+        });
+      }
+      const undo = button("Trekk tilbake", "withdraw-" + entry.id, async () => {
+        if (saved?.draft?.cases.length)
+          throw Error("Behandle eller forkast det lagrede utkastet først.");
+        if (
+          !confirm(
+            "Forberede tilbakeføring? Du får se før/etter og må bekrefte før noe publiseres.",
+          )
+        )
+          return;
+        await api("/publication/reverse", {
+          publicationId: entry.id,
+          confirmation: true,
+        });
+        localSaved = null;
+        await read();
+        await monitor(true);
+      });
+      undo.disabled =
+        busy ||
+        !principal ||
+        (saved?.task && !["completed", "failed"].includes(saved.task.state));
+      card.append(undo);
+      const detail = node("details");
+      detail.append(node("summary", "Kontrollinformasjon"));
+      if (entry.remote?.url) {
+        const a = node("a", "Åpne GitHub-endringen");
+        a.href = entry.remote.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        detail.append(a);
+      }
+      for (const url of entry.profiles || []) {
+        const a = node("a", "Åpne oppdatert løperprofil");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        card.append(a);
+      }
+      card.append(detail);
+      historyBox.append(card);
+    }
+  }
+  function render() {
+    if (!box) return;
+    window.MorothonReviewClient = { canEdit: !!principal };
+    const text = principal
+      ? stage()
+      : "Logg inn med GitHub for å lagre, kontrollere og publisere resultatkorrigeringer.";
+    status.textContent = text;
+    home.textContent = text;
+    showReview();
+    showHistory();
+    renderControls();
+    if (principal) {
+      document.querySelector(".local-tag").textContent =
+        "Innlogget · Hovedadministrator";
+      document.querySelector(".sidebar-note strong").textContent =
+        "Privat resultatkontroll";
+      document.querySelector(".sidebar-note p").textContent =
+        "Utkast og godkjenninger lagres privat. Publisering krever din bekreftelse.";
+    } else {
+      document.querySelector(".local-tag").textContent = "Ikke innlogget";
+      document.querySelector(".sidebar-note strong").textContent =
+        "Resultatadministrasjon";
+      document.querySelector(".sidebar-note p").textContent =
+        "Logg inn for privat lagring og kontrollert publisering.";
+    }
+  }
+  async function read() {
+    if (!principal) return;
+    const old = saved;
+    saved = await api("/review");
+    if (localSaved && old?.revision !== saved.revision) localSaved = null;
+    render();
+  }
+  async function restore() {
+    if (!saved?.draft) return;
+    // After a publication the open tab still has the old immutable public snapshot.
+    // Show the server-checked inverse directly; never import it into that old engine.
+    // Any local input still invalidates confirmation through the snapshot/dirty guard.
+    const sameBase =
+      JSON.stringify(saved.draft.base) ===
+      JSON.stringify(workspace().exportDraft().base);
+    if (sameBase) await workspace().restoreDraft(saved.draft);
+    localSaved = {
+      snapshot: JSON.stringify(workspace().exportDraft()),
+      revision: saved.revision,
+      digest: saved.digest,
+    };
+    renderControls();
+  }
+  async function monitor(restoreWhenDone = false, version = edits) {
+    if (polling) return;
+    polling = true;
+    try {
+      while (principal) {
+        await read();
+        if (
+          !saved?.task ||
+          ["completed", "failed"].includes(saved.task.state)
+        ) {
+          if (
+            restoreWhenDone &&
+            edits === version &&
+            saved?.task?.state === "completed" &&
+            saved?.draft?.cases.length
+          )
+            await restore();
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 15000));
+      }
+    } finally {
+      polling = false;
+    }
+  }
+  async function mount() {
+    if (box || !workspace()) return;
+    box = node("section");
+    box.id = "resultService";
+    box.className = "panel";
+    box.style.marginBottom = "1rem";
+    status = node("p");
+    status.id = "resultServiceStatus";
+    status.setAttribute("role", "status");
+    diff = node("div");
+    diff.className = "intake-table-wrap";
+    historyBox = node("div");
+    const controls = node("div");
+    controls.className = "actions";
+    actions.login = button("Logg inn med GitHub", "resultServiceLogin", login);
+    actions.logout = button("Logg ut", "resultServiceLogout", async () => {
+      await api("/logout", {});
+      sessionToken = null;
+      principal = null;
+      saved = null;
+      localSaved = null;
+      render();
+    });
+    actions.save = button(
+      "Lagre og kontroller utkast",
+      "resultServiceSave",
+      async () => {
+        const version = edits,
+          draft = await workspace().captureDraft(),
+          result = await api("/review/save", {
+            draft,
+            expectedRevision: saved?.revision || 0,
+          });
+        localSaved = null;
+        await api("/review/validate", {
+          expectedRevision: result.revision,
+          expectedDigest: result.digest,
+        });
+        await read();
+        await monitor(true, version);
+      },
+    );
+    actions.load = button(
+      "Hent lagret utkast",
+      "resultServiceLoad",
+      async () => {
+        if (
+          workspace().exportDraft().cases.length &&
+          !confirm("Erstatte arbeidet i fanen med lagret utkast?")
+        )
+          return;
+        const version = edits;
+        await read();
+        if (edits !== version)
+          throw Error(
+            "Arbeidet i fanen ble endret mens utkastet ble hentet. Hent på nytt.",
+          );
+        await restore();
+      },
+    );
+    actions.discard = button(
+      "Forkast utkast",
+      "resultServiceDiscard",
+      async () => {
+        if (
+          !confirm(
+            "Forkaste det lagrede utkastet? Ingen publiserte resultater endres.",
+          )
+        )
+          return;
+        await api("/review/discard", { expectedRevision: saved.revision });
+        localSaved = null;
+        await read();
+        await restore();
+      },
+    );
+    actions.publish = button(
+      "Godkjenn og publiser",
+      "resultServicePublish",
+      async () => {
+        if (!matches()) throw Error("Lagre og kontroller siste endring først.");
+        if (
+          !confirm(
+            saved.reversalOf
+              ? "Publisere denne tilbakeføringen som vist i før/etter?"
+              : "Publisere den kontrollerte rettelsen som vises i før/etter?",
+          )
+        )
+          return;
+        await api("/publication/publish", {
+          expectedRevision: saved.revision,
+          expectedDigest: saved.digest,
+          confirmation: true,
+        });
+        localSaved = null;
+        await read();
+        await monitor();
+      },
+    );
+    actions.continue = button(
+      "Kontroller og fortsett",
+      "resultServiceContinue",
+      async () => {
+        await api("/publication/continue", {
+          expectedRevision: saved.revision,
+          expectedDigest: saved.digest,
+        });
+        await read();
+        await monitor();
+      },
+    );
+    actions.retry = button(
+      "Kontroller oppstart på nytt",
+      "resultServiceRetry",
+      async () => {
+        await api("/task/retry", { id: saved.task.id });
+        await monitor();
+      },
+    );
+    actions.cancel = button(
+      "Avbryt uavklart oppstart",
+      "resultServiceCancel",
+      async () => {
+        if (
+          !confirm(
+            "Avbryte oppstarten? En jobb som allerede er startet kan ikke avbrytes her.",
+          )
+        )
+          return;
+        await api("/task/cancel", { id: saved.task.id, confirmation: true });
+        await read();
+      },
+    );
+    actions.reload = button(
+      "Last inn oppdaterte resultater",
+      "resultServiceReload",
+      () => location.reload(),
+    );
+    const notice = $("view-rettelser").querySelector(".intake-notice");
+    if (notice)
+      notice.textContent =
+        "Bruk Lagre og kontroller utkast for å bevare resultatkorrigeringen privat. Ingen endring publiseres før du har sett før/etter og bekreftet. Andre typer saker behandles fortsatt lokalt.";
+    const advanced = $("correctionAdvanced");
+    if (advanced && $("correctionSave")) advanced.append($("correctionSave"));
+    document.querySelector(".portal-footer span:last-child").textContent =
+      "Resultatadministrasjon · innlogging og personlig godkjenning kreves.";
+    controls.append(...Object.values(actions));
+    box.append(
+      node("h2", "Resultatretting og publisering"),
+      node(
+        "p",
+        "Rett eksisterende resultater. Du får se før og etter, og må bekrefte før publisering. Personsammenslåing publiseres ikke her.",
+      ),
+      status,
+      controls,
+      diff,
+      historyBox,
+    );
+    $("view-rettelser").prepend(box);
+    const homeCard = node("section");
+    homeCard.className = "panel";
+    homeCard.style.marginBottom = "1rem";
+    home = node("p");
+    home.id = "resultServiceHomeStatus";
+    const link = node("a", "Finn og rett et resultat");
+    link.href = "#deltakere";
+    const go = node("a", "Åpne resultatkontrollen");
+    go.href = "#rettelser";
+    homeCard.append(
+      node("h2", "Din resultatadministrasjon"),
+      home,
+      link,
+      node("span", " · "),
+      go,
+    );
+    $("view-oversikt").prepend(homeCard);
+    $("view-rettelser").addEventListener("input", (event) => {
+      if (event.target.closest("#resultService")) return;
+      edits++;
+      localSaved = null;
+      renderControls();
+    });
+    render();
+    try {
+      await completeLogin();
+      if (principal) {
+        await read();
+        if (saved?.task && !["completed", "failed"].includes(saved.task.state))
+          await monitor();
+      }
+    } catch (e) {
+      status.textContent = e.message;
+      home.textContent = e.message;
+    }
+  }
+  document.addEventListener("morothon:correction-workspace-ready", () =>
+    mount(),
+  );
+  window.MorothonAdminTransport.ready.then(() => mount()).catch(() => {});
+})();

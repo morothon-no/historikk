@@ -47,3 +47,6 @@ test('required PR review refusal remains a human checkpoint and malformed write 
  const transport=createInstallationApi({appId:'123',installationId:'456',privateKey,fetchImpl:async()=>({ok:true,status:201,json:async()=>{throw Error('synthetic-private-response');}})});
  await assert.rejects(()=>transport('/repos/morothon-no/historikk/git/refs',{method:'POST'}),e=>e.uncertain===true&&!e.message.includes('synthetic-private-response'));
 });
+test('continuation may read a failed deploy snapshot but normal publication still requires green main and all code/protection checks',async t=>{
+ const api=await fakeGitHub(t),publisher=createGitHubPublisher({api:async(route,o)=>{const r=await api.api(route,o);if(route.includes('event=push'))for(const run of r.workflow_runs)Object.assign(run,{status:'completed',conclusion:'failure'});return r;},codeSha:api.codeSha,appId:'123'});await assert.rejects(publisher.snapshot(),/grønn/);const readOnly=await publisher.snapshot({requireGreen:false});assert.ok(readOnly.files.get('data/history.json'));assert.equal(api.prs.length,0);await assert.rejects(publisher.snapshot(),/grønn/);api.state.strict=false;await assert.rejects(publisher.snapshot({requireGreen:false}),/obligatoriske tester/);
+});

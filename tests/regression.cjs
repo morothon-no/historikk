@@ -315,7 +315,12 @@ test('annual milestone rules: all ten thresholds, unique years, DNS, DNF, canoni
     assert.deepEqual(await page.locator('#annualMilestones .annual-stat strong').allTextContents(), ['0', '1']);
     assert.match(await page.locator('#annualMilestones').textContent(), /2041/);
     await page.locator('#openYearMilestones').click();
-    await page.locator('[data-annual-category="50"]').click();
+    // openYear starts a smooth scroll. Keyboard activation avoids clicking a
+    // moving target before that scroll has settled; verify the real selection.
+    await page.locator('[data-annual-category="50"]').focus();
+    await page.locator('[data-annual-category="50"]').press('Enter');
+    await page.locator('.annual-person').waitFor({ state: 'visible' });
+    assert.equal(await page.locator('[data-annual-category="50"]').getAttribute('aria-pressed'), 'true');
     assert.equal(await page.locator('.annual-person').count(), 1);
     assert.match(await page.locator('.annual-person').textContent(), /Testløper/);
     assert.deepEqual(errors, []);

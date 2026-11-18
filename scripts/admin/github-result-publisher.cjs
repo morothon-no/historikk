@@ -50,10 +50,10 @@ function createGitHubPublisher({api,codeSha,appId}={}){
   await request('actions/variables'+(current===null?'':'/'+name),{method:current===null?'POST':'PATCH',body:{name,value}});
  }
  async function runs(sha,event){const r=await get('actions/workflows/'+WORKFLOW+'/runs?head_sha='+sha+'&event='+event+'&per_page=30');return (r.workflow_runs||[]).filter(r=>r.head_sha===sha&&r.event===event&&r.path==='.github/workflows/pages.yml');}
- async function snapshot(){
+ async function snapshot({requireGreen=true}={}){
   const sha=await main();await unchangedCode(sha);await protection();
   const production=(await runs(sha,'push')).sort((a,b)=>b.id-a.id)[0];
-  if(!production||production.status!=='completed'||production.conclusion!=='success')throw Error('Siste produksjonskjøring på main må være grønn før ny publisering.');
+  if(requireGreen&&(!production||production.status!=='completed'||production.conclusion!=='success'))throw Error('Siste produksjonskjøring på main må være grønn før ny publisering.');
   const paths=[...PATHS,...['honors','volunteers','badges','event-dates'].map(n=>'public-data/data/'+n+'.json')];
   const files=new Map(await Promise.all(paths.map(async p=>[p,await file(p,sha)])));
   return {sha,files,variables:Object.fromEntries(await Promise.all(VARIABLE_NAMES.map(async n=>[n,await variable(n)])))};

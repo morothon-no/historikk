@@ -31,7 +31,7 @@ function createResultPublication({authenticate,authorizeActor,review,reviewStore
  async function writeJob(job,action){const key=jobKey(job.id),old=await stateStore.get(key);await stateStore.transact(key,old?.revision||0,p=>({v:1,revision:(p?.revision||0)+1,status:'draft',base:copy(job.base),draft:copy(job.draft),events:[...(p?.events||[]),{action,actor:job.actor,at:stamp()}],publication:copy(job)}));return job;}
  async function latest(org){const p=await stateStore.get(orgKey(org)),job=p?.publicationId?await getJob(p.publicationId):null;if(job&&job.organizer!==org)throw Error('Publiseringen tilhører en annen arrangør.');return job;}
  async function point(job){const key=orgKey(job.organizer),old=await stateStore.get(key);await stateStore.transact(key,old?.revision||0,p=>({v:1,revision:(p?.revision||0)+1,status:'draft',base:copy(job.base),draft:C.empty(job.base),events:[],publicationId:job.id}));}
- function publicJob(job){if(!job)return null;return {id:job.id,stage:job.stage,dataVersion:job.approval.dataVersion,manifestSha256:job.approval.manifestSha256,changes:job.changes,remote:job.remote||null,mergeCommit:job.mergeCommit||null,error:job.error||null,backupVerified:job.backupVerified,publishedAt:job.publishedAt||null,productionApplied:job.stage==='published',canReverse:job.stage==='published',profiles:job.stage==='published'?job.personIds.map(id=>new URL('index.html#lop='+encodeURIComponent(id),job.build.siteUrl).href):[]};}
+ function publicJob(job){if(!job)return null;return {id:job.id,stage:job.stage,actor:job.actor,authorizedAt:job.authorizedAt||null,createdAt:job.createdAt,dataVersion:job.approval.dataVersion,manifestSha256:job.approval.manifestSha256,changes:job.changes,remote:job.remote||null,mergeCommit:job.mergeCommit||null,error:job.error||null,backupVerified:job.backupVerified,publishedAt:job.publishedAt||null,productionApplied:job.stage==='published',canReverse:job.stage==='published',profiles:job.stage==='published'?job.personIds.map(id=>new URL('index.html#lop='+encodeURIComponent(id),job.build.siteUrl).href):[]};}
  async function status({session,organizer}){await access(session,organizer,'read');return {enabled:true,job:publicJob(await latest(organizer))};}
  async function prepare(input){
   const actor=await access(input.session,input.organizer),current=await review.load(input),old=await latest(input.organizer);
@@ -95,8 +95,17 @@ function createResultPublication({authenticate,authorizeActor,review,reviewStore
  async function reverse(input){
   await access(input.session,input.organizer);const job=await getJob(input.id),current=await review.load(input);
   if(!job||job.organizer!==input.organizer||job.stage!=='published')throw Error('Velg en verifisert publisering for tilbakeføring.');
-  if(current.draft?.cases.length||current.status==='draft')throw Error('Behandle eller forkast det pågående utkastet før tilbakeføring.');
-  const context=await loadContext(input.organizer);if(hash(Buffer.from(JSON.stringify(context.history)))!==job.after['data/history.json'].sha256)throw Error('Senere resultatendringer må gjennomgås. Ingen eldre kopi overskriver nyere historikk.');
+  if(current.draft?.cases.length)throw Error('Behandle eller forkast det pågående utkastet før tilbakeføring.');
+  const context=await loadContext(input.organizer),currentBytes=Buffer.from(JSON.stringify(context.history));
+  // Always inspect the journal: equal current bytes can hide a later change-away-and-back.
+  {
+   const snapshot=await adapter.snapshot(),journal=JSON.parse(snapshot.files.get(require('./result-release.cjs').JOURNAL));
+   if(!snapshot.files.get('data/history.json').equals(currentBytes))throw Error('Resultatgrunnlaget er oppdatert. Kontroller på nytt.');
+   require('../../tools/diploma-admin/result-release-data.cjs').undoPublishedResults(currentBytes,journal);
+   const release=journal.entries.findIndex(e=>e.manifestSha256===job.approval.manifestSha256),rows=new Set(job.changes.map(c=>c.index));
+   if(release<0||journal.entries.slice(release+1).some(e=>e.changes.some(c=>rows.has(c.index))))throw Error('Dette resultatet har fått nyere endringer. Tilbakeføring krever manuell avklaring.');
+  }
+  if(job.changes.some(c=>!same(context.history.results[c.index],c.after)))throw Error('Resultatet er endret etter publisering. Ingen nyere verdier overskrives.');
   let draft=C.empty(context.base);
   for(const c of job.changes){const id='reverse-'+job.id.slice(0,16)+'-'+c.index;
    draft=C.report(draft,{id,category:'Tilbakeføring',personIds:[c.after[1]],description:'Tilbakefør tidligere publisert resultatkorrigering',source:'Verifisert publiseringsbackup '+job.id});
