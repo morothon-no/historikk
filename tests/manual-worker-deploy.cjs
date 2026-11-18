@@ -244,13 +244,19 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
       await verifyHealth(c, {
         fetchImpl: async (url, o) => {
           calls.push({ url, o });
-          return url.endsWith("/health")
-            ? Response.json({ status: "ok" })
-            : new Response("{}", { status: 401 });
+          if (url.endsWith("/health")) return Response.json({ status: "ok" });
+          if (url.endsWith("/review")) return new Response("{}",{status:401});
+          if (url === c.vars.PORTAL_URL)
+            return new Response("<html><button>Logg inn med GitHub</button></html>", {
+              status:200,headers:{"Content-Type":"text/html"}
+            });
+          if (url.startsWith(c.vars.PORTAL_URL))
+            return new Response("Unauthorized",{status:401});
+          return new Response("Not found",{status:404});
         },
       })
     ).publicTransportActivated,
-    false,
+    true,
   );
   assert.ok(
     calls.every((x) => x.o.method === "GET" && !x.url.includes("/auth/")),
