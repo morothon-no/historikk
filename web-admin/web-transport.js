@@ -735,3 +735,77 @@
   );
   window.MorothonAdminTransport.ready.then(() => mount()).catch(() => {});
 })();
+
+/* Owner-only OAuth smoke test. No result reads, private storage or writes. */
+(() => {
+  'use strict';
+  const configured = document.querySelector('meta[name="morothon-admin-auth-probe"]')?.content;
+  if (configured !== 'https://morothon-admin.damofra75.workers.dev') return;
+  const origin = configured, flowKey = 'morothon-one-use-login-proof';
+  let token = null;
+  const params = new URLSearchParams(location.hash.slice(1));
+  const panel = document.createElement('section');
+  panel.id = 'adminAuthProbe';
+  panel.className = 'panel';
+  const title = document.createElement('h2');
+  title.textContent = 'GitHub-innlogging – tilkoblingstest';
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  const button = document.createElement('button');
+  button.type = 'button';
+  const logout = document.createElement('button');
+  logout.type = 'button';
+  logout.textContent = 'Avslutt testøkten';
+  const encode = bytes => btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
+  const show = (message) => {
+    status.textContent = message;
+    button.hidden = !!token;
+    logout.hidden = !token;
+  };
+  async function request(path, body, bearer) {
+    const response = await fetch(origin + path, {
+      method: body ? 'POST' : 'GET', credentials: 'omit', cache: 'no-store',
+      headers: {...(body ? {'Content-Type':'application/json'} : {}), ...(bearer ? {Authorization:'Bearer '+bearer} : {})},
+      ...(body ? {body:JSON.stringify(body)} : {})
+    });
+    const data = await response.json();
+    if (!response.ok) throw Error(response.status === 403 ? 'GitHub-kontoen har ikke administratortilgang.' : 'Innlogging feilet (HTTP '+response.status+').');
+    return data;
+  }
+  button.textContent = 'Logg inn med GitHub';
+  button.onclick = async () => {
+    button.disabled = true;
+    try {
+      const verifier = encode(crypto.getRandomValues(new Uint8Array(32)));
+      const state = encode(crypto.getRandomValues(new Uint8Array(32)));
+      const digest = new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));
+      sessionStorage.setItem(flowKey,JSON.stringify({verifier,state,expires:Date.now()+300000}));
+      const url = new URL('/auth/begin',origin);
+      url.search = new URLSearchParams({challenge:encode(digest),state});
+      location.assign(url.href);
+    } catch(e) { show(e.message); button.disabled = false; }
+  };
+  logout.onclick = () => { token = null; show('Testøkten avsluttet lokalt.'); };
+  panel.append(title,document.createTextNode('Kun innlogging og lesing av egen økt testes. Ingen rettelser lagres eller publiseres.'),status,button,logout);
+  function mount() {
+    const target = document.getElementById('view-rettelser');
+    if (!target || document.getElementById(panel.id)) return false;
+    target.prepend(panel);
+    show('Ikke innlogget i den nye administrasjonstjenesten.');
+    return true;
+  }
+  async function complete() {
+    if (!params.has('morothon-auth') && !params.has('morothon-auth-error')) return;
+    const proof = JSON.parse(sessionStorage.getItem(flowKey) || 'null');
+    sessionStorage.removeItem(flowKey);
+    history.replaceState(null,'','#rettelser');
+    if (params.has('morothon-auth-error')) throw Error('GitHub-innlogging ble avbrutt eller avvist.');
+    if (!proof || proof.expires < Date.now() || proof.state !== params.get('state')) throw Error('Innloggingen er utløpt eller gjelder en annen fane.');
+    const result = await request('/auth/exchange',{code:params.get('morothon-auth'),verifier:proof.verifier});
+    token = result.sessionToken;
+    const session = await request('/session',null,token);
+    show('Innlogget og verifisert av Cloudflare. Bruker: '+String(session.userId || session.actor?.userId || 'godkjent administrator')+'. Ingen skrivefunksjoner er aktivert.');
+  }
+  const start = async () => { if(!mount())return;try{await complete();}catch(e){token=null;show(e.message);} };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
+})();
