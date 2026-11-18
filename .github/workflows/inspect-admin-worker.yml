@@ -49,6 +49,18 @@ jobs:
             const result={worker,activeVersionId:versions[0].version_id,trafficPercentage:100,secrets,limiters,otherBindingNames:bindings.filter(b=>!expectedSecrets.includes(b.name)&&!limiterNames.includes(b.name)).map(b=>b.name)};
             const fs=require('node:fs');
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## Read-only Worker metadata\n\n'+'\`\`\`json\n'+JSON.stringify(result,null,2)+'\n\`\`\`\n');
-            console.log('Read-only metadata fetched; see run summary. No deployment or writes.');
+            const origin='https://morothon-admin.damofra75.workers.dev';
+            const portalOrigin='https://historikk.morothon.no';
+            async function probe(path,headers={}){
+              try{
+                const response=await fetch(origin+path,{method:'GET',redirect:'manual',signal:AbortSignal.timeout(20000),headers});
+                return {status:response.status,redirect:response.status>=300&&response.status<400,contentType:response.headers.get('content-type')?.split(';')[0]||null};
+              }catch(e){return {networkError:e.name==='TimeoutError'?'timeout':'request-failed'};}
+            }
+            const health=await probe('/health');
+            const review=await probe('/review',{Origin:portalOrigin});
+            const diagnosis={health,anonymousReview:review,expected:{healthStatus:200,anonymousReviewStatus:401},note:'Only HTTP status and content type recorded; response bodies, cookies and tokens are never logged.'};
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'\n## Read-only live endpoint diagnostics\n\n'+ '\`\`\`json\n'+JSON.stringify(diagnosis,null,2)+'\n\`\`\`\n');
+            console.log('Read-only metadata and live HTTP status checks completed; see run summary. No deployment or writes.');
           })().catch(e=>{console.error(e.message);process.exitCode=1});
           JS
