@@ -34,17 +34,69 @@ function getCookie(request) {
 function response(body, status = 200, extra = {}) {
   return new Response(body, { status, headers: { ...headers, ...extra } });
 }
-function loginPage() {
-  // No admin scripts, private data or protected asset URLs on the public shell.
+function loginPage(apiOrigin) {
+  // The only anonymous JavaScript is an OAuth bootstrap; no admin app code is delivered.
+  const bootstrap = `
+(() => {
+  "use strict";
+  const api = ${JSON.stringify(apiOrigin)};
+  const key = "morothon-admin-pkce";
+  const status = document.getElementById("status");
+  const button = document.getElementById("login");
+  const b64 = bytes => btoa(String.fromCharCode(...bytes)).replace(/\\+/g,"-").replace(/\\//g,"_").replace(/=+$/,"");
+  const random = () => b64(crypto.getRandomValues(new Uint8Array(32)));
+  const sha = async value => b64(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value))));
+  function fail() {
+    sessionStorage.removeItem(key);
+    status.textContent = "Innlogging kunne ikke fullføres. Prøv igjen.";
+    button.disabled = false;
+  }
+  async function begin() {
+    button.disabled = true;
+    try {
+      const verifier = random(), state = random(), challenge = await sha(verifier);
+      sessionStorage.setItem(key,JSON.stringify({verifier,state,created:Date.now()}));
+      const url = new URL("/auth/begin",api);
+      url.search = new URLSearchParams({challenge,state}).toString();
+      location.assign(url.href);
+    } catch { fail(); }
+  }
+  async function finish() {
+    const params = new URLSearchParams(location.hash.slice(1));
+    if (!params.has("morothon-auth") && !params.has("morothon-auth-error")) return;
+    history.replaceState(null,"",location.pathname+location.search);
+    button.disabled = true;
+    try {
+      const pending = JSON.parse(sessionStorage.getItem(key)||"null");
+      sessionStorage.removeItem(key);
+      if (!pending || Date.now()-pending.created>300000 ||
+          params.get("state")!==pending.state || !params.get("morothon-auth") ||
+          !/^[A-Za-z0-9_-]{43}$/.test(params.get("morothon-auth"))) throw Error("invalid handoff");
+      const response = await fetch("/admin/_session",{
+        method:"POST",credentials:"same-origin",cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({code:params.get("morothon-auth"),verifier:pending.verifier})
+      });
+      if (!response.ok) throw Error("session exchange failed");
+      location.replace("/admin/");
+    } catch { fail(); }
+  }
+  button.addEventListener("click",begin);
+  finish();
+})();
+`;
+  const safeScript = bootstrap.replace(/<\\/script/gi, "<\\\\/script");
   return '<!doctype html><html lang="nb"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
     '<meta name="robots" content="noindex,nofollow"><title>Morothon · Innlogging</title></head>' +
     '<body><main><h1>Morothon administrasjon</h1><p>Logg inn med godkjent GitHub-konto.</p>' +
-    '<p>Innloggingen startes fra Morothons godkjente OAuth-klient.</p></main></body></html>';
+    '<button id="login" type="button">Logg inn med GitHub</button>' +
+    '<p id="status" role="status"></p></main><script>' + safeScript + '</script></body></html>';
 }
-function createAdminGateway({ portalOrigin, auth, assetSource }) {
+function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource }) {
   if (new URL(portalOrigin).origin !== portalOrigin ||
       !portalOrigin.startsWith("https://") ||
+      new URL(apiOrigin).origin !== apiOrigin || !apiOrigin.startsWith("https://") ||
       typeof auth?.authenticate !== "function" ||
       typeof auth?.exchange !== "function" ||
       typeof auth?.logout !== "function" ||
@@ -107,7 +159,7 @@ function createAdminGateway({ portalOrigin, auth, assetSource }) {
     const token = getCookie(request);
     if (!token) {
       if (pathname === "index.html")
-        return response(request.method === "HEAD" ? null : loginPage(), 200,
+        return response(request.method === "HEAD" ? null : loginPage(apiOrigin), 200,
           { "Content-Type": "text/html; charset=utf-8" });
       return response("Unauthorized", 401);
     }
@@ -119,7 +171,7 @@ function createAdminGateway({ portalOrigin, auth, assetSource }) {
         return response("Forbidden", 403);
     } catch {
       if (pathname === "index.html")
-        return response(request.method === "HEAD" ? null : loginPage(), 200,
+        return response(request.method === "HEAD" ? null : loginPage(apiOrigin), 200,
           { "Content-Type": "text/html; charset=utf-8", "Set-Cookie": setCookie("", 0) });
       return response("Unauthorized", 401, { "Set-Cookie": setCookie("", 0) });
     }
