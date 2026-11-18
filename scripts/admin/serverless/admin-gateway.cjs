@@ -85,7 +85,7 @@ function loginPage(apiOrigin) {
   finish();
 })();
 `;
-  const safeScript = bootstrap.replace(/<\\/script/gi, "<\\\\/script");
+  const safeScript = bootstrap;
   return '<!doctype html><html lang="nb"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
     '<meta name="robots" content="noindex,nofollow"><title>Morothon · Innlogging</title></head>' +
