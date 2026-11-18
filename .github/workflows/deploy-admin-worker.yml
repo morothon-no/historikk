@@ -1,0 +1,126 @@
+name: Manual Morothon admin Worker deployment
+run-name: Manual admin Worker deployment by ${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_worker:
+        description: 'Skriv morothon-admin. Dette autoriserer kun denne Worker-utrullingen.'
+        type: string
+        required: true
+      verified_oauth_client_id:
+        description: 'Client ID kontrollert i GitHub OAuth App, med korrekt callback.'
+        type: string
+        required: true
+      verified_private_workflow_sha:
+        description: 'Privat main/workflow-SHA kontrollert; sjekk også MOROTHON_CODE_SHA.'
+        type: string
+        required: true
+      rollback_version_id:
+        description: 'Nåværende 100 %-versjon fra Cloudflare Deployments, for eventuell tilbakeføring.'
+        type: string
+        required: true
+      bindings_reviewed:
+        description: 'Secrets/bindings, konto-unike limiter-ID-er og operatørveiledningen er gjennomgått.'
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: morothon-admin-worker-manual-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.repository == 'morothon-no/historikk'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+      WRANGLER_SEND_METRICS: 'false'
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CONFIRM_WORKER: ${{ inputs.confirm_worker }}
+      VERIFIED_OAUTH_CLIENT_ID: ${{ inputs.verified_oauth_client_id }}
+      VERIFIED_PRIVATE_WORKFLOW_SHA: ${{ inputs.verified_private_workflow_sha }}
+      ROLLBACK_VERSION_ID: ${{ inputs.rollback_version_id }}
+      BINDINGS_REVIEWED: ${{ inputs.bindings_reviewed }}
+    steps:
+      - name: Fetch exact reviewed public main without original registers
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_SHA" =~ ^[a-f0-9]{40}$ ]]
+          git init --quiet .
+          git remote add origin https://github.com/morothon-no/historikk.git
+          git config remote.origin.promisor true
+          git config remote.origin.partialclonefilter blob:none
+          git sparse-checkout set --no-cone --stdin <<'PATHS'
+          /.github/workflows/deploy-admin-worker.yml
+          /deploy/admin-serverless/
+          /scripts/admin/serverless/
+          /scripts/admin/account-directory.cjs
+          /scripts/admin/access-control.cjs
+          /tools/diploma-admin/intake-model.js
+          /js/history-data.js
+          /tests/manual-worker-deploy.cjs
+          PATHS
+          git fetch --quiet --filter=blob:none origin "$GITHUB_SHA"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test ! -e data
+          test ! -e public-data
+          test ! -e scripts/lib/public-data.cjs
+          pin="$(node -e "const fs=require('node:fs');const t=fs.readFileSync('deploy/admin-serverless/wrangler.jsonc','utf8');console.log(JSON.parse(t.replace(/^\/\/[^\n]*\n/,'')).vars.PROCESSOR_CODE_SHA)")"
+          [[ "$pin" =~ ^[a-f0-9]{40}$ ]]
+          git fetch --quiet --filter=blob:none origin "$pin"
+      - name: Set up Node without dependency cache
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      - name: Verify dispatch, fixed target and existing Worker source
+        run: node deploy/admin-serverless/check-deployment.cjs dispatch
+      - name: Run isolated deployment safeguards
+        run: node --test tests/manual-worker-deploy.cjs
+      - name: Require latest main and green Pages production controls
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          current="$(gh api repos/morothon-no/historikk/git/ref/heads/main --jq .object.sha)"
+          test "$current" = "$GITHUB_SHA"
+          gh api "repos/morothon-no/historikk/actions/workflows/pages.yml/runs?head_sha=$GITHUB_SHA&event=push&per_page=30" > "$RUNNER_TEMP/morothon-main-runs.json"
+          node - "$RUNNER_TEMP/morothon-main-runs.json" <<'JS'
+          const fs=require('node:fs');
+          const runs=JSON.parse(fs.readFileSync(process.argv[2],'utf8')).workflow_runs;
+          const run=runs.filter(r=>r.head_sha===process.env.GITHUB_SHA&&r.event==='push'&&r.path==='.github/workflows/pages.yml').sort((a,b)=>b.id-a.id)[0];
+          if(!run||run.status!=='completed'||run.conclusion!=='success')throw Error('Siste Pages-kontroll på denne main-versjonen må være grønn.');
+          JS
+      - name: Install exact temporary Wrangler without lifecycle scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --prefix "$RUNNER_TEMP/morothon-worker-tools" --ignore-scripts --no-audit --no-fund --no-save wrangler@4.164.0
+          node - "$RUNNER_TEMP/morothon-worker-tools/node_modules/wrangler/package.json" <<'JS'
+          const fs=require('node:fs');if(JSON.parse(fs.readFileSync(process.argv[2],'utf8')).version!=='4.164.0')throw Error('Feil Wrangler-versjon.');
+          JS
+          "$RUNNER_TEMP/morothon-worker-tools/node_modules/.bin/wrangler" deploy --dry-run --config deploy/admin-serverless/wrangler.jsonc --outdir "$RUNNER_TEMP/morothon-worker-bundle"
+      - name: Check existing metadata then deploy only morothon-admin
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node deploy/admin-serverless/check-deployment.cjs remote
+          "$RUNNER_TEMP/morothon-worker-tools/node_modules/.bin/wrangler" deploy --config deploy/admin-serverless/wrangler.jsonc --name morothon-admin --tag "$GITHUB_SHA" --message "Morothon manual deployment $GITHUB_SHA"
+      - name: Verify health and denied anonymous access without login or writes
+        run: node deploy/admin-serverless/check-deployment.cjs health
+      - name: Report source and rollback reference
+        if: always()
+        shell: bash
+        run: |
+          printf 'Worker: morothon-admin\nKilde: %s\nForrige versjon: %s\nOffentlig admin-transport er ikke aktivert av denne jobben.\n' "$GITHUB_SHA" "$ROLLBACK_VERSION_ID" >> "$GITHUB_STEP_SUMMARY"
