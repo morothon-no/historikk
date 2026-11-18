@@ -189,7 +189,7 @@ function verifySource(
     .trim().split("\n").filter(Boolean);
   requireThat(
     differences.every(file => gatewayOnly.has(file)),
-    "En prosessor- eller autentiseringsavhengighet er endret; oppdater privat jobb-pin før deploy.",
+    "Prosessor- eller autentiseringsavhengigheter avviker; oppdater privat jobb-pin før deploy.",
   );
   return { processorCodeSha: sha, workerSourceMatches: true };
 }
