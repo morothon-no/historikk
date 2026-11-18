@@ -1,11 +1,12 @@
+const {legacyAdminFixture}=require('./_support/legacy-admin-fixture.js');
 // A static server mimics Pages at the custom-domain / base. No Node admin/API.
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),http=require('node:http'),{execFileSync}=require('node:child_process');
 const {chromium}=require('playwright'),{buildSite,validatePublicSite}=require('../../../scripts/build-site.cjs'),{validate}=require('../../../web-admin/profile-contract.js');
-let dir,out,browser,server,base,profile,registry,build;
+let dir,out,browser,server,base,profile,registry,build,legacy;
 before(async()=>{
- dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-web-admin-'));build=await buildSite(path.join(dir,'site'));profile=JSON.parse(await fs.readFile(path.join(build.out,'admin/event-profile.json')));registry=JSON.parse(await fs.readFile(path.join(build.out,'data/badges.json')));
- out=process.env.MOROTHON_C1_REVIEW_DIR?path.join(process.env.MOROTHON_C1_REVIEW_DIR,'web-c12'):path.join(dir,'review');await fs.mkdir(out,{recursive:true});const files=new Set(build.files);
- server=http.createServer(async(req,res)=>{let name=new URL(req.url,'http://static').pathname;const prefixed=name.startsWith('/historikk/');if(prefixed)name=name.slice('/historikk'.length);if(req.method!=='GET'||!name.startsWith('/'))return res.writeHead(404).end();name=name.slice('/'.length);if(name.endsWith('/')||!name)name+='index.html';if(!files.has(name))return res.writeHead(404).end();try{res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.ico':'image/x-icon','.woff':'font/woff'})[path.extname(name)]||'application/octet-stream');let bytes=await fs.readFile(path.join(build.out,name));if(prefixed&&name==='build-info.json'){const info=JSON.parse(bytes);info.siteUrl=new URL('historikk/',info.siteUrl).href;bytes=Buffer.from(JSON.stringify(info));}res.end(bytes);}catch{res.writeHead(404).end();}});
+ dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-web-admin-'));build=await buildSite(path.join(dir,'site'));legacy=await legacyAdminFixture(build,path.join(dir,'private-admin-preview'));profile=JSON.parse(await fs.readFile(legacy.filePath('admin/event-profile.json')));registry=JSON.parse(await fs.readFile(path.join(build.out,'data/badges.json')));
+ out=process.env.MOROTHON_C1_REVIEW_DIR?path.join(process.env.MOROTHON_C1_REVIEW_DIR,'web-c12'):path.join(dir,'review');await fs.mkdir(out,{recursive:true});const files=new Set([...build.files,...legacy.files]);
+ server=http.createServer(async(req,res)=>{let name=new URL(req.url,'http://static').pathname;const prefixed=name.startsWith('/historikk/');if(prefixed)name=name.slice('/historikk'.length);if(req.method!=='GET'||!name.startsWith('/'))return res.writeHead(404).end();name=name.slice('/'.length);if(name.endsWith('/')||!name)name+='index.html';if(!files.has(name))return res.writeHead(404).end();try{res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.ico':'image/x-icon','.woff':'font/woff'})[path.extname(name)]||'application/octet-stream');let bytes=await fs.readFile(legacy.filePath(name));if(prefixed&&name==='build-info.json'){const info=JSON.parse(bytes);info.siteUrl=new URL('historikk/',info.siteUrl).href;bytes=Buffer.from(JSON.stringify(info));}res.end(bytes);}catch{res.writeHead(404).end();}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port+'/';browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
 });
 after(async()=>{await browser?.close();if(server)await new Promise(r=>server.close(r));if(dir)await fs.rm(dir,{recursive:true,force:true});});
@@ -21,12 +22,12 @@ test('C1.2 profile contract rejects unknown/private fields, CSS/URL injection an
  for(const alter of [p=>p.internalNotes='private',p=>p.colors.primary='url(https://bad.example/x)',p=>p.fonts.ui='https://bad.example/font',p=>p.logoAssetId='https://bad.example/logo',p=>p.references.participationPolicy='automatic-awards',p=>p.references.diplomaTemplate='free-html',p=>p.modules.oversikt=false,p=>p.texts.welcomeTitle='<script>bad</script>',p=>p.modules.import='enabled']){const bad=structuredClone(profile);alter(bad);assert.throws(()=>validate(bad,registry));}
 });
 test('C1.2 exact public inventory accepts fifteen web files and refuses local server, original data, unknown files and invalid public profiles',async()=>{
- assert.equal(build.files.length,74);assert.equal(build.files.filter(f=>f.startsWith('admin/')).length,15);
+ assert.equal(build.files.length,59);assert.equal(build.files.filter(f=>f.startsWith('admin/')).length,0);assert.equal(legacy.files.size,15);
  for(const file of ['admin/worker.cjs','admin/api.cjs','scripts/diploma-admin.cjs','data/private.json'])assert.equal(build.files.includes(file),false);
  assert.deepEqual(await fs.readFile(path.join(build.out,'data/history.json')),await fs.readFile(path.resolve(__dirname,'../../../public-data/data/history.json')));
- const html=await fs.readFile(path.join(build.out,'admin/index.html'),'utf8');assert.match(html,/noindex, nofollow/);assert.doesNotMatch(html,/__LOCAL_TOKEN__|<meta name="local-session"|src="\/admin/);assert.match(html,/Offentlig testversjon/);
- const extra=path.join(build.out,'admin/private.json');try{await fs.writeFile(extra,'{}');await assert.rejects(()=>validatePublicSite(build.out),/Unexpected or missing/);}finally{await fs.unlink(extra);}
- const file=path.join(build.out,'admin/event-profile.json'),bytes=await fs.readFile(file);try{await fs.writeFile(file,JSON.stringify({...profile,privateNotes:'no'}));await assert.rejects(()=>validatePublicSite(build.out),/profilfelt/);}finally{await fs.writeFile(file,bytes);}
+ const html=await fs.readFile(legacy.filePath('admin/index.html'),'utf8');assert.match(html,/noindex, nofollow/);assert.doesNotMatch(html,/__LOCAL_TOKEN__|<meta name="local-session"|src="\/admin/);assert.match(html,/Offentlig testversjon/);
+ const extra=path.join(build.out,'admin/private.json');try{await fs.mkdir(path.dirname(extra));await fs.writeFile(extra,'{}');await assert.rejects(()=>validatePublicSite(build.out),/Unexpected or missing/);}finally{await fs.rm(path.dirname(extra),{recursive:true,force:true});}
+ assert.throws(()=>validate({...profile,privateNotes:'no'},registry));
  assert.equal((await validatePublicSite(build.out)).visiblePeople,43);
 });
 async function loaded(p,hash='oversikt'){await p.goto(base+'admin/#'+hash);await p.locator('#view-'+hash+':not([hidden])').waitFor();if(hash==='oversikt')await p.locator('#overviewMetrics .metric-card').first().waitFor();}
@@ -83,7 +84,7 @@ test('C1.2 actual post-deploy smoke script requires the expected release and fai
  for(const stale of [false,true]){
   const process={env:{PAGES_URL:local.siteUrl},exitCode:0};let requested=0;
   const sandbox={process,URL,Buffer,AbortSignal,setTimeout:fn=>{fn();},console:{log(){},error(){}},require:name=>name==='node:fs/promises'?{readFile:(file,encoding)=>fs.readFile(path.join(build.out,file.slice('_site/'.length)),encoding)}:require(name),fetch:async url=>{
-   requested++;const file=new URL(url).pathname.slice('/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='admin/index.html'?Buffer.from('wrong release'):bytes};
+   requested++;const file=new URL(url).pathname.slice('/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='index.html'?Buffer.from('wrong release'):bytes};
   }};
   await vm.runInNewContext(script,sandbox);assert.equal(process.exitCode,stale?1:0);assert.ok(requested>20);
  }
