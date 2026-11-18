@@ -13,6 +13,11 @@
     "enabled": false
   },
   "keep_vars": false,
+  "assets": {
+    "directory": "../../.worker-admin-assets",
+    "binding": "ADMIN_ASSETS",
+    "run_worker_first": true
+  },
   "secrets": {
     "required": [
       "OAUTH_CLIENT_SECRET",
