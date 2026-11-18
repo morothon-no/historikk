@@ -297,6 +297,7 @@ jobs:
 
   verify:
     name: Public package, policy and site build
+    timeout-minutes: 25
     needs: plan
     if: always() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
