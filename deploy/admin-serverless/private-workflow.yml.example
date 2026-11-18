@@ -1,0 +1,86 @@
+# INSTALL ONLY IN THE APPROVED PRIVATE REPOSITORY, NEVER PUBLIC .github/workflows/.
+name: Morothon private result processor
+run-name: Morothon task ${{ inputs.task }}
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        type: string
+        required: true
+      nonce:
+        type: string
+        required: true
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: morothon-private-result-processor
+  cancel-in-progress: false
+jobs:
+  process:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      MOROTHON_BROKER_ORIGIN: https://REPLACE-WITH-APP-NAME.REPLACE-WITH-SUBDOMAIN.workers.dev
+      MOROTHON_CODE_SHA: REPLACE-WITH-REVIEWED-PUBLIC-MAIN-COMMIT
+      MOROTHON_TASK: ${{ inputs.task }}
+      MOROTHON_TASK_NONCE: ${{ inputs.nonce }}
+    steps:
+      - name: Fetch exact reviewed public processor anonymously, without original registers
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$MOROTHON_CODE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          git init --quiet .
+          git remote add origin https://github.com/morothon-no/historikk.git
+          git config remote.origin.promisor true
+          git config remote.origin.partialclonefilter blob:none
+          git sparse-checkout set --no-cone --stdin <<'PATHS'
+          /package.json
+          /package-lock.json
+          /index.html
+          /heder.html
+          /.github/public-data-approval.json
+          /scripts/admin/
+          /scripts/build-site.cjs
+          /scripts/lib/public-schema.cjs
+          /scripts/lib/public-package.cjs
+          /scripts/lib/runtime-files.cjs
+          /public-data/
+          /assets/medals/approved/
+          /assets/medals/service/
+          /assets/medals/identity/
+          /assets/medals/watermarks/
+          /assets/fonts/
+          /assets/icons/
+          /assets/social/
+          /js/
+          /css/
+          /tools/diploma-admin/
+          /web-admin/
+          PATHS
+          git fetch --quiet --depth=1 --filter=blob:none origin "$MOROTHON_CODE_SHA"
+          git checkout --quiet --detach FETCH_HEAD
+      - name: Check source boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$MOROTHON_CODE_SHA"
+          test ! -e data
+          test ! -e scripts/lib/public-data.cjs
+          test ! -e scripts/export-public-data.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install locked public dependencies, no lifecycle hooks
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Locate sandbox-capable system Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          chrome_path="$(command -v google-chrome)"
+          test -x "$chrome_path"
+          printf 'CHROMIUM_PATH=%s\n' "$chrome_path" >> "$GITHUB_ENV"
+      - name: Authenticate private job, repeat controls and process the owner decision
+        run: node scripts/admin/serverless/processor.cjs
+      # No artifacts, credential cache, public PR trigger, private checkout or deploy bypass.
