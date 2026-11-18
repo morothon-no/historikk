@@ -13,6 +13,10 @@ const SECRETS = [
 ];
 const CORE = [
   "scripts/admin/serverless",
+  "scripts/build-protected-admin.cjs",
+  "web-admin/web-transport.js",
+  "tools/diploma-admin",
+  "scripts/lib/runtime-files.cjs",
   "scripts/admin/account-directory.cjs",
   "scripts/admin/access-control.cjs",
   "tools/diploma-admin/intake-model.js",
@@ -35,6 +39,7 @@ function validateConfig(c) {
     "preview_urls",
     "observability",
     "keep_vars",
+    "assets",
     "secrets",
     "ratelimits",
     "vars",
@@ -62,6 +67,14 @@ function validateConfig(c) {
       same(c.observability, { enabled: false }) &&
       c.keep_vars === false,
     "Uventet eksponering eller konfigurasjonsoverstyring.",
+  );
+  requireThat(
+    same(c.assets, {
+      directory: "../../.worker-admin-assets",
+      binding: "ADMIN_ASSETS",
+      run_worker_first: true,
+    }),
+    "Adminressurser må leveres fra Worker før offentlig asset-handler.",
   );
   requireThat(
     same(c.secrets, { required: SECRETS }),
@@ -217,6 +230,11 @@ function checkMetadata(c, settings, deployments, rollback) {
         b.type === "secret_text",
         "Påkrevd secret har feil bindingstype.",
       );
+      continue;
+    }
+    if (b.name === "ADMIN_ASSETS") {
+      requireThat(b.type === "assets",
+        "Eksisterende admin-asset binding har feil type.");
       continue;
     }
     const limiter = c.ratelimits.find((r) => r.name === b.name);
