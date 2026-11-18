@@ -1,6 +1,7 @@
 // Optional Cloudflare adapter. No data engines, filesystem, database or hosting SDK.
 import storeModule from "./github-store.cjs";
 import authModule from "./auth.cjs";
+import gatewayModule from "./admin-gateway.cjs";
 import brokerModule from "./broker.cjs";
 import oidcModule from "./oidc.cjs";
 import accountsModule from "../account-directory.cjs";
@@ -100,7 +101,7 @@ export default {
           accounts,
           store: stores.auth,
         });
-        cached = brokerModule.createBroker({
+        const broker = brokerModule.createBroker({
           portalUrl: env.PORTAL_URL,
           apiOrigin: env.API_ORIGIN,
           ownerUserId: env.OWNER_USER_ID,
@@ -167,8 +168,25 @@ export default {
             };
           },
         });
+        // Separate protected document delivery from the existing bearer API.
+        // ADMIN_ASSETS is a private Worker asset binding, NEVER a Pages origin.
+        const gate = gatewayModule.createAdminGateway({
+          portalOrigin: new URL(env.PORTAL_URL).origin,
+          apiOrigin: env.API_ORIGIN,
+          auth,
+          assetSource: async (filename) => {
+            if (!env.ADMIN_ASSETS) return null; // fail closed until cutover
+            const source = new URL("/admin/" + filename, env.PORTAL_URL);
+            const result = await env.ADMIN_ASSETS.fetch(new Request(source));
+            if (!result.ok) return null;
+            return { bytes: await result.arrayBuffer() };
+          },
+        });
+        cached = {broker, gate};
       }
-      return await cached.fetch(request);
+      if (new URL(request.url).pathname.startsWith("/admin/"))
+        return await cached.gate(request);
+      return await cached.broker.fetch(request);
     } catch {
       return new Response(
         JSON.stringify({
