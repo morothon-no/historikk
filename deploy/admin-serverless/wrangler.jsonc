@@ -1,0 +1,55 @@
+// Non-secret deployment configuration; existing Worker secrets are inherited.
+{
+  "name": "morothon-admin",
+  "account_id": "7abd3bf4d65ed1b4395258ef99938ee5",
+  "main": "../../scripts/admin/serverless/worker.mjs",
+  "compatibility_date": "2026-11-18",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false
+  },
+  "keep_vars": false,
+  "secrets": {
+    "required": [
+      "OAUTH_CLIENT_SECRET",
+      "GITHUB_APP_PRIVATE_KEY",
+      "STORAGE_KEY"
+    ]
+  },
+  "ratelimits": [
+    {
+      "name": "AUTH_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    },
+    {
+      "name": "API_LIMITER",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ],
+  "vars": {
+    "API_ORIGIN": "https://morothon-admin.damofra75.workers.dev",
+    "PORTAL_URL": "https://historikk.morothon.no/admin/",
+    "OWNER_USER_ID": "2932a52f-6831-40a4-b566-bc97a0ab344f",
+    "OWNER_GITHUB_ID": "322168409",
+    "OAUTH_CLIENT_ID": "Ov23liCJ8N6fIUUWXq3",
+    "GITHUB_APP_ID": "5815769",
+    "GITHUB_INSTALLATION_ID": "183290892",
+    "PRIVATE_REPOSITORY": "morothon-no/historikk-admin",
+    "PRIVATE_REPOSITORY_ID": "1456606620",
+    "PRIVATE_WORKFLOW_SHA": "99c1d9a704a6f7a0ab83a4d307ea97f38e99b77f",
+    "PROCESSOR_CODE_SHA": "d5c907d8bc1ebd7196db3fa3ae17b16e3a2d92c3",
+    "DISPATCH_ACTOR_ID": "358260624"
+  }
+}

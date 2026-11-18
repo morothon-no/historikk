@@ -85,3 +85,7 @@ Ved flytting: stopp nye jobber, vent på/avklar aktive publiseringer, eksporter 
 Kjør separat `node --test tests/serverless-admin.cjs tests/serverless-admin-browser.cjs tests/result-publication.cjs tests/github-result-publisher.cjs`, deretter `npm test` i komplett betrodd checkout og `npm run build`. Ingen nye source-tester skal beskrives som kjørt i offentlig sparse PR-jobb dersom den ikke omfatter dem; full betrodd kjøring dokumenteres separat.
 
 Live-aksept krever fortsatt at eieren ved eksisterende nettadresse logger inn, finner riktig virkelig resultat, lagrer/gjenåpner, godkjenner, får riktig offentlig verdi og trekker den tilbake med samme kontroller. Frem til dette er demonstrert er leveransen **implementert, men ikke ende-til-ende-verifisert**.
+
+## Manuell utrullingspakke
+
+Se [Manuell utrulling av morothon-admin](manuell-worker-utrulling.md) for den aktive JSONC-konfigurasjonen, separat workflow_dispatch-jobb, bevaring av eksisterende secrets, versjonskontroller og stoppunkter før senere aktivering. Utrullingspakken endrer ikke statusen for faktisk eierinnlogging eller resultatpublisering.
