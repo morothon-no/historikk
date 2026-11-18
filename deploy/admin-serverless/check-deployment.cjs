@@ -313,7 +313,13 @@ async function remotePreflight(c, env, { fetchImpl = fetch } = {}) {
     deployments = await get("/deployments");
   return checkMetadata(c, settings, deployments, env.ROLLBACK_VERSION_ID);
 }
-async function verifyHealth(c, { fetchImpl = fetch } = {}) {
+async function verifyHealth(c, {
+  fetchImpl = fetch,
+  sleep = ms => new Promise(resolve => setTimeout(resolve, ms)),
+} = {}) {
+  // Workers and zone routes can propagate across edge locations after deploy.
+  // A bounded retry never bypasses an individual security assertion.
+  async function probe() {
   const request = (route, headers = {}) =>
     fetchImpl(c.vars.API_ORIGIN + route, {
       method: "GET",
@@ -374,6 +380,17 @@ async function verifyHealth(c, { fetchImpl = fetch } = {}) {
     publicPagesAlias: "no-admin-content",
     publicTransportActivated: true,
   };
+  }
+  let failure;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await probe();
+    } catch (error) {
+      failure = error;
+      if (attempt < 4) await sleep(1500);
+    }
+  }
+  throw failure;
 }
 module.exports = {
   readConfig,
