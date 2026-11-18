@@ -790,7 +790,19 @@
   function mount() {
     const target = document.getElementById('view-rettelser');
     if (!target || document.getElementById(panel.id)) return false;
-    target.prepend(panel);
+    // The correction workspace replaces all children during async initialization.
+    // Wait for its stable controls before inserting the OAuth panel.
+    const attach = () => {
+      if (!target.querySelector('#correctionBody')) return false;
+      if (!target.contains(panel)) target.prepend(panel);
+      return true;
+    };
+    if (!attach()) {
+      const observer = new MutationObserver(() => {
+        if (attach()) observer.disconnect();
+      });
+      observer.observe(target, {childList:true});
+    }
     show('Ikke innlogget i den nye administrasjonstjenesten.');
     return true;
   }
