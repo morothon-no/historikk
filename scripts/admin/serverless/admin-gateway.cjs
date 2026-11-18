@@ -149,6 +149,25 @@ function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource }) {
     }
     if (request.method !== "GET" && request.method !== "HEAD")
       return response("Method not allowed", 405);
+    if (url.pathname === "/admin/_session") {
+      // The existing result API consumes a tab-memory bearer token. Expose it
+      // only to a browser whose HttpOnly cookie is verified server-side.
+      const raw = getCookie(request);
+      if (!raw) return response("Unauthorized", 401);
+      try {
+        const actor = await auth.authenticate(new Request(portalOrigin, {
+          headers: { authorization: "Bearer " + raw },
+        }));
+        if (actor?.roles?.["sogne-morothon"] !== "owner")
+          return response("Forbidden", 403);
+        return response(request.method === "HEAD" ? null :
+          JSON.stringify({ sessionToken: raw }), 200, {
+          "Content-Type": "application/json",
+        });
+      } catch {
+        return response("Unauthorized", 401, { "Set-Cookie": setCookie("", 0) });
+      }
+    }
     const pathname = url.pathname === "/admin/" ? "index.html" :
       url.pathname.slice("/admin/".length);
     // Reserved paths are never served from the asset store.
