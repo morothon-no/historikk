@@ -2,6 +2,7 @@
 import storeModule from "./github-store.cjs";
 import authModule from "./auth.cjs";
 import gatewayModule from "./admin-gateway.cjs";
+import runtimeModule from "./public-runtime-proxy.cjs";
 import brokerModule from "./broker.cjs";
 import oidcModule from "./oidc.cjs";
 import accountsModule from "../account-directory.cjs";
@@ -186,10 +187,12 @@ export default {
             return { bytes: await result.arrayBuffer() };
           },
         });
-        cached = {broker, gate};
+        cached = {broker, gate, publicRuntime: runtimeModule.createPublicRuntimeProxy()};
       }
       if (new URL(request.url).pathname.startsWith("/admin/"))
         return await cached.gate(request);
+      if (new URL(request.url).pathname.startsWith("/site/"))
+        return await cached.publicRuntime(request);
       return await cached.broker.fetch(request);
     } catch {
       return new Response(
