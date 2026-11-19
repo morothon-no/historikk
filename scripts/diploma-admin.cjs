@@ -40,6 +40,11 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
           .replace('__HONOR_ENABLED__', honorView?.enabled === true ? 'true' : 'false');
         res.setHeader('Content-Type', types['.html']); return res.end(html);
       }
+      if (route === '/diploma-adapter.js') {
+        // Local loopback C1 calculator only; never enters the public bundle.
+        res.setHeader('Content-Type', types['.js']);
+        return res.end(await fs.readFile(path.join(uiRoot, 'engine.js')));
+      }
       if (['/admin.js', '/admin.css', '/portal.js', '/design-model.js', '/design-studio.js', '/design-studio.css', '/intake-model.js', '/intake.js', '/intake.css'].includes(route)) {
         res.setHeader('Content-Type', types[path.extname(route)]); return res.end(await fs.readFile(path.join(uiRoot, route.slice(1))));
       }
