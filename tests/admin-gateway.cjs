@@ -170,3 +170,32 @@ test("OAuth GitHub App token diagnosis accepts escaped PEM and distinguishes fai
   },"1456606620",{tokenFailure:()=>classifyTokenError({privateKey:pem,httpStatus:403})}),
     "AUTH_GITHUB_APP_HTTP_403");
 });
+
+test("Cloudflare GitHub fetch never uses unsupported redirect:error or follows credentials on redirect", async () => {
+  const { cloudflareGithubFetch } = await import("../scripts/admin/serverless/worker.mjs");
+  const observed = [];
+  const fakeFetch = async (url, options) => {
+    observed.push({url:String(url), method:options.method || "GET", redirect:options.redirect, authorization:options.headers?.Authorization});
+    assert.equal(options.redirect,"manual");
+    return new Response(null,{status:302,headers:{"Location":"https://untrusted.invalid/collect"}});
+  };
+  const response = await cloudflareGithubFetch(
+    "https://api.github.com/app/installations/183290892/access_tokens",
+    {method:"POST",redirect:"error",headers:{Authorization:"Bearer synthetic-token"}},
+    fakeFetch,
+  );
+  assert.equal(response.status,302);
+  assert.equal(response.ok,false);
+  assert.equal(observed.length,1,"no credential-bearing redirect is followed");
+  assert.equal(observed[0].authorization,"Bearer synthetic-token");
+  assert.equal(observed[0].redirect,"manual");
+});
+
+test("all Worker GitHub API and OAuth paths inject Cloudflare manual redirect adapter", async () => {
+  const source = await fs.readFile(path.resolve(__dirname,"../scripts/admin/serverless/worker.mjs"),"utf8");
+  assert.match(source,/const response = await cloudflareGithubFetch\(url, options\)/);
+  assert.match(source,/permissions: \{ actions: "write" \},\s*fetchImpl: cloudflareGithubFetch/);
+  assert.match(source,/permissions: \{ contents: "read" \},\s*fetchImpl: cloudflareGithubFetch/);
+  assert.match(source,/store: stores\.auth,\s*fetchImpl: cloudflareGithubFetch/);
+  assert.doesNotMatch(source,/fetch\(url, options\);/);
+});
