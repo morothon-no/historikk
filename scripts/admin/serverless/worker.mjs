@@ -50,6 +50,14 @@ export async function diagnoseAuthStorage(privateApi, repositoryId, diagnostics 
   }
   return "AUTH_STATE_WRITE_OR_CRYPTO";
 }
+// Cloudflare Workers intentionally do not implement fetch redirect: "error":
+// Request construction throws before any network I/O. Preserve the fail-closed
+// intent by using "manual" and returning 3xx responses to our existing
+// non-2xx-rejecting GitHub clients, never following redirects with credentials.
+export async function cloudflareGithubFetch(url, options = {}, fetchImpl = fetch) {
+  const response = await fetchImpl(url, { ...options, redirect: "manual" });
+  return response;
+}
 // Optional Cloudflare adapter. No data engines, filesystem, database or hosting SDK.
 import storeModule from "./github-store.cjs";
 import authModule from "./auth.cjs";
@@ -101,7 +109,7 @@ export default {
             "https://api.github.com/app/installations/",
           ) && String(url).endsWith("/access_tokens");
           try {
-            const response = await fetch(url, options);
+            const response = await cloudflareGithubFetch(url, options);
             if (tokenEndpoint) appTokenHttpStatus = response.ok ? null : response.status;
             return response;
           } catch (err) {
@@ -119,11 +127,13 @@ export default {
             ...common,
             repository: env.PRIVATE_REPOSITORY,
             permissions: { actions: "write" },
+            fetchImpl: cloudflareGithubFetch,
           }),
           publicApi = connection({
             ...common,
             repository: "morothon-no/historikk",
             permissions: { contents: "read" },
+            fetchImpl: cloudflareGithubFetch,
           }),
           accounts = accountsModule.createAccountDirectory({
             users: [{ userId: env.OWNER_USER_ID, active: true }],
@@ -174,6 +184,7 @@ export default {
           clientSecret: env.OAUTH_CLIENT_SECRET,
           accounts,
           store: stores.auth,
+          fetchImpl: cloudflareGithubFetch,
         });
         const broker = brokerModule.createBroker({
           portalUrl: env.PORTAL_URL,
