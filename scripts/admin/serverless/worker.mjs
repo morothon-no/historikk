@@ -45,7 +45,12 @@ export default {
         const privateApi = connection({
             ...common,
             repository: env.PRIVATE_REPOSITORY,
-            permissions: { contents: "write", actions: "write" },
+            permissions: { contents: "write" },
+          }),
+          privateActionsApi = connection({
+            ...common,
+            repository: env.PRIVATE_REPOSITORY,
+            permissions: { actions: "write" },
           }),
           publicApi = connection({
             ...common,
@@ -113,6 +118,7 @@ export default {
           reviews: stores.reviews,
           control: stores.control,
           privateApi,
+          privateActionsApi,
           publicApi,
           verifyOidc: oidcModule.oidcVerifier({
             repository: env.PRIVATE_REPOSITORY,
