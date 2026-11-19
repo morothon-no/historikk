@@ -54,7 +54,7 @@ test("active deployment config reuses the exact Worker and confirmed non-secret 
   assert.equal(c.vars.GITHUB_INSTALLATION_ID, "183290892");
   assert.equal(c.vars.PRIVATE_REPOSITORY_ID, "1456606620");
   assert.equal(c.vars.DISPATCH_ACTOR_ID, "358260624");
-  assert.equal(c.vars.OAUTH_CLIENT_ID, "Iv23Ii3NBlaOygfu6Nm1");
+  assert.equal(c.vars.OAUTH_CLIENT_ID, "Iv23li3NBIaOygfu6Nm1");
   assert.equal(
     c.vars.PRIVATE_WORKFLOW_SHA,
     "99c1d9a704a6f7a0ab83a4d307ea97f38e99b77f",
