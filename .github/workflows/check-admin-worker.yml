@@ -1,0 +1,35 @@
+name: Read-only Morothon admin Worker health check
+run-name: Check active Worker protection by ${{ github.actor }}
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: morothon-admin-worker-healthcheck
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main' && github.repository == 'morothon-no/historikk'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact public health-check source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /deploy/admin-serverless/check-deployment.cjs
+            /deploy/admin-serverless/wrangler.jsonc
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Read-only public, anonymous GET verification
+        run: node deploy/admin-serverless/check-deployment.cjs health
