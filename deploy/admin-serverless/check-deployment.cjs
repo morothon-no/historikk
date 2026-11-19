@@ -181,6 +181,7 @@ function verifySource(
   const gatewayOnly = new Set([
     "scripts/admin/serverless/worker.mjs",
     "scripts/admin/serverless/admin-gateway.cjs",
+    "scripts/admin/serverless/public-runtime-proxy.cjs",
   ]);
   const differences = git(["diff", sha, "--name-only", "--", ...CORE])
     .trim().split("\n").filter(Boolean);
