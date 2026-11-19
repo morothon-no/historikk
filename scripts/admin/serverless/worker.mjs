@@ -7,7 +7,7 @@ import { createPrivateKey, sign as signCrypto } from "node:crypto";
 // changing existing secrets. Never print private key bytes.
 export function normalizedAppPrivateKey(value) {
   const key = String(value || "").trim();
-  return key.includes("\\n") ? key.replaceAll("\\n", "\n") : key;
+  return (key.includes("\\n") ? key.replaceAll("\\n", "\n") : key).trim();
 }
 export function classifyTokenError({ privateKey, httpStatus, networkFailure }) {
   try {
