@@ -161,6 +161,11 @@
     home;
   const flowKey = "morothon-one-use-login-proof",
     workspace = () => window.MorothonCorrectionWorkspace;
+  let identityContext, identityMounted = false;
+  document.addEventListener('morothon:corrections-ready',event=>{
+    identityContext = event.detail;
+    mountIdentity().catch(error=>{const host=$('view-personkontroll');if(host)host.textContent=error.message;});
+  });
   // Capture the one-use return before the existing portal router normalizes hashes.
   const loginReturn = new URLSearchParams(location.hash.slice(1));
   if (
@@ -204,11 +209,192 @@
       throw Error("Logg inn på nytt. Lagret arbeid er bevart.");
     }
     if (!r.ok)
-      throw Error(
+      throw Object.assign(Error(
         data.error ||
           "Kunne ikke fullføre handlingen. Lagret arbeid er bevart.",
-      );
+      ),{status:r.status});
     return data;
+  }
+  // Separate UI, same authenticated transport and existing Corrections engine.
+  // Only server-confirmed packages populate this list; no browser storage.
+  async function mountIdentity() {
+    if (identityMounted || !identityContext || !principal?.identityPersistence || !protectedPortal) return;
+    identityMounted = true;
+    const C=window.MorothonCorrections,H=window.MorothonHistoryData,
+      model=H.create(identityContext.history),base=await C.binding(identityContext.history,identityContext.meta),
+      suggestions=C.discover(identityContext.history),host=$('view-personkontroll');
+    const s={saved:null,busy:false,scope:'pending',query:'',selected:null,selectedCase:null,request:null,version:0};
+    const panel=node('section');panel.className='panel';panel.id='identityService';
+    const status=node('p');status.id='identityServiceStatus';status.setAttribute('role','status');
+    const counts=node('div');counts.id='identityServiceCounts';counts.className='correction-summary';
+    const controls=node('div');controls.className='actions';
+    const list=node('div');list.id='identityWorklist';
+    const editor=node('section');editor.id='identityEditor';
+    const archive=node('details');archive.id='identityArchive';
+    const field=(label,input)=>{const e=node('label',label);e.append(input);return e;};
+    const select=(options,value,id)=>{const e=node('select');e.id=id;
+      for(const [key,label] of options){const o=node('option',label);o.value=key;e.append(o);}if(value!==undefined)e.value=value;return e;};
+    const input=(id,value='')=>{const e=node('input');e.id=id;e.value=value;return e;};
+    const btn=(label,id,fn)=>{const e=node('button',label);e.type='button';e.id=id;e.className='secondary';
+      e.onclick=async()=>{if(s.busy&&id!=='identityLogout')return;s.busy=true;disable();try{await fn();}catch(error){
+        status.textContent=error.message+' Siste serverbekreftede vurderinger er beholdt.';
+        status.dataset.error='true';
+      }finally{s.busy=false;disable();}};return e;};
+    const active=()=>s.saved?.task&&!['completed','failed'].includes(s.saved.task.state);
+    const stale=()=>s.saved?.stale || s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base);
+    const name=id=>model.person(id)?.n || id;
+    const identityState=()=>s.saved?.status==='review-approved' ? 'Godkjent – ikke publisert' : s.saved?.persisted ? 'Lagret privat – ikke godkjent eller publisert' : 'Ingen lagrede avgjørelser';
+    function disable(){
+      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout';
+      approve.disabled=s.busy||active()||stale()||!s.saved?.draft?.cases.length||s.saved.status==='review-approved'||
+        !s.saved.inspection?.ready||
+        s.saved.draft.cases.some(c=>!['handoff','rejected'].includes(c.status));
+      revalidate.hidden=!s.saved?.stale;revalidate.disabled=s.busy||active();
+      reload.hidden=!(s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base));
+      check.disabled=s.busy||active()||stale()||!s.saved?.draft?.cases.length;
+      retry.hidden=!s.request&&!active();
+      for(const button of editor.querySelectorAll('button'))button.disabled=s.busy||active()||stale()||!!s.request;
+    }
+    async function read(){
+      const current=await api('/identity');
+      if(current.scope!=='person-control-v1'||current.productionApplied!==false||current.publicationAuthorized!==false)
+        throw Error('Uventet identitetsstatus. Ingen ny vurdering er bekreftet.');
+      s.saved=current;
+      if(s.request&&current.draft?.cases.some(c=>c.id===s.request.command.id))s.request=null;
+      await render();
+    }
+    async function monitor(){
+      const end=Date.now()+10*60000;
+      for(;;){await read();if(!active())break;
+        if(Date.now()>end){status.textContent='Kontrollen pågår fortsatt. Hent status senere; ingen ny innsending er nødvendig.';return;}
+        await new Promise(resolve=>setTimeout(resolve,4000));}
+      if(s.saved.task?.state==='failed'){
+        if(s.request?.command.id===s.saved.task.requestId)s.request=null;
+        throw Error(s.saved.task.error || 'Kontrollen stoppet. Ny avgjørelse er ikke bekreftet lagret.');
+      }
+    }
+    async function send(command){
+      if(stale())throw Error('Historikkversjonen er endret. Kontroller kildegrunnlaget først.');
+      if(s.request)throw Error('Avklar forrige innsending først.');
+      s.request={command,expectedRevision:s.saved.revision};
+      status.textContent='Avgjørelsen sendes til privat kontroll. Ikke bekreftet lagret ennå.';
+      try{await api('/identity/decide',s.request);}
+      catch(error){if([400,403,409,413].includes(error.status))s.request=null;throw error;}
+      await monitor();s.selected=null;s.selectedCase=null;editor.replaceChildren();s.scope='pending';await render();
+    }
+    function intent(kind,ids,mainPersonId,nameValue,source,reason){return {
+      format:'morothon-identity-decision-v1',version:1,id:'identity-'+crypto.randomUUID(),base,
+      kind,personIds:ids,mainPersonId,name:nameValue,source,reason};}
+    function inspect(ids,stored){
+      editor.replaceChildren();s.selected=ids;s.selectedCase=stored?.id || null;
+      const title=node('h2',stored?'Lagret identitetsavgjørelse':'Sammenlign og bekreft identitet');editor.append(title);
+      const profiles=node('div');profiles.className='correction-profiles';
+      for(const id of ids){const p=node('article');p.className='correction-profile';const stats=model.stats(id);
+        p.append(node('h3',name(id)),node('p',(stats?.count||0)+' tellende deltakelsesår'),node('p',(stats?.years||[]).join(', ')));
+        const results=node('details');results.append(node('summary','Registrerte resultater'));
+        for(const row of model.resultsFor(id))results.append(node('p',[row[0],row[2],row[3],row[5]].join(' · ')));
+        p.append(results);profiles.append(p);}
+      editor.append(profiles);
+      if(stored){
+        editor.append(node('p',stored.status==='rejected'?'Bekreftet forskjellige personer – lagret privat.':identityState()),
+          node('p',stored.reason),node('p','Kilde: '+stored.source));
+        if(stored.change){const diff=node('details');diff.append(node('summary','Eksakte før- og etterverdier'),
+          node('pre',JSON.stringify({before:stored.change.before,after:stored.change.after},null,2)));editor.append(diff);}
+        const report=s.saved.inspection?.impacts.find(i=>i.caseId===stored.id);
+        if(report){const before=node('div');before.className='correction-diff';
+          before.append(node('pre',JSON.stringify(report.before,null,2)),node('pre',JSON.stringify(report.after,null,2)));
+          editor.append(node('h3','Serverkontrollerte konsekvenser – før og etter'),before,
+            node('p','Berørte beregninger: '+(report.changed.join(' · ')||'Ingen')));
+          for(const warning of [...report.uncertain,...report.errors])editor.append(node('p','Krever avklaring: '+(warning.code||warning)));}
+        editor.append(node('p','Ingen offentlig profil er endret. En ny vurdering av denne avgjørelsen krever særskilt kontroll.'));return;
+      }
+      const source=input('identitySource','Arrangørbekreftelse i beskyttet personkontroll.'),reason=input('identityReason','Identiteten er kontrollert av arrangøren.');
+      source.maxLength=1500;reason.maxLength=2000;
+      editor.append(field('Kilde eller bekreftelse',source),field('Begrunnelse',reason));
+      if(ids.length===2){
+        const main=select([['','Velg hovednavn'],...ids.map(id=>[id,name(id)])],C.preferredMainProfile(model,ids)||'','identityMainPerson');
+        editor.append(field('Hovednavn ved sammenslåing',main),node('p','Alle registreringer og gamle lenker bevares. Deltakelser, merker og øvrige konsekvenser kontrolleres på serveren.'));
+        editor.append(btn('Samme person – lagre privat','identitySame',async()=>{
+          if(!main.value)throw Error('Velg hvilket hovednavn som skal beholdes.');
+          if(!confirm('Lagre sammenslåingsforslaget med hovednavnet «'+name(main.value)+'»? Ingen publisering.'))return;
+          await send(intent('same-person',ids,main.value,null,source.value,reason.value));}),
+        btn('Forskjellige personer – lagre privat','identityDifferent',async()=>{
+          if(!confirm('Bekrefte at profilene gjelder forskjellige personer?'))return;
+          await send(intent('different-people',ids,null,null,source.value,reason.value));}));
+      }
+      const other=node('details');other.append(node('summary','Hovednavn og alias uten sammenslåing'));
+      const target=select(ids.map(id=>[id,name(id)]),ids[0],'identityNameTarget'),value=input('identityNewName');value.maxLength=200;
+      other.append(field('Profil',target),field('Navn eller alias',value),
+        btn('Lagre nytt hovednavn','identityRename',()=>send(intent('rename',[target.value],null,value.value,source.value,reason.value))),
+        btn('Lagre alias','identityAlias',()=>send(intent('alias',[target.value],null,value.value,source.value,reason.value))));
+      editor.append(other);disable();
+    }
+    async function render(){
+      const version=++s.version;
+      let draft=s.saved?.draft || C.empty(base);
+      if(stale()){draft=structuredClone(draft);for(const c of draft.cases)if(c.change&&c.status!=='rejected')c.status='review';}
+      const work=await C.worklist(suggestions,draft);if(version!==s.version)return;
+      counts.replaceChildren();
+      for(const [label,n] of [['Ubehandlede',work.identity.filter(c=>c.bucket==='pending').length],
+        ['Behandlede',work.identity.filter(c=>c.bucket==='finished'&&c.caseStatus!=='rejected').length],
+        ['Avviste par',work.identity.filter(c=>c.caseStatus==='rejected').length]]){
+        const card=node('article');card.append(node('strong',String(n)),node('span',label));counts.append(card);}
+      status.dataset.error='false';status.textContent=identityState()+' · revisjon '+s.saved.revision+'.'+
+        (stale()?' Historikken er oppdatert. Nye avgjørelser og godkjenning er sperret.':'')+
+        (active()?' Privat kontroll pågår; den nye handlingen er ikke bekreftet fullført ennå.':'');
+      list.replaceChildren();
+      const rows=work.identity.filter(c=>(s.scope==='all'||(s.scope==='rejected'?c.caseStatus==='rejected':
+        c.bucket===s.scope&&(s.scope!=='finished'||c.caseStatus!=='rejected')))&&
+        [c.reason,...c.personIds.map(name)].join(' ').toLocaleLowerCase('nb-NO').includes(s.query.toLocaleLowerCase('nb-NO')));
+      for(const c of rows.slice(0,40)){const card=node('article');card.className='correction-case';
+        card.append(node('h3',c.personIds.map(name).join(' / ')),node('p',c.reason));
+        const stored=s.saved.draft?.cases.find(x=>x.id===c.caseId);
+        card.append(btn(stored?'Vis lagret avgjørelse':'Åpne og sammenlign','identityOpen-'+(c.caseId||c.id),()=>inspect(c.personIds,stored)));list.append(card);}
+      if(!rows.length)list.append(node('p','Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
+      if(rows.length>40)list.append(node('p','Viser de første 40 treffene. Avgrens med navnesøket.'));
+      archive.replaceChildren(node('summary','Tidligere kildegrunnlag · '+(s.saved.archives||[]).length));
+      for(const old of s.saved.archives||[]){const group=node('details');group.append(node('summary','Dataversjon '+old.base.dataVersion+' · '+old.draft.cases.length+' bevarte saker'));
+        for(const c of old.draft.cases)group.append(node('p',c.personIds.map(name).join(' / ')+' · '+c.reason));archive.append(group);}
+      if(s.selectedCase){const stored=s.saved.draft?.cases.find(c=>c.id===s.selectedCase);if(stored)inspect(stored.personIds,stored);}
+      disable();
+    }
+    const refresh=btn('Hent lagrede avgjørelser','identityRefresh',async()=>{await read();if(active())await monitor();});
+    const approve=btn('Godkjenn lagrede avgjørelser','identityApprove',async()=>{
+      if(!confirm('Godkjenne nøyaktig denne lagrede revisjonen? Dette publiserer ikke identitetsendringer.'))return;
+      await api('/identity/approve',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
+    const revalidate=btn('Kontroller ny historikkversjon','identityRevalidate',async()=>{
+      if(!confirm('Bevare alle gamle saker i historikken og kontrollere avviste par mot ny kilde? Sammenslåinger må vurderes på nytt. Ingen publisering.'))return;
+      await api('/identity/revalidate',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
+    const retry=btn('Hent status / fortsett lagring','identityRetry',async()=>{
+      await read();if(active()){await monitor();return;}
+      if(s.request){await api('/identity/decide',s.request);await monitor();}
+    });
+    const reload=btn('Last inn oppdatert historikk','identityReload',()=>location.reload());
+    const check=btn('Kontroller lagrede avgjørelser','identityCheck',async()=>{
+      await api('/identity/check',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
+    controls.append(refresh,check,approve,revalidate,retry,reload,btn('Logg ut','identityLogout',()=>actions.logout.click()));
+    const search=input('identitySearch');search.type='search';search.oninput=()=>{s.query=search.value;render().catch(e=>{status.textContent=e.message;});};
+    const filter=select([['pending','Ubehandlede'],['finished','Behandlede'],['rejected','Avviste par'],['followup','Til avklaring'],['all','Alle saker']],'pending','identityFilter');
+    filter.onchange=()=>{s.scope=filter.value;render().catch(e=>{status.textContent=e.message;});};
+    const manual=node('details');manual.append(node('summary','Finn profiler manuelt'));
+    const choices=[];
+    for(let i=0;i<2;i++){const q=input('identityManualSearch'+i),selectPerson=select([['','Velg profil']],undefined,'identityManualPerson'+i);q.type='search';q.oninput=()=>{
+      const folded=window.MorothonIntake.fold(q.value);selectPerson.replaceChildren(node('option','Velg profil'));selectPerson.firstChild.value='';
+      if(folded.length<2)return;
+      for(const p of [...identityContext.context.people.values()].filter(p=>p.names.some(n=>window.MorothonIntake.fold(n.name).includes(folded))).slice(0,30)){
+        const o=node('option',p.name);o.value=p.id;selectPerson.append(o);}};
+      manual.append(field(i?'Andre profil (ved sammenslåing)':'Søk etter profil',q),selectPerson);choices.push(selectPerson);}
+    manual.append(btn('Sammenlign valgte profiler','identityManualOpen',()=>{
+      const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');inspect(ids,null);}));
+    panel.append(node('h2','Personkontroll'),node('p','Identiteter, hovednavn og alias. Resultatimport og resultatkorrigeringer behandles under Årets arrangement.'),
+      node('p','Lagring er privat. Godkjenning er en egen handling. Identitetspublisering er ikke aktivert i denne leveransen.'),status,controls,counts,
+      field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
+    const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
+    workspace().usePrivateIdentities?.();
+    document.querySelector('.local-tag').textContent='Beskyttet administrasjon';
+    document.querySelector('.sidebar-note strong').textContent='Privat lagring';
+    const annual=node('a','Rett og kontroller eksisterende resultater');annual.href='#rettelser';$('view-import').prepend(annual);
+    try{await read();if(active())await monitor();}catch(error){status.textContent=error.message+' Ingen ny lagring er bekreftet.';disable();}
   }
   async function login() {
     const verifier = b64(crypto.getRandomValues(new Uint8Array(32))),
@@ -759,6 +945,7 @@
       }
       if (principal) {
         await read();
+        await mountIdentity();
         if (saved?.task && !["completed", "failed"].includes(saved.task.state))
           await monitor();
       }

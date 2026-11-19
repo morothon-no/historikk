@@ -64,7 +64,7 @@ export async function cloudflareGithubFetch(url, options = {}, fetchImpl = fetch
 export function sameOriginBrokerRead(request, apiOrigin) {
   const url = new URL(request.url);
   if (url.origin !== apiOrigin || request.method !== "GET" ||
-      !["/session", "/review"].includes(url.pathname) ||
+      !["/session", "/review", "/identity"].includes(url.pathname) ||
       request.headers.has("origin") ||
       request.headers.get("sec-fetch-site") !== "same-origin" ||
       !/^Bearer [A-Za-z0-9_-]{43}$/.test(request.headers.get("authorization") || ""))
@@ -183,6 +183,8 @@ export default {
               prefix: "reviews",
               maxBytes: 131072,
             }),
+            identities: githubStore({api:privateApi,key,repositoryId:env.PRIVATE_REPOSITORY_ID,
+              prefix:'identity-reviews'}),
             control: githubStore({
               api: privateApi,
               key,
@@ -210,6 +212,7 @@ export default {
           workflowSha: env.PRIVATE_WORKFLOW_SHA,
           auth,
           reviews: stores.reviews,
+          identities: stores.identities,
           control: stores.control,
           // The pinned broker only dispatches/reads private Actions through
           // privateApi. OAuth/review/control state independently use

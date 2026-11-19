@@ -3,6 +3,7 @@
 const { sha, fail } = require("./github-store.cjs"),
   { token } = require("./auth.cjs");
 const C = require("../../../tools/diploma-admin/intake-model.js").Corrections;
+const {validateIdentityCommand, SCOPE} = require("./identity-command.cjs");
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b),
   copy = (v) => structuredClone(v);
@@ -15,6 +16,7 @@ function createBroker({
   workflowSha,
   auth,
   reviews,
+  identities,
   control,
   privateApi,
   publicApi,
@@ -97,7 +99,7 @@ function createBroker({
           : null,
       publication: p?.publication || null,
       history: p?.history || [],
-      task: task
+      task: task && task.scope !== SCOPE
         ? {
             id: task.id,
             state: task.state,
@@ -106,6 +108,21 @@ function createBroker({
           }
         : null,
     };
+  }
+  async function identityView() {
+    if (!identities) throw fail("Privat personkontroll er ikke aktivert.", 404);
+    const record = await identities.get(ORG), b = await base(), task = await active(),
+      inspection = await control.get('identity-inspection-'+ORG);
+    if (record && (record.module !== SCOPE || record.organizer !== ORG || record.status === 'published'))
+      throw fail("Ugyldig privat identitetsgrunnlag.", 409);
+    if (record) C.validatePackage(record.draft);
+    return {scope:SCOPE, revision:record?.revision || 0, status:record?.status || 'empty',
+      persisted:!!record, draft:record?.draft || null, digest:record?.draft ? sha(record.draft) : null,
+      approval:record?.approval || null, events:record?.events || [], archives:record?.archives || [],
+      stale:!!record && !same(record.base,b), productionApplied:false, publicationAuthorized:false,
+      inspection:record && inspection?.digest===sha(record.draft) && same(inspection.base,b) ? inspection.report : null,
+      task:task?.scope === SCOPE ? {id:task.id,state:task.state,action:task.action,
+        requestId:task.identityCommand?.id || null,error:task.error || null} : null};
   }
   async function dispatch(task) {
     await privateApi.request(
@@ -122,10 +139,31 @@ function createBroker({
   }
   async function startTask(actor, action, input) {
     await idle();
-    const record = await reviews.get(ORG),
+    const identity = action.startsWith('identity-');
+    if (identity && !identities) throw fail("Privat personkontroll er ikke aktivert.",404);
+    const record = await (identity ? identities : reviews).get(ORG),
       b = await base();
+    let identityCommand;
+    if (identity) {
+      if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0 ||
+          (record?.revision || 0) !== input.expectedRevision || record && action !== 'identity-revalidate' && !same(record.base,b))
+        throw fail('Identitetsgrunnlaget er endret. Hent siste lagrede vurdering.',409);
+      if (record && (record.module !== SCOPE || record.organizer !== ORG))
+        throw fail('Feil privat identitetsgrunnlag.',409);
+      if (action === 'identity-decide') {
+        try { identityCommand = validateIdentityCommand(input.command); }
+        catch (error) { throw fail(error.message,400); }
+        if (!same(identityCommand.base,b)) throw fail('Historikken er oppdatert. Last inn på nytt.',409);
+      } else if (!record?.draft || sha(record.draft) !== input.expectedDigest)
+        throw fail('Godkjenningen gjelder en annen identitetsrevisjon.',409);
+      if (action === 'identity-approve') {
+        const inspection=await control.get('identity-inspection-'+ORG);
+        if (!inspection?.report.ready || inspection.digest!==input.expectedDigest || !same(inspection.base,b))
+          throw fail('Den lagrede identitetsrevisjonen må kontrolleres før godkjenning.',409);
+      }
+    }
     if (
-      action !== "reverse" &&
+      !identity && action !== "reverse" &&
       (!record?.draft ||
         record.revision !== input.expectedRevision ||
         sha(record.draft) !== input.expectedDigest ||
@@ -174,6 +212,7 @@ function createBroker({
         createdAt: stamp(),
         codeSha,
         workflowSha,
+        ...(identity ? {scope:SCOPE,...(identityCommand ? {identityCommand} : {})} : {}),
       };
     // Reserve before dispatch; an uncertain response cannot authorize a second task.
     await control.transact("queue-" + ORG, q?.revision || 0, (p) => ({
@@ -350,6 +389,7 @@ function createBroker({
           userId: actor.subject,
           role: "owner",
           canPublish: true,
+          identityPersistence: !!identities,
         });
       if (route === "/logout" && request.method === "POST") {
         await body(request, []);
@@ -357,6 +397,12 @@ function createBroker({
       }
       if (route === "/review" && request.method === "GET")
         return json(200, await view());
+      if (route === '/identity' && request.method === 'GET') return json(200,await identityView());
+      if (['/identity/decide','/identity/approve','/identity/revalidate','/identity/check'].includes(route) && request.method === 'POST') {
+        const deciding = route.endsWith('/decide');
+        return json(202,await startTask(actor, deciding ? 'identity-decide' : route.endsWith('/revalidate') ? 'identity-revalidate' : route.endsWith('/check') ? 'identity-check' : 'identity-approve',
+          await body(request, deciding ? ['expectedRevision','command'] : ['expectedRevision','expectedDigest'])));
+      }
       if (route === "/review/save" && request.method === "POST") {
         await idle();
         const input = await body(request, ["draft", "expectedRevision"]);

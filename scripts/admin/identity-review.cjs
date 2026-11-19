@@ -8,7 +8,8 @@ const H = require('../../js/history-data.js');
 const {authorize} = require('./access-control.cjs');
 const {createReviewService, privateFileStore} = require('./review-workspace.cjs');
 
-const SCOPE = 'person-control-v1', scoped = Symbol(SCOPE);
+const {validateIdentityCommand:command,SCOPE}=require('./serverless/identity-command.cjs');
+const scoped = Symbol(SCOPE);
 const copy = v => structuredClone(v);
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
 const sha = v => createHash('sha256').update(JSON.stringify(v)).digest('hex');
@@ -33,7 +34,9 @@ function identityReviewStore({openNamespace} = {}) {
     transact: (organizer, revision, update) => backing.transact(organizer, revision, previous => {
       checked(previous, organizer);
       const next = update(previous);
-      return checked({...next, module:SCOPE, organizer}, organizer);
+      return checked({...next,
+        ...(next.archives === undefined && previous?.archives ? {archives:copy(previous.archives)} : {}),
+        module:SCOPE, organizer}, organizer);
     })
   };
 }
@@ -43,34 +46,6 @@ function privateIdentityFileStore({directory, key} = {}) {
   return identityReviewStore({openNamespace: scope => privateFileStore({directory:path.join(directory, scope), key})});
 }
 
-// Commands contain intent, not imported handoff/approval flags or client before-values.
-function command(value) {
-  const fields = ['format','version','id','base','kind','personIds','mainPersonId','name','source','reason'];
-  if (!value || typeof value !== 'object' || !equal(Object.keys(value).sort(), fields.sort()) ||
-      value.format !== 'morothon-identity-decision-v1' || value.version !== 1)
-    fail('Ukjent identitetskommando eller felt.');
-  C.empty(value.base);
-  if (!['same-person','different-people','rename','alias'].includes(value.kind))
-    fail('Resultatimport og resultatkorrigering hører til Årets arrangement.');
-  const paired = ['same-person','different-people'].includes(value.kind);
-  if (!Array.isArray(value.personIds) || value.personIds.length !== (paired ? 2 : 1) ||
-      new Set(value.personIds).size !== value.personIds.length ||
-      value.personIds.some(id => typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)))
-    fail('Velg entydige person-ID-er.');
-  if (value.kind === 'same-person' ? !value.personIds.includes(value.mainPersonId) : value.mainPersonId !== null)
-    fail('Velg hovedprofil bare ved sammenslåing.');
-  if (paired ? value.name !== null : typeof value.name !== 'string' || !value.name.trim() || value.name.length > 200)
-    fail('Ugyldig hovednavn eller alias.');
-  if (typeof value.source !== 'string' || !value.source.trim() || typeof value.reason !== 'string' || !value.reason.trim())
-    fail('Beslutningen krever kilde og begrunnelse.');
-  const next = copy(value);
-  next.personIds.sort(); // Idempotency and distinct decisions concern an unordered pair.
-  // Reuse the engine's strict text, ID and size validation as well.
-  const validation = C.report(C.empty(next.base), {id:next.id, category:'Mulige duplikater', personIds:next.personIds,
-    description:next.reason, source:next.source});
-  C.transition(validation, next.id, 'review', next.reason);
-  return next;
-}
 
 function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
   if (typeof authenticate !== 'function' || typeof loadContext !== 'function' || !store?.[scoped])
@@ -109,7 +84,9 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     const saved = await service.load(input), current = await context(input.organizer);
     // Re-evaluate staleness after loading context, rather than mixing two snapshots.
     saved.stale = !!saved.draft && !equal(saved.draft.base, current.base);
-    return view(current, saved);
+    const record = await store.get(input.organizer);
+    if ((record?.revision || 0) !== saved.revision) fail('Arbeidsgrunnlaget ble endret under lasting. Hent på nytt.');
+    return {...await view(current, saved), archives:copy(record?.archives || [])};
   }
   async function checked(current, draft) {
     // The private command API is the only producer. Still downgrade all imported
@@ -235,7 +212,50 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     await access(input, 'approve');
     return {...await service.approve(input), scope:SCOPE, persisted:true};
   }
-  return {load, preview, decide, approve}; // Intentionally no publish/apply or production writer.
+  async function inspect(input) {
+    await access(input,'read');
+    const saved=await service.load(input),current=await context(input.organizer);
+    if(!saved.draft||saved.stale||!equal(saved.draft.base,current.base))fail('Hent og kontroller oppdatert identitetsgrunnlag først.');
+    if(input.expectedRevision!==undefined&&(saved.revision!==input.expectedRevision||sha(saved.draft)!==input.expectedDigest))
+      fail('Arbeidsgrunnlaget er endret. Hent siste revisjon.');
+    const result=await checked(current,saved.draft);
+    if(!equal((await loadContext(input.organizer)).base,current.base))fail('Historikken ble oppdatert under kontrollen.');
+    return {...result,digest:sha(saved.draft),
+      productionApplied:false,publicationAuthorized:false};
+  }
+  async function revalidate(input) {
+    await access(input,'approve');
+    const current = await context(input.organizer), previous = await store.get(input.organizer);
+    if (!previous || previous.revision !== input.expectedRevision || sha(previous.draft) !== input.expectedDigest)
+      fail('Arbeidsgrunnlaget er endret. Hent siste revisjon.');
+    if (equal(previous.base,current.base)) fail('Arbeidsgrunnlaget bruker allerede gjeldende historikk.');
+    const suggestions = C.discover({...current.history,results:[]});
+    let draft = C.empty(current.base);
+    for (const old of previous.draft.cases) {
+      if (old.status !== 'rejected' || !old.events.some(e=>e.action === 'identity-different-people')) continue;
+      const suggestion = suggestions.find(s=>equal([...s.personIds].sort(),[...old.personIds].sort()));
+      if (!suggestion || (await C.reviewSuggestions([suggestion],previous.draft))[0].caseId !== old.id) continue;
+      draft = (await C.openSuggestion(draft,suggestion,old.id)).package;
+      draft = C.updateNotes(draft,old.id,{description:old.description,source:old.source,reason:old.reason});
+      draft = C.transition(draft,old.id,'rejected',old.reason);
+      draft.cases.at(-1).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
+        action:'identity-different-people',reason:'Tidligere bekreftet avvisning med uendret identitetsgrunnlag.'});
+    }
+    const actor = await authenticate(input.session); authorize(actor,input.organizer,'approve');
+    if (!equal((await loadContext(input.organizer)).base,current.base)) fail('Historikken ble oppdatert under kontrollen.');
+    const at = new Date(clock ? clock() : Date.now()).toISOString();
+    await store.transact(input.organizer,input.expectedRevision,record=>{
+      if (record.publicationLock || sha(record.draft) !== input.expectedDigest) fail('Arbeidsgrunnlaget er endret eller låst.');
+      return {...record,revision:record.revision+1,status:'draft',base:current.base,draft,approval:null,
+        archives:[...(record.archives || []),{base:record.base,draft:record.draft,approval:record.approval,
+          digest:sha(record.draft),archivedBy:actor.subject,archivedAt:at}],
+        events:[...record.events,{action:'identity-source-revalidated',actor:actor.subject,at,
+          revision:record.revision+1,digest:sha(draft)}]};
+    });
+    return load(input);
+  }
+  return {load, preview, decide, approve, inspect, revalidate}; // No production writer.
 }
 
-module.exports = {createIdentityReview, identityReviewStore, privateIdentityFileStore, SCOPE};
+module.exports = {createIdentityReview, identityReviewStore, privateIdentityFileStore, SCOPE,
+  validateIdentityCommand:command};

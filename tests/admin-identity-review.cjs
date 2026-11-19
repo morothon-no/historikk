@@ -308,3 +308,34 @@ test('a new organizer starts with an empty worklist, without Morothon seeds or i
   assert.deepEqual(loaded.worklist,{identity:[],reports:[]});
   assert.equal(await f.store.get(org),null);
 });
+
+test('source revalidation requires exact owner approval, archives merges and approvals, and carries only unchanged distinct evidence', async t=>{
+ const f=await setup(t);
+ const first=await f.service.decide({...f.input,command:f.command()});
+ const second=await f.service.decide({...f.input,expectedRevision:first.revision,command:f.command('different-people',
+  {id:'different-secondary',personIds:['MOR-C220003','MOR-C220004']})});
+ await f.service.approve({...f.input,expectedRevision:second.revision,expectedDigest:second.digest});
+ const previous=await f.service.load(f.input);
+ f.history.results[0][5]='49:20';f.context.base=await C.binding(f.history,{...sample.meta,dataVersion:3});
+ const input={...f.input,expectedRevision:previous.revision,expectedDigest:previous.digest};
+ await assert.rejects(()=>f.service.revalidate({...input,session:'editor'}),/Ingen tilgang/);
+ await assert.rejects(()=>f.service.revalidate({...input,expectedDigest:'e'.repeat(64)}),/endret/);
+ const rebased=await f.service.revalidate(input);
+ assert.equal(rebased.stale,false);assert.equal(rebased.approval,null);assert.equal(rebased.status,'draft');
+ assert.equal(rebased.draft.cases.length,1);assert.equal(rebased.draft.cases[0].status,'rejected');
+ assert.equal(rebased.archives.length,1);assert.deepEqual(rebased.archives[0].draft,previous.draft);
+ assert.deepEqual(rebased.archives[0].approval,previous.approval);
+ assert.equal(rebased.events.at(-1).actor,f.sessions.get('owner').subject);
+ await assert.rejects(()=>f.service.revalidate(input),/endret/);
+});
+
+test('new identity evidence is never silently carried into a refreshed source and inspection cannot authorize a stale revision', async t=>{
+ const f=await setup(t);await f.service.decide({...f.input,command:f.command('different-people')});
+ const previous=await f.service.load(f.input);
+ f.history.aliases[ids[0]].push(f.history.people[1].n);f.context.base=await C.binding(f.history,{...sample.meta,dataVersion:3});
+ const rebased=await f.service.revalidate({...f.input,expectedRevision:1,expectedDigest:previous.digest});
+ assert.equal(rebased.draft.cases.length,0);assert.equal(rebased.archives[0].draft.cases[0].status,'rejected');
+ assert.ok(rebased.worklist.identity.some(c=>c.personIds.includes(ids[0])&&c.bucket==='pending'));
+ await assert.rejects(()=>f.service.inspect({...f.input,expectedRevision:1,expectedDigest:previous.digest}),/endret/);
+ assert.equal(rebased.publicationAuthorized,false);assert.equal(rebased.productionApplied,false);
+});

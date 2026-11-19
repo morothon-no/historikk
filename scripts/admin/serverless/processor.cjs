@@ -84,6 +84,8 @@ async function main(env = process.env) {
       repositoryId: lease.privateRepositoryId,
       prefix: "reviews",
     }),
+    identities = githubStore({api:privateApi,key,repositoryId:lease.privateRepositoryId,
+      prefix:'identity-reviews'}),
     control = githubStore({
       api: privateApi,
       key,
@@ -155,6 +157,7 @@ async function main(env = process.env) {
     const driver = createDriver({
       lease,
       reviews,
+      identities,
       control,
       stateStore,
       directory,
