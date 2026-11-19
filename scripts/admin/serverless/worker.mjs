@@ -117,8 +117,10 @@ export default {
           auth,
           reviews: stores.reviews,
           control: stores.control,
-          privateApi,
-          privateActionsApi,
+          // The pinned broker only dispatches/reads private Actions through
+          // privateApi. OAuth/review/control state independently use
+          // the contents-write privateApi in the stores above.
+          privateApi: privateActionsApi,
           publicApi,
           verifyOidc: oidcModule.oidcVerifier({
             repository: env.PRIVATE_REPOSITORY,
