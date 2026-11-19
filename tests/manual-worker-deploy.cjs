@@ -246,7 +246,8 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
     (
       await verifyHealth(c, {
         fetchImpl: async (url, o) => {
-          calls.push({ url, o });
+          calls.push({ url: String(url), o });
+          url=String(url);
           if (url.endsWith("/health")) return Response.json({ status: "ok" });
           if (url.endsWith("/review")) return new Response("{}",{status:401});
           if (url === c.vars.PORTAL_URL)
