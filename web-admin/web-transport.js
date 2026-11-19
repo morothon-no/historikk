@@ -194,6 +194,12 @@
     if (r.status === 401) {
       sessionToken = null;
       principal = null;
+      // Server authentication has expired. Never leave a private admin
+      // workspace visible merely because its HTML was already rendered.
+      if (protectedPortal) {
+        location.replace("/admin/");
+        throw Error("Innloggingen er utløpt. Lagret arbeid er bevart.");
+      }
       render();
       throw Error("Logg inn på nytt. Lagret arbeid er bevart.");
     }
