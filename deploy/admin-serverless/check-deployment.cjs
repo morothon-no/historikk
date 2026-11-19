@@ -394,27 +394,33 @@ async function verifyHealth(c, {
   });
   requireThat(forbiddenMirror.status === 404,
     "Offentlig speil kan levere adminfiler.");
-  // The original public GitHub Pages address must not serve ANY former
-  // admin entrypoint or asset. Accept only 404/410, or a redirect to the
-  // canonical protected route (whose own anonymous checks run above).
+  // Neither the original Pages alias nor the public canonical domain may
+  // deliver a leftover admin entrypoint. A Pages canonical redirect is not
+  // evidence of protection: follow it and require an actual 404/410.
   const pagesBase = "https://morothon-no.github.io/historikk/admin/";
+  const publicBase = "https://historikk.morothon.no/admin/";
   for (const asset of ["", ...protectedAssets, "admin.js.map"]) {
     const aliasUrl = new URL(asset, pagesBase);
     const pagesAlias = await fetchImpl(aliasUrl, {
       method: "GET", redirect: "manual", cache: "no-store",
       signal: AbortSignal.timeout(20000),
     });
-    const redirect = pagesAlias.headers.get("location") || "";
-    const expected = new URL(asset, portal);
-    let redirectedToProtected = false;
-    try {
-      const target = new URL(redirect, aliasUrl);
-      redirectedToProtected = target.origin === expected.origin &&
-        target.pathname === expected.pathname &&
-        target.search === expected.search;
-    } catch {}
-    requireThat([404, 410].includes(pagesAlias.status) ||
-      ([301, 302, 307, 308].includes(pagesAlias.status) && redirectedToProtected),
+    let safe = [404, 410].includes(pagesAlias.status);
+    if (!safe && [301, 302, 307, 308].includes(pagesAlias.status)) {
+      const location = pagesAlias.headers.get("location") || "";
+      let target;
+      try { target = new URL(location, aliasUrl); } catch {}
+      const intended = new URL(asset, publicBase);
+      if (target && target.origin === intended.origin &&
+          target.pathname === intended.pathname && target.search === intended.search) {
+        const final = await fetchImpl(target, {
+          method: "GET", redirect: "error", cache: "no-store",
+          signal: AbortSignal.timeout(20000),
+        });
+        safe = [404, 410].includes(final.status);
+      }
+    }
+    requireThat(safe,
       "Den gamle offentlige Pages-adressen leverer fortsatt admin: " +
         aliasUrl.pathname);
   }
