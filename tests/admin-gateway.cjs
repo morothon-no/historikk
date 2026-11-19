@@ -106,6 +106,8 @@ test("public runtime excludes all admin files; protected bundle contains only ex
     assert.deepEqual(files.sort(),Object.keys(ADMIN_SOURCES).map(n=>path.basename(n)).sort());
     const html=await fs.readFile(path.join(output,"admin/index.html"),"utf8");
     assert.match(html,/data-admin-mode="protected"/);
+    assert.match(html,/src="\/site\/js\/history-data\.js"/);
+    assert.doesNotMatch(html,/src="\.\.\/js\/history-data\.js"/);
     assert.match(html,/morothon-admin-service" content="https:\/\/morothon-admin/);
     assert.doesNotMatch(html,/morothon-admin-auth-probe/);
     assert.ok(!files.some(n=>/history\.json|original|private/i.test(n)));
