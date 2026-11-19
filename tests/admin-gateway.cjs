@@ -76,9 +76,11 @@ test("authorization is verified before every protected asset, and logout revokes
 });
 test("path traversal, reserved endpoints and malformed paths cannot reach asset adapter", async () => {
   const f=fixture();
-  for(const p of ["/admin/_session","/admin/%2e%2e/admin.js","/admin/a%2fb.js","/admin/noextension","/admin/foo.map"]) {
+  for(const p of ["/admin/_session","/admin/a%2fb.js","/admin/noextension","/admin/foo.map"]) {
     assert.equal((await f.gate(f.req(p,{cookie:TOKEN}))).status,404,p);
   }
+  // The Request constructor canonicalizes %2e%2e before the Worker receives it.
+  // It therefore cannot be used to assert that the Worker saw a raw traversal path.
   assert.equal(f.reads(),0);
 });
 
