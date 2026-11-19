@@ -1,13 +1,13 @@
 /* Static Pages adapter: public reads, isolated previews, no HTTP API or writes. */
 (() => {
   'use strict';
-  const rootUrl = new URL('../', document.baseURI), adminUrl = new URL('./', document.baseURI);
+  const rootUrl = document.body.dataset.adminMode === 'protected' ? new URL('/site/', location.origin) : new URL('../', document.baseURI), adminUrl = new URL('./', document.baseURI);
   let enginePromise, busy = false, release, context, honorContext, honorInput, honorEnabled = true, ownsPackage = false;
   const sha = async bytes => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b=>b.toString(16).padStart(2,'0')).join('');
   async function json(url) { const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('Kunne ikke laste offentlig fil: '+new URL(url).pathname);return r.json(); }
   const ready=(async()=>{
     const [manifest,info,profile]=await Promise.all([json(new URL('public-manifest.json',rootUrl)),json(new URL('build-info.json',rootUrl)),json(new URL('event-profile.json',adminUrl))]);
-    if(manifest.schemaVersion!==1||new URL(info.siteUrl).pathname!==rootUrl.pathname)throw Error('Nettversjonens publiseringsadresse eller datakontrakt er ugyldig.');
+    if(manifest.schemaVersion!==1 || new URL(info.siteUrl).origin!=='https://historikk.morothon.no' || new URL(info.siteUrl).pathname!=='/')throw Error('Nettversjonens publiseringsadresse eller datakontrakt er ugyldig.');
     const load=async name=>{const key='data/'+name+'.json',r=await fetch(new URL(key,rootUrl),{cache:'no-store'});if(!r.ok)throw Error('Kunne ikke laste '+key);const bytes=await r.arrayBuffer(),entry=manifest.files[key];if(!entry||entry.bytes!==bytes.byteLength||entry.sha256!==await sha(bytes))throw Error('Offentlige data er endret eller fra ulike versjoner. Last siden på nytt.');return JSON.parse(new TextDecoder().decode(bytes));};
     const [history,badges,honors,volunteers]=await Promise.all(['history','badges','honors','volunteers'].map(load));
     MorothonEventProfile.validate(profile,badges);MorothonEventProfile.apply(profile,badges,rootUrl);
