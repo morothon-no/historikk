@@ -114,6 +114,36 @@ test("public runtime excludes all admin files; protected bundle contains only ex
   } finally{await fs.rm(temp,{recursive:true,force:true});}
 });
 
+test("same-origin protected bearer GET gets required broker Origin without permitting foreign requests", async () => {
+  const { sameOriginBrokerRead } = await import("../scripts/admin/serverless/worker.mjs");
+  const bearer = "Bearer " + TOKEN;
+  const req = (route, { method="GET", originHeader, site="same-origin", auth=bearer }={}) =>
+    new Request(origin + route, {
+      method,
+      headers: {
+        "Sec-Fetch-Site": site,
+        ...(auth?{"Authorization":auth}:{}),
+        ...(originHeader?{"Origin":originHeader}:{})
+      }
+    });
+  for (const route of ["/session", "/review"]) {
+    const input=req(route), result=sameOriginBrokerRead(input,origin);
+    assert.equal(input.headers.get("origin"),null);
+    assert.equal(result.headers.get("origin"),origin);
+    assert.equal(result.headers.get("authorization"),bearer);
+  }
+  for (const input of [
+    req("/session",{site:"cross-site"}),
+    req("/session",{site:"none"}),
+    req("/review",{auth:null}),
+    req("/review",{originHeader:"https://evil.test"}),
+    req("/review/save"),
+    req("/session",{method:"POST"}),
+    new Request("https://evil.test/session",{headers:{"Sec-Fetch-Site":"same-origin",Authorization:bearer}})
+  ])
+    assert.equal(sameOriginBrokerRead(input,origin),input);
+});
+
 test("OAuth begin failure diagnostics identify only safe, read-only stages", async () => {
   const { diagnoseAuthStorage } = await import("../scripts/admin/serverless/worker.mjs");
   const id = "1456606620";
