@@ -66,11 +66,8 @@ function validateConfig(c) {
     "Uventet eksponering eller konfigurasjonsoverstyring.",
   );
   requireThat(
-    same(c.routes, [{
-      pattern: "historikk.morothon.no/admin/*",
-      zone_name: "morothon.no",
-    }]),
-    "Kun admin-stien på eksisterende Cloudflare-domene kan rutes til Worker.",
+    same(c.routes, []),
+    "Separat workers.dev-admin skal ikke overta det offentlige domenet.",
   );
   requireThat(
     same(c.assets, {
@@ -121,7 +118,7 @@ function validateConfig(c) {
   const v = c.vars;
   requireThat(
     v.API_ORIGIN === "https://morothon-admin.damofra75.workers.dev" &&
-      v.PORTAL_URL === "https://historikk.morothon.no/admin/",
+      v.PORTAL_URL === "https://morothon-admin.damofra75.workers.dev/admin/",
     "Feil bekreftet adresse.",
   );
   requireThat(
@@ -382,6 +379,21 @@ async function verifyHealth(c, {
         "Adminfil er offentlig tilgjengelig uten innlogging: " + asset);
     }
   }
+  // Public runtime mirror must be readable on the admin origin and must not
+  // allow admin source paths through the public mirror.
+  const publicRuntime = await fetchImpl(new URL("/site/public-manifest.json", portal), {
+    method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  requireThat(publicRuntime.status === 200 &&
+    (publicRuntime.headers.get("content-type") || "").includes("application/json"),
+    "Offentlig runtime-speil på admin-origin fungerer ikke.");
+  const forbiddenMirror = await fetchImpl(new URL("/site/admin/admin.js", portal), {
+    method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  requireThat(forbiddenMirror.status === 404,
+    "Offentlig speil kan levere adminfiler.");
   // The original public GitHub Pages address must not serve ANY former
   // admin entrypoint or asset. Accept only 404/410, or a redirect to the
   // canonical protected route (whose own anonymous checks run above).
