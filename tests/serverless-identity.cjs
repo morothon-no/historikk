@@ -43,10 +43,11 @@ test('distinct pairs remain processed after reload; explicit owner approval is s
 
 test('identity routes reject anonymous/forged tokens, hostile origins, result commands, wrong source versions, stale writers and overlapping jobs',async t=>{
  const f=await setup(t),session=await f.login(),body={expectedRevision:0,command:f.command()};
- for(const route of ['/identity','/identity/decide','/identity/approve','/identity/revalidate']){
+ for(const route of ['/identity','/identity/decide','/identity/approve','/identity/revalidate','/identity/check']){
   assert.equal((await f.request(route,route==='/identity'?undefined:body)).status,401);
   assert.equal((await f.request(route,route==='/identity'?undefined:body,'forged')).status,401);
   assert.equal((await f.request(route,route==='/identity'?undefined:body,session,{origin:'https://evil.example.test'})).status,403);
+  assert.equal((await f.request(route,route==='/identity'?undefined:body,session,{origin:null})).status,403);
  }
  assert.equal((await f.request('/identity/decide',{...body,command:{...body.command,kind:'result'}},session)).status,400);
  const wrong=structuredClone(body);wrong.command.base.dataVersion++;assert.equal((await f.request('/identity/decide',wrong,session)).status,409);
