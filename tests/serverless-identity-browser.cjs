@@ -10,14 +10,20 @@ const {createAdminGateway}=require('../scripts/admin/serverless/admin-gateway.cj
 const {ADMIN_SOURCES}=require('../scripts/lib/runtime-files.cjs');
 
 test('protected Personkontroll saves, approves and reopens after a fresh login; failed merges never become saved, and responsive worklists hide handled pairs', {timeout:120000},async t=>{
+ // Each test file has its own Node process. Exercise CI's usual umask even
+ // when the local shell uses 0077, which previously hid an unsafe fixture root.
+ const previousUmask=process.umask(0o022);t.after(()=>process.umask(previousUmask));
  const f=await setup(t),root=path.resolve(__dirname,'..'),original=await fs.readFile(path.join(root,'public-data/data/history.json'));
- const data=path.join(f.directory,'browser-package'),approval=path.join(f.directory,'browser-approval.json');
+ // f.directory belongs exclusively to the encrypted store. Let the real store
+ // create it with 0700; recursive asset builds would otherwise create it 0755.
+ const assets=path.join(path.dirname(f.directory),'browser-fixture');
+ const data=path.join(assets,'browser-package'),approval=path.join(assets,'browser-approval.json');
  await fs.mkdir(path.join(data,'data'),{recursive:true});
  for(const name of ['history','honors','volunteers','badges','event-dates'])await fs.writeFile(path.join(data,'data',name+'.json'),f.repository.files.get('public-data/data/'+name+'.json'));
  await fs.writeFile(path.join(data,'manifest.json'),f.repository.files.get('public-data/manifest.json'));
  await fs.writeFile(approval,f.repository.files.get('.github/public-data-approval.json'));
- const built=await buildSite(path.join(f.directory,'browser-site'),{dataDir:data,approvalFile:approval});
- const runtime=await approvedRuntime(built.out,approval),protectedDir=path.join(f.directory,'protected-assets');
+ const built=await buildSite(path.join(assets,'browser-site'),{dataDir:data,approvalFile:approval});
+ const runtime=await approvedRuntime(built.out,approval),protectedDir=path.join(assets,'protected-assets');
  await buildProtectedAdmin(protectedDir);
  const files=new Map(runtime.files);
  for(const name of Object.keys(ADMIN_SOURCES)){
@@ -76,6 +82,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  }
  try {
  const {page,context,session}=await open();
+ assert.equal((await fs.stat(f.directory)).mode&0o777,0o700,'The private store must create its own 0700 directory under CI umask 0022');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
  assert.equal(await page.locator('#identityWorklist article').count(),2);
  assert.equal(await page.locator('#identityApprove').isEnabled(),false);
