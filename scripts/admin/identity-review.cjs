@@ -1,0 +1,241 @@
+// #116 A: private identity decisions, using the existing correction and review engines.
+// No HTTP route, source writer, publication permission or browser persistence here.
+'use strict';
+const path = require('node:path');
+const {createHash} = require('node:crypto');
+const C = require('../../tools/diploma-admin/intake-model.js').Corrections;
+const H = require('../../js/history-data.js');
+const {authorize} = require('./access-control.cjs');
+const {createReviewService, privateFileStore} = require('./review-workspace.cjs');
+
+const SCOPE = 'person-control-v1', scoped = Symbol(SCOPE);
+const copy = v => structuredClone(v);
+const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+const sha = v => createHash('sha256').update(JSON.stringify(v)).digest('hex');
+const fail = message => { throw Error(message); };
+
+// A trusted server factory opens a physically separate namespace in an existing
+// encrypted CAS adapter. Never use an organizer ID as a pseudo-module/tenant ID.
+function identityReviewStore({openNamespace} = {}) {
+  if (typeof openNamespace !== 'function') fail('Separat privat navnerom for Personkontroll er påkrevd.');
+  const backing = openNamespace(SCOPE);
+  if (!backing || typeof backing.get !== 'function' || typeof backing.transact !== 'function')
+    fail('Kryptert, revisjonsbundet lagringsadapter er påkrevd.');
+  function checked(record, organizer) {
+    if (record && (record.module !== SCOPE || record.organizer !== organizer || record.status === 'published'))
+      fail('Arbeidsgrunnlaget tilhører en annen modul eller arrangør, eller har ugyldig publiseringsstatus.');
+    if (record) C.validatePackage(record.draft);
+    return record;
+  }
+  return {
+    [scoped]: true,
+    get: async organizer => checked(await backing.get(organizer), organizer),
+    transact: (organizer, revision, update) => backing.transact(organizer, revision, previous => {
+      checked(previous, organizer);
+      const next = update(previous);
+      return checked({...next, module:SCOPE, organizer}, organizer);
+    })
+  };
+}
+
+function privateIdentityFileStore({directory, key} = {}) {
+  if (typeof directory !== 'string' || !path.isAbsolute(directory)) fail('Angi en absolutt privat lagringsmappe.');
+  return identityReviewStore({openNamespace: scope => privateFileStore({directory:path.join(directory, scope), key})});
+}
+
+// Commands contain intent, not imported handoff/approval flags or client before-values.
+function command(value) {
+  const fields = ['format','version','id','base','kind','personIds','mainPersonId','name','source','reason'];
+  if (!value || typeof value !== 'object' || !equal(Object.keys(value).sort(), fields.sort()) ||
+      value.format !== 'morothon-identity-decision-v1' || value.version !== 1)
+    fail('Ukjent identitetskommando eller felt.');
+  C.empty(value.base);
+  if (!['same-person','different-people','rename','alias'].includes(value.kind))
+    fail('Resultatimport og resultatkorrigering hører til Årets arrangement.');
+  const paired = ['same-person','different-people'].includes(value.kind);
+  if (!Array.isArray(value.personIds) || value.personIds.length !== (paired ? 2 : 1) ||
+      new Set(value.personIds).size !== value.personIds.length ||
+      value.personIds.some(id => typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)))
+    fail('Velg entydige person-ID-er.');
+  if (value.kind === 'same-person' ? !value.personIds.includes(value.mainPersonId) : value.mainPersonId !== null)
+    fail('Velg hovedprofil bare ved sammenslåing.');
+  if (paired ? value.name !== null : typeof value.name !== 'string' || !value.name.trim() || value.name.length > 200)
+    fail('Ugyldig hovednavn eller alias.');
+  if (typeof value.source !== 'string' || !value.source.trim() || typeof value.reason !== 'string' || !value.reason.trim())
+    fail('Beslutningen krever kilde og begrunnelse.');
+  const next = copy(value);
+  next.personIds.sort(); // Idempotency and distinct decisions concern an unordered pair.
+  // Reuse the engine's strict text, ID and size validation as well.
+  const validation = C.report(C.empty(next.base), {id:next.id, category:'Mulige duplikater', personIds:next.personIds,
+    description:next.reason, source:next.source});
+  C.transition(validation, next.id, 'review', next.reason);
+  return next;
+}
+
+function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
+  if (typeof authenticate !== 'function' || typeof loadContext !== 'function' || !store?.[scoped])
+    fail('Sikker autentisering, kildegrunnlag og separat privat identitetslager er påkrevd.');
+  const service = createReviewService({authenticate, store, clock,
+    getTrustedBinding:async organizer => (await loadContext(organizer)).base});
+  async function access(input, action) {
+    authorize(await authenticate(input.session), input.organizer, action);
+  }
+  async function context(organizer) {
+    const current = await loadContext(organizer);
+    C.empty(current.base);
+    if (await C.hash(current.history) !== current.base.snapshotSha256) fail('Historikken stemmer ikke med kildebindingen.');
+    H.assertValid(current.history);
+    return {...current, history:copy(current.history), base:copy(current.base)};
+  }
+  async function view(current, saved) {
+    const draft = saved.draft || C.empty(current.base);
+    // Read-only evidence matching is independent of result versions. Never rebase
+    // before-values or carry mutation approvals: stale changes return to review.
+    const applicable = copy(draft);
+    if (saved.stale) for (const c of applicable.cases)
+      if (c.change && c.status !== 'rejected') c.status = 'review';
+    const worklist = await C.worklist(C.discover(current.history), applicable);
+    const identities = worklist.identity;
+    return {...saved, scope:SCOPE, persisted:saved.revision > 0,
+      digest:saved.draft ? sha(saved.draft) : null, worklist,
+      counts:{unprocessed:identities.filter(c => c.bucket !== 'finished').length,
+        processed:identities.filter(c => c.bucket === 'finished' && c.caseStatus !== 'rejected').length,
+        rejected:identities.filter(c => c.caseStatus === 'rejected').length},
+      requiresSourceReview:saved.stale,
+      productionApplied:false, publicationAuthorized:false};
+  }
+  async function load(input) {
+    await access(input, 'read');
+    const saved = await service.load(input), current = await context(input.organizer);
+    // Re-evaluate staleness after loading context, rather than mixing two snapshots.
+    saved.stale = !!saved.draft && !equal(saved.draft.base, current.base);
+    return view(current, saved);
+  }
+  async function checked(current, draft) {
+    // The private command API is the only producer. Still downgrade all imported
+    // handoff flags and recompute real consequences before any owner approval.
+    const parsed = C.parse(C.serialize(draft));
+    let normalized = C.importPackage(C.empty(current.base), parsed).package;
+    normalized.cases.forEach((c,i) => { c.events = parsed.cases[i].events; });
+    if (normalized.cases.some(c => c.change && !['merge','person','alias'].includes(c.change.kind) || c.registration))
+      fail('Personkontroll kan ikke inneholde resultatendringer.');
+    // A negative constraint also forbids an indirect A -> C <- B merge. Check
+    // connectivity before the engine validates individual immutable snapshots.
+    const joined = new Map();
+    const representative = id => { while (joined.has(id)) id = joined.get(id); return id; };
+    for (const c of normalized.cases) if (c.change?.kind === 'merge' && c.status === 'proposed') {
+      const [a,b] = c.personIds.map(representative);
+      if (a !== b) joined.set(a,b);
+    }
+    for (const c of normalized.cases) if (c.status === 'rejected' &&
+        c.events.some(e => e.action === 'identity-different-people') &&
+        representative(c.personIds[0]) === representative(c.personIds[1]))
+      fail('Sammenslåingen strider mot en lagret beslutning om forskjellige personer.');
+    await C.applyCandidate(current.history, normalized, current.base, {preview:true});
+    const active = normalized.cases.filter(c => c.change && c.status === 'proposed');
+    const review = {ready:true, uncertain:[], errors:[], impacts:[]};
+    if (active.length && typeof current.project !== 'function') fail('Den etablerte konsekvensmotoren mangler.');
+    const cache = new Map(), project = async h => {
+      const key = await C.hash(h);
+      if (!cache.has(key)) cache.set(key, Promise.resolve(current.project(h)));
+      return cache.get(key);
+    };
+    const model = H.create(current.history);
+    for (const c of active) {
+      const impact = await C.consequences(current.history, normalized, c.id, current.base, project,
+        {linkedRunnerIds:current.linkedRunnerIds || []});
+      if (c.change.kind === 'merge') {
+        const [a,b] = c.personIds, years = new Set(model.stats(a)?.years || []);
+        if ((model.stats(b)?.years || []).some(y => years.has(y))) {
+          impact.uncertain.push('Begge profilene har starter samme år. Dette må avklares før sammenslåing.');
+          impact.ready = false;
+        }
+      }
+      review.impacts.push(impact);
+      review.uncertain.push(...impact.uncertain); review.errors.push(...impact.errors);
+      if (!impact.ready) review.ready = false;
+    }
+    // Each impact binds the entire package; transitions only change local status.
+    if (review.ready) for (const c of active)
+      normalized = C.transition(normalized, c.id, 'handoff', c.reason, review.impacts.find(i => i.caseId === c.id));
+    return {draft:normalized, review};
+  }
+  async function prepare(input) {
+    await access(input, 'write');
+    const intent = command(input.command), saved = await service.load(input), current = await context(input.organizer);
+    if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0) fail('Ugyldig forventet revisjon.');
+    if (!equal(intent.base, current.base) || saved.stale) fail('Foreldet identitetsgrunnlag krever ny kildekontroll.');
+    const request = 'request-' + sha(intent), draft = saved.draft || C.empty(current.base);
+    const previous = draft.cases.find(c => c.id === intent.id);
+    if (previous) {
+      if (!previous.events.some(e => e.action === request)) fail('Saks-ID er allerede brukt for en annen beslutning.');
+      return {saved, current, repeated:true, requestId:intent.id};
+    }
+    if (saved.revision !== input.expectedRevision) fail('Arbeidsgrunnlaget er endret. Hent siste revisjon.');
+    const model = H.create(current.history);
+    if (intent.personIds.some(id => model.resolve(id) !== id || !model.person(id)))
+      fail('Velg eksisterende kanoniske profiler.');
+    const suggestions = C.discover(current.history);
+    // A manually confirmed distinct pair may be absent from automatic suggestions
+    // because of same-year times. Reuse the engine's name evidence, independently
+    // of finishes, for this explicit command only; never add automatic proposals.
+    const suggestion = suggestions.find(s => equal([...s.personIds].sort(), intent.personIds)) ||
+      C.discover({...current.history, results:[]}).find(s => equal([...s.personIds].sort(), intent.personIds));
+    const old = draft.cases.filter(c => equal([...c.personIds].sort(), intent.personIds));
+    if (old.length) {
+      const reviewed = suggestion && (await C.reviewSuggestions([suggestion], draft))[0];
+      if (!reviewed || reviewed.caseId || old.some(c => c.status !== 'rejected') ||
+          old.some(c => c.source === intent.source || c.reason === intent.reason))
+        fail('Identiteten er allerede vurdert. Ny vurdering krever nytt dokumentert identitetsgrunnlag.');
+    }
+    let next = suggestion ? (await C.openSuggestion(draft, suggestion, intent.id)).package :
+      C.report(draft, {id:intent.id, category:'Mulige duplikater', personIds:intent.personIds,
+        description:intent.reason, source:intent.source});
+    if (!suggestion && intent.personIds.length === 2) next.cases.at(-1).events.push({
+      at:new Date(clock ? clock() : Date.now()).toISOString(), action:'identity-basis-' + sha({manualPair:intent.personIds}),
+      reason:'Manuelt vurdert par uten automatisk navnetreff. Nye navnesignaler krever separat vurdering.'
+    });
+    next = C.updateNotes(next, intent.id, {description:intent.reason, source:intent.source, reason:intent.reason});
+    if (intent.kind === 'different-people') next = C.transition(next, intent.id, 'rejected', intent.reason);
+    else {
+      const kind = { 'same-person':'merge', rename:'person', alias:'alias' }[intent.kind];
+      const personIds = kind === 'merge' ? [intent.personIds.find(id => id !== intent.mainPersonId), intent.mainPersonId] : intent.personIds;
+      const after = kind === 'person' ? {n:intent.name} : kind === 'alias' ?
+        [...new Set([...(current.history.aliases?.[personIds[0]] || []), intent.name])] : null;
+      next = await C.propose(current.history, next, intent.id, {kind, personIds, after, source:intent.source, reason:intent.reason});
+    }
+    next.cases.find(c => c.id === intent.id).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
+      action:request, reason:'Serverbundet identitetsbeslutning. Ingen publisering.'});
+    next.cases.find(c => c.id === intent.id).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
+      action:'identity-' + intent.kind, reason:intent.reason});
+    return {...await checked(current, next), saved, current, repeated:false, requestId:intent.id};
+  }
+  async function preview(input) {
+    const result = await prepare(input);
+    return {...result.repeated ? {repeated:true} : {draft:result.draft, review:result.review},
+      persisted:false, productionApplied:false, publicationAuthorized:false};
+  }
+  async function decide(input) {
+    const result = await prepare(input);
+    await access(input, 'write'); // Authorization may have changed during calculation.
+    if (!equal((await loadContext(input.organizer)).base, result.current.base)) fail('Historikken ble oppdatert under kontrollen.');
+    if (result.repeated) return {...await view(result.current, result.saved), repeated:true, requestId:result.requestId};
+    const saved = await service.save({...input, draft:result.draft});
+    return {...saved, scope:SCOPE, persisted:true, repeated:false, requestId:result.requestId, review:result.review};
+  }
+  async function approve(input) {
+    await access(input, 'approve');
+    const saved = await service.load(input);
+    if (saved.revision !== input.expectedRevision || !saved.draft || sha(saved.draft) !== input.expectedDigest)
+      fail('Godkjenningen gjelder en annen revisjon eller kontrollsum.');
+    const current = await context(input.organizer);
+    if (!equal(saved.draft.base, current.base)) fail('Foreldet identitetsgrunnlag kan ikke godkjennes.');
+    const result = await checked(current, saved.draft);
+    if (!result.review.ready) fail('Identiteten krever avklaring før godkjenning.');
+    await access(input, 'approve');
+    return {...await service.approve(input), scope:SCOPE, persisted:true};
+  }
+  return {load, preview, decide, approve}; // Intentionally no publish/apply or production writer.
+}
+
+module.exports = {createIdentityReview, identityReviewStore, privateIdentityFileStore, SCOPE};
