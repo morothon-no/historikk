@@ -5,7 +5,7 @@ const { createAdminGateway } = require("../scripts/admin/serverless/admin-gatewa
 const { buildProtectedAdmin } = require("../scripts/build-protected-admin.cjs");
 const { ADMIN_SOURCES, PUBLIC_CODE, runtimeFiles } = require("../scripts/lib/runtime-files.cjs");
 const fs = require("node:fs/promises"), path = require("node:path"), os = require("node:os");
-const origin = "https://historikk.morothon.no";
+const origin = "https://morothon-admin.damofra75.workers.dev";
 const TOKEN = "x".repeat(43);
 function fixture() {
   let allowed = true, revoked = false, assetReads = 0;
