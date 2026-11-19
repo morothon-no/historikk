@@ -20,6 +20,13 @@ test("profile is private: both browser editors use /admin/ while the local pilot
   }
   assert.match(local,/route === '\/site\/admin\/event-profile\.json'/);
   assert.match(local,/root, 'web-admin\/event-profile\.json'/);
+  // Result calculations no longer resolve the admin adapter through the
+  // public build-info assets map, which must exclude every admin URL.
+  assert.match(intake,/const protectedAdapter=window\.MorothonAdminTransport/);
+  assert.match(intake,/new URL\('diploma-adapter\.js',new URL\('\.\/',document\.baseURI\)\)/);
+  assert.match(local,/route === '\/diploma-adapter\.js'/);
+  assert.match(local,/path\.join\(uiRoot, 'engine\.js'\)/);
+
   const runtimeSource=require(path.join(root,"scripts/lib/runtime-files.cjs"));
   const list=runtimeSource.runtimeFiles({
     watermark:{src:"assets/medals/watermarks/example.png"},badges:[]
