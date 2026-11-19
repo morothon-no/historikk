@@ -40,8 +40,19 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
           .replace('__HONOR_ENABLED__', honorView?.enabled === true ? 'true' : 'false');
         res.setHeader('Content-Type', types['.html']); return res.end(html);
       }
+      if (route === '/diploma-adapter.js') {
+        // Local loopback C1 calculator only; never enters the public bundle.
+        res.setHeader('Content-Type', types['.js']);
+        return res.end(await fs.readFile(path.join(uiRoot, 'engine.js')));
+      }
       if (['/admin.js', '/admin.css', '/portal.js', '/design-model.js', '/design-studio.js', '/design-studio.css', '/intake-model.js', '/intake.js', '/intake.css'].includes(route)) {
         res.setHeader('Content-Type', types[path.extname(route)]); return res.end(await fs.readFile(path.join(uiRoot, route.slice(1))));
+      }
+      // The local loopback pilot may read its administrator profile directly,
+      // but it is never part of the public Pages build or artifact.
+      if (route === '/site/admin/event-profile.json') {
+        res.setHeader('Content-Type', types['.json']);
+        return res.end(await fs.readFile(path.join(root, 'web-admin/event-profile.json')));
       }
       const relative = route.startsWith('/site/') ? route.slice(6) : null;
       if(honorEnabled!==true&&relative==='heder.html')return send(404,{error:'Heder-modulen er ikke aktiv.'});
@@ -59,7 +70,7 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
     await validatePublicSite(site); siteFiles = new Set(result.files);
     inputFiles = [...runtimeFiles(registry).filter(f => !f.startsWith('data/')).map(f => path.join(root, ADMIN_SOURCES[f] || f)),
       ...['manifest.json', 'data/history.json', 'data/honors.json', 'data/volunteers.json', 'data/badges.json', 'data/event-dates.json'].map(f => path.join(root, 'public-data', f)),
-      path.join(root, '.github/public-data-approval.json'), path.join(root, 'package.json'), path.join(root, 'scripts/diploma-admin.cjs'),
+      path.join(root, '.github/public-data-approval.json'), path.join(root, 'package.json'), path.join(root, 'scripts/diploma-admin.cjs'), path.join(root, 'web-admin/event-profile.json'),
       ...(trustedSourcesPresent ? ['honor-admin-view.cjs','honor-roster.cjs','honor-runner-search.cjs','honor-drafts.cjs'].map(f => path.join(root, 'scripts/admin', f)) : []),
       ...['engine.js','worker.cjs','api.cjs','portal-data.cjs'].map(f=>path.join(uiRoot,f)), ...result.files.map(f => path.join(site, f))];
     originalDigest = await snapshot(inputFiles);
@@ -79,7 +90,7 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
       const [honors, volunteers, eventProfile] = await Promise.all([
         fs.readFile(path.join(site, 'data/honors.json'), 'utf8').then(JSON.parse),
         fs.readFile(path.join(site, 'data/volunteers.json'), 'utf8').then(JSON.parse),
-        fs.readFile(path.join(site, 'admin/event-profile.json'), 'utf8').then(JSON.parse)
+        fs.readFile(path.join(root, 'web-admin/event-profile.json'), 'utf8').then(JSON.parse)
       ]);
       honorRoster = createHonorAdminRoster({ organizerId: eventProfile.id, enabled: honorEnabled === true,
         honors, volunteers, editionYears: honors.presentationPrintSet?.editionYears || [] });

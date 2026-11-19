@@ -1,13 +1,13 @@
 /* Static Pages adapter: public reads, isolated previews, no HTTP API or writes. */
 (() => {
   'use strict';
-  const rootUrl = new URL('../', document.baseURI), adminUrl = new URL('./', document.baseURI);
+  const rootUrl = document.body.dataset.adminMode === 'protected' ? new URL('/site/', location.origin) : new URL('../', document.baseURI), adminUrl = new URL('./', document.baseURI);
   let enginePromise, busy = false, release, context, honorContext, honorInput, honorEnabled = true, ownsPackage = false;
   const sha = async bytes => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b=>b.toString(16).padStart(2,'0')).join('');
   async function json(url) { const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('Kunne ikke laste offentlig fil: '+new URL(url).pathname);return r.json(); }
   const ready=(async()=>{
     const [manifest,info,profile]=await Promise.all([json(new URL('public-manifest.json',rootUrl)),json(new URL('build-info.json',rootUrl)),json(new URL('event-profile.json',adminUrl))]);
-    if(manifest.schemaVersion!==1||new URL(info.siteUrl).pathname!==rootUrl.pathname)throw Error('Nettversjonens publiseringsadresse eller datakontrakt er ugyldig.');
+    if(manifest.schemaVersion!==1 || (document.body.dataset.adminMode === 'protected' ? new URL(info.siteUrl).href !== 'https://historikk.morothon.no/' : new URL(info.siteUrl).pathname !== rootUrl.pathname))throw Error('Nettversjonens publiseringsadresse eller datakontrakt er ugyldig.');
     const load=async name=>{const key='data/'+name+'.json',r=await fetch(new URL(key,rootUrl),{cache:'no-store'});if(!r.ok)throw Error('Kunne ikke laste '+key);const bytes=await r.arrayBuffer(),entry=manifest.files[key];if(!entry||entry.bytes!==bytes.byteLength||entry.sha256!==await sha(bytes))throw Error('Offentlige data er endret eller fra ulike versjoner. Last siden på nytt.');return JSON.parse(new TextDecoder().decode(bytes));};
     const [history,badges,honors,volunteers]=await Promise.all(['history','badges','honors','volunteers'].map(load));
     MorothonEventProfile.validate(profile,badges);MorothonEventProfile.apply(profile,badges,rootUrl);
@@ -19,7 +19,7 @@
       honors:ownsPackage?honors:{schemaVersion:1,groups:[],personDetails:{}},...(ownsPackage?{volunteers}:{})};
     context=MorothonPortalData.createPortalData({history:publicHistory,badges:ownsPackage?badges:{...badges,badges:badges.badges.filter(b=>b.id===profile.logoAssetId)},honorCount:0,assetBase:rootUrl.href,profile});
     await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL(info.assets[['js','honors-data.js'].join('/')],rootUrl).href;script.onload=resolve;script.onerror=()=>reject(Error('Heder-modellen kunne ikke lastes.'));document.head.append(script);});
-    release={version:info.version,manifest:JSON.stringify(manifest),adapterUrl:new URL(info.assets[['admin','diploma-adapter.js'].join('/')],rootUrl).href};
+    release={version:info.version,manifest:JSON.stringify(manifest),adapterUrl:new URL(info.assets['admin/diploma-adapter.js']||'./diploma-adapter.js',info.assets['admin/diploma-adapter.js']?rootUrl:adminUrl).href};
     $('webLimitations').hidden=false;$('webPrintControls').hidden=false;
     $('export').textContent='Samlet PDF krever C1-server';$('exportHeading').textContent='Kontroll og videre utskrift';
     document.querySelector('.export-panel>p.hint').textContent='Lagre en kontrollrapport her. Åpne «Vis» for enkeltutskrift via nettleseren. Samlet, kontrollert PDF-produksjon finnes bare i C1-serveren.';
@@ -29,6 +29,12 @@
     document.querySelector('.sidebar-note strong').textContent='Offentlig testversjon';
     document.querySelector('.sidebar-note p').textContent='Kun godkjente offentlige data. Ingen lagring eller formell utstedelse.';
     document.querySelector('.portal-footer>span:last-child').textContent='Testversjon uten innlogging · ingen administrative skrivefunksjoner';
+    if(document.body.dataset.adminMode==='protected'){
+      document.querySelector('.local-tag').textContent='Beskyttet administrasjon';
+      document.querySelector('.sidebar-note strong').textContent='Innlogget arbeidsrom';
+      document.querySelector('.sidebar-note p').textContent='Endringer krever særskilt kontroll og godkjenning før publisering.';
+      document.querySelector('.portal-footer>span:last-child').textContent='Beskyttet arbeidsrom · publisering krever godkjenning';
+    }
     return profile;
   })();
   function $(id){return document.getElementById(id);}
@@ -121,6 +127,7 @@
 /* Optional authenticated result service. Same Pages portal; no secret in this file. */
 (() => {
   "use strict";
+  const protectedPortal = document.body.dataset.adminMode === "protected";
   const configured = document.querySelector(
     'meta[name="morothon-admin-service"]',
   )?.content;
@@ -187,6 +194,12 @@
     if (r.status === 401) {
       sessionToken = null;
       principal = null;
+      // Server authentication has expired. Never leave a private admin
+      // workspace visible merely because its HTML was already rendered.
+      if (protectedPortal) {
+        location.replace("/admin/");
+        throw Error("Innloggingen er utløpt. Lagret arbeid er bevart.");
+      }
       render();
       throw Error("Logg inn på nytt. Lagret arbeid er bevart.");
     }
@@ -304,7 +317,7 @@
     const pending =
         saved?.task && !["completed", "failed"].includes(saved.task.state),
       editable = !!principal && !pending;
-    actions.login.hidden = !!principal;
+    actions.login.hidden = protectedPortal || !!principal;
     actions.login.disabled = busy;
     actions.logout.hidden = !principal;
     actions.logout.disabled = busy;
@@ -549,8 +562,23 @@
     historyBox = node("div");
     const controls = node("div");
     controls.className = "actions";
-    actions.login = button("Logg inn med GitHub", "resultServiceLogin", login);
+    actions.login = button("Logg inn med GitHub", "resultServiceLogin",
+      protectedPortal ? () => location.reload() : login);
     actions.logout = button("Logg ut", "resultServiceLogout", async () => {
+      if (protectedPortal) {
+        const response = await fetch("/admin/_logout", {
+          method: "POST", credentials: "same-origin", cache: "no-store",
+          headers: { "Content-Type": "application/json" }, body: "{}",
+        });
+        if (!response.ok)
+          throw Error("Utlogging kunne ikke bekreftes. Prøv igjen.");
+        sessionToken = null;
+        principal = null;
+        saved = null;
+        localSaved = null;
+        location.replace("/admin/");
+        return;
+      }
       await api("/logout", {});
       sessionToken = null;
       principal = null;
@@ -719,7 +747,16 @@
     });
     render();
     try {
-      await completeLogin();
+      if (protectedPortal) {
+        const response = await fetch("/admin/_session", {
+          cache: "no-store", credentials: "same-origin",
+        });
+        if (!response.ok) { location.replace("/admin/"); return; }
+        sessionToken = (await response.json()).sessionToken;
+        principal = await api("/session");
+      } else {
+        await completeLogin();
+      }
       if (principal) {
         await read();
         if (saved?.task && !["completed", "failed"].includes(saved.task.state))

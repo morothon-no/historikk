@@ -18,12 +18,12 @@ const ADMIN_SOURCES={
  'admin/web-transport.js':'web-admin/web-transport.js',
  'admin/event-profile.json':'web-admin/event-profile.json'
 };
-// New administrative code must not become public just by appearing in js/.
+// Administrative source files are Worker-only: never included in GitHub Pages.
 const PUBLIC_CODE=['css/diplomas.css','css/navigation.css','css/brag-card.css','css/honors.css',
  'js/compare.js','js/rankings.js','js/loyalty.js','js/brag-card.js','js/honors.js','js/history-data.js',
- 'js/navigation.js','js/diplomas.js','js/badges.js','js/honors-data.js','js/progress.js','js/milestones.js',...Object.keys(ADMIN_SOURCES).filter(f=>/\.(css|js)$/.test(f))];
+ 'js/navigation.js','js/diplomas.js','js/badges.js','js/honors-data.js','js/progress.js','js/milestones.js'];
 function runtimeFiles(registry){
- const files=['index.html','heder.html',...DATA_NAMES.map(n=>`data/${n}.json`),...BRAND_ASSETS,'assets/fonts/caveat-regular-latin.woff','assets/fonts/OFL-Caveat.txt',...PUBLIC_CODE,...Object.keys(ADMIN_SOURCES).filter(f=>!PUBLIC_CODE.includes(f))];
+ const files=['index.html','heder.html',...DATA_NAMES.map(n=>`data/${n}.json`),...BRAND_ASSETS,'assets/fonts/caveat-regular-latin.woff','assets/fonts/OFL-Caveat.txt',...PUBLIC_CODE];
  const assets=new Set([registry.watermark.src]);
  for(const badge of registry.badges){assets.add(badge.src);if(badge.vectorSource)assets.add(badge.vectorSource);}
  for(const src of assets){

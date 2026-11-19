@@ -9,8 +9,19 @@ async function run({root=path.resolve(__dirname,'../..'),level='full',scope='pub
  const required=scope==='all'?[...new Set([...files,...publicFiles(level,extras)])]:files;
  for(const f of required)if(!all.includes(f))throw Error('Missing required test: '+f);
  const execute=(args,env=process.env)=>{
-  const p=spawnSync(process.execPath,args,{cwd:root,env,stdio:'inherit'});
-  if(p.error)throw p.error;if(p.status!==0)throw Error('Required test/check failed ('+(p.signal||p.status)+'): '+args.join(' '));
+  // A test process with an open browser/socket must never occupy a CI worker
+  // indefinitely. Log the stage, give it a hard deadline, and fail closed.
+  const isTest=args.includes('--test');
+  const limitMs=isTest?12*60*1000:3*60*1000;
+  console.log('[test-runner] START '+args.join(' '));
+  const start=performance.now();
+  const p=spawnSync(process.execPath,
+    isTest?['--test-force-exit','--test-timeout=120000','--test-concurrency=2',...args]:args,
+    {cwd:root,env,stdio:'inherit',timeout:limitMs,killSignal:'SIGKILL'});
+  const seconds=Math.round((performance.now()-start)/1000);
+  console.log('[test-runner] END '+seconds+'s status='+p.status+' signal='+p.signal);
+  if(p.error)throw Error('Required check timed out or could not execute: '+args.join(' ')+': '+p.error.message);
+  if(p.status!==0)throw Error('Required test/check failed ('+(p.signal||p.status)+'): '+args.join(' '));
  };
  const start=performance.now();let site,temporarySite=false;
  try{

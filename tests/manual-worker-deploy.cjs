@@ -41,6 +41,13 @@ const deployments = () => ({
 test("active deployment config reuses the exact Worker and confirmed non-secret identities, with a stable internal UUID", async () => {
   const c = await readConfig();
   assert.equal(c.name, "morothon-admin");
+  assert.deepEqual(c.routes, []);
+  assert.equal(c.vars.PORTAL_URL, c.vars.API_ORIGIN + "/admin/");
+  assert.deepEqual(c.assets, {
+    directory: "../../.worker-admin-assets",
+    binding: "ADMIN_ASSETS",
+    run_worker_first: true,
+  });
   assert.equal(c.vars.OWNER_USER_ID, "2932a52f-6831-40a4-b566-bc97a0ab344f");
   assert.equal(c.vars.OWNER_GITHUB_ID, "322168409");
   assert.equal(c.vars.GITHUB_APP_ID, "5815769");
@@ -69,6 +76,9 @@ test("config rejects secret values, alternate target/name/env, routes, paid reso
     (x) => (x.main = "./another.mjs"),
     (x) => (x.env = {}),
     (x) => (x.routes = ["*/*"]),
+    (x) => (x.routes = [{ pattern: "historikk.morothon.no/admin/*", zone_name: "morothon.no" }]),
+    (x) => (x.assets.run_worker_first = false),
+    (x) => (x.assets.binding = "UNSAFE"),
     (x) => (x.kv_namespaces = []),
     (x) => (x.vars.STORAGE_KEY = "not-allowed"),
     (x) => (x.vars.OAUTH_CLIENT_SECRET = "not-allowed"),
@@ -114,12 +124,15 @@ test("source guard rejects changed Worker/runtime and non-ancestor pins, without
   assert.equal(verifySource(c, { git: good }).workerSourceMatches, true);
   assert.ok(paths.includes("scripts/admin/serverless"));
   assert.ok(paths.includes("tools/diploma-admin/intake-model.js"));
+  assert.equal(verifySource(c, {
+    git: args => args[0] === "diff" ? "scripts/admin/serverless/worker.mjs\nscripts/admin/serverless/admin-gateway.cjs\nscripts/admin/serverless/public-runtime-proxy.cjs\n" : good(args),
+  }).workerSourceMatches, true);
   assert.throws(
     () =>
       verifySource(c, {
         git: (args) =>
           args[0] === "diff"
-            ? "scripts/admin/serverless/worker.mjs\n"
+            ? "scripts/admin/serverless/broker.cjs\n"
             : good(args),
       }),
     /avviker/,
@@ -231,27 +244,67 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
     (
       await verifyHealth(c, {
         fetchImpl: async (url, o) => {
-          calls.push({ url, o });
-          return url.endsWith("/health")
-            ? Response.json({ status: "ok" })
-            : new Response("{}", { status: 401 });
+          calls.push({ url: String(url), o });
+          url=String(url);
+          if (url.endsWith("/health")) return Response.json({ status: "ok" });
+          if (url.endsWith("/review")) return new Response("{}",{status:401});
+          if (url === c.vars.PORTAL_URL || url === c.vars.PORTAL_URL + "index.html")
+            return new Response("<html><button>Logg inn med GitHub</button></html>", {
+              status:200,headers:{"Content-Type":"text/html"}
+            });
+          if (url.endsWith("/site/public-manifest.json"))
+            return Response.json({ schemaVersion: 1 });
+          if (url.endsWith("/site/admin/admin.js"))
+            return new Response("Not found",{status:404});
+          if (url.startsWith(c.vars.PORTAL_URL))
+            return new Response("Unauthorized",{status:401});
+          return new Response("Not found",{status:404});
         },
       })
     ).publicTransportActivated,
-    false,
+    true,
   );
   assert.ok(
     calls.every((x) => x.o.method === "GET" && !x.url.includes("/auth/")),
   );
-  assert.equal(calls[1].o.headers.Origin, "https://historikk.morothon.no");
+  assert.equal(calls[1].o.headers.Origin, c.vars.API_ORIGIN);
+  assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/index.html")));
+  assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/admin.js")));
+  assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/event-profile.json")));
   await assert.rejects(
     verifyHealth(c, {
+      sleep: async () => {},
+      fetchImpl: async (url) => {
+        url = String(url);
+        if (url.endsWith("/health")) return Response.json({ status: "ok" });
+        if (url.endsWith("/review")) return new Response("", { status: 401 });
+        if (url === c.vars.PORTAL_URL || url === c.vars.PORTAL_URL + "index.html")
+          return new Response("<html>Logg inn med GitHub</html>", {
+            headers: { "Content-Type": "text/html" },
+          });
+        if (url.endsWith("/site/public-manifest.json"))
+          return Response.json({ schemaVersion: 1 });
+        if (url.endsWith("/site/admin/admin.js"))
+          return new Response("", { status: 404 });
+        if (url.startsWith(c.vars.PORTAL_URL))
+          return new Response("", { status: 401 });
+        if (url.endsWith("/historikk/admin/index.html"))
+          return new Response("<html>Public admin portal-shell</html>");
+        return new Response("Not found", { status: 404 });
+      },
+    }),
+    /Pages-adressen/,
+  );
+  await assert.rejects(
+    verifyHealth(c, {
+      sleep: async () => {},
       fetchImpl: async () => new Response("{}", { status: 503 }),
     }),
     /helse/,
   );
   await assert.rejects(
     verifyHealth(c, {
+      sleep: async () => {},
       fetchImpl: async (url) => Response.json({ status: "ok" }),
     }),
     /Anonym/,
@@ -292,4 +345,31 @@ test("manual workflow has no automatic trigger, write/deploy permissions, public
     file,
     /run: node deploy\/admin-serverless\/check-deployment.cjs health/,
   );
+});
+
+test("public runtime mirror is read-only, allowlisted and never serves admin source", async () => {
+  const { createPublicRuntimeProxy } = require("../scripts/admin/serverless/public-runtime-proxy.cjs");
+  const calls = [];
+  const proxy = createPublicRuntimeProxy({
+    fetchImpl: async (url, options) => {
+      calls.push({url:String(url),options});
+      return new Response("PUBLIC", { status:200, headers:{"Content-Type":"text/html"} });
+    },
+  });
+  const root = "https://morothon-admin.damofra75.workers.dev";
+  const get = path => proxy(new Request(root + path));
+  const allowed = await get("/site/index.html");
+  assert.equal(allowed.status,200);
+  assert.equal(await allowed.text(),"PUBLIC");
+  assert.equal((await get("/site/data/history.json")).status,200);
+  assert.equal((await get("/site/js/history-data.js")).status,200);
+  const count = calls.length;
+  for (const path of [
+    "/site/admin/admin.js", "/site/scripts/admin/serverless/worker.mjs",
+    "/site/data/private.json", "/site/index.html.map",
+    "/site/assets/secrets/key.txt", "/site/admin/index.html",
+  ]) assert.equal((await get(path)).status,404, path);
+  assert.equal((await proxy(new Request(root + "/site/index.html", {method:"POST"}))).status,404);
+  assert.equal(calls.length,count);
+  assert.ok(calls.every(c => new URL(c.url).origin === "https://historikk.morothon.no"));
 });

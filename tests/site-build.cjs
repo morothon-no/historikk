@@ -5,6 +5,12 @@ test('Pages artifact contains approved runtime assets and excludes QA, source ar
  const out=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-public-site-'));
  try{
   const result=await buildSite(out);
+  assert.ok(!result.files.some(file=>file.startsWith('admin/')),
+    'Pages must never include the admin interface or administrative scripts');
+  await assert.rejects(()=>fs.stat(path.join(out,'admin/index.html')),
+    {code:'ENOENT'});
+  await assert.rejects(()=>fs.stat(path.join(out,'admin/web-transport.js')),
+    {code:'ENOENT'});
   assert.ok(result.files.includes('data/history.json'));assert.ok(result.files.includes('data/volunteers.json'));assert.ok(result.files.includes('heder.html'));
   assert.ok(result.files.includes('assets/medals/approved/participation-5.png'));
   assert.ok(result.files.includes('assets/medals/watermarks/morothon-runner-approved.png'));

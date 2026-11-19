@@ -32,9 +32,11 @@ function validateConfig(c) {
     "compatibility_date",
     "compatibility_flags",
     "workers_dev",
+    "routes",
     "preview_urls",
     "observability",
     "keep_vars",
+    "assets",
     "secrets",
     "ratelimits",
     "vars",
@@ -62,6 +64,18 @@ function validateConfig(c) {
       same(c.observability, { enabled: false }) &&
       c.keep_vars === false,
     "Uventet eksponering eller konfigurasjonsoverstyring.",
+  );
+  requireThat(
+    same(c.routes, []),
+    "Separat workers.dev-admin skal ikke overta det offentlige domenet.",
+  );
+  requireThat(
+    same(c.assets, {
+      directory: "../../.worker-admin-assets",
+      binding: "ADMIN_ASSETS",
+      run_worker_first: true,
+    }),
+    "Adminressurser må leveres fra Worker før offentlig asset-handler.",
   );
   requireThat(
     same(c.secrets, { required: SECRETS }),
@@ -104,7 +118,7 @@ function validateConfig(c) {
   const v = c.vars;
   requireThat(
     v.API_ORIGIN === "https://morothon-admin.damofra75.workers.dev" &&
-      v.PORTAL_URL === "https://historikk.morothon.no/admin/",
+      v.PORTAL_URL === "https://morothon-admin.damofra75.workers.dev/admin/",
     "Feil bekreftet adresse.",
   );
   requireThat(
@@ -161,9 +175,19 @@ function verifySource(
     "Prosessorkoden finnes ikke som verifiserbar Git-commit.",
   );
   git(["merge-base", "--is-ancestor", sha, "HEAD"]);
+  // The private processor remains pinned to its reviewed commit. Worker-only
+  // document routing and asset authentication can change independently,
+  // but broker/auth/processor dependencies MUST still match the pinned SHA.
+  const gatewayOnly = new Set([
+    "scripts/admin/serverless/worker.mjs",
+    "scripts/admin/serverless/admin-gateway.cjs",
+    "scripts/admin/serverless/public-runtime-proxy.cjs",
+  ]);
+  const differences = git(["diff", sha, "--name-only", "--", ...CORE])
+    .trim().split("\n").filter(Boolean);
   requireThat(
-    !git(["diff", sha, "--name-only", "--", ...CORE]).trim(),
-    "Worker eller runtime-avhengigheter avviker fra den private prosessorkoden. Stopp og gjennomgå nye versjonspins.",
+    differences.every(file => gatewayOnly.has(file)),
+    "Prosessor- eller autentiseringsavhengigheter avviker; oppdater privat jobb-pin før deploy.",
   );
   return { processorCodeSha: sha, workerSourceMatches: true };
 }
@@ -217,6 +241,11 @@ function checkMetadata(c, settings, deployments, rollback) {
         b.type === "secret_text",
         "Påkrevd secret har feil bindingstype.",
       );
+      continue;
+    }
+    if (b.name === "ADMIN_ASSETS") {
+      requireThat(b.type === "assets",
+        "Eksisterende admin-asset binding har feil type.");
       continue;
     }
     const limiter = c.ratelimits.find((r) => r.name === b.name);
@@ -287,7 +316,13 @@ async function remotePreflight(c, env, { fetchImpl = fetch } = {}) {
     deployments = await get("/deployments");
   return checkMetadata(c, settings, deployments, env.ROLLBACK_VERSION_ID);
 }
-async function verifyHealth(c, { fetchImpl = fetch } = {}) {
+async function verifyHealth(c, {
+  fetchImpl = fetch,
+  sleep = ms => new Promise(resolve => setTimeout(resolve, ms)),
+} = {}) {
+  // Workers and zone routes can propagate across edge locations after deploy.
+  // A bounded retry never bypasses an individual security assertion.
+  async function probe() {
   const request = (route, headers = {}) =>
     fetchImpl(c.vars.API_ORIGIN + route, {
       method: "GET",
@@ -308,11 +343,107 @@ async function verifyHealth(c, { fetchImpl = fetch } = {}) {
     denied.status === 401,
     "Anonym resultattilgang er ikke korrekt sperret. Stopp.",
   );
+  // Read-only deployment acceptance: an anonymously visible admin shell is
+  // a security failure even when /health and /review return healthy codes.
+  const portal = new URL(c.vars.PORTAL_URL);
+  const entry = await fetchImpl(portal.href, {
+    method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  requireThat(entry.status === 200 &&
+    (entry.headers.get("content-type") || "").includes("text/html"),
+    "Beskyttet adminadresse leverer ikke innloggingssiden.");
+  const markup = await entry.text();
+  requireThat(markup.includes("Logg inn med GitHub") &&
+    !markup.includes("portal-shell") && !markup.includes("resultServiceSave"),
+    "Anonym besøkende får se administrasjonen. Utrulling er ikke godkjent.");
+  // Every protected document and asset must remain unavailable anonymously.
+  // Check the entry document explicitly; a hidden JS file alone is not enough.
+  const protectedAssets = [
+    "index.html", "admin.js", "admin.css", "web-transport.js",
+    "event-profile.json", "diploma-adapter.js",
+  ];
+  for (const asset of protectedAssets) {
+    const blocked = await fetchImpl(new URL(asset, portal), {
+      method: "GET", redirect: "error", cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+    if (asset === "index.html") {
+      const html = await blocked.text();
+      requireThat(blocked.status === 200 &&
+        (blocked.headers.get("content-type") || "").includes("text/html") &&
+        html.includes("Logg inn med GitHub") &&
+        !html.includes("portal-shell") && !html.includes("resultServiceSave"),
+        "Anonym admin/index.html leverer annet enn innloggingssiden.");
+    } else {
+      requireThat(blocked.status === 401,
+        "Adminfil er offentlig tilgjengelig uten innlogging: " + asset);
+    }
+  }
+  // Public runtime mirror must be readable on the admin origin and must not
+  // allow admin source paths through the public mirror.
+  const publicRuntime = await fetchImpl(new URL("/site/public-manifest.json", portal), {
+    method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  requireThat(publicRuntime.status === 200 &&
+    (publicRuntime.headers.get("content-type") || "").includes("application/json"),
+    "Offentlig runtime-speil på admin-origin fungerer ikke.");
+  const forbiddenMirror = await fetchImpl(new URL("/site/admin/admin.js", portal), {
+    method: "GET", redirect: "error", cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  requireThat(forbiddenMirror.status === 404,
+    "Offentlig speil kan levere adminfiler.");
+  // Neither the original Pages alias nor the public canonical domain may
+  // deliver a leftover admin entrypoint. A Pages canonical redirect is not
+  // evidence of protection: follow it and require an actual 404/410.
+  const pagesBase = "https://morothon-no.github.io/historikk/admin/";
+  const publicBase = "https://historikk.morothon.no/admin/";
+  for (const asset of ["", ...protectedAssets, "admin.js.map"]) {
+    const aliasUrl = new URL(asset, pagesBase);
+    const pagesAlias = await fetchImpl(aliasUrl, {
+      method: "GET", redirect: "manual", cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+    let safe = [404, 410].includes(pagesAlias.status);
+    if (!safe && [301, 302, 307, 308].includes(pagesAlias.status)) {
+      const location = pagesAlias.headers.get("location") || "";
+      let target;
+      try { target = new URL(location, aliasUrl); } catch {}
+      const intended = new URL(asset, publicBase);
+      if (target && target.origin === intended.origin &&
+          target.pathname === intended.pathname && target.search === intended.search) {
+        const final = await fetchImpl(target, {
+          method: "GET", redirect: "error", cache: "no-store",
+          signal: AbortSignal.timeout(20000),
+        });
+        safe = [404, 410].includes(final.status);
+      }
+    }
+    requireThat(safe,
+      "Den gamle offentlige Pages-adressen leverer fortsatt admin: " +
+        aliasUrl.pathname);
+  }
   return {
     health: "ok",
     anonymousReview: "denied",
-    publicTransportActivated: false,
+    protectedPortal: "login-only",
+    protectedAssets: "denied",
+    publicPagesAlias: "no-admin-content",
+    publicTransportActivated: true,
   };
+  }
+  let failure;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await probe();
+    } catch (error) {
+      failure = error;
+      if (attempt < 4) await sleep(1500);
+    }
+  }
+  throw failure;
 }
 module.exports = {
   readConfig,

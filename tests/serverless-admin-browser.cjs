@@ -28,6 +28,8 @@ const {
     createProjector,
   } = require("../scripts/admin/review-runtime.cjs"),
   { buildSite } = require("../scripts/build-site.cjs");
+const { buildProtectedAdmin } = require("../scripts/build-protected-admin.cjs");
+const { ADMIN_SOURCES } = require("../scripts/lib/runtime-files.cjs");
 const C = require("../tools/diploma-admin/intake-model.js").Corrections,
   sample = require("./public/quick/fixtures/corrections-data.js");
 const origin = "https://portal.example.test",
@@ -89,7 +91,18 @@ test(
       return approvedRuntime(result.out, approvalFile);
     }
     const runtime = await build();
-    let publicFiles = runtime.files;
+    // The public site no longer exposes admin; the test mounts separate
+    // Worker assets only inside its isolated synthetic browser environment.
+    const protectedDir = path.join(dir, "worker-assets");
+    await buildProtectedAdmin(protectedDir);
+    const protectedFiles = new Map();
+    for (const name of Object.keys(ADMIN_SOURCES)) {
+      let bytes = await fs.readFile(path.join(protectedDir, name));
+      if (name === "admin/index.html") bytes = Buffer.from(bytes.toString()
+        .replace('data-admin-mode="protected"', 'data-admin-mode="public-preview"'));
+      protectedFiles.set(name, bytes);
+    }
+    let publicFiles = new Map([...runtime.files, ...protectedFiles]);
     const browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
       args: ["--no-sandbox"],
@@ -180,7 +193,7 @@ test(
           api.state.checks = "success";
           api.state.deploy = "success";
           if (api.prs.some((p) => p.merged))
-            publicFiles = (await build()).files;
+            publicFiles = new Map([...(await build()).files, ...protectedFiles]);
         },
       }).run();
       if (!result.completed)
@@ -288,7 +301,7 @@ test(
                 bytes
                   .toString()
                   .replace(
-                    'name="morothon-admin-service" content=""',
+                    /name="morothon-admin-service" content="[^"]*"/,
                     'name="morothon-admin-service" content="' + service + '"',
                   ),
               )
