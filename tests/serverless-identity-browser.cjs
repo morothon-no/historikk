@@ -1,0 +1,130 @@
+'use strict';
+// Protected HTML + real authentication/broker/driver/storage/projector. No live services.
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
+const {chromium}=require('playwright');
+const {setup}=require('./helpers/identity-serverless.cjs');
+const {buildSite}=require('../scripts/build-site.cjs');
+const {buildProtectedAdmin}=require('../scripts/build-protected-admin.cjs');
+const {approvedRuntime,createProjector}=require('../scripts/admin/review-runtime.cjs');
+const {createAdminGateway}=require('../scripts/admin/serverless/admin-gateway.cjs');
+const {ADMIN_SOURCES}=require('../scripts/lib/runtime-files.cjs');
+
+test('protected Personkontroll saves, approves and reopens after a fresh login; failed merges never become saved, and responsive worklists hide handled pairs', {timeout:120000},async t=>{
+ const f=await setup(t),root=path.resolve(__dirname,'..'),original=await fs.readFile(path.join(root,'public-data/data/history.json'));
+ const data=path.join(f.directory,'browser-package'),approval=path.join(f.directory,'browser-approval.json');
+ await fs.mkdir(path.join(data,'data'),{recursive:true});
+ for(const name of ['history','honors','volunteers','badges','event-dates'])await fs.writeFile(path.join(data,'data',name+'.json'),f.repository.files.get('public-data/data/'+name+'.json'));
+ await fs.writeFile(path.join(data,'manifest.json'),f.repository.files.get('public-data/manifest.json'));
+ await fs.writeFile(approval,f.repository.files.get('.github/public-data-approval.json'));
+ const built=await buildSite(path.join(f.directory,'browser-site'),{dataDir:data,approvalFile:approval});
+ const runtime=await approvedRuntime(built.out,approval),protectedDir=path.join(f.directory,'protected-assets');
+ await buildProtectedAdmin(protectedDir);
+ const files=new Map(runtime.files);
+ for(const name of Object.keys(ADMIN_SOURCES)){
+  let bytes=await fs.readFile(path.join(protectedDir,name));
+  if(name==='admin/index.html')bytes=Buffer.from(bytes.toString().replace('https://morothon-admin.damofra75.workers.dev',f.origin));
+  files.set(name,bytes);
+ }
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
+ t.after(()=>browser.close());
+ const projector=await createProjector(runtime,{browser});t.after(()=>projector.close());
+ Object.assign(f.context,runtime,{project:projector.project});
+ const {sameOriginBrokerRead}=await import('../scripts/admin/serverless/worker.mjs');
+ const gateway=createAdminGateway({portalOrigin:f.origin,apiOrigin:f.origin,auth:f.auth,
+  assetSource:async name=>files.has('admin/'+name)?{bytes:files.get('admin/'+name)}:null});
+ const errors=[],writes=[],traffic=[];
+ async function open({authenticated=true,width=1440}={}){
+  const context=await browser.newContext({viewport:{width,height:1000}});t.after(()=>context.close());
+  const session=authenticated?await f.login():null;
+  if(session)await context.addCookies([{name:'__Host-morothon-admin',value:session,url:f.origin,httpOnly:true,secure:true,sameSite:'Strict'}]);
+  await context.route('**/*',async route=>{
+   const r=route.request(),url=new URL(r.url());if(url.origin!==f.origin)return route.abort();
+   const headers=await r.allHeaders();
+   // Playwright's fulfilled HTTPS fixture omits browser-generated Fetch Metadata.
+   // Model it only for subrequests originating in this fixture's own frame;
+   // production normalization and hostile-origin rejection are tested separately.
+   if(!r.isNavigationRequest()&&!headers['sec-fetch-site']&&new URL(r.frame().url()).origin===f.origin)
+    headers['sec-fetch-site']='same-origin';
+   const request=new Request(r.url(),{method:r.method(),headers,...(r.postData()?{body:r.postData()}: {})});
+   let response;
+   if(url.pathname.startsWith('/admin/'))response=await gateway(request);
+   else if(url.pathname.startsWith('/site/')){
+    const name=url.pathname.slice(6)||'index.html',bytes=files.get(name);
+    return route.fulfill({status:bytes?200:404,body:bytes||'Not found',contentType:({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff':'font/woff','.ico':'image/x-icon'})[path.extname(name)]||'application/octet-stream'});
+   }else{
+    if(r.method()==='POST')writes.push(url.pathname);
+    response=await f.broker.fetch(sameOriginBrokerRead(request,f.origin));
+    traffic.push({path:url.pathname,status:response.status,site:headers['sec-fetch-site'],origin:headers.origin});
+   }
+   await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});
+  });
+  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+  await page.goto(f.origin+'/admin/#personkontroll');
+  if(authenticated)await page.locator('#identityService').waitFor().catch(async error=>{
+    throw Error(error.message+' '+JSON.stringify({errors,traffic,ui:await page.evaluate(()=>({url:location.hash,
+      status:document.querySelector('#resultServiceStatus')?.textContent,portal:document.querySelector('#portalStatus')?.textContent,
+      identity:document.querySelector('#view-personkontroll')?.textContent,bridge:!!window.MorothonCorrectionWorkspace}))}));
+  });
+  return {context,page,session};
+ }
+ const {page,context,session}=await open();
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
+ assert.equal(await page.locator('#identityWorklist article').count(),2);
+ assert.equal(await page.locator('#identityApprove').isEnabled(),false);
+ assert.equal(await page.locator('#navCorrections').textContent(),'Resultatkontroll');
+ assert.equal(await page.locator('[data-correction-tab="suggestions"]').isVisible(),false);
+ assert.ok((await page.locator('#view-import').textContent()).includes('Rett og kontroller eksisterende resultater'));
+ const first=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+ await first.getByRole('button',{name:'Åpne og sammenlign'}).click();
+ await page.selectOption('#identityMainPerson','MOR-C220002');
+ await page.click('#identitySame');
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ assert.equal(await page.locator('#identityLogout').isEnabled(),true);
+ assert.equal((await f.identities.get('sogne-morothon')),null);
+ assert.equal((await f.processNext()).completed,true);
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
+ await page.waitForFunction(()=>document.querySelectorAll('#identityWorklist article').length===1);
+ assert.ok((await page.locator('#identityServiceCounts').textContent()).includes('1Behandlede'));
+ // The remaining identical-name profiles have overlapping starts. A failed
+ // server check must not remove them or block a subsequent distinct decision.
+ await page.locator('#identityWorklist button').click();
+ await page.selectOption('#identityMainPerson','MOR-C220004');
+ await page.click('#identitySame');await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ assert.equal((await f.processNext()).completed,false);
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Overlapp'));
+ assert.equal((await f.identities.get('sogne-morothon')).revision,1);
+ await page.click('#identityDifferent');
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ assert.equal((await f.processNext()).completed,true);
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('revisjon 2'));
+ assert.equal(await page.locator('#identityWorklist article').count(),0);
+ const counts=await page.locator('#identityServiceCounts').textContent();
+ assert.ok(counts.includes('0Ubehandlede'));assert.ok(counts.includes('1Behandlede'));assert.ok(counts.includes('1Avviste par'));
+ await page.selectOption('#identityFilter','finished');assert.equal(await page.locator('#identityWorklist article').count(),1);
+ await page.selectOption('#identityFilter','rejected');await page.waitForFunction(()=>document.querySelector('#identityWorklist').textContent.includes('Syntetisk Samme Navn'));
+ await page.click('#identityApprove');await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ assert.equal((await f.processNext()).completed,true);
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Godkjent – ikke publisert'));
+ assert.equal(await page.locator('#identityApprove').isEnabled(),false);
+ assert.equal(writes.some(route=>route.startsWith('/publication/')),false);
+ await page.click('#identityLogout');await page.locator('#login').waitFor();
+ assert.equal((await f.request('/identity',undefined,session)).status,401);
+ await context.close();f.restart();
+ const again=await open({width:768});
+ await again.page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Godkjent – ikke publisert'));
+ assert.equal(await again.page.locator('#identityWorklist article').count(),0);
+ await again.page.selectOption('#identityFilter','finished');await again.page.locator('#identityWorklist button').click();
+ assert.equal(await again.page.locator('#identityEditor h2').textContent(),'Lagret identitetsavgjørelse');
+ assert.ok((await again.page.locator('#identityEditor').textContent()).includes('Syntetisk Kari N. Nord'));
+ for(const width of [1440,768,390]){
+  await again.page.setViewportSize({width,height:1000});
+  assert.equal(await again.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'No horizontal overflow at '+width);
+  if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR){await fs.mkdir(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,{recursive:true});
+   await again.page.evaluate(()=>window.scrollTo(0,0));
+   await again.page.screenshot({path:path.join(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,'personkontroll-'+width+'.png'),fullPage:true});}
+ }
+ assert.deepEqual(errors,[]);assert.equal(f.remote.submitted,0);assert.equal(f.remote.merged,0);
+ assert.ok((await fs.readFile(path.join(root,'public-data/data/history.json'))).equals(original));
+ const anonymous=await open({authenticated:false});await anonymous.page.locator('#login').waitFor();
+ assert.equal(await anonymous.page.locator('#identityService').count(),0);
+});

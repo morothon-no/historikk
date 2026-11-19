@@ -1,5 +1,8 @@
 # Personkontroll – privat datamodell og lagring (#116 A)
 
+Del A er beholdt som kontraktsbeskrivelse. Tilkobling til nettportalen og eksplisitt
+kildeoppdatering er videreført i [del B](personkontroll-beskyttet-admin.md).
+
 Første del av #116, etter arkitekturen i #115. Dette er serverbibliotek og
 syntetiske tester, **ikke en utrulling av Personkontroll i nettportalen**.
 Offentlige kilder, manifest, identiteter, resultater og visning endres ikke.

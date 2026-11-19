@@ -11,6 +11,7 @@
     import: ['Årets arrangement', 'Startlister, merkeprognoser og kontroll av endelige resultater.'],
     premier: ['Premier', 'Grunnlaget for en enklere utdeling.'],
     rettelser: ['Rettelser og personkontroll', 'Lokale saker, før/etter-visning og kontrollert overlevering.'],
+    personkontroll: ['Personkontroll', 'Varige identitetsavgjørelser · lagring og godkjenning er adskilt fra publisering.'],
     design: ['Design og tilpasning', 'Ditt arrangement, dine merker og ditt diplom – i et separat utkast.']
   };
   const state = { overview: null, participantOffset: 0, badgeOffset: 0, section: null, sequence: {}, detailSequence: 0, returnFocus: null,
@@ -511,7 +512,7 @@
         else { state.honorData = data; if ($('navHeder')) $('navHeder').hidden = false; }
       } catch { key = 'oversikt'; }
     }
-    if (!pages[key] || profile && !['design','rettelser','heder'].includes(key) && !profile.modules[key]) { key = 'oversikt'; }
+    if (!pages[key] || profile && !['design','rettelser','heder','personkontroll'].includes(key) && !profile.modules[key]) { key = 'oversikt'; }
     if (location.hash.slice(1) !== key) history.replaceState(null, '', '#' + key);
     if(state.section==='heder'&&key!=='heder'&&state.honorEditor?.dirty&&!confirm('Forhåndsvisningen er ikke lagret. Vil du forlate redigeringen?')){history.replaceState(null,'','#heder');return;}
     if(window.MorothonAdminTransport&&state.section==='heder'&&key!=='heder'&&state.honorEditor){await honorDraftApi('discard',honorBinding(state.honorEditor));state.honorEditor=null;$('honorDetail').replaceChildren();}

@@ -338,7 +338,7 @@
   if(c.change){const comparison=node('details');comparison.append(node('summary','Kontrollgrunnlag: registrert og foreslått verdi'));const diff=node('div',undefined,'correction-diff');diff.append(node('pre',JSON.stringify(c.change.before,null,2)),node('pre',JSON.stringify(c.change.after,null,2)));comparison.append(diff);box.append(comparison);}
  }
  function render(){if(state.batchReview?.package!==state.package)state.batchReview=null;if(state.candidate&&JSON.stringify(state.candidate.corrections)!==JSON.stringify(state.package))state.candidate=null;const body=$('correctionBody');if(!body)return;const version=++state.refreshVersion;C.worklist(state.suggestions,state.package).then(work=>{if(version!==state.refreshVersion)return;renderWork(body,work);}).catch(e=>message(e.message,true));}
- function renderWork(body,work){body.replaceChildren();const selected=state.package.cases.find(c=>c.id===state.selected),tab=state.tab==='cases'&&selected&&C.caseType(selected)==='identity'?'suggestions':state.tab;for(const b of host.querySelectorAll('[data-correction-tab]'))b.setAttribute('aria-pressed',String(b.dataset.correctionTab===tab));const panel=$('correctionSummary');panel.replaceChildren(summary(work));
+ function renderWork(body,work){if(state.privateIdentityMode&&state.tab==='suggestions')state.tab='cases';body.replaceChildren();const selected=state.package.cases.find(c=>c.id===state.selected),tab=state.tab==='cases'&&selected&&C.caseType(selected)==='identity'?'suggestions':state.tab;for(const b of host.querySelectorAll('[data-correction-tab]'))b.setAttribute('aria-pressed',String(b.dataset.correctionTab===tab));const panel=$('correctionSummary');panel.replaceChildren(summary(state.privateIdentityMode?{...work,identity:[]}:work));
   const proposed=state.package.cases.filter(c=>c.change&&['proposed','handoff'].includes(c.status));
   if(tab==='suggestions'&&proposed.length){
    const batch=node('section',undefined,'correction-batch-review');batch.id='correctionBatchReview';
@@ -413,6 +413,13 @@
    // A workspace bridge, never an authorization or storage adapter. The separately
    // hosted authenticated client may export/restore the same established contract.
    window.MorothonCorrectionWorkspace={
+    usePrivateIdentities(){state.privateIdentityMode=true;state.selected=null;state.tab='cases';
+     const tab=host.querySelector('[data-correction-tab="suggestions"]');if(tab)tab.hidden=true;
+     const nav=$('navCorrections');if(nav)nav.textContent='Resultatkontroll';
+     host.querySelector('.intake-banner h2').textContent='Resultatkontroll';
+     const link=node('a','Åpne Personkontroll');link.href='#personkontroll';
+     host.querySelector('.intake-notice').replaceChildren(document.createTextNode('Resultatimport og resultatkorrigeringer hører til Årets arrangement. Identiteter behandles separat. '),link);
+     render();},
     exportDraft:()=>C.parse(C.serialize(state.package)),
     async captureDraft(){if(state.selected&&$('correctionEditor')&&state.captureEditor)await state.captureEditor();return C.parse(C.serialize(state.package));},
     async restoreDraft(draft){

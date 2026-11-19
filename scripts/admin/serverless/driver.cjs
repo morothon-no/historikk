@@ -1,6 +1,7 @@
 // Reuses #86/#89 unchanged engines and gates. Called only after a trusted OIDC lease.
 "use strict";
 const { createResultReview } = require("../result-review.cjs"),
+  {createIdentityReview, identityReviewStore, SCOPE} = require('../identity-review.cjs'),
   { createResultPublication } = require("../result-publication.cjs"),
   { sha } = require("./github-store.cjs");
 const ORG = "sogne-morothon",
@@ -8,6 +9,7 @@ const ORG = "sogne-morothon",
 function createDriver({
   lease,
   reviews,
+  identities,
   stateStore,
   control,
   loadContext,
@@ -32,12 +34,17 @@ function createDriver({
     task.organizer !== ORG
   )
     throw Error("Jobben gjelder feil eier eller kodeversjon.");
-  const review = createResultReview({
+  const identityMode = ['identity-decide','identity-approve','identity-revalidate','identity-check'].includes(task.action);
+  if (identityMode !== (task.scope === SCOPE)) throw Error('Feil modul for privat jobb.');
+  const review = identityMode ? createIdentityReview({
+      authenticate:async()=>actor, loadContext,
+      store:identityReviewStore({openNamespace:()=>identities}), clock,
+    }) : createResultReview({
       authenticate: async () => actor,
       loadContext,
       store: reviews,
     }),
-    publication = createResultPublication({
+    publication = identityMode ? null : createResultPublication({
       authenticate: async () => actor,
       authorizeActor: async (id) => {
         if (id !== task.actor) throw Error("Ugyldig publiseringsaktør.");
@@ -76,6 +83,7 @@ function createDriver({
     return value;
   }
   async function projectPublication() {
+    if (!publication) return null;
     const { job } = await publication.status(input);
     if (!job) return null;
     const old = await control.get("projection-" + ORG),
@@ -96,6 +104,29 @@ function createDriver({
   async function run() {
     let error;
     try {
+      if (identityMode) {
+        let result;
+        if (task.action === 'identity-decide') result = await review.decide({...input,
+          expectedRevision:task.expectedRevision,command:task.identityCommand});
+        else result = await review[task.action === 'identity-revalidate' ? 'revalidate' : task.action === 'identity-check' ? 'inspect' : 'approve']({...input,
+          expectedRevision:task.expectedRevision,expectedDigest:task.expectedDigest});
+        if (task.action !== 'identity-approve') {
+          if(result.repeated) result=await review.inspect(input);
+          const saved = await review.load(input),key='identity-inspection-'+ORG,old=await control.get(key);
+          if(saved.digest!==result.digest)throw Error('Arbeidsgrunnlaget er endret under kontrollen.');
+          const profiles=(view,ids)=>Object.fromEntries(ids.map(id=>{
+            const p=view?.[id];return [id,p?{name:p.name,count:p.count,years:p.years,totals:p.totals,badges:p.badges,best:p.best}:null];
+          }));
+          const report={ready:result.review?.ready ?? true,impacts:(result.review?.impacts || []).map(impact=>{
+            const c=saved.draft.cases.find(c=>c.id===impact.caseId),area=impact.changes.find(a=>a.area==='people');
+            return {caseId:impact.caseId,ready:impact.ready,changed:impact.changes.filter(a=>a.status==='changed').map(a=>a.area),
+              before:profiles(area?.before,c.personIds),after:profiles(area?.after,c.personIds),
+              uncertain:impact.uncertain,errors:impact.errors};
+          })};
+          await control.transact(key,old?.revision || 0,()=>({v:1,revision:(old?.revision||0)+1,
+            base:saved.draft.base,digest:saved.digest,report}));
+        }
+      } else {
       let current = await review.load(input);
       if (
         current.revision !== task.expectedRevision ||
@@ -171,6 +202,7 @@ function createDriver({
             );
           await pause(60000);
         }
+      }
       }
     } catch (e) {
       error = e;
