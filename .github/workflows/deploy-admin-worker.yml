@@ -146,4 +146,4 @@ jobs:
         if: always()
         shell: bash
         run: |
-          printf 'Worker: morothon-admin\nKilde: %s\nForrige versjon: %s\nOffentlig admin-transport er ikke aktivert av denne jobben.\n' "$GITHUB_SHA" "$ROLLBACK_VERSION_ID" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Worker: morothon-admin\nKilde: %s\nForrige versjon: %s\nWorker-route for /admin/* er del av utrullingen; bekreft anonym sperre og autorisert innlogging før produksjonsbruk.\n' "$GITHUB_SHA" "$ROLLBACK_VERSION_ID" >> "$GITHUB_STEP_SUMMARY"
