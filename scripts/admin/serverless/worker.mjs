@@ -58,6 +58,21 @@ export async function cloudflareGithubFetch(url, options = {}, fetchImpl = fetch
   const response = await fetchImpl(url, { ...options, redirect: "manual" });
   return response;
 }
+// Browser same-origin GETs generally omit Origin. The broker checks Origin on
+// all requests; reconstruct it only for owner-bearer read requests that the
+// browser marks same-origin. Never rewrite cross-origin or mutation requests.
+export function sameOriginBrokerRead(request, apiOrigin) {
+  const url = new URL(request.url);
+  if (url.origin !== apiOrigin || request.method !== "GET" ||
+      !["/session", "/review"].includes(url.pathname) ||
+      request.headers.has("origin") ||
+      request.headers.get("sec-fetch-site") !== "same-origin" ||
+      !/^Bearer [A-Za-z0-9_-]{43}$/.test(request.headers.get("authorization") || ""))
+    return request;
+  const headers = new Headers(request.headers);
+  headers.set("Origin", apiOrigin);
+  return new Request(request, { headers });
+}
 // Optional Cloudflare adapter. No data engines, filesystem, database or hosting SDK.
 import storeModule from "./github-store.cjs";
 import authModule from "./auth.cjs";
@@ -290,7 +305,7 @@ export default {
       // one generic message. A read-only, bounded probe classifies the stage
       // without disclosing OAuth state, GitHub responses, tokens or secrets.
       // The broker still owns auth, CSRF validation and rate limiting.
-      const response = await cached.broker.fetch(request);
+      const response = await cached.broker.fetch(sameOriginBrokerRead(request, env.API_ORIGIN));
       if (new URL(request.url).pathname === "/auth/begin" &&
           (response.status === 502 || response.status === 503)) {
         const code = await diagnoseAuthStorage(
