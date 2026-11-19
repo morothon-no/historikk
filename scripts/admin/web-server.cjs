@@ -2,10 +2,14 @@
 'use strict';
 const path=require('node:path'),fs=require('node:fs/promises');
 const {authorize,denied}=require('./access-control.cjs');
+const {loadPrivatePortalAssets}=require('./private-portal-assets.cjs');
 const own=(obj,names)=>obj&&typeof obj==='object'&&!Array.isArray(obj)&&Object.keys(obj).sort().join('|')===names.slice().sort().join('|');
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.woff':'font/woff','.ico':'image/x-icon'};
 function createWebHandler({auth,review,runtime,publication,healthy=()=>true,clock=Date.now}){
  const limits=new Map();let working=false;
+ // Loaded only into this private Node service, never into the public site map.
+ let privateAssetsPromise;
+ const privateAssets=()=>privateAssetsPromise||(privateAssetsPromise=loadPrivatePortalAssets().catch(e=>{privateAssetsPromise=null;throw e;}));
  const csp="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'";
  function rate(req){
   const now=clock();for(const [key,v]of limits)if(v.until<=now)limits.delete(key);
@@ -31,7 +35,7 @@ function createWebHandler({auth,review,runtime,publication,healthy=()=>true,cloc
    if(route==='/auth/github'&&req.method==='GET'){const out=auth.begin();return redirect(out.location,out.cookie);}
    if(route==='/auth/github/callback'&&req.method==='GET'){const out=await auth.complete(req,url.searchParams);return redirect(out.location,out.cookies);}
    if(route==='/admin/login'&&req.method==='GET'){
-    res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});return res.end('<!doctype html><html lang="nb"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="robots" content="noindex,nofollow"><title>Morothon · Logg inn</title><link rel="stylesheet" href="/admin/admin.css"><main class="panel" style="max-width:38rem;margin:10vh auto;padding:2rem"><h1>Morothon administrasjon</h1><p>Logg inn med arrangørens godkjente GitHub-konto.</p><p><a href="/auth/github">Logg inn med GitHub</a></p><p>Rettelser lagres privat. Publisering krever egen godkjenning og aktivert publiseringstjeneste.</p></main></html>');
+    res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});return res.end('<!doctype html><html lang="nb"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="robots" content="noindex,nofollow"><title>Morothon · Logg inn</title><main class="panel" style="max-width:38rem;margin:10vh auto;padding:2rem"><h1>Morothon administrasjon</h1><p>Logg inn med arrangørens godkjente GitHub-konto.</p><p><a href="/auth/github">Logg inn med GitHub</a></p><p>Rettelser lagres privat. Publisering krever egen godkjenning og aktivert publiseringstjeneste.</p></main></html>');
    }
    if(route.startsWith('/admin-api/')){
     const actor=auth.authenticate(req);authorize(actor,auth.organizerId,'read');
@@ -60,13 +64,17 @@ function createWebHandler({auth,review,runtime,publication,healthy=()=>true,cloc
    }
    if(req.method!=='GET')throw denied('Handlingen finnes ikke.',404);
    if(route==='/admin')return redirect('/admin/');
-   const name=route.slice(1)+(route.endsWith('/')?'index.html':'');let bytes=runtime.files.get(name);
-   if(!bytes)throw denied('Siden finnes ikke.',404);
-   // Only approved static bytes can ever be served. Source directories are absent.
-   if(name==='admin/index.html'){
-    try{const actor=auth.authenticate(req);authorize(actor,auth.organizerId,'read');}catch(e){if(e.status===401)return redirect('/admin/login');throw e;}
-    bytes=Buffer.from(bytes.toString('utf8').replace('</head>','<script defer src="/admin-api/client.js"></script></head>'));
+   const name=route.slice(1)+(route.endsWith('/')?'index.html':'');
+   // Authenticate every private document and asset, not just index.html.
+   // The login page itself contains no private assets.
+   if(route.startsWith('/admin/')){
+    try{const actor=auth.authenticate(req);authorize(actor,auth.organizerId,'read');}
+    catch(e){if(e.status===401&&name==='admin/index.html')return redirect('/admin/login');throw e;}
    }
+   let bytes=route.startsWith('/admin/')?(await privateAssets()).get(name):runtime.files.get(name);
+   if(!bytes)throw denied('Siden finnes ikke.',404);
+   if(name==='admin/index.html')
+    bytes=Buffer.from(bytes.toString('utf8').replace('</head>','<script defer src="/admin-api/client.js"></script></head>'));
    res.writeHead(200,{'Content-Type':types[path.extname(name)]||'application/octet-stream'});res.end(bytes);
   }catch(error){
    // Never log OAuth codes, tokens, raw drafts or stack traces to public logs.

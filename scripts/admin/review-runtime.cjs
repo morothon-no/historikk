@@ -28,7 +28,9 @@ async function createProjector(runtime,{executablePath=process.env.CHROMIUM_PATH
    });
    await page.goto('https://projection.invalid/index.html');
    await page.waitForFunction(()=>window.MorothonDiplomas&&!document.querySelector('#loading'));
-   await page.addScriptTag({url:'https://projection.invalid/admin/diploma-adapter.js'});
+   // Private projection runtime reads the exact checked-out engine source, never
+   // a vanished public /admin asset or a remote, untrusted script.
+   await page.addScriptTag({content:await require('node:fs/promises').readFile(path.resolve(__dirname,'../../tools/diploma-admin/engine.js'),'utf8')});
    return await page.evaluate(data=>window.C2Project(data),history);
   }finally{await context.close();}
  }
