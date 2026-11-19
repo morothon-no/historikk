@@ -443,7 +443,22 @@ async function verifyHealth(c, {
       if (attempt < 4) await sleep(1500);
     }
   }
-  throw failure;
+  // Print only a fixed, non-sensitive checkpoint label. Never include HTTP
+  // bodies, OAuth handoffs, cookies, storage data or Cloudflare credentials.
+  const safeMessages = [
+    "Worker-helse er ikke bekreftet.",
+    "Anonym resultattilgang er ikke korrekt sperret.",
+    "Beskyttet adminadresse leverer ikke innloggingssiden.",
+    "Anonym besøkende får se administrasjonen.",
+    "Anonym admin/index.html leverer annet enn innloggingssiden.",
+    "Adminfil er offentlig tilgjengelig uten innlogging:",
+    "Offentlig runtime-speil på admin-origin fungerer ikke.",
+    "Offentlig speil kan levere adminfiler.",
+    "Den gamle offentlige Pages-adressen leverer fortsatt admin:",
+  ];
+  const msg = String(failure?.message || "");
+  const detail = safeMessages.find(prefix => msg.startsWith(prefix));
+  throw Error(detail || "Nettverksfeil eller uventet svar i Worker-kontrollen.");
 }
 module.exports = {
   readConfig,
@@ -471,9 +486,12 @@ if (require.main === module)
     if (mode === "remote") report = await remotePreflight(c, process.env);
     if (mode === "health") report = await verifyHealth(c);
     console.log(JSON.stringify(report));
-  })().catch(() => {
-    console.error(
-      "Utrullingskontrollen stoppet. Se kontrollpunktene i operatørveiledningen; ingen sikkerhetssperre er omgått.",
-    );
+  })().catch(error => {
+    // Health is fully anonymous GET-only. Reveal only its vetted checkpoint,
+    // never secret-containing deployment preflight errors.
+    if (process.argv[2] === "health")
+      console.error("Worker-etterkontroll feilet:", error.message);
+    else
+      console.error("Utrullingskontrollen stoppet. Ingen sikkerhetssperre er omgått.");
     process.exitCode = 1;
   });
