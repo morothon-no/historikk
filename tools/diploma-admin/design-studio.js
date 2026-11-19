@@ -174,7 +174,7 @@
     host.append(el('p','Laster designstudio …'));
     if(document.body.dataset.adminMode==='public-preview'&&!window.MorothonAdminTransport)throw Error('Nettadapteren mangler. Last siden på nytt.');
     if(window.MorothonAdminTransport)await MorothonAdminTransport.ready;
-    const load=async name=>{const r=await fetch(new URL(name,root));if(!r.ok)throw Error('Kunne ikke laste '+name);return r.json();};
+    const load=async name=>{const url=name==='admin/event-profile.json'&&window.MorothonAdminTransport?new URL('event-profile.json',new URL('./',document.baseURI)):new URL(name,root);const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('Kunne ikke laste '+name);return r.json();};
     [registry,activeProfile]=await Promise.all([load('data/badges.json'),load('admin/event-profile.json')]);
     const manifest=await load('public-manifest.json');builtinIds=registry.badges.map(b=>b.id);base={profileSha256:await M.hash(new TextEncoder().encode(JSON.stringify(activeProfile))),registrySha256:manifest.files['data/badges.json'].sha256,historySha256:manifest.historySha256};
     host.replaceChildren();const banner=el('div',undefined,'studio-banner');banner.append(el('span','DITT DESIGNVERKSTED','eyebrow'),el('h2','Gjør arrangementet til ditt'),el('p','Prøv uttrykk, bygg din merkeserie og finn formen på diplomet. Alt er et separat utkast i denne nettleserfanen.'));
