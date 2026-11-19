@@ -29,4 +29,5 @@ test("profile is private: both browser editors use /admin/ while the local pilot
   // privileged workspace while rendering an unauthenticated error.
   assert.match(webTransport,/if \(protectedPortal\) \{\s*location\.replace\("\/admin\/"\)/);
   assert.match(webTransport,/if \(!response\.ok\) \{ location\.replace\("\/admin\/"\); return; \}/);
+  assert.match(webTransport,/if \(!response\.ok\)\s+throw Error\("Utlogging kunne ikke bekreftes\. Prøv igjen\."\)/);
 });
