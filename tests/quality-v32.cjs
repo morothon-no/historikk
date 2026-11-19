@@ -53,7 +53,7 @@ test('V3.2 controls have accessible names and keyboard profile/dialog/menu focus
  }finally{await p.close();}}
 });
 test('V3.2 CI runs once per PR update, tests main pushes and deploys only verified main; historical corrections and registered files are preserved',async()=>{
- assert.deepEqual((await fs.readdir(path.join(root,'.github/workflows'))).sort(),['deploy-admin-worker.yml','inspect-admin-worker.yml','pages.yml']);const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');
+ assert.deepEqual((await fs.readdir(path.join(root,'.github/workflows'))).sort(),['check-admin-worker.yml','deploy-admin-worker.yml','inspect-admin-worker.yml','pages.yml']);const workflow=await fs.readFile(path.join(root,'.github/workflows/pages.yml'),'utf8');
  // A feature push is tested by pull_request only; main keeps its tested Pages deployment.
  const triggers=workflow.match(/^on:\n([\s\S]*?)(?=^\S)/m)?.[1];assert.ok(triggers);
  assert.deepEqual([...triggers.matchAll(/^  ([a-z_]+):/gm)].map(m=>m[1]),['push','pull_request','workflow_dispatch']);
