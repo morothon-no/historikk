@@ -346,3 +346,30 @@ test("manual workflow has no automatic trigger, write/deploy permissions, public
     /run: node deploy\/admin-serverless\/check-deployment.cjs health/,
   );
 });
+
+test("public runtime mirror is read-only, allowlisted and never serves admin source", async () => {
+  const { createPublicRuntimeProxy } = require("../scripts/admin/serverless/public-runtime-proxy.cjs");
+  const calls = [];
+  const proxy = createPublicRuntimeProxy({
+    fetchImpl: async (url, options) => {
+      calls.push({url:String(url),options});
+      return new Response("PUBLIC", { status:200, headers:{"Content-Type":"text/html"} });
+    },
+  });
+  const root = "https://morothon-admin.damofra75.workers.dev";
+  const get = path => proxy(new Request(root + path));
+  const allowed = await get("/site/index.html");
+  assert.equal(allowed.status,200);
+  assert.equal(await allowed.text(),"PUBLIC");
+  assert.equal((await get("/site/data/history.json")).status,200);
+  assert.equal((await get("/site/js/history-data.js")).status,200);
+  const count = calls.length;
+  for (const path of [
+    "/site/admin/admin.js", "/site/scripts/admin/serverless/worker.mjs",
+    "/site/data/private.json", "/site/index.html.map",
+    "/site/assets/secrets/key.txt", "/site/admin/index.html",
+  ]) assert.equal((await get(path)).status,404, path);
+  assert.equal((await proxy(new Request(root + "/site/index.html", {method:"POST"}))).status,404);
+  assert.equal(calls.length,count);
+  assert.ok(calls.every(c => new URL(c.url).origin === "https://historikk.morothon.no"));
+});
