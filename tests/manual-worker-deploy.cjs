@@ -125,7 +125,7 @@ test("source guard rejects changed Worker/runtime and non-ancestor pins, without
   assert.ok(paths.includes("scripts/admin/serverless"));
   assert.ok(paths.includes("tools/diploma-admin/intake-model.js"));
   assert.equal(verifySource(c, {
-    git: args => args[0] === "diff" ? "scripts/admin/serverless/worker.mjs\nscripts/admin/serverless/admin-gateway.cjs\n" : good(args),
+    git: args => args[0] === "diff" ? "scripts/admin/serverless/worker.mjs\nscripts/admin/serverless/admin-gateway.cjs\nscripts/admin/serverless/public-runtime-proxy.cjs\n" : good(args),
   }).workerSourceMatches, true);
   assert.throws(
     () =>
