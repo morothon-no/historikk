@@ -250,7 +250,7 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
           url=String(url);
           if (url.endsWith("/health")) return Response.json({ status: "ok" });
           if (url.endsWith("/review")) return new Response("{}",{status:401});
-          if (url === c.vars.PORTAL_URL)
+          if (url === c.vars.PORTAL_URL || url === c.vars.PORTAL_URL + "index.html")
             return new Response("<html><button>Logg inn med GitHub</button></html>", {
               status:200,headers:{"Content-Type":"text/html"}
             });
@@ -266,6 +266,29 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
     calls.every((x) => x.o.method === "GET" && !x.url.includes("/auth/")),
   );
   assert.equal(calls[1].o.headers.Origin, "https://historikk.morothon.no");
+  assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/index.html")));
+  assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/admin.js")));
+  assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/event-profile.json")));
+  await assert.rejects(
+    verifyHealth(c, {
+      sleep: async () => {},
+      fetchImpl: async (url) => {
+        url = String(url);
+        if (url.endsWith("/health")) return Response.json({ status: "ok" });
+        if (url.endsWith("/review")) return new Response("", { status: 401 });
+        if (url === c.vars.PORTAL_URL || url === c.vars.PORTAL_URL + "index.html")
+          return new Response("<html>Logg inn med GitHub</html>", {
+            headers: { "Content-Type": "text/html" },
+          });
+        if (url.startsWith(c.vars.PORTAL_URL))
+          return new Response("", { status: 401 });
+        if (url.endsWith("/historikk/admin/index.html"))
+          return new Response("<html>Public admin portal-shell</html>");
+        return new Response("Not found", { status: 404 });
+      },
+    }),
+    /Pages-adressen/,
+  );
   await assert.rejects(
     verifyHealth(c, {
       sleep: async () => {},
