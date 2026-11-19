@@ -1,3 +1,31 @@
+// Diagnostic codes reveal only which operation could not complete. The
+// probe never writes files or exposes provider response bodies or credentials.
+export async function diagnoseAuthStorage(privateApi, repositoryId) {
+  try {
+    await privateApi.token();
+  } catch {
+    return "AUTH_APP_INSTALLATION_TOKEN";
+  }
+  try {
+    const metadata = await privateApi.request("");
+    if (!metadata || metadata.private !== true ||
+        metadata.full_name !== privateApi.repository ||
+        metadata.default_branch !== "main" ||
+        String(metadata.id) !== String(repositoryId))
+      return "AUTH_PRIVATE_REPOSITORY_METADATA";
+  } catch {
+    return "AUTH_PRIVATE_REPOSITORY_ACCESS";
+  }
+  try {
+    await privateApi.request(
+      "contents/.morothon-state/auth?ref=admin-state",
+      { allow404: true },
+    );
+  } catch {
+    return "AUTH_PRIVATE_STATE_BRANCH_ACCESS";
+  }
+  return "AUTH_STATE_WRITE_OR_CRYPTO";
+}
 // Optional Cloudflare adapter. No data engines, filesystem, database or hosting SDK.
 import storeModule from "./github-store.cjs";
 import authModule from "./auth.cjs";
@@ -208,34 +236,9 @@ export default {
       const response = await cached.broker.fetch(request);
       if (new URL(request.url).pathname === "/auth/begin" &&
           (response.status === 502 || response.status === 503)) {
-        let code = "AUTH_STATE_WRITE_OR_CRYPTO";
-        try {
-          await cached.privateApi.token();
-        } catch {
-          code = "AUTH_APP_INSTALLATION_TOKEN";
-        }
-        if (code === "AUTH_STATE_WRITE_OR_CRYPTO") {
-          try {
-            const metadata = await cached.privateApi.request("");
-            if (!metadata || metadata.private !== true ||
-                metadata.full_name !== cached.privateApi.repository ||
-                metadata.default_branch !== "main" ||
-                String(metadata.id) !== String(env.PRIVATE_REPOSITORY_ID))
-              code = "AUTH_PRIVATE_REPOSITORY_METADATA";
-          } catch {
-            code = "AUTH_PRIVATE_REPOSITORY_ACCESS";
-          }
-        }
-        if (code === "AUTH_STATE_WRITE_OR_CRYPTO") {
-          try {
-            await cached.privateApi.request(
-              "contents/.morothon-state/auth?ref=admin-state",
-              { allow404: true },
-            );
-          } catch {
-            code = "AUTH_PRIVATE_STATE_BRANCH_ACCESS";
-          }
-        }
+        const code = await diagnoseAuthStorage(
+          cached.privateApi, env.PRIVATE_REPOSITORY_ID,
+        );
         return new Response(JSON.stringify({
           error: "Innloggingen kunne ikke starte. Ingen data er endret.",
           diagnostic: code,
