@@ -41,9 +41,8 @@ const deployments = () => ({
 test("active deployment config reuses the exact Worker and confirmed non-secret identities, with a stable internal UUID", async () => {
   const c = await readConfig();
   assert.equal(c.name, "morothon-admin");
-  assert.deepEqual(c.routes, [{
-    pattern: "historikk.morothon.no/admin/*", zone_name: "morothon.no",
-  }]);
+  assert.deepEqual(c.routes, []);
+  assert.equal(c.vars.PORTAL_URL, c.vars.API_ORIGIN + "/admin/");
   assert.deepEqual(c.assets, {
     directory: "../../.worker-admin-assets",
     binding: "ADMIN_ASSETS",
@@ -77,8 +76,7 @@ test("config rejects secret values, alternate target/name/env, routes, paid reso
     (x) => (x.main = "./another.mjs"),
     (x) => (x.env = {}),
     (x) => (x.routes = ["*/*"]),
-    (x) => (x.routes[0].pattern = "historikk.morothon.no/*"),
-    (x) => (x.routes[0].zone_name = "other.invalid"),
+    (x) => (x.routes = [{ pattern: "historikk.morothon.no/admin/*", zone_name: "morothon.no" }]),
     (x) => (x.assets.run_worker_first = false),
     (x) => (x.assets.binding = "UNSAFE"),
     (x) => (x.kv_namespaces = []),
@@ -254,6 +252,10 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
             return new Response("<html><button>Logg inn med GitHub</button></html>", {
               status:200,headers:{"Content-Type":"text/html"}
             });
+          if (url.endsWith("/site/public-manifest.json"))
+            return Response.json({ schemaVersion: 1 });
+          if (url.endsWith("/site/admin/admin.js"))
+            return new Response("Not found",{status:404});
           if (url.startsWith(c.vars.PORTAL_URL))
             return new Response("Unauthorized",{status:401});
           return new Response("Not found",{status:404});
@@ -265,7 +267,7 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
   assert.ok(
     calls.every((x) => x.o.method === "GET" && !x.url.includes("/auth/")),
   );
-  assert.equal(calls[1].o.headers.Origin, "https://historikk.morothon.no");
+  assert.equal(calls[1].o.headers.Origin, c.vars.API_ORIGIN);
   assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/index.html")));
   assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/admin.js")));
   assert.ok(calls.some(x => x.url.endsWith("/historikk/admin/event-profile.json")));
@@ -280,6 +282,10 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
           return new Response("<html>Logg inn med GitHub</html>", {
             headers: { "Content-Type": "text/html" },
           });
+        if (url.endsWith("/site/public-manifest.json"))
+          return Response.json({ schemaVersion: 1 });
+        if (url.endsWith("/site/admin/admin.js"))
+          return new Response("", { status: 404 });
         if (url.startsWith(c.vars.PORTAL_URL))
           return new Response("", { status: 401 });
         if (url.endsWith("/historikk/admin/index.html"))
