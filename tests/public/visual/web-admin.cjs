@@ -84,7 +84,7 @@ test('C1.2 Pages smoke script verifies public site bytes, not protected admin as
  for(const stale of [false,true]){
   const process={env:{PAGES_URL:local.siteUrl},exitCode:0};let requested=0;
   const sandbox={process,URL,Buffer,AbortSignal,setTimeout:fn=>{fn();},console:{log(){},error(){}},require:name=>name==='node:fs/promises'?{readFile:(file,encoding)=>fs.readFile(path.join(build.out,file.slice('_site/'.length)),encoding)}:require(name),fetch:async url=>{
-   requested++;const file=new URL(url).pathname.slice('/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='index.html'?Buffer.from('wrong release'):bytes};
+   requested++;const file=new URL(url).pathname.slice('/'.length);const bytes=await fs.readFile(path.join(build.out,file));return {ok:true,arrayBuffer:async()=>stale&&file==='build-info.json'?Buffer.from('wrong release'):bytes};
   }};
   await vm.runInNewContext(script,sandbox);assert.equal(process.exitCode,stale?1:0);assert.ok(requested>15);
  }
