@@ -359,7 +359,13 @@ async function verifyHealth(c, {
   requireThat(markup.includes("Logg inn med GitHub") &&
     !markup.includes("portal-shell") && !markup.includes("resultServiceSave"),
     "Anonym besøkende får se administrasjonen. Utrulling er ikke godkjent.");
-  for (const asset of ["admin.js", "web-transport.js", "event-profile.json"]) {
+  // Every protected document and asset must remain unavailable anonymously.
+  // Check the entry document explicitly; a hidden JS file alone is not enough.
+  const protectedAssets = [
+    "index.html", "admin.js", "admin.css", "web-transport.js",
+    "event-profile.json", "diploma-adapter.js",
+  ];
+  for (const asset of protectedAssets) {
     const blocked = await fetchImpl(new URL(asset, portal), {
       method: "GET", redirect: "error", cache: "no-store",
       signal: AbortSignal.timeout(20000),
@@ -367,16 +373,30 @@ async function verifyHealth(c, {
     requireThat(blocked.status === 401,
       "Adminfil er offentlig tilgjengelig uten innlogging: " + asset);
   }
-  const pagesAlias = await fetchImpl(
-    "https://morothon-no.github.io/historikk/admin/admin.js", {
+  // The original public GitHub Pages address must not serve ANY former
+  // admin entrypoint or asset. Accept only 404/410, or a redirect to the
+  // canonical protected route (whose own anonymous checks run above).
+  const pagesBase = "https://morothon-no.github.io/historikk/admin/";
+  for (const asset of ["", ...protectedAssets, "admin.js.map"]) {
+    const aliasUrl = new URL(asset, pagesBase);
+    const pagesAlias = await fetchImpl(aliasUrl, {
       method: "GET", redirect: "manual", cache: "no-store",
       signal: AbortSignal.timeout(20000),
     });
-  const redirect = pagesAlias.headers.get("location") || "";
-  requireThat([404,410].includes(pagesAlias.status) ||
-    ([301,302,307,308].includes(pagesAlias.status) &&
-      redirect.startsWith(c.vars.PORTAL_URL)),
-    "Den gamle offentlige Pages-adressen leverer fortsatt admin.");
+    const redirect = pagesAlias.headers.get("location") || "";
+    const expected = new URL(asset, portal);
+    let redirectedToProtected = false;
+    try {
+      const target = new URL(redirect, aliasUrl);
+      redirectedToProtected = target.origin === expected.origin &&
+        target.pathname === expected.pathname &&
+        target.search === expected.search;
+    } catch {}
+    requireThat([404, 410].includes(pagesAlias.status) ||
+      ([301, 302, 307, 308].includes(pagesAlias.status) && redirectedToProtected),
+      "Den gamle offentlige Pages-adressen leverer fortsatt admin: " +
+        aliasUrl.pathname);
+  }
   return {
     health: "ok",
     anonymousReview: "denied",
