@@ -195,13 +195,62 @@ export default {
             return { bytes: await result.arrayBuffer() };
           },
         });
-        cached = {broker, gate, publicRuntime: runtimeModule.createPublicRuntimeProxy()};
+        cached = {broker, gate, privateApi, publicRuntime: runtimeModule.createPublicRuntimeProxy()};
       }
       if (new URL(request.url).pathname.startsWith("/admin/"))
         return await cached.gate(request);
       if (new URL(request.url).pathname.startsWith("/site/"))
         return await cached.publicRuntime(request);
-      return await cached.broker.fetch(request);
+      // A failed OAuth start used to hide every GitHub storage error behind
+      // one generic message. A read-only, bounded probe classifies the stage
+      // without disclosing OAuth state, GitHub responses, tokens or secrets.
+      // The broker still owns auth, CSRF validation and rate limiting.
+      const response = await cached.broker.fetch(request);
+      if (new URL(request.url).pathname === "/auth/begin" &&
+          (response.status === 502 || response.status === 503)) {
+        let code = "AUTH_STATE_WRITE_OR_CRYPTO";
+        try {
+          await cached.privateApi.token();
+        } catch {
+          code = "AUTH_APP_INSTALLATION_TOKEN";
+        }
+        if (code === "AUTH_STATE_WRITE_OR_CRYPTO") {
+          try {
+            const metadata = await cached.privateApi.request("");
+            if (!metadata || metadata.private !== true ||
+                metadata.full_name !== cached.privateApi.repository ||
+                metadata.default_branch !== "main" ||
+                String(metadata.id) !== String(env.PRIVATE_REPOSITORY_ID))
+              code = "AUTH_PRIVATE_REPOSITORY_METADATA";
+          } catch {
+            code = "AUTH_PRIVATE_REPOSITORY_ACCESS";
+          }
+        }
+        if (code === "AUTH_STATE_WRITE_OR_CRYPTO") {
+          try {
+            await cached.privateApi.request(
+              "contents/.morothon-state/auth?ref=admin-state",
+              { allow404: true },
+            );
+          } catch {
+            code = "AUTH_PRIVATE_STATE_BRANCH_ACCESS";
+          }
+        }
+        return new Response(JSON.stringify({
+          error: "Innloggingen kunne ikke starte. Ingen data er endret.",
+          diagnostic: code,
+        }), {
+          status: response.status,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+            "Referrer-Policy": "no-referrer",
+            "X-Robots-Tag": "noindex, nofollow",
+          },
+        });
+      }
+      return response;
     } catch {
       return new Response(
         JSON.stringify({
