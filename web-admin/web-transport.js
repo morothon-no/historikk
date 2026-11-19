@@ -745,7 +745,7 @@
         const response = await fetch("/admin/_session", {
           cache: "no-store", credentials: "same-origin",
         });
-        if (!response.ok) throw Error("Innloggingen er utløpt. Last siden på nytt.");
+        if (!response.ok) { location.replace("/admin/"); return; }
         sessionToken = (await response.json()).sessionToken;
         principal = await api("/session");
       } else {
