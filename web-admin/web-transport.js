@@ -566,10 +566,16 @@
       protectedPortal ? () => location.reload() : login);
     actions.logout = button("Logg ut", "resultServiceLogout", async () => {
       if (protectedPortal) {
-        await fetch("/admin/_logout", {
-          method: "POST", credentials: "same-origin",
+        const response = await fetch("/admin/_logout", {
+          method: "POST", credentials: "same-origin", cache: "no-store",
           headers: { "Content-Type": "application/json" }, body: "{}",
         });
+        if (!response.ok)
+          throw Error("Utlogging kunne ikke bekreftes. Prøv igjen.");
+        sessionToken = null;
+        principal = null;
+        saved = null;
+        localSaved = null;
         location.replace("/admin/");
         return;
       }
