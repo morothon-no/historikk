@@ -32,7 +32,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const {sameOriginBrokerRead}=await import('../scripts/admin/serverless/worker.mjs');
  const gateway=createAdminGateway({portalOrigin:f.origin,apiOrigin:f.origin,auth:f.auth,
   assetSource:async name=>files.has('admin/'+name)?{bytes:files.get('admin/'+name)}:null});
- const errors=[],writes=[],traffic=[];
+ const errors=[],writes=[],traffic=[],pages=[];let modeledIdentityReads=0;
  async function open({authenticated=true,width=1440}={}){
   const context=await browser.newContext({viewport:{width,height:1000}});t.after(()=>context.close());
   const session=authenticated?await f.login():null;
@@ -40,11 +40,20 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
   await context.route('**/*',async route=>{
    const r=route.request(),url=new URL(r.url());if(url.origin!==f.origin)return route.abort();
    const headers=await r.allHeaders();
+   // Reproduce the initial GET without browser-generated Fetch Metadata. This
+   // must reach the real read normalizer, not leave startup waiting forever.
+   if(r.method()==='GET'&&url.pathname==='/identity'&&(!headers.origin||headers.origin===f.origin)){
+    delete headers.origin;headers['sec-fetch-site']='none';modeledIdentityReads++;
+   }
    // Playwright's fulfilled HTTPS fixture omits browser-generated Fetch Metadata.
    // Model it only for subrequests originating in this fixture's own frame;
    // production normalization and hostile-origin rejection are tested separately.
-   if(!r.isNavigationRequest()&&!headers['sec-fetch-site']&&new URL(r.frame().url()).origin===f.origin)
-    headers['sec-fetch-site']='same-origin';
+   if(!r.isNavigationRequest()&&new URL(r.frame().url()).origin===f.origin){
+    // The fixture knows the originating frame; do not depend on the browser's
+    // generated headers for requests that never enter a real HTTPS network.
+    if(!headers.origin)headers['sec-fetch-site']='same-origin';
+    if(r.method()==='POST'&&!headers.origin)headers.origin=f.origin;
+   }
    const request=new Request(r.url(),{method:r.method(),headers,...(r.postData()?{body:r.postData()}: {})});
    let response;
    if(url.pathname.startsWith('/admin/'))response=await gateway(request);
@@ -58,15 +67,14 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
    }
    await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});
   });
-  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+  const page=await context.newPage();pages.push(page);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+  const identityRead=authenticated?page.waitForResponse(r=>new URL(r.url()).pathname==='/identity'&&r.request().method()==='GET'):null;
   await page.goto(f.origin+'/admin/#personkontroll');
-  if(authenticated)await page.locator('#identityService').waitFor().catch(async error=>{
-    throw Error(error.message+' '+JSON.stringify({errors,traffic,ui:await page.evaluate(()=>({url:location.hash,
-      status:document.querySelector('#resultServiceStatus')?.textContent,portal:document.querySelector('#portalStatus')?.textContent,
-      identity:document.querySelector('#view-personkontroll')?.textContent,bridge:!!window.MorothonCorrectionWorkspace}))}));
-  });
+  if(authenticated){await page.locator('#identityService').waitFor();
+   assert.equal((await identityRead).status(),200,'Initial private identity read must pass the real read/authentication gate');}
   return {context,page,session};
  }
+ try {
  const {page,context,session}=await open();
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
  assert.equal(await page.locator('#identityWorklist article').count(),2);
@@ -77,7 +85,9 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const first=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
  await first.getByRole('button',{name:'Åpne og sammenlign'}).click();
  await page.selectOption('#identityMainPerson','MOR-C220002');
+ const firstDecision=page.waitForResponse(r=>new URL(r.url()).pathname==='/identity/decide'&&r.request().method()==='POST');
  await page.click('#identitySame');
+ assert.equal((await firstDecision).status(),202,'The authenticated identity POST must pass the real Origin gate');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
  assert.equal(await page.locator('#identityLogout').isEnabled(),true);
  assert.equal((await f.identities.get('sogne-morothon')),null);
@@ -127,4 +137,13 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok((await fs.readFile(path.join(root,'public-data/data/history.json'))).equals(original));
  const anonymous=await open({authenticated:false});await anonymous.page.locator('#login').waitFor();
  assert.equal(await anonymous.page.locator('#identityService').count(),0);
+ assert.ok(modeledIdentityReads>=2,'Both fresh logins must exercise the initial read without generated Fetch Metadata');
+ } catch(error) {
+  const ui=await Promise.all(pages.filter(p=>!p.isClosed()).map(p=>p.evaluate(()=>({
+   hash:location.hash,status:document.querySelector('#identityServiceStatus')?.textContent,
+   result:document.querySelector('#resultServiceStatus')?.textContent,
+   pending:document.querySelectorAll('#identityWorklist article').length,
+  })).catch(()=>({unavailable:true}))));
+  throw new Error(error.message+'\nSynthetic HTTP/UI diagnostics: '+JSON.stringify({errors,traffic,ui}),{cause:error});
+ }
 });
