@@ -17,7 +17,6 @@ function createBroker({
   reviews,
   control,
   privateApi,
-  privateActionsApi = privateApi,
   publicApi,
   verifyOidc,
   leaseTokens,
@@ -57,7 +56,7 @@ function createBroker({
     if (!q?.taskId) return null;
     let task = await control.get("task-" + q.taskId);
     if (task?.state === "running" && task.runId) {
-      const run = await privateActionsApi.request("actions/runs/" + task.runId);
+      const run = await privateApi.request("actions/runs/" + task.runId);
       if (run.status === "completed" && run.conclusion !== "success") {
         task = await control.transact(
           "task-" + task.id,
@@ -109,7 +108,7 @@ function createBroker({
     };
   }
   async function dispatch(task) {
-    await privateActionsApi.request(
+    await privateApi.request(
       "actions/workflows/morothon-result-job.yml/dispatches",
       {
         method: "POST",
