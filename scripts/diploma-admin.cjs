@@ -43,6 +43,12 @@ async function startAdmin({ port = 0, beforeCheck, honorEnabled = true } = {}) {
       if (['/admin.js', '/admin.css', '/portal.js', '/design-model.js', '/design-studio.js', '/design-studio.css', '/intake-model.js', '/intake.js', '/intake.css'].includes(route)) {
         res.setHeader('Content-Type', types[path.extname(route)]); return res.end(await fs.readFile(path.join(uiRoot, route.slice(1))));
       }
+      // The local loopback pilot may read its administrator profile directly,
+      // but it is never part of the public Pages build or artifact.
+      if (route === '/site/admin/event-profile.json') {
+        res.setHeader('Content-Type', types['.json']);
+        return res.end(await fs.readFile(path.join(root, 'web-admin/event-profile.json')));
+      }
       const relative = route.startsWith('/site/') ? route.slice(6) : null;
       if(honorEnabled!==true&&relative==='heder.html')return send(404,{error:'Heder-modulen er ikke aktiv.'});
       if (!siteFiles?.has(relative)) return send(404, { error: 'Filen er ikke tilgjengelig i det lokale verktøyet.' });
