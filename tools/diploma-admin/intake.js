@@ -228,7 +228,17 @@
  async function projection(){if(state.projection)return state.projection;
   const frame=node('iframe');frame.className='correction-engine';frame.setAttribute('aria-hidden','true');frame.tabIndex=-1;frame.src=new URL('index.html',state.root).href;document.body.append(frame);
   const pending=(async()=>{const end=Date.now()+30000;await new Promise((resolve,reject)=>{const check=()=>{try{if(frame.contentWindow?.MorothonDiplomas&&!frame.contentDocument.querySelector('#loading'))return resolve();if(Date.now()>end)return reject(Error('Den eksisterende beregningsmotoren kunne ikke lastes.'));setTimeout(check,40);}catch(e){reject(e);}};check();});
-   const r=await fetch(new URL('build-info.json',state.root));if(!r.ok)throw Error('Bygginformasjonen mangler.');const info=await r.json(),asset=info.assets[['admin','diploma-adapter.js'].join('/')];if(typeof asset!=='string'||!/^admin\/diploma-adapter\.js\?v=[a-f0-9]+$/.test(asset))throw Error('Ukjent beregningsadapter.');await new Promise((resolve,reject)=>{const script=frame.contentDocument.createElement('script');script.src=new URL(asset,state.root).href;script.onload=resolve;script.onerror=()=>reject(Error('Beregningsadapteren kunne ikke lastes.'));frame.contentDocument.head.append(script);});if(typeof frame.contentWindow.C2Project!=='function')throw Error('Konsekvensmotoren mangler.');return data=>frame.contentWindow.C2Project(data);
+   const r=await fetch(new URL('build-info.json',state.root));if(!r.ok)throw Error('Bygginformasjonen mangler.');const info=await r.json(),asset=info.assets[['admin','diploma-adapter.js'].join('/')];
+   // The calculation engine is admin-only after the migration. Only the
+   // read-only public projection iframe stays on the public data origin.
+   // Never restore the adapter to GitHub Pages to satisfy the old lookup.
+   const protectedAdapter=window.MorothonAdminTransport&&document.body.dataset.adminMode!=='local';
+   const adapterUrl=protectedAdapter
+     ?new URL('diploma-adapter.js',new URL('./',document.baseURI))
+     :new URL('diploma-adapter.js',document.baseURI);
+   if(!protectedAdapter&&typeof asset==='string'&&/^admin\/diploma-adapter\.js\?v=[a-f0-9]+$/.test(asset))
+     adapterUrl.href=new URL(asset,state.root).href;
+   await new Promise((resolve,reject)=>{const script=frame.contentDocument.createElement('script');script.src=adapterUrl.href;script.onload=resolve;script.onerror=()=>reject(Error('Beregningsadapteren kunne ikke lastes.'));frame.contentDocument.head.append(script);});if(typeof frame.contentWindow.C2Project!=='function')throw Error('Konsekvensmotoren mangler.');return data=>frame.contentWindow.C2Project(data);
   })().catch(e=>{frame.remove();state.projection=null;throw e;});state.projection=pending;return pending;
  }
  function resultForm(box,c){const owners=new Set([...state.picked,...c.personIds,...(state.resultIndex!==undefined&&state.history.results[state.resultIndex]?[state.model.resolve(state.history.results[state.resultIndex][1])]:[])]),rows=state.history.results.map((r,index)=>({r,index})).filter(({r})=>owners.has(state.model.resolve(r[1]))),selected=select(rows.map(({r,index})=>[String(index),[r[0],r[2],r[3],r[5],r[7],r[8],'registrering '+(index+1)].filter(Boolean).join(' · ')]),state.resultIndex!==undefined?String(state.resultIndex):undefined,'correctionResultChoice');
