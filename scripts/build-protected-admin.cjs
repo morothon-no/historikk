@@ -29,7 +29,7 @@ async function buildProtectedAdmin(out = DEST) {
          "design-model.js","design-studio.js","design-studio.css",
          "intake-model.js","intake.js","intake.css"])
         html = html.replaceAll("/" + file, "./" + file);
-      const scripts = ["../js/history-data.js","portal-data.js",
+      const scripts = ["/site/js/history-data.js","portal-data.js",
         "profile-contract.js","web-transport.js"].map(f =>
           '<script defer src="' + f + '"></script>').join("");
       html = html.replace('<script defer src="./admin.js', scripts + '<script defer src="./admin.js');
