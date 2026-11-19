@@ -113,3 +113,36 @@ test("public runtime excludes all admin files; protected bundle contains only ex
     assert.ok(!files.some(n=>/history\.json|original|private/i.test(n)));
   } finally{await fs.rm(temp,{recursive:true,force:true});}
 });
+
+test("OAuth begin failure diagnostics identify only safe, read-only stages", async () => {
+  const { diagnoseAuthStorage } = await import("../scripts/admin/serverless/worker.mjs");
+  const id = "1456606620";
+  const repo = "morothon-no/historikk-admin";
+  const meta = { private:true, full_name:repo, default_branch:"main", id:Number(id) };
+  const calls = [];
+  const api = {
+    repository: repo,
+    token: async () => { calls.push("token"); return "synthetic-token"; },
+    request: async (route, opts) => {
+      calls.push(route);
+      if(route === "") return meta;
+      assert.deepEqual(opts,{allow404:true});
+      return null;
+    },
+  };
+  assert.equal(await diagnoseAuthStorage(api,id),"AUTH_STATE_WRITE_OR_CRYPTO");
+  assert.deepEqual(calls,["token","","contents/.morothon-state/auth?ref=admin-state"]);
+  assert.equal(await diagnoseAuthStorage({...api,token:async()=>{throw Error("synthetic PRIVATE KEY");}},id),
+    "AUTH_APP_INSTALLATION_TOKEN");
+  assert.equal(await diagnoseAuthStorage({...api,request:async()=>{throw Error("synthetic PRIVATE DATA");}},id),
+    "AUTH_PRIVATE_REPOSITORY_ACCESS");
+  assert.equal(await diagnoseAuthStorage({...api,request:async(route)=>{
+    if(route === "") return {...meta,private:false};
+    return null;
+  }},id),"AUTH_PRIVATE_REPOSITORY_METADATA");
+  assert.equal(await diagnoseAuthStorage({...api,request:async(route)=>{
+    if(route === "") return meta;
+    throw Error("synthetic STATE CONTENT");
+  }},id),"AUTH_PRIVATE_STATE_BRANCH_ACCESS");
+  assert.ok(calls.every(v => v === "token" || v === "" || v.startsWith("contents/")));
+});
