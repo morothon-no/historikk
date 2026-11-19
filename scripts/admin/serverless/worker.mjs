@@ -1,3 +1,31 @@
+// Diagnostic codes reveal only which operation could not complete. The
+// probe never writes files or exposes provider response bodies or credentials.
+export async function diagnoseAuthStorage(privateApi, repositoryId) {
+  try {
+    await privateApi.token();
+  } catch {
+    return "AUTH_APP_INSTALLATION_TOKEN";
+  }
+  try {
+    const metadata = await privateApi.request("");
+    if (!metadata || metadata.private !== true ||
+        metadata.full_name !== privateApi.repository ||
+        metadata.default_branch !== "main" ||
+        String(metadata.id) !== String(repositoryId))
+      return "AUTH_PRIVATE_REPOSITORY_METADATA";
+  } catch {
+    return "AUTH_PRIVATE_REPOSITORY_ACCESS";
+  }
+  try {
+    await privateApi.request(
+      "contents/.morothon-state/auth?ref=admin-state",
+      { allow404: true },
+    );
+  } catch {
+    return "AUTH_PRIVATE_STATE_BRANCH_ACCESS";
+  }
+  return "AUTH_STATE_WRITE_OR_CRYPTO";
+}
 // Optional Cloudflare adapter. No data engines, filesystem, database or hosting SDK.
 import storeModule from "./github-store.cjs";
 import authModule from "./auth.cjs";
@@ -195,13 +223,37 @@ export default {
             return { bytes: await result.arrayBuffer() };
           },
         });
-        cached = {broker, gate, publicRuntime: runtimeModule.createPublicRuntimeProxy()};
+        cached = {broker, gate, privateApi, publicRuntime: runtimeModule.createPublicRuntimeProxy()};
       }
       if (new URL(request.url).pathname.startsWith("/admin/"))
         return await cached.gate(request);
       if (new URL(request.url).pathname.startsWith("/site/"))
         return await cached.publicRuntime(request);
-      return await cached.broker.fetch(request);
+      // A failed OAuth start used to hide every GitHub storage error behind
+      // one generic message. A read-only, bounded probe classifies the stage
+      // without disclosing OAuth state, GitHub responses, tokens or secrets.
+      // The broker still owns auth, CSRF validation and rate limiting.
+      const response = await cached.broker.fetch(request);
+      if (new URL(request.url).pathname === "/auth/begin" &&
+          (response.status === 502 || response.status === 503)) {
+        const code = await diagnoseAuthStorage(
+          cached.privateApi, env.PRIVATE_REPOSITORY_ID,
+        );
+        return new Response(JSON.stringify({
+          error: "Innloggingen kunne ikke starte. Ingen data er endret.",
+          diagnostic: code,
+        }), {
+          status: response.status,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+            "Referrer-Policy": "no-referrer",
+            "X-Robots-Tag": "noindex, nofollow",
+          },
+        });
+      }
+      return response;
     } catch {
       return new Response(
         JSON.stringify({
