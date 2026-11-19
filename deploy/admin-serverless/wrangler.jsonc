@@ -8,9 +8,7 @@
     "nodejs_compat"
   ],
   "workers_dev": true,
-  "routes": [
-    {"pattern": "historikk.morothon.no/admin/*", "zone_name": "morothon.no"}
-  ],
+  "routes": [],
   "preview_urls": false,
   "observability": {
     "enabled": false
@@ -48,7 +46,7 @@
   ],
   "vars": {
     "API_ORIGIN": "https://morothon-admin.damofra75.workers.dev",
-    "PORTAL_URL": "https://historikk.morothon.no/admin/",
+    "PORTAL_URL": "https://morothon-admin.damofra75.workers.dev/admin/",
     "OWNER_USER_ID": "2932a52f-6831-40a4-b566-bc97a0ab344f",
     "OWNER_GITHUB_ID": "322168409",
     "OAUTH_CLIENT_ID": "Ov23liCJ8N6fIUUWXq3",
