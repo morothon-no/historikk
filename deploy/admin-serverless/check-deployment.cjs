@@ -370,8 +370,17 @@ async function verifyHealth(c, {
       method: "GET", redirect: "error", cache: "no-store",
       signal: AbortSignal.timeout(20000),
     });
-    requireThat(blocked.status === 401,
-      "Adminfil er offentlig tilgjengelig uten innlogging: " + asset);
+    if (asset === "index.html") {
+      const html = await blocked.text();
+      requireThat(blocked.status === 200 &&
+        (blocked.headers.get("content-type") || "").includes("text/html") &&
+        html.includes("Logg inn med GitHub") &&
+        !html.includes("portal-shell") && !html.includes("resultServiceSave"),
+        "Anonym admin/index.html leverer annet enn innloggingssiden.");
+    } else {
+      requireThat(blocked.status === 401,
+        "Adminfil er offentlig tilgjengelig uten innlogging: " + asset);
+    }
   }
   // The original public GitHub Pages address must not serve ANY former
   // admin entrypoint or asset. Accept only 404/410, or a redirect to the
