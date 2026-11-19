@@ -23,7 +23,7 @@ async function buildProtectedAdmin(out = DEST) {
       html = html.replace(/<meta name="local-session"[^>]*>/, "")
         .replace('<body class="portal-app">', '<body class="portal-app" data-admin-mode="protected">')
         .replace('sandbox="allow-same-origin"', 'sandbox="allow-same-origin allow-modals"')
-        .replaceAll("/site/assets/", "../assets/")
+        .replaceAll("/site/assets/", "/site/assets/")
         .replace('<meta name="morothon-admin-service" content="">',
           '<meta name="morothon-admin-service" content="' + API + '">');
       for (const file of ["admin.css","admin.js","portal.js",
