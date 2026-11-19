@@ -290,8 +290,11 @@ test(
           },
         });
       if (u.origin !== origin || r.method() !== "GET") return route.abort();
-      const name =
-          u.pathname.slice(1) + (u.pathname.endsWith("/") ? "index.html" : ""),
+      // Worker-only admin imports a public script through its same-origin /site/
+      // mirror. Resolve the read-only mirror in this synthetic browser fixture.
+      const name = u.pathname.startsWith("/site/")
+        ? u.pathname.slice("/site/".length)
+        : u.pathname.slice(1) + (u.pathname.endsWith("/") ? "index.html" : ""),
         bytes = publicFiles.get(name);
       if (!bytes) return route.fulfill({ status: 404, body: "Not found" });
       return route.fulfill({
