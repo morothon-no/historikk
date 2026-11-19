@@ -398,7 +398,12 @@ async function brokerFixture(t) {
       auth,
       reviews,
       control,
+      // OAuth/state repository tokens need only Contents; Actions requires a
+      // separate installation token and must never be requested on login.
       privateApi: {
+        request: async () => { throw Error("OAuth storage must not request Actions"); },
+      },
+      privateActionsApi: {
         request: async (route, o) => {
           if (route.includes("dispatches")) {
             dispatches.push(JSON.parse(o.body));
