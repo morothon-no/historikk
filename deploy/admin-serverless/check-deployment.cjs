@@ -146,7 +146,7 @@ function validateConfig(c) {
     "Eksakte, gjennomgåtte kodeversjoner kreves.",
   );
   requireThat(
-    /^Ov23[a-zA-Z0-9]+$/.test(v.OAUTH_CLIENT_ID),
+    /^Iv23[a-zA-Z0-9]+$/.test(v.OAUTH_CLIENT_ID),
     "GitHub OAuth App client-ID må kontrolleres.",
   );
   return c;
