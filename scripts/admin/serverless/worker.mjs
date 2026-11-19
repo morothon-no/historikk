@@ -1,10 +1,34 @@
 // Diagnostic codes reveal only which operation could not complete. The
 // probe never writes files or exposes provider response bodies or credentials.
-export async function diagnoseAuthStorage(privateApi, repositoryId) {
+import { createPrivateKey, sign as signCrypto } from "node:crypto";
+
+// GitHub app .pem values sometimes arrive from dashboards with literal
+// backslash-n escape sequences. Accept both PEM representations without
+// changing existing secrets. Never print private key bytes.
+export function normalizedAppPrivateKey(value) {
+  const key = String(value || "").trim();
+  return key.includes("\\n") ? key.replaceAll("\\n", "\n") : key;
+}
+export function classifyTokenError({ privateKey, httpStatus, networkFailure }) {
+  try {
+    const key = createPrivateKey(normalizedAppPrivateKey(privateKey));
+    if (key.asymmetricKeyType !== "rsa") return "AUTH_GITHUB_APP_KEY_INVALID";
+    signCrypto("RSA-SHA256", Buffer.from("morothon-local-signing-check"), key);
+  } catch {
+    return "AUTH_GITHUB_APP_KEY_INVALID";
+  }
+  if (networkFailure) return "AUTH_GITHUB_NETWORK";
+  if ([401, 403, 404, 422].includes(httpStatus))
+    return "AUTH_GITHUB_APP_HTTP_" + httpStatus;
+  if (Number.isInteger(httpStatus))
+    return "AUTH_GITHUB_APP_HTTP_OTHER";
+  return "AUTH_GITHUB_APP_SIGN_OR_RUNTIME";
+}
+export async function diagnoseAuthStorage(privateApi, repositoryId, diagnostics = {}) {
   try {
     await privateApi.token();
   } catch {
-    return "AUTH_APP_INSTALLATION_TOKEN";
+    return diagnostics.tokenFailure ? diagnostics.tokenFailure() : "AUTH_APP_INSTALLATION_TOKEN";
   }
   try {
     const metadata = await privateApi.request("");
@@ -68,12 +92,28 @@ export default {
           common = {
             appId: env.GITHUB_APP_ID,
             installationId: env.GITHUB_INSTALLATION_ID,
-            privateKey: env.GITHUB_APP_PRIVATE_KEY,
+            privateKey: normalizedAppPrivateKey(env.GITHUB_APP_PRIVATE_KEY),
           };
+        let appTokenHttpStatus = null;
+        let appTokenNetworkFailure = false;
+        const privateFetch = async (url, options) => {
+          const tokenEndpoint = String(url).startsWith(
+            "https://api.github.com/app/installations/",
+          ) && String(url).endsWith("/access_tokens");
+          try {
+            const response = await fetch(url, options);
+            if (tokenEndpoint) appTokenHttpStatus = response.ok ? null : response.status;
+            return response;
+          } catch (err) {
+            if (tokenEndpoint) appTokenNetworkFailure = true;
+            throw err;
+          }
+        };
         const privateApi = connection({
             ...common,
             repository: env.PRIVATE_REPOSITORY,
             permissions: { contents: "write" },
+            fetchImpl: privateFetch,
           }),
           privateActionsApi = connection({
             ...common,
@@ -223,7 +263,13 @@ export default {
             return { bytes: await result.arrayBuffer() };
           },
         });
-        cached = {broker, gate, privateApi, publicRuntime: runtimeModule.createPublicRuntimeProxy()};
+        cached = {broker, gate, privateApi,
+          tokenFailure: () => classifyTokenError({
+            privateKey: env.GITHUB_APP_PRIVATE_KEY,
+            httpStatus: appTokenHttpStatus,
+            networkFailure: appTokenNetworkFailure,
+          }),
+          publicRuntime: runtimeModule.createPublicRuntimeProxy()};
       }
       if (new URL(request.url).pathname.startsWith("/admin/"))
         return await cached.gate(request);
@@ -238,6 +284,7 @@ export default {
           (response.status === 502 || response.status === 503)) {
         const code = await diagnoseAuthStorage(
           cached.privateApi, env.PRIVATE_REPOSITORY_ID,
+          { tokenFailure: cached.tokenFailure },
         );
         return new Response(JSON.stringify({
           error: "Innloggingen kunne ikke starte. Ingen data er endret.",

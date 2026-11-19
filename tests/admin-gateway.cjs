@@ -146,3 +146,27 @@ test("OAuth begin failure diagnostics identify only safe, read-only stages", asy
   }},id),"AUTH_PRIVATE_STATE_BRANCH_ACCESS");
   assert.ok(calls.every(v => v === "token" || v === "" || v.startsWith("contents/")));
 });
+
+test("OAuth GitHub App token diagnosis accepts escaped PEM and distinguishes failures", async () => {
+  const { generateKeyPairSync } = require("node:crypto");
+  const { normalizedAppPrivateKey, classifyTokenError, diagnoseAuthStorage } =
+    await import("../scripts/admin/serverless/worker.mjs");
+  const { privateKey } = generateKeyPairSync("rsa",{modulusLength:2048});
+  const pem = privateKey.export({type:"pkcs8",format:"pem"}).toString();
+  const escaped = pem.replaceAll("\n","\\n");
+  assert.equal(normalizedAppPrivateKey(escaped), pem.trim());
+  for (const key of [pem, escaped]) {
+    assert.equal(classifyTokenError({privateKey:key,httpStatus:401}),"AUTH_GITHUB_APP_HTTP_401");
+    assert.equal(classifyTokenError({privateKey:key,httpStatus:403}),"AUTH_GITHUB_APP_HTTP_403");
+    assert.equal(classifyTokenError({privateKey:key,httpStatus:404}),"AUTH_GITHUB_APP_HTTP_404");
+    assert.equal(classifyTokenError({privateKey:key,httpStatus:422}),"AUTH_GITHUB_APP_HTTP_422");
+    assert.equal(classifyTokenError({privateKey:key,httpStatus:502}),"AUTH_GITHUB_APP_HTTP_OTHER");
+    assert.equal(classifyTokenError({privateKey:key,networkFailure:true}),"AUTH_GITHUB_NETWORK");
+  }
+  assert.equal(classifyTokenError({privateKey:"not a pem",httpStatus:401}),
+    "AUTH_GITHUB_APP_KEY_INVALID");
+  assert.equal(await diagnoseAuthStorage({
+    token:async()=>{throw Error("synthetic upstream authorization failed");},
+  },"1456606620",{tokenFailure:()=>classifyTokenError({privateKey:pem,httpStatus:403})}),
+    "AUTH_GITHUB_APP_HTTP_403");
+});
