@@ -137,12 +137,12 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
       normalized = C.transition(normalized, c.id, 'handoff', c.reason, review.impacts.find(i => i.caseId === c.id));
     return {draft:normalized, review};
   }
-  async function prepare(input) {
+  async function prepare(input, draftOverride = null) {
     await access(input, 'write');
     const intent = command(input.command), saved = await service.load(input), current = await context(input.organizer);
     if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0) fail('Ugyldig forventet revisjon.');
     if (!equal(intent.base, current.base) || saved.stale) fail('Foreldet identitetsgrunnlag krever ny kildekontroll.');
-    const request = 'request-' + sha(intent), draft = saved.draft || C.empty(current.base);
+    const request = 'request-' + sha(intent), draft = draftOverride || saved.draft || C.empty(current.base);
     const previous = draft.cases.find(c => c.id === intent.id);
     if (previous) {
       if (!previous.events.some(e => e.action === request)) fail('Saks-ID er allerede brukt for en annen beslutning.');
@@ -200,6 +200,35 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     const saved = await service.save({...input, draft:result.draft});
     return {...saved, scope:SCOPE, persisted:true, repeated:false, requestId:result.requestId, review:result.review};
   }
+  // A whole owner session is one private revision. Every command is checked
+  // against the accumulated candidate before the first durable write.
+  // If any command fails, not one pair is saved.
+  async function decideBatch(input) {
+    if(!Array.isArray(input.commands) || input.commands.length<1 || input.commands.length>50)
+      fail('Velg mellom 1 og 50 identitetsavgjørelser.');
+    const commands=input.commands.map(command),
+      caseIds=new Set(),pairs=new Set();
+    for(const c of commands) {
+      const pair=[...c.personIds].sort().join(':');
+      if(caseIds.has(c.id) || pairs.has(pair))
+        fail('Samme sak eller par er valgt flere ganger i innsendingen.');
+      caseIds.add(c.id);pairs.add(pair);
+    }
+    let accumulated=null, final=null;
+    for(const c of commands) {
+      final=await prepare({...input,command:c},accumulated);
+      if(final.repeated)fail('En avgjørelse finnes allerede. Hent lagrede avgjørelser før ny innsending.');
+      accumulated=final.draft;
+    }
+    await access(input,'write');
+    if(!equal((await loadContext(input.organizer)).base,final.current.base))
+      fail('Historikkgrunnlaget endret seg under samlet kontroll.');
+    const saved=await service.save({...input,draft:accumulated});
+    return {...saved,scope:SCOPE,persisted:true,batchCount:commands.length,
+      productionApplied:false,publicationAuthorized:false,
+      review:final.review};
+  }
+
   async function approve(input) {
     await access(input, 'approve');
     const saved = await service.load(input);
@@ -254,7 +283,7 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     });
     return load(input);
   }
-  return {load, preview, decide, approve, inspect, revalidate}; // No production writer.
+  return {load, preview, decide, decideBatch, approve, inspect, revalidate}; // No production writer.
 }
 
 module.exports = {createIdentityReview, identityReviewStore, privateIdentityFileStore, SCOPE,

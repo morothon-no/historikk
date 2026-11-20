@@ -81,3 +81,11 @@ body.portal-app[data-admin-mode="protected"]:not([data-admin-ready="true"])::bef
   display:grid;place-items:center;padding:24px;background:#f3f3ed;
   color:#123b41;font:600 16px/1.5 Arial,Helvetica,sans-serif;text-align:center
 }
+
+
+/* One owner confirmation per identity-review session; pending choices stay editable. */
+#identityBatchTray{border:1px solid #b9d0c9;background:#f3f8f4;border-radius:10px;padding:12px 14px;margin:12px 0}
+#identityBatchTray h3{margin:0 0 6px}#identityBatchTray p{font-size:12px;margin:0 0 8px}
+#identityBatchTray .identity-batch-entry{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #cddbd2;padding:7px 0;font-size:12px}
+#identityBatchTray .identity-batch-entry button{flex:none;min-height:44px}
+#identityBatchSubmit{background:#165d66!important;color:white!important;border-color:#165d66!important;font-weight:700}

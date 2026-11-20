@@ -34,7 +34,7 @@ function createDriver({
     task.organizer !== ORG
   )
     throw Error("Jobben gjelder feil eier eller kodeversjon.");
-  const identityMode = ['identity-decide','identity-approve','identity-revalidate','identity-check'].includes(task.action);
+  const identityMode = ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check'].includes(task.action);
   if (identityMode !== (task.scope === SCOPE)) throw Error('Feil modul for privat jobb.');
   const review = identityMode ? createIdentityReview({
       authenticate:async()=>actor, loadContext,
@@ -108,6 +108,8 @@ function createDriver({
         let result;
         if (task.action === 'identity-decide') result = await review.decide({...input,
           expectedRevision:task.expectedRevision,command:task.identityCommand});
+        else if (task.action === 'identity-batch') result=await review.decideBatch({...input,
+          expectedRevision:task.expectedRevision,commands:task.identityCommands});
         else result = await review[task.action === 'identity-revalidate' ? 'revalidate' : task.action === 'identity-check' ? 'inspect' : 'approve']({...input,
           expectedRevision:task.expectedRevision,expectedDigest:task.expectedDigest});
         if (task.action !== 'identity-approve') {
