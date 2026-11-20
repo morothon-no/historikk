@@ -17,6 +17,13 @@ async function download(p,selector){const wait=p.waitForEvent('download');await 
 test('C2.3a static annual portal imports, compares, explicitly reviews two corrections, previews actual engine consequences and transfers a bound package to C2.2',async()=>{
  const {p,context}=await open(),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r));const before=await fs.readFile(path.join(build.out,'data/history.json'));
  try{
+  await p.locator('a[href="#oversikt"]').first().click();
+  assert.equal(await p.locator('.admin-work-card').count(),6,'organizer work hub displays the six real task entry points');
+  await p.locator('[data-annual-mode="results"]').click();
+  assert.equal(await p.locator('#annualImportKind').inputValue(),'results','dashboard result-import shortcut opens the correct existing workflow');
+  await p.locator('a[href="#oversikt"]').first().click();
+  await p.locator('[data-annual-mode="corrections"]').click();
+  assert.equal(await p.locator('#annualImportKind').inputValue(),'corrections','dashboard historical-correction shortcut opens correction view');
   assert.deepEqual(await p.locator('#annualImportKind option').allTextContents(),[
    'Før konkurransen – startliste og merkeprognose',
    'Etter konkurransen – importer endelige resultater',
@@ -50,11 +57,11 @@ test('C2.3a static annual portal imports, compares, explicitly reviews two corre
 });
 test('C2.3a source replacement invalidates transferred proposals without deleting an independent manual case, and exposes no persistent or upload API',async()=>{
  const {p,context}=await open();try{
-  await p.locator('#navCorrections').click();await p.getByRole('button',{name:'Innmeldte feil',exact:true}).click();await p.getByRole('button',{name:'Registrer innmeldt feil',exact:true}).click();await p.locator('a[href="#import"]').click();
+  await p.locator('#navCorrections').click();await p.getByRole('button',{name:'Innmeldte feil',exact:true}).click();await p.getByRole('button',{name:'Registrer innmeldt feil',exact:true}).click();await p.locator('.sidebar nav a[href="#import"]').click();
   await upload(p);await compare(p);await decide(p,'result-1');await decide(p,'result-2');await p.click('#resultTransfer');await p.waitForFunction(()=>document.querySelector('#resultStatus')?.textContent.includes('Samlet forhåndskontroll')||document.querySelector('#resultStatus')?.dataset.error==='true',{timeout:30000});await p.locator('#navCorrections').click();await p.waitForURL(/#rettelser$/);
-  await p.locator('a[href="#import"]').click();await p.selectOption('#annualImportKind','results');await upload(p,sample.csv(sample.corrected()).replace('2:07:14','2:08:00'));assert.equal(await p.locator('#resultCases .result-case').count(),2);assert.match(await p.locator('#resultStages').innerText(),/0 vurderinger/);
+  await p.locator('.sidebar nav a[href="#import"]').click();await p.selectOption('#annualImportKind','results');await upload(p,sample.csv(sample.corrected()).replace('2:07:14','2:08:00'));assert.equal(await p.locator('#resultCases .result-case').count(),2);assert.match(await p.locator('#resultStages').innerText(),/0 vurderinger/);
   await p.locator('#navCorrections').click();const pkg=await download(p,'#correctionRefresh + button');assert.equal(pkg.cases.length,3);assert.deepEqual(pkg.cases.map(c=>c.status),['reported','review','review']);assert.ok(pkg.cases.filter(c=>c.change).every(c=>c.events.some(e=>e.action==='review')));
-  await p.locator('a[href="#import"]').click();await compare(p);assert.equal(await p.locator('.result-case').count(),2);assert.equal(await p.evaluate(()=>sessionStorage.length+localStorage.length),0);
+  await p.locator('.sidebar nav a[href="#import"]').click();await compare(p);assert.equal(await p.locator('.result-case').count(),2);assert.equal(await p.evaluate(()=>sessionStorage.length+localStorage.length),0);
  }finally{await context.close();}
 });
 test('C2.3a manual columns, invalid inputs, partial coverage and the existing start-list flow remain understandable on a static base path',async()=>{
@@ -137,7 +144,7 @@ async function approveImported(p,id){const card=p.locator('[data-result-id="'+id
 test('C2.3d optional advanced preparation retains the old reversible and source-bound per-case gate',async()=>{
  const {p,context}=await open(),requests=[],errors=[];p.on('request',r=>requests.push(r));p.on('pageerror',e=>errors.push(e.message));try{
   const h=sample.history();h.results[0][8]='Syntetisk korrigert klubb A';h.results[1][8]='Syntetisk korrigert klubb B';const text=sample.csv(h);await upload(p,text);await compare(p);await approveImported(p,'result-1');let c=await completeCandidate(p);assert.equal(c.corrections.cases.length,1);assert.equal(c.corrections.cases[0].status,'handoff');assert.equal(c.publicationAuthorized,false);
-  await p.locator('a[href="#import"]').click();await p.selectOption('#annualImportKind','results');assert.match(await p.locator('#resultAttentionCount').innerText(),/^1 saker/);await approveImported(p,'result-2');c=await completeCandidate(p);assert.equal(c.corrections.cases.length,2);assert.ok(c.corrections.cases.every(c=>c.status==='handoff'));assert.equal(c.result.history.results[0][8],h.results[0][8]);assert.equal(c.result.history.results[1][8],h.results[1][8]);assert.equal(c.productionApplied,false);const restored=await p.evaluate(async c=>(await MorothonCorrections.restoreCandidate(c.result.history,c)).history,c);assert.deepEqual(restored,sample.history());assert.deepEqual(await(await fetch(base+'data/history.json')).json(),sample.history());assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));assert.deepEqual(errors,[]);assert.equal(await p.evaluate(()=>localStorage.length+sessionStorage.length),0);
+  await p.locator('.sidebar nav a[href="#import"]').click();await p.selectOption('#annualImportKind','results');assert.match(await p.locator('#resultAttentionCount').innerText(),/^1 saker/);await approveImported(p,'result-2');c=await completeCandidate(p);assert.equal(c.corrections.cases.length,2);assert.ok(c.corrections.cases.every(c=>c.status==='handoff'));assert.equal(c.result.history.results[0][8],h.results[0][8]);assert.equal(c.result.history.results[1][8],h.results[1][8]);assert.equal(c.productionApplied,false);const restored=await p.evaluate(async c=>(await MorothonCorrections.restoreCandidate(c.result.history,c)).history,c);assert.deepEqual(restored,sample.history());assert.deepEqual(await(await fetch(base+'data/history.json')).json(),sample.history());assert.ok(requests.every(r=>r.method()==='GET'&&r.url().startsWith(base)));assert.deepEqual(errors,[]);assert.equal(await p.evaluate(()=>localStorage.length+sessionStorage.length),0);
  }finally{await context.close();}
 });
 test('C2.5 manual result approvals stay in annual import, with a single explicit aggregate consequence check',async()=>{
