@@ -209,7 +209,7 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     const commands=input.commands.map(command),
       caseIds=new Set(),pairs=new Set();
     for(const c of commands) {
-      const pair=c.kind+':'+[...c.personIds].sort().join(':');
+      const pair=[...c.personIds].sort().join(':');
       if(caseIds.has(c.id) || pairs.has(pair))
         fail('Samme sak eller par er valgt flere ganger i innsendingen.');
       caseIds.add(c.id);pairs.add(pair);
