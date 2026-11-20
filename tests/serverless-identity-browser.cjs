@@ -30,8 +30,9 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok(bootStylePosition>0,'protected admin must include critical pre-paint shell-hiding CSS');
  assert.ok(bootStylePosition<protectedHtml.indexOf('href="./intake.css"'),
    'legacy shell must be hidden before loading external CSS');
- assert.match(protectedHtml.slice(bootStylePosition,protectedHtml.indexOf('</style>',bootStylePosition)),
-   /:not\\(\\[data-admin-ready="true"\\]\\) \\.portal-shell\\{visibility:hidden\\}/);
+ assert.ok(protectedHtml.slice(bootStylePosition,protectedHtml.indexOf('</style>',bootStylePosition))
+   .includes(':not([data-admin-ready="true"]) .portal-shell{visibility:hidden}'),
+   'critical style must hide the uninitialized protected admin shell');
  const files=new Map(runtime.files);
  for(const name of Object.keys(ADMIN_SOURCES)){
   let bytes=await fs.readFile(path.join(protectedDir,name));
