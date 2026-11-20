@@ -57,11 +57,11 @@ test("active deployment config reuses the exact Worker and confirmed non-secret 
   assert.equal(c.vars.OAUTH_CLIENT_ID, "Iv23li3NBIaOygfu6Nm1");
   assert.equal(
     c.vars.PRIVATE_WORKFLOW_SHA,
-    "6cfea0ceea7a97e4d694ffd67fb378f10c71090c",
+    "6685634353d449a906a17c4f6db74687aa22ed6b",
   );
   assert.equal(
     c.vars.PROCESSOR_CODE_SHA,
-    "4063eb7c0846934d2443678bae47f1fbce9f38db",
+    "f04050343d092f6ab9080efc966cd5d01edeccb3",
   );
   assert.equal(
     path.resolve(__dirname, "../deploy/admin-serverless", c.main),
