@@ -219,10 +219,20 @@
   // Only server-confirmed packages populate this list; no browser storage.
   async function mountIdentity() {
     if (identityMounted || !identityContext || !principal?.identityPersistence || !protectedPortal) return;
+    // Do not permanently latch a broken Personkontroll mount if the initial
+    // history binding fails (for example due to a transient load failure).
     identityMounted = true;
-    const C=window.MorothonCorrections,H=window.MorothonHistoryData,
-      model=H.create(identityContext.history),base=await C.binding(identityContext.history,identityContext.meta),
-      suggestions=C.discover(identityContext.history),host=$('view-personkontroll');
+    let C,H,model,base,suggestions,host;
+    try {
+      C=window.MorothonCorrections;H=window.MorothonHistoryData;
+      model=H.create(identityContext.history);
+      base=await C.binding(identityContext.history,identityContext.meta);
+      suggestions=C.discover(identityContext.history);
+      host=$('view-personkontroll');
+    } catch(error) {
+      identityMounted = false;
+      throw error;
+    }
     const s={saved:null,busy:false,scope:'pending',query:'',selected:null,selectedCase:null,request:null,pending:new Map(),version:0};
     const panel=node('section');panel.className='panel';panel.id='identityService';
     const status=node('p');status.id='identityServiceStatus';status.setAttribute('role','status');
