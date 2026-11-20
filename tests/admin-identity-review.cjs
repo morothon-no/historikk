@@ -60,6 +60,35 @@ test('identity merge is previewed by the existing engine, encrypted, reopened in
   assert.deepEqual(f.history,original);
 });
 
+test('batch saves two distinct-person decisions in one atomic private revision', async t => {
+  const f=await setup(t);
+  const first=f.command('different-people',{id:'session-first'});
+  const second=f.command('different-people',{
+    id:'session-second',personIds:['MOR-C220003','MOR-C220004']});
+  const result=await f.service.decideBatch({...f.input,commands:[first,second]});
+  assert.equal(result.revision,1);
+  assert.equal(result.batchCount,2);
+  assert.equal(result.persisted,true);
+  assert.equal(result.productionApplied,false);
+  const fresh=createIdentityReview({...f.options,
+    store:privateIdentityFileStore({directory:f.directory,key:f.key})});
+  const loaded=await fresh.load(f.input);
+  assert.equal(loaded.counts.rejected,2);
+  assert.equal(loaded.counts.unprocessed,0);
+  assert.equal(loaded.draft.cases.length,2);
+  assert.equal(loaded.approval,null);
+});
+
+test('batch validation failure cannot write partial identity decisions', async t => {
+  const f=await setup(t);
+  const first=f.command('different-people',{id:'valid-first'});
+  const conflict=f.command('same-person',{id:'conflicting-second',
+    personIds:['MOR-C220003','MOR-C220004'],mainPersonId:'MOR-C220004'});
+  await assert.rejects(()=>f.service.decideBatch({...f.input,commands:[first,conflict]}),/Overlapp/);
+  assert.equal((await f.service.load(f.input)).revision,0);
+  assert.equal(await f.store.get(org),null);
+});
+
 test('distinct identities suppress exactly the saved pair across reload; other candidates remain unprocessed', async t => {
   const f = await setup(t), before = await f.service.load(f.input);
   const saved = await f.service.decide({...f.input,command:f.command('different-people')});
