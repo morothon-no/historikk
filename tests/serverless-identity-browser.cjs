@@ -26,6 +26,12 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const runtime=await approvedRuntime(built.out,approval),protectedDir=path.join(assets,'protected-assets');
  await buildProtectedAdmin(protectedDir);
  const protectedHtml=await fs.readFile(path.join(protectedDir,'admin/index.html'),'utf8');
+ // Task-first overview is shared by the protected Worker shell and local admin.
+ const taskHub=protectedHtml.indexOf('class="admin-work-hub"');
+ const welcome=protectedHtml.indexOf('class="welcome-card"');
+ assert.ok(taskHub>0 && welcome>taskHub,'admin work cards must appear before decorative welcome content');
+ assert.equal((protectedHtml.match(/class="admin-work-card"/g)||[]).length,6,
+   'all six existing task routes must be retained after reordering');
  const bootStylePosition=protectedHtml.indexOf('<style data-morothon-protected-boot>');
  assert.ok(bootStylePosition>0,'protected admin must include critical pre-paint shell-hiding CSS');
  assert.ok(bootStylePosition<protectedHtml.indexOf('href="./intake.css"'),
