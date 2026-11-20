@@ -20,7 +20,9 @@ const mask = (s) =>
         .replaceAll("\n", "%0A") +
       "\n",
   );
+let safeStage = 'setup';
 async function main(env = process.env) {
+  safeStage = 'setup';
   const origin = new URL(env.MOROTHON_BROKER_ORIGIN);
   if (
     env.GITHUB_ACTIONS !== "true" ||
@@ -39,6 +41,7 @@ async function main(env = process.env) {
   )
     throw Error("Mangler GitHub OIDC.");
   oidcUrl.searchParams.set("audience", origin.origin + "/processor");
+  safeStage = 'github-oidc';
   const oidcResponse = await fetch(oidcUrl, {
     headers: { Authorization: "Bearer " + env.ACTIONS_ID_TOKEN_REQUEST_TOKEN },
     redirect: "error",
@@ -46,6 +49,7 @@ async function main(env = process.env) {
   if (!oidcResponse.ok) throw Error("OIDC feilet.");
   const jwt = (await oidcResponse.json()).value;
   mask(jwt);
+  safeStage = 'worker-lease';
   const r = await fetch(origin.origin + "/processor/lease", {
     method: "POST",
     redirect: "error",
@@ -58,7 +62,13 @@ async function main(env = process.env) {
       nonce: env.MOROTHON_TASK_NONCE,
     }),
   });
-  if (!r.ok) throw Error("Jobben har ikke gyldig eierautorisasjon.");
+  if (!r.ok) {
+    // Report only a bounded HTTP status, never the response body or bearer.
+    console.error("Privat prosessor: lease HTTP " +
+      ([400,401,403,404,409,429,500,502,503].includes(r.status) ? r.status : "other"));
+    throw Error("Jobben har ikke gyldig eierautorisasjon.");
+  }
+  safeStage = 'lease-response';
   const lease = await r.json();
   for (const secret of [
     lease.privateToken,
@@ -72,6 +82,7 @@ async function main(env = process.env) {
     lease.publicRepository !== "morothon-no/historikk"
   )
     throw Error("Feil betrodd kodeversjon eller jobb.");
+  safeStage = 'private-data';
   const privateApi = tokenConnection(
       lease.privateRepository,
       lease.privateToken,
@@ -122,6 +133,7 @@ async function main(env = process.env) {
   await fs.chmod(directory, 0o700);
   let projector;
   try {
+    safeStage = 'public-snapshot';
     const snapshot = await adapter.snapshot({
         requireGreen: lease.task.action !== "continue",
       }),
@@ -181,6 +193,7 @@ async function main(env = process.env) {
         return base;
       },
     });
+    safeStage = 'private-decision';
     const result = await driver.run();
     if (!result.completed) process.exitCode = 1;
     console.log(
@@ -196,6 +209,7 @@ async function main(env = process.env) {
 module.exports = { main };
 if (require.main === module)
   main().catch(() => {
+    console.error("Privat prosessorfase: " + safeStage);
     console.error(
       "Privat kontroll feilet før fullføring. Ingen vellykket publisering er meldt.",
     );
