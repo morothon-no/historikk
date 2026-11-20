@@ -359,7 +359,22 @@
       for(const c of rows.slice(0,40)){const card=node('article');card.className='correction-case';
         card.append(node('h3',c.personIds.map(name).join(' / ')),node('p',c.reason));
         const stored=s.saved.draft?.cases.find(x=>x.id===c.caseId);
-        card.append(btn(stored?'Vis lagret avgjørelse':'Åpne og sammenlign','identityOpen-'+(c.caseId||c.id),()=>inspect(c.personIds,stored)));list.append(card);}
+        if(!stored && c.personIds.length===2 && c.bucket==='pending'){
+          // Restore the original quick workflow on each suggestion. Reuse the
+          // same authenticated, versioned decision path as the detailed editor.
+          const quick=node('div');quick.className='actions';
+          quick.append(
+            btn('Samme person – velg hovednavn','identityQuickSame-'+c.id,()=>inspect(c.personIds,null)),
+            btn('Forskjellige personer','identityQuickDifferent-'+c.id,async()=>{
+              if(!confirm('Bekrefte at «'+name(c.personIds[0])+'» og «'+name(c.personIds[1])+'» er forskjellige personer? Ingen publisering.'))return;
+              await send(intent('different-people',c.personIds,null,null,
+                'Arrangørbekreftelse i beskyttet personkontroll.',
+                'Arrangøren bekrefter at profilene gjelder forskjellige personer.'));
+            })
+          );
+          card.append(quick);
+        }
+        card.append(btn(stored?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>inspect(c.personIds,stored)));list.append(card);}
       if(!rows.length)list.append(node('p','Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
       if(rows.length>40)list.append(node('p','Viser de første 40 treffene. Avgrens med navnesøket.'));
       archive.replaceChildren(node('summary','Tidligere kildegrunnlag · '+(s.saved.archives||[]).length));
