@@ -223,12 +223,13 @@
     const C=window.MorothonCorrections,H=window.MorothonHistoryData,
       model=H.create(identityContext.history),base=await C.binding(identityContext.history,identityContext.meta),
       suggestions=C.discover(identityContext.history),host=$('view-personkontroll');
-    const s={saved:null,busy:false,scope:'pending',query:'',selected:null,selectedCase:null,request:null,version:0};
+    const s={saved:null,busy:false,scope:'pending',query:'',selected:null,selectedCase:null,request:null,pending:new Map(),version:0};
     const panel=node('section');panel.className='panel';panel.id='identityService';
     const status=node('p');status.id='identityServiceStatus';status.setAttribute('role','status');
     const counts=node('div');counts.id='identityServiceCounts';counts.className='correction-summary';
     const controls=node('div');controls.className='actions';
     const list=node('div');list.id='identityWorklist';
+    const tray=node('section');tray.id='identityBatchTray';tray.setAttribute('aria-label','Valg i denne økten');
     const editor=node('section');editor.id='identityEditor';
     const archive=node('details');archive.id='identityArchive';
     const field=(label,input)=>{const e=node('label',label);e.append(input);return e;};
@@ -240,7 +241,7 @@
         status.textContent=error.message+' Siste serverbekreftede vurderinger er beholdt.';
         status.dataset.error='true';
       }finally{s.busy=false;disable();}};return e;};
-    const active=()=>s.saved?.task&&!['completed','failed'].includes(s.saved.task.state);
+    const active=()=>s.saved?.task&&!['completed','failed','blocked'].includes(s.saved.task.state);
     const stale=()=>s.saved?.stale || s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base);
     const name=id=>model.person(id)?.n || id;
     const identityState=()=>s.saved?.status==='review-approved' ? 'Godkjent – ikke publisert' : s.saved?.persisted ? 'Lagret privat – ikke godkjent eller publisert' : 'Ingen lagrede avgjørelser';
@@ -260,7 +261,10 @@
       if(current.scope!=='person-control-v1'||current.productionApplied!==false||current.publicationAuthorized!==false)
         throw Error('Uventet identitetsstatus. Ingen ny vurdering er bekreftet.');
       s.saved=current;
-      if(s.request&&current.draft?.cases.some(c=>c.id===s.request.command.id))s.request=null;
+      if(s.request&&s.request.commands?.every(command=>current.draft?.cases.some(c=>c.id===command.id))){
+        for(const command of s.request.commands)s.pending.delete([...command.personIds].sort().join(':'));
+        s.request=null;
+      }
       await render();
     }
     async function monitor(){
@@ -270,7 +274,7 @@
         await new Promise(resolve=>setTimeout(resolve,4000));}
       if(s.saved.task?.state==='blocked')throw Error(s.saved.task.error||'Privat kontrolljobb er sperret. Avklar gammel jobbpeker i Resultatkontroll.');
       if(s.saved.task?.state==='failed'){
-        if(s.request?.command.id===s.saved.task.requestId)s.request=null;
+        if(s.request?.commands && s.saved.task.action==='identity-batch')s.request=null;
         throw Error(s.saved.task.error || 'Kontrollen stoppet. Ny avgjørelse er ikke bekreftet lagret.');
       }
     }
@@ -285,6 +289,26 @@
       await monitor();
       if(s.request)throw Error('Lagring er ikke serverbekreftet ennå. Bruk «Hent status / fortsett lagring», ikke send avgjørelsen på nytt.');
       s.selected=null;s.selectedCase=null;editor.replaceChildren();s.scope='pending';await render();
+    }
+    function choose(kind,ids,mainPersonId=null,nameValue=null,source='Arrangørens private personkontroll.',reason='Personidentiteten er kontrollert av arrangøren.'){
+      if(stale()||active()||s.request)throw Error('Fullfør eller avklar lagringen før du endrer økten.');
+      const key=[...ids].sort().join(':');
+      s.pending.set(key,intent(kind,ids,mainPersonId,nameValue,source,reason));
+      render();
+    }
+    async function submitBatch(){
+      if(!s.pending.size)throw Error('Velg minst én avgjørelse først.');
+      if(stale()||active()||s.request)throw Error('Kontroller forrige innsending først.');
+      const commands=[...s.pending.values()];
+      s.request={commands,expectedRevision:s.saved.revision};
+      status.textContent='Sender '+commands.length+' avgjørelser til felles privat kontroll. Ingen er bekreftet lagret ennå.';
+      status.dataset.error='false';
+      try {await api('/identity/batch',s.request);}
+      catch(error){if([400,403,409,413].includes(error.status))s.request=null;throw error;}
+      await monitor();
+      if(s.request)throw Error('Ingen samlet lagringskvittering er mottatt. Hent ny status.');
+      s.selected=null;s.selectedCase=null;editor.replaceChildren();
+      await render();
     }
     function intent(kind,ids,mainPersonId,nameValue,source,reason){return {
       format:'morothon-identity-decision-v1',version:1,id:'identity-'+crypto.randomUUID(),base,
@@ -325,19 +349,17 @@
       if(ids.length===2){
         const main=select([['','Velg hovednavn'],...ids.map(id=>[id,name(id)])],C.preferredMainProfile(model,ids)||'','identityMainPerson');
         editor.append(field('Hovednavn ved sammenslåing',main),node('p','Alle registreringer og gamle lenker bevares. Deltakelser, merker og øvrige konsekvenser kontrolleres på serveren.'));
-        editor.append(btn('Samme person – lagre privat','identitySame',async()=>{
+        editor.append(btn('Samme person – legg i økten','identitySame',async()=>{
           if(!main.value)throw Error('Velg hvilket hovednavn som skal beholdes.');
-          if(!confirm('Lagre sammenslåingsforslaget med hovednavnet «'+name(main.value)+'»? Ingen publisering.'))return;
-          await send(intent('same-person',ids,main.value,null,source.value,reason.value));}),
-        btn('Forskjellige personer – lagre privat','identityDifferent',async()=>{
-          if(!confirm('Bekrefte at profilene gjelder forskjellige personer?'))return;
-          await send(intent('different-people',ids,null,null,source.value,reason.value));}));
+          choose('same-person',ids,main.value,null,source.value,reason.value);}),
+        btn('Forskjellige personer – legg i økten','identityDifferent',async()=>{
+          choose('different-people',ids,null,null,source.value,reason.value);}));
       }
       const other=node('details');other.append(node('summary','Hovednavn og alias uten sammenslåing'));
       const target=select(ids.map(id=>[id,name(id)]),ids[0],'identityNameTarget'),value=input('identityNewName');value.maxLength=200;
       other.append(field('Profil',target),field('Navn eller alias',value),
-        btn('Lagre nytt hovednavn','identityRename',()=>send(intent('rename',[target.value],null,value.value,source.value,reason.value))),
-        btn('Lagre alias','identityAlias',()=>send(intent('alias',[target.value],null,value.value,source.value,reason.value))));
+        btn('Legg navneendring i økten','identityRename',()=>choose('rename',[target.value],null,value.value,source.value,reason.value)),
+        btn('Legg alias i økten','identityAlias',()=>choose('alias',[target.value],null,value.value,source.value,reason.value)));
       editor.append(other);disable();
     }
     async function render(){
@@ -359,6 +381,13 @@
       }else if(active()){
         status.dataset.error='false';
         status.textContent='Privat kontroll pågår. Vent på serverbekreftelse; ikke send avgjørelsen på nytt. Revisjon '+s.saved.revision+'.';
+      }
+      tray.replaceChildren();
+      tray.append(node('h3','Valg i denne økten'),node('p',s.pending.size+' avgjørelser valgt. Du kan endre dem før du sender alle samlet.'));
+      for(const [key,cmd] of s.pending){
+        const entry=node('div');entry.className='identity-batch-entry';
+        entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · '+({ 'same-person':'Samme person','different-people':'Forskjellige personer',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
+          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);render();}));tray.append(entry);
       }
       list.replaceChildren();
       const rows=work.identity.filter(c=>(s.scope==='all'||(s.scope==='rejected'?c.caseStatus==='rejected':
@@ -388,10 +417,9 @@
           quick.append(
             btn('Samme person – velg hovednavn','identityQuickSame-'+c.id,()=>openComparison(c.personIds,null)),
             btn('Forskjellige personer','identityQuickDifferent-'+c.id,async()=>{
-              if(!confirm('Bekrefte at «'+name(c.personIds[0])+'» og «'+name(c.personIds[1])+'» er forskjellige personer? Ingen publisering.'))return;
-              await send(intent('different-people',c.personIds,null,null,
+              choose('different-people',c.personIds,null,null,
                 'Arrangørbekreftelse i beskyttet personkontroll.',
-                'Arrangøren bekrefter at profilene gjelder forskjellige personer.'));
+                'Arrangøren bekrefter at profilene gjelder forskjellige personer.');
             })
           );
           card.append(quick);
@@ -399,6 +427,7 @@
         const compare=btn(stored?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
         compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
       if(!rows.length)list.append(node('p','Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
+      submit.disabled=s.busy||active()||stale()||!s.pending.size||!!s.request;
       if(rows.length>40)list.append(node('p','Viser de første 40 treffene. Avgrens med navnesøket.'));
       archive.replaceChildren(node('summary','Tidligere kildegrunnlag · '+(s.saved.archives||[]).length));
       for(const old of s.saved.archives||[]){const group=node('details');group.append(node('summary','Dataversjon '+old.base.dataVersion+' · '+old.draft.cases.length+' bevarte saker'));
@@ -406,6 +435,7 @@
       if(s.selectedCase){const stored=s.saved.draft?.cases.find(c=>c.id===s.selectedCase);if(stored)inspect(stored.personIds,stored);}
       disable();
     }
+    const submit=btn('Send endringer samlet','identityBatchSubmit',submitBatch);
     const refresh=btn('Hent lagrede avgjørelser','identityRefresh',async()=>{await read();if(active())await monitor();});
     const approve=btn('Godkjenn lagrede avgjørelser','identityApprove',async()=>{
       if(!confirm('Godkjenne nøyaktig denne lagrede revisjonen? Dette publiserer ikke identitetsendringer.'))return;
@@ -415,12 +445,13 @@
       await api('/identity/revalidate',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
     const retry=btn('Hent status / fortsett lagring','identityRetry',async()=>{
       await read();if(active()){await monitor();return;}
-      if(s.request){await api('/identity/decide',s.request);await monitor();}
+      if(s.request)throw Error('Uavklart lagringsforsøk. Kontroller serverstatus før eventuell ny innsending.');
     });
     const reload=btn('Last inn oppdatert historikk','identityReload',()=>location.reload());
     const check=btn('Kontroller lagrede avgjørelser','identityCheck',async()=>{
       await api('/identity/check',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
-    controls.append(refresh,check,approve,revalidate,retry,reload,btn('Logg ut','identityLogout',()=>actions.logout.click()));
+    approve.hidden=true;check.hidden=true;
+    controls.append(submit,refresh,revalidate,retry,reload,btn('Logg ut','identityLogout',()=>actions.logout.click()));
     const search=input('identitySearch');search.type='search';search.oninput=()=>{s.query=search.value;render().catch(e=>{status.textContent=e.message;});};
     const filter=select([['pending','Ubehandlede'],['finished','Behandlede'],['rejected','Avviste par'],['followup','Til avklaring'],['all','Alle saker']],'pending','identityFilter');
     filter.onchange=()=>{s.scope=filter.value;render().catch(e=>{status.textContent=e.message;});};
@@ -435,7 +466,7 @@
     manual.append(btn('Sammenlign valgte profiler','identityManualOpen',()=>{
       const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);}));
     panel.append(node('h2','Personkontroll'),node('p','Identiteter, hovednavn og alias. Resultatimport og resultatkorrigeringer behandles under Årets arrangement.'),
-      node('p','Lagring er privat. Godkjenning er en egen handling. Identitetspublisering er ikke aktivert i denne leveransen.'),status,controls,counts,
+      node('p','Velg raskt eller sammenlign nøye. «Send endringer samlet» er eneste bekreftelse for økten. Valgene lagres privat; offisiell identitetspublisering er ennå ikke aktivert.'),status,controls,tray,counts,
       field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
     workspace().usePrivateIdentities?.();
