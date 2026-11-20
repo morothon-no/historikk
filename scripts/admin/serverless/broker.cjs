@@ -60,7 +60,7 @@ function createBroker({
     // which the encrypted GitHub store explicitly rejects as path identifiers.
     // Keep reads available for diagnosis, but never treat the stale queue as idle.
     if (!/^[a-z0-9]{20,32}$/.test(q.taskId))
-      return { id: null, state: 'blocked', action: 'unknown',
+      return { id: null, state: 'blocked', action: 'unknown', queueRevision: q.revision,
         error: 'En tidligere privat kontrolljobb har en ugyldig referanse. Ingen ny jobb er startet. Kontakt administrator for sikker avklaring.' };
     let task = await control.get("task-" + q.taskId);
     if (task?.state === "running" && task.runId) {
@@ -110,6 +110,7 @@ function createBroker({
             id: task.id,
             state: task.state,
             action: task.action,
+            queueRevision: task.state === 'blocked' ? task.queueRevision : null,
             error: task.error || null,
           }
         : null,
@@ -127,7 +128,7 @@ function createBroker({
       approval:record?.approval || null, events:record?.events || [], archives:record?.archives || [],
       stale:!!record && !same(record.base,b), productionApplied:false, publicationAuthorized:false,
       inspection:record && inspection?.digest===sha(record.draft) && same(inspection.base,b) ? inspection.report : null,
-      task:task?.scope === SCOPE ? {id:task.id,state:task.state,action:task.action,
+      task:task && (task.scope === SCOPE || task.state === 'blocked') ? {id:task.id,state:task.state,action:task.action,queueRevision:task.queueRevision || null,
         requestId:task.identityCommand?.id || null,error:task.error || null} : null};
   }
   async function dispatch(task) {
