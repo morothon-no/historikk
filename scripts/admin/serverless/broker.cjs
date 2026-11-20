@@ -56,6 +56,12 @@ function createBroker({
   async function active() {
     const q = await queue();
     if (!q?.taskId) return null;
+    // Older job IDs were base64url-derived and could contain uppercase letters,
+    // which the encrypted GitHub store explicitly rejects as path identifiers.
+    // Keep reads available for diagnosis, but never treat the stale queue as idle.
+    if (!/^[a-z0-9]{20,32}$/.test(q.taskId))
+      return { id: null, state: 'blocked', action: 'unknown', queueRevision: q.revision,
+        error: 'En tidligere privat kontrolljobb har en ugyldig referanse. Ingen ny jobb er startet. Kontakt administrator for sikker avklaring.' };
     let task = await control.get("task-" + q.taskId);
     if (task?.state === "running" && task.runId) {
       const run = await privateApi.request("actions/runs/" + task.runId);
@@ -104,6 +110,7 @@ function createBroker({
             id: task.id,
             state: task.state,
             action: task.action,
+            queueRevision: task.state === 'blocked' ? task.queueRevision : null,
             error: task.error || null,
           }
         : null,
@@ -121,7 +128,7 @@ function createBroker({
       approval:record?.approval || null, events:record?.events || [], archives:record?.archives || [],
       stale:!!record && !same(record.base,b), productionApplied:false, publicationAuthorized:false,
       inspection:record && inspection?.digest===sha(record.draft) && same(inspection.base,b) ? inspection.report : null,
-      task:task?.scope === SCOPE ? {id:task.id,state:task.state,action:task.action,
+      task:task && (task.scope === SCOPE || task.state === 'blocked') ? {id:task.id,state:task.state,action:task.action,queueRevision:task.queueRevision || null,
         requestId:task.identityCommand?.id || null,error:task.error || null} : null};
   }
   async function dispatch(task) {
@@ -193,7 +200,9 @@ function createBroker({
     )
       throw fail("Velg rettelsen som skal trekkes tilbake.");
     const q = await queue(),
-      id = token().replace(/[-_]/g, "").slice(0, 32),
+      // Lowercase hex is accepted by both the private GitHub store and the
+      // processor lease contract. Base64url is not a valid storage identifier.
+      id = sha(token()).slice(0, 32),
       task = {
         v: 1,
         revision: 1,
@@ -486,6 +495,28 @@ function createBroker({
           202,
           await startTask(actor, action, await body(request, keys)),
         );
+      }
+      if (route === "/task/recover-invalid" && request.method === "POST") {
+        // The old base64url identifier cannot address any encrypted job file:
+        // private store paths accept lowercase letters/numbers only. Recovery
+        // must be an explicit owner action; never automatically clear queues.
+        const input = await body(request, ["expectedRevision", "confirmation"]),
+          q = await queue();
+        if (input.confirmation !== true ||
+            !Number.isSafeInteger(input.expectedRevision) ||
+            input.expectedRevision < 1 ||
+            q?.revision !== input.expectedRevision ||
+            typeof q.taskId !== "string" ||
+            /^[a-z0-9]{20,32}$/.test(q.taskId))
+          throw fail("Ingen ugyldig jobbpeker kan ryddes. Hent ny status.", 409);
+        await control.transact("queue-" + ORG, q.revision, (p) => {
+          if (!p || p.taskId !== q.taskId)
+            throw fail("Jobbpekeren er endret. Hent ny status.", 409);
+          return { ...p, revision: p.revision + 1, taskId: null,
+            recovery: { at: stamp(), by: actor.subject, reason: "invalid-legacy-job-id",
+              oldIdDigest: sha(q.taskId) } };
+        });
+        return json(200, { recovered: true, publicationApplied: false });
       }
       if (route === "/task/cancel" && request.method === "POST") {
         const input = await body(request, ["id", "confirmation"]),
