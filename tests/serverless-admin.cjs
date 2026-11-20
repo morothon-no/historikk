@@ -460,6 +460,15 @@ test("private job IDs remain lowercase, and legacy invalid queue references cann
   assert.equal(f.dispatches.length, 0);
   assert.equal((await f.request("/review/validate", {expectedRevision:0,expectedDigest:"a".repeat(64)})).status, 409,
     "a blocked queue must not be silently reopened by a write");
+  assert.equal((await f.request("/task/recover-invalid", {expectedRevision:1,confirmation:true},{auth:false})).status,401);
+  assert.equal((await f.request("/task/recover-invalid", {expectedRevision:1,confirmation:false})).status,409);
+  assert.equal((await f.request("/task/recover-invalid", {expectedRevision:1,confirmation:true})).status,200);
+  assert.equal((await f.request("/review")).status,200,"corrected queue must not block read");
+  assert.equal((await f.request("/review")).body.task,null,"only the invalid pointer is cleared");
+  assert.equal(f.control.data.get("queue-" + organizer).recovery.reason,"invalid-legacy-job-id");
+  assert.equal(f.control.data.get("queue-" + organizer).revision,2);
+  assert.equal((await f.request("/task/recover-invalid", {expectedRevision:1,confirmation:true})).status,409,
+    "recovery must be one-use and version-bound");
 });
 test("broker rejects unauthenticated and foreign-origin writes; saves only source-bound result drafts, without authenticating client flags", async (t) => {
   const f = await brokerFixture(t),
