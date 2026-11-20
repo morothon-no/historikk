@@ -447,6 +447,20 @@ async function brokerFixture(t) {
   }
   return { ...f, broker, control, dispatches, leaseCalls, request };
 }
+test("private job IDs remain lowercase, and legacy invalid queue references cannot crash read-only login", async (t) => {
+  const f = await brokerFixture(t);
+  const q = await f.control.transact("queue-" + organizer, 0, () => ({
+    v: 1, revision: 1, taskId: "LegacyUPPERCASE_unsafe",
+  }));
+  assert.equal(q.revision, 1);
+  const review = await f.request("/review");
+  assert.equal(review.status, 200, "an old invalid task ID must not block initial admin read");
+  assert.equal(review.body.task.state, "blocked");
+  assert.match(review.body.task.error, /ugyldig referanse/);
+  assert.equal(f.dispatches.length, 0);
+  assert.equal((await f.request("/publication/validate", {expectedRevision:0,expectedDigest:"a".repeat(64)})).status, 409,
+    "a blocked queue must not be silently reopened by a write");
+});
 test("broker rejects unauthenticated and foreign-origin writes; saves only source-bound result drafts, without authenticating client flags", async (t) => {
   const f = await brokerFixture(t),
     draft = await f.draft();
