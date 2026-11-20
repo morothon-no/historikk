@@ -495,6 +495,28 @@ function createBroker({
           await startTask(actor, action, await body(request, keys)),
         );
       }
+      if (route === "/task/recover-invalid" && request.method === "POST") {
+        // The old base64url identifier cannot address any encrypted job file:
+        // private store paths accept lowercase letters/numbers only. Recovery
+        // must be an explicit owner action; never automatically clear queues.
+        const input = await body(request, ["expectedRevision", "confirmation"]),
+          q = await queue();
+        if (input.confirmation !== true ||
+            !Number.isSafeInteger(input.expectedRevision) ||
+            input.expectedRevision < 1 ||
+            q?.revision !== input.expectedRevision ||
+            typeof q.taskId !== "string" ||
+            /^[a-z0-9]{20,32}$/.test(q.taskId))
+          throw fail("Ingen ugyldig jobbpeker kan ryddes. Hent ny status.", 409);
+        await control.transact("queue-" + ORG, q.revision, (p) => {
+          if (!p || p.taskId !== q.taskId)
+            throw fail("Jobbpekeren er endret. Hent ny status.", 409);
+          return { ...p, revision: p.revision + 1, taskId: null,
+            recovery: { at: stamp(), by: actor.subject, reason: "invalid-legacy-job-id",
+              oldIdDigest: sha(q.taskId) } };
+        });
+        return json(200, { recovered: true, publicationApplied: false });
+      }
       if (route === "/task/cancel" && request.method === "POST") {
         const input = await body(request, ["id", "confirmation"]),
           q = await queue(),
