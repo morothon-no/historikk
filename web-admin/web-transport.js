@@ -288,6 +288,13 @@
     function intent(kind,ids,mainPersonId,nameValue,source,reason){return {
       format:'morothon-identity-decision-v1',version:1,id:'identity-'+crypto.randomUUID(),base,
       kind,personIds:ids,mainPersonId,name:nameValue,source,reason};}
+    // Make the comparison visible immediately instead of rendering it below a long worklist.
+    function openComparison(ids,stored){
+      inspect(ids,stored);
+      editor.setAttribute('tabindex','-1');
+      editor.focus({preventScroll:true});
+      editor.scrollIntoView({behavior:'auto',block:'start'});
+    }
     function inspect(ids,stored){
       editor.replaceChildren();s.selected=ids;s.selectedCase=stored?.id || null;
       const title=node('h2',stored?'Lagret identitetsavgjørelse':'Sammenlign og bekreft identitet');editor.append(title);
@@ -362,9 +369,9 @@
         if(!stored && c.personIds.length===2 && c.bucket==='pending'){
           // Restore the original quick workflow on each suggestion. Reuse the
           // same authenticated, versioned decision path as the detailed editor.
-          const quick=node('div');quick.className='actions';
+          const quick=node('div');quick.className='actions identity-quick-actions';
           quick.append(
-            btn('Samme person – velg hovednavn','identityQuickSame-'+c.id,()=>inspect(c.personIds,null)),
+            btn('Samme person – velg hovednavn','identityQuickSame-'+c.id,()=>openComparison(c.personIds,null)),
             btn('Forskjellige personer','identityQuickDifferent-'+c.id,async()=>{
               if(!confirm('Bekrefte at «'+name(c.personIds[0])+'» og «'+name(c.personIds[1])+'» er forskjellige personer? Ingen publisering.'))return;
               await send(intent('different-people',c.personIds,null,null,
@@ -374,7 +381,8 @@
           );
           card.append(quick);
         }
-        card.append(btn(stored?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>inspect(c.personIds,stored)));list.append(card);}
+        const compare=btn(stored?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
+        compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
       if(!rows.length)list.append(node('p','Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
       if(rows.length>40)list.append(node('p','Viser de første 40 treffene. Avgrens med navnesøket.'));
       archive.replaceChildren(node('summary','Tidligere kildegrunnlag · '+(s.saved.archives||[]).length));
@@ -410,7 +418,7 @@
         const o=node('option',p.name);o.value=p.id;selectPerson.append(o);}};
       manual.append(field(i?'Andre profil (ved sammenslåing)':'Søk etter profil',q),selectPerson);choices.push(selectPerson);}
     manual.append(btn('Sammenlign valgte profiler','identityManualOpen',()=>{
-      const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');inspect(ids,null);}));
+      const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);}));
     panel.append(node('h2','Personkontroll'),node('p','Identiteter, hovednavn og alias. Resultatimport og resultatkorrigeringer behandles under Årets arrangement.'),
       node('p','Lagring er privat. Godkjenning er en egen handling. Identitetspublisering er ikke aktivert i denne leveransen.'),status,controls,counts,
       field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
