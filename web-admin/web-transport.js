@@ -451,7 +451,7 @@
     const check=btn('Kontroller lagrede avgjørelser','identityCheck',async()=>{
       await api('/identity/check',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
     approve.hidden=true;check.hidden=true;
-    controls.append(submit,refresh,revalidate,retry,reload,btn('Logg ut','identityLogout',()=>actions.logout.click()));
+    controls.append(submit,refresh,revalidate,retry,reload,btn('Logg ut','identityLogout',()=>actions.logout.click()),approve,check);
     const search=input('identitySearch');search.type='search';search.oninput=()=>{s.query=search.value;render().catch(e=>{status.textContent=e.message;});};
     const filter=select([['pending','Ubehandlede'],['finished','Behandlede'],['rejected','Avviste par'],['followup','Til avklaring'],['all','Alle saker']],'pending','identityFilter');
     filter.onchange=()=>{s.scope=filter.value;render().catch(e=>{status.textContent=e.message;});};
