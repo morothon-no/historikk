@@ -56,6 +56,12 @@ function createBroker({
   async function active() {
     const q = await queue();
     if (!q?.taskId) return null;
+    // Older job IDs were base64url-derived and could contain uppercase letters,
+    // which the encrypted GitHub store explicitly rejects as path identifiers.
+    // Keep reads available for diagnosis, but never treat the stale queue as idle.
+    if (!/^[a-z0-9]{20,32}$/.test(q.taskId))
+      return { id: null, state: 'blocked', action: 'unknown',
+        error: 'En tidligere privat kontrolljobb har en ugyldig referanse. Ingen ny jobb er startet. Kontakt administrator for sikker avklaring.' };
     let task = await control.get("task-" + q.taskId);
     if (task?.state === "running" && task.runId) {
       const run = await privateApi.request("actions/runs/" + task.runId);
@@ -193,7 +199,9 @@ function createBroker({
     )
       throw fail("Velg rettelsen som skal trekkes tilbake.");
     const q = await queue(),
-      id = token().replace(/[-_]/g, "").slice(0, 32),
+      // Lowercase hex is accepted by both the private GitHub store and the
+      // processor lease contract. Base64url is not a valid storage identifier.
+      id = sha(token()).slice(0, 32),
       task = {
         v: 1,
         revision: 1,
