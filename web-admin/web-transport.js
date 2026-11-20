@@ -277,10 +277,13 @@
       if(stale())throw Error('Historikkversjonen er endret. Kontroller kildegrunnlaget først.');
       if(s.request)throw Error('Avklar forrige innsending først.');
       s.request={command,expectedRevision:s.saved.revision};
-      status.textContent='Avgjørelsen sendes til privat kontroll. Ikke bekreftet lagret ennå.';
+      status.dataset.error='false';
+      status.textContent='Sender avgjørelsen til privat kontroll. Vent på bekreftelse; ikke trykk flere ganger.';
       try{await api('/identity/decide',s.request);}
       catch(error){if([400,403,409,413].includes(error.status))s.request=null;throw error;}
-      await monitor();s.selected=null;s.selectedCase=null;editor.replaceChildren();s.scope='pending';await render();
+      await monitor();
+      if(s.request)throw Error('Lagring er ikke serverbekreftet ennå. Bruk «Hent status / fortsett lagring», ikke send avgjørelsen på nytt.');
+      s.selected=null;s.selectedCase=null;editor.replaceChildren();s.scope='pending';await render();
     }
     function intent(kind,ids,mainPersonId,nameValue,source,reason){return {
       format:'morothon-identity-decision-v1',version:1,id:'identity-'+crypto.randomUUID(),base,
@@ -339,9 +342,16 @@
         ['Behandlede',work.identity.filter(c=>c.bucket==='finished'&&c.caseStatus!=='rejected').length],
         ['Avviste par',work.identity.filter(c=>c.caseStatus==='rejected').length]]){
         const card=node('article');card.append(node('strong',String(n)),node('span',label));counts.append(card);}
-      status.dataset.error='false';status.textContent=identityState()+' · revisjon '+s.saved.revision+'.'+
-        (stale()?' Historikken er oppdatert. Nye avgjørelser og godkjenning er sperret.':'')+
-        (active()?' Privat kontroll pågår; den nye handlingen er ikke bekreftet fullført ennå.':'');
+      // Keep the in-flight acknowledgement visible while server state is being polled.
+      // A refresh must not replace it with the previous revision's generic status.
+      if(!s.request){
+        status.dataset.error='false';status.textContent=identityState()+' · revisjon '+s.saved.revision+'.'+
+          (stale()?' Historikken er oppdatert. Nye avgjørelser og godkjenning er sperret.':'')+
+          (active()?' Privat kontroll pågår; den nye handlingen er ikke bekreftet fullført ennå.':'');
+      }else if(active()){
+        status.dataset.error='false';
+        status.textContent='Privat kontroll pågår. Vent på serverbekreftelse; ikke send avgjørelsen på nytt. Revisjon '+s.saved.revision+'.';
+      }
       list.replaceChildren();
       const rows=work.identity.filter(c=>(s.scope==='all'||(s.scope==='rejected'?c.caseStatus==='rejected':
         c.bucket===s.scope&&(s.scope!=='finished'||c.caseStatus!=='rejected')))&&
