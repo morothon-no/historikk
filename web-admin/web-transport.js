@@ -1016,6 +1016,16 @@
     } catch (e) {
       status.textContent = e.message;
       home.textContent = e.message;
+      // This document is only for authenticated users; if its protected
+      // session disappears during startup, do not reveal the admin shell.
+      if (protectedPortal && !principal) {
+        location.replace("/admin/");
+        return;
+      }
+    } finally {
+      // Reveal only after the protected session and initial admin state have
+      // settled, not when the unhydrated legacy HTML first arrives.
+      if (protectedPortal && principal) document.body.dataset.adminReady = "true";
     }
   }
   document.addEventListener("morothon:correction-workspace-ready", () =>

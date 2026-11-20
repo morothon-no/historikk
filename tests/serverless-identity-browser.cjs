@@ -84,6 +84,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const {page,context,session}=await open();
  assert.equal((await fs.stat(f.directory)).mode&0o777,0o700,'The private store must create its own 0700 directory under CI umask 0022');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
+ assert.equal(await page.locator('body').getAttribute('data-admin-ready'),'true','protected admin shell appears only after confirmed startup');
  assert.equal(await page.locator('#identityWorklist article').count(),2);
  assert.equal(await page.locator('#identityApprove').isEnabled(),false);
  assert.equal(await page.locator('#navCorrections').textContent(),'Resultatkontroll');
