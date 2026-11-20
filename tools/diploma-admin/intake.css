@@ -71,3 +71,13 @@
 #identityService #identityEditor{scroll-margin-top:20px}
 #identityService .identity-quick-actions button:disabled{opacity:.56;cursor:wait}
 @media(max-width:560px){#identityService .identity-quick-actions{display:grid;grid-template-columns:1fr}#identityService .identity-quick-actions button{width:100%}}
+
+
+/* The authenticated admin HTML includes an unhydrated historical shell.
+   Never paint it before the protected session and initial data are ready. */
+body.portal-app[data-admin-mode="protected"]:not([data-admin-ready="true"]) .portal-shell{visibility:hidden}
+body.portal-app[data-admin-mode="protected"]:not([data-admin-ready="true"])::before{
+  content:"Åpner administrasjonen …";position:fixed;inset:0;z-index:1000;
+  display:grid;place-items:center;padding:24px;background:#f3f3ed;
+  color:#123b41;font:600 16px/1.5 Arial,Helvetica,sans-serif;text-align:center
+}
