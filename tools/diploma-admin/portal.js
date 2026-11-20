@@ -10,7 +10,7 @@
     diplomer: ['Diplomer', 'Velg mottakere, kontroller hvert diplom og lag én samlet A4-PDF.'],
     import: ['Årets arrangement', 'Startlister, merkeprognoser og kontroll av endelige resultater.'],
     premier: ['Premier', 'Grunnlaget for en enklere utdeling.'],
-    rettelser: ['Rettelser og personkontroll', 'Lokale saker, før/etter-visning og kontrollert overlevering.'],
+    rettelser: ['Resultatkontroll', 'Innmeldte feil, før-/etter-kontroll og godkjenning av rettinger.'],
     personkontroll: ['Personkontroll', 'Varige identitetsavgjørelser · lagring og godkjenning er adskilt fra publisering.'],
     design: ['Design og tilpasning', 'Ditt arrangement, dine merker og ditt diplom – i et separat utkast.']
   };
