@@ -369,7 +369,7 @@
         if(!stored && c.personIds.length===2 && c.bucket==='pending'){
           // Restore the original quick workflow on each suggestion. Reuse the
           // same authenticated, versioned decision path as the detailed editor.
-          const quick=node('div');quick.className='actions';
+          const quick=node('div');quick.className='actions identity-quick-actions';
           quick.append(
             btn('Samme person – velg hovednavn','identityQuickSame-'+c.id,()=>openComparison(c.personIds,null)),
             btn('Forskjellige personer','identityQuickDifferent-'+c.id,async()=>{
@@ -381,7 +381,8 @@
           );
           card.append(quick);
         }
-        card.append(btn(stored?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored)));list.append(card);}
+        const compare=btn(stored?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
+        compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
       if(!rows.length)list.append(node('p','Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
       if(rows.length>40)list.append(node('p','Viser de første 40 treffene. Avgrens med navnesøket.'));
       archive.replaceChildren(node('summary','Tidligere kildegrunnlag · '+(s.saved.archives||[]).length));
