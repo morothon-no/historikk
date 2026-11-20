@@ -208,6 +208,7 @@ export default {
           apiOrigin: env.API_ORIGIN,
           ownerUserId: env.OWNER_USER_ID,
           ownerGithubId: env.OWNER_GITHUB_ID,
+          dispatchActorId: env.DISPATCH_ACTOR_ID,
           codeSha: env.PROCESSOR_CODE_SHA,
           workflowSha: env.PRIVATE_WORKFLOW_SHA,
           auth,
