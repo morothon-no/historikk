@@ -247,6 +247,7 @@
     const identityState=()=>s.saved?.status==='review-approved' ? 'Godkjent – ikke publisert' : s.saved?.persisted ? 'Lagret privat – ikke godkjent eller publisert' : 'Ingen lagrede avgjørelser';
     function disable(){
       for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout';
+      submit.disabled=s.busy||active()||stale()||!s.pending.size||!!s.request;
       approve.disabled=s.busy||active()||stale()||!s.saved?.draft?.cases.length||s.saved.status==='review-approved'||
         !s.saved.inspection?.ready||
         s.saved.draft.cases.some(c=>!['handoff','rejected'].includes(c.status));
