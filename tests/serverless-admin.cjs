@@ -480,7 +480,7 @@ test("completed failed GitHub job before OIDC lease ends queue instead of hangin
   assert.equal(start.status,202);
   const id=start.body.id, task=f.control.data.get("task-"+id);
   task.createdAt=new Date(Date.now()-20000).toISOString();
-  f.runs.push({name:"Morothon private result processor",display_title:"Morothon task "+id,
+  f.runs.push({name:"Morothon task "+id,display_title:"Morothon task "+id,
     path:".github/workflows/morothon-result-job.yml",head_sha:workflowSha,
     actor:{id:358260624},event:"workflow_dispatch",status:"completed",conclusion:"failure"});
   const view=await f.request("/review");
@@ -489,6 +489,40 @@ test("completed failed GitHub job before OIDC lease ends queue instead of hangin
   assert.match(view.body.task.error,/før lagring/);
   assert.equal(f.control.data.get("task-"+id).revision,2);
   assert.equal(f.dispatches.length,1,"never resubmit failed decisions automatically");
+});
+
+test("prelease failure detection respects recorded task SHA after private workflow is repinned", async t => {
+  const f=await brokerFixture(t),draft=await f.draft();
+  assert.equal((await f.request("/review/save",{draft,expectedRevision:0})).status,200);
+  const start=await f.request("/review/validate",{expectedRevision:1,expectedDigest:sha(draft)});
+  const task=f.control.data.get("task-"+start.body.id);
+  task.createdAt=new Date(Date.now()-20000).toISOString();
+  const oldSha="5".repeat(40);
+  task.workflowSha=oldSha;
+  f.runs.push({name:"Morothon task "+task.id,display_title:"Morothon task "+task.id,
+    path:".github/workflows/morothon-result-job.yml",head_sha:oldSha,
+    actor:{id:358260624},event:"workflow_dispatch",status:"completed",conclusion:"failure"});
+  const result=await f.request("/review");
+  assert.equal(result.status,200);
+  assert.equal(result.body.task.state,"failed");
+  assert.equal(f.dispatches.length,1);
+});
+
+test("prelease matching rejects another task or wrong private SHA even after failure", async t => {
+  const f=await brokerFixture(t),draft=await f.draft();
+  await f.request("/review/save",{draft,expectedRevision:0});
+  const start=await f.request("/review/validate",{expectedRevision:1,expectedDigest:sha(draft)});
+  const task=f.control.data.get("task-"+start.body.id);
+  task.createdAt=new Date(Date.now()-20000).toISOString();
+  f.runs.push({name:"Morothon task "+task.id,display_title:"Morothon task "+task.id,
+    path:".github/workflows/morothon-result-job.yml",head_sha:"f".repeat(40),
+    actor:{id:358260624},event:"workflow_dispatch",status:"completed",conclusion:"failure"});
+  assert.equal((await f.request("/review")).body.task.state,"queued");
+  f.runs[0].head_sha=task.workflowSha;
+  f.runs[0].name="Morothon task another";
+  assert.equal((await f.request("/review")).body.task.state,"queued");
+  f.runs[0].name="Morothon task "+task.id;
+  assert.equal((await f.request("/review")).body.task.state,"failed");
 });
 
 test("broker rejects unauthenticated and foreign-origin writes; saves only source-bound result drafts, without authenticating client flags", async (t) => {
