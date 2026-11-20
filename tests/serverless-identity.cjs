@@ -4,6 +4,17 @@ const {setup}=require('./helpers/identity-serverless.cjs');
 const C=require('../tools/diploma-admin/intake-model.js').Corrections;
 const {organizer}=require('./helpers/result-publication.cjs');
 
+test('identity reads fail closed when a pre-created private directory has unsafe permissions',async t=>{
+ const f=await setup(t),session=await f.login();
+ await fs.mkdir(f.directory,{mode:0o700});await fs.chmod(f.directory,0o755);
+ await assert.rejects(f.identities.get(organizer),/Runtime workspace must be private \(0700\)/);
+ const read=await f.request('/identity',undefined,session);
+ assert.equal(read.status,502);
+ assert.equal(read.body.error,'Tjenesten kunne ikke fullføre kontrollen. Lagret arbeid er bevart.');
+ assert.equal((await fs.stat(f.directory)).mode&0o777,0o755,'Never silently repair an unsafe storage destination');
+ assert.deepEqual(await fs.readdir(f.directory),[]);
+});
+
 test('protected identities are durably saved only after the exact private job completes, then survive logout, new login and broker recreation',async t=>{
  const f=await setup(t),session=await f.login(),original=structuredClone(f.context.history);
  const queued=await f.request('/identity/decide',{expectedRevision:0,command:f.command()},session);
