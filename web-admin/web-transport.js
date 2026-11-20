@@ -233,6 +233,7 @@
       identityMounted = false;
       throw error;
     }
+    const MAX_SESSION_DECISIONS=50;
     const s={saved:null,busy:false,scope:'pending',query:'',selected:null,selectedCase:null,request:null,pending:new Map(),version:0};
     const panel=node('section');panel.className='panel';panel.id='identityService';
     const status=node('p');status.id='identityServiceStatus';status.setAttribute('role','status');
@@ -304,11 +305,14 @@
     function choose(kind,ids,mainPersonId=null,nameValue=null,source='Arrangørens private personkontroll.',reason='Personidentiteten er kontrollert av arrangøren.'){
       if(stale()||active()||s.request)throw Error('Fullfør eller avklar lagringen før du endrer økten.');
       const key=[...ids].sort().join(':');
+      if(!s.pending.has(key)&&s.pending.size>=MAX_SESSION_DECISIONS)
+        throw Error('En økt kan inneholde høyst '+MAX_SESSION_DECISIONS+' personavgjørelser. Send de valgte avgjørelsene samlet før du legger til flere.');
       s.pending.set(key,intent(kind,ids,mainPersonId,nameValue,source,reason));
       render();
     }
     async function submitBatch(){
       if(!s.pending.size)throw Error('Velg minst én avgjørelse først.');
+      if(s.pending.size>MAX_SESSION_DECISIONS)throw Error('Maksimalt '+MAX_SESSION_DECISIONS+' avgjørelser kan sendes i én økt.');
       if(stale()||active()||s.request)throw Error('Kontroller forrige innsending først.');
       const commands=[...s.pending.values()];
       s.request={commands,expectedRevision:s.saved.revision};
@@ -406,7 +410,7 @@
         status.textContent='Privat kontroll pågår. Vent på serverbekreftelse; ikke send avgjørelsen på nytt. Revisjon '+s.saved.revision+'.';
       }
       tray.replaceChildren();
-      tray.append(node('h3','Valg i denne økten'),node('p',s.pending.size+' avgjørelser valgt. Du kan endre dem før du sender alle samlet.'));
+      tray.append(node('h3','Valg i denne økten'),node('p',s.pending.size+' av '+MAX_SESSION_DECISIONS+' mulige avgjørelser valgt. Du kan endre dem før du sender alle samlet.'));
       for(const [key,cmd] of s.pending){
         const entry=node('div');entry.className='identity-batch-entry';
         entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · '+({ 'same-person':'Samme person','different-people':'Forskjellige personer',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
