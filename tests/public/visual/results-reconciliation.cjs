@@ -17,6 +17,13 @@ async function download(p,selector){const wait=p.waitForEvent('download');await 
 test('C2.3a static annual portal imports, compares, explicitly reviews two corrections, previews actual engine consequences and transfers a bound package to C2.2',async()=>{
  const {p,context}=await open(),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r));const before=await fs.readFile(path.join(build.out,'data/history.json'));
  try{
+  await p.locator('a[href="#oversikt"]').first().click();
+  assert.equal(await p.locator('.admin-work-card').count(),6,'organizer work hub displays the six real task entry points');
+  await p.locator('[data-annual-mode="results"]').click();
+  assert.equal(await p.locator('#annualImportKind').inputValue(),'results','dashboard result-import shortcut opens the correct existing workflow');
+  await p.locator('a[href="#oversikt"]').first().click();
+  await p.locator('[data-annual-mode="corrections"]').click();
+  assert.equal(await p.locator('#annualImportKind').inputValue(),'corrections','dashboard historical-correction shortcut opens correction view');
   assert.deepEqual(await p.locator('#annualImportKind option').allTextContents(),[
    'Før konkurransen – startliste og merkeprognose',
    'Etter konkurransen – importer endelige resultater',
