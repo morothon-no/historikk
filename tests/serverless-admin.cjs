@@ -458,7 +458,7 @@ test("private job IDs remain lowercase, and legacy invalid queue references cann
   assert.equal(review.body.task.state, "blocked");
   assert.match(review.body.task.error, /ugyldig referanse/);
   assert.equal(f.dispatches.length, 0);
-  assert.equal((await f.request("/publication/validate", {expectedRevision:0,expectedDigest:"a".repeat(64)})).status, 409,
+  assert.equal((await f.request("/review/validate", {expectedRevision:0,expectedDigest:"a".repeat(64)})).status, 409,
     "a blocked queue must not be silently reopened by a write");
 });
 test("broker rejects unauthenticated and foreign-origin writes; saves only source-bound result drafts, without authenticating client flags", async (t) => {
