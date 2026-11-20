@@ -82,3 +82,20 @@
 .honor-card-achievement{display:grid;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:12px;margin:10px 0}.honor-card-achievement:has(>div:only-child),.honor-card-achievement:has(>.metric-card:only-child){grid-template-columns:1fr}.honor-card-achievement>.honor-draft-main{margin:0}.honor-card-achievement>.metric-card{margin:0;padding:10px}.honor-card-achievement>strong{grid-column:1/-1;font-size:12px}.honor-role-summary{overflow-wrap:anywhere;color:#526a62;margin:6px 0 10px}.honor-readable{white-space:pre-wrap;overflow-wrap:anywhere}
 #honorDraftForm #honorDraftDescription{min-height:62px}#honorDraftForm>.honor-section{margin-top:0}#honorDraftForm .honor-draft-years{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:6px;max-height:240px;padding:2px}.honor-draft-years .honor-draft-edition{display:block;border:0;padding:0}#honorDraftForm .honor-draft-edition label{justify-content:space-between;min-height:44px;border:1px solid #cbd8c9;border-radius:7px;padding:7px;font-size:11px}.honor-draft-edition:has(input:checked) label{background:#e3eee1;border-color:#5a8064}.honor-draft-edition.is-absent label{border-style:dashed;color:#8a6654}
 #honorDraftAbsences>.honor-section-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:5px;max-height:200px;overflow:auto}#honorDraftAbsences label{display:flex;align-items:center;justify-content:space-between;min-height:36px}.honor-name-choice{padding:10px;border:1px solid #cbd8c9;border-radius:8px;margin:10px 0}.honor-name-choice p{margin:4px 0;overflow-wrap:anywhere}.honor-name-choice button{margin:8px 6px 4px 0}.honor-name-choice small{display:block}.honor-candidate>.honor-section{border:0;margin:0;padding:0}.honor-candidate>.honor-section>summary{font-size:10px;min-height:0;padding:3px 0}
+
+
+/* Organizer task hub: clear workflows, not an encyclopedia of links. */
+.admin-work-hub{margin:20px 0 26px;padding:24px;border:1px solid #cbdad6;border-radius:18px;background:#ecf3f0}
+.admin-work-hub .section-heading{margin-bottom:4px}
+.admin-work-hub .hint{font-size:13px;margin:4px 0 16px}
+.admin-work-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.admin-work-card{display:flex;flex-direction:column;gap:9px;min-width:0;min-height:180px;padding:19px 20px;border-radius:12px;border:1px solid #cadad5;background:#fffdf8;color:#163e46;text-decoration:none}
+.admin-work-card:hover{border-color:#1d7882;background:#f7fcfa}
+.admin-work-card:focus-visible{outline:3px solid #217d8c;outline-offset:3px}
+.admin-work-card strong{font-size:17px;line-height:1.25}
+.admin-work-card p{font-size:13px;line-height:1.5;margin:0;flex:1}
+.admin-work-card .admin-work-step{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#42737b}
+.admin-work-card .admin-work-action{color:#116878;font-size:12px;font-weight:800;margin-top:5px}
+.admin-work-footnote{font-size:12px;color:#3a6367;line-height:1.5;margin:16px 0 0}
+@media(max-width:1000px){.admin-work-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.admin-work-hub{padding:16px}.admin-work-grid{grid-template-columns:1fr}.admin-work-card{min-height:148px;padding:15px}}
