@@ -156,7 +156,7 @@ function createBroker({
       stale:!!record && !same(record.base,b), productionApplied:false, publicationAuthorized:false,
       inspection:record && inspection?.digest===sha(record.draft) && same(inspection.base,b) ? inspection.report : null,
       task:task && (task.scope === SCOPE || task.state === 'blocked') ? {id:task.id,state:task.state,action:task.action,queueRevision:task.queueRevision || null,
-        requestId:task.identityCommand?.id || null,error:task.error || null} : null};
+        requestId:task.identityCommand?.id || null,requestIds:task.identityCommands?.map(c=>c.id)||null,error:task.error || null} : null};
   }
   async function dispatch(task) {
     await privateApi.request(
@@ -177,17 +177,25 @@ function createBroker({
     if (identity && !identities) throw fail("Privat personkontroll er ikke aktivert.",404);
     const record = await (identity ? identities : reviews).get(ORG),
       b = await base();
-    let identityCommand;
+    let identityCommand,identityCommands;
     if (identity) {
       if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0 ||
           (record?.revision || 0) !== input.expectedRevision || record && action !== 'identity-revalidate' && !same(record.base,b))
         throw fail('Identitetsgrunnlaget er endret. Hent siste lagrede vurdering.',409);
       if (record && (record.module !== SCOPE || record.organizer !== ORG))
         throw fail('Feil privat identitetsgrunnlag.',409);
-      if (action === 'identity-decide') {
-        try { identityCommand = validateIdentityCommand(input.command); }
-        catch (error) { throw fail(error.message,400); }
-        if (!same(identityCommand.base,b)) throw fail('Historikken er oppdatert. Last inn på nytt.',409);
+      if (action === 'identity-decide' || action === 'identity-batch') {
+        try {
+          if(action === 'identity-batch') {
+            if(!Array.isArray(input.commands)||input.commands.length<1||input.commands.length>50)
+              throw Error('Samlet innsending må ha mellom 1 og 50 avgjørelser.');
+            identityCommands=input.commands.map(validateIdentityCommand);
+            if(new Set(identityCommands.map(c=>c.id)).size!==identityCommands.length)
+              throw Error('Samme saks-ID forekommer flere ganger.');
+          } else identityCommand=validateIdentityCommand(input.command);
+        } catch (error) { throw fail(error.message,400); }
+        if((identityCommands||[identityCommand]).some(c=>!same(c.base,b)))
+          throw fail('Historikken er oppdatert. Last inn på nytt.',409);
       } else if (!record?.draft || sha(record.draft) !== input.expectedDigest)
         throw fail('Godkjenningen gjelder en annen identitetsrevisjon.',409);
       if (action === 'identity-approve') {
@@ -248,7 +256,7 @@ function createBroker({
         createdAt: stamp(),
         codeSha,
         workflowSha,
-        ...(identity ? {scope:SCOPE,...(identityCommand ? {identityCommand} : {})} : {}),
+        ...(identity ? {scope:SCOPE,...(identityCommand ? {identityCommand} : {}),...(identityCommands ? {identityCommands} : {})} : {}),
       };
     // Reserve before dispatch; an uncertain response cannot authorize a second task.
     await control.transact("queue-" + ORG, q?.revision || 0, (p) => ({
@@ -434,10 +442,11 @@ function createBroker({
       if (route === "/review" && request.method === "GET")
         return json(200, await view());
       if (route === '/identity' && request.method === 'GET') return json(200,await identityView());
-      if (['/identity/decide','/identity/approve','/identity/revalidate','/identity/check'].includes(route) && request.method === 'POST') {
-        const deciding = route.endsWith('/decide');
-        return json(202,await startTask(actor, deciding ? 'identity-decide' : route.endsWith('/revalidate') ? 'identity-revalidate' : route.endsWith('/check') ? 'identity-check' : 'identity-approve',
-          await body(request, deciding ? ['expectedRevision','command'] : ['expectedRevision','expectedDigest'])));
+      if (['/identity/decide','/identity/batch','/identity/approve','/identity/revalidate','/identity/check'].includes(route) && request.method === 'POST') {
+        const deciding=route.endsWith('/decide'),batch=route.endsWith('/batch');
+        return json(202,await startTask(actor,
+          batch?'identity-batch':deciding?'identity-decide':route.endsWith('/revalidate')?'identity-revalidate':route.endsWith('/check')?'identity-check':'identity-approve',
+          await body(request,batch?['expectedRevision','commands']:deciding?['expectedRevision','command']:['expectedRevision','expectedDigest'])));
       }
       if (route === "/review/save" && request.method === "POST") {
         await idle();
