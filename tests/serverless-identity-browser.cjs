@@ -112,7 +112,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok((await page.locator('#identityServiceCounts').textContent()).includes('1Behandlede'));
  // The remaining identical-name profiles have overlapping starts. A failed
  // server check must not remove them or block a subsequent distinct decision.
- await page.locator('#identityWorklist button').click();
+ await page.locator('#identityWorklist article').getByRole('button',{name:'Samme person – velg hovednavn'}).click();
  await page.selectOption('#identityMainPerson','MOR-C220004');
  await page.click('#identitySame');await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
  assert.equal((await f.processNext()).completed,false);
