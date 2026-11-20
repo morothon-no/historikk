@@ -32,6 +32,14 @@ kan leses, men detaljerte logger og faktiske private jobber er ikke fjernverifis
 En lokal, komplett baseline-kjøring brukes til å finne eventuelle eksisterende
 testfeil; de skal skilles fra nye regresjoner. Ingen rød test skal overstyres.
 
+Ren baseline på denne SHA-en reproduserte to feil (384/386 bestått):
+`serverless-admin-browser.cjs` brukte den gamle, skjulte `resultServiceLogin`-
+knappen i stedet for beskyttet gateway/PKCE/HttpOnly-innlogging, og
+`serverless-identity-browser.cjs` ventet på én ubehandlet sak mens filteret fortsatt
+stod på «Alle saker». Testene korrigeres til ekte gateway og eksplisitt filtervalg;
+ingen autentisering omgås og ingen timeout økes. Lokal reproduksjon identifiserer
+disse feilene; GitHubs detaljerte feilstakk er fortsatt ikke fjernlest her.
+
 ## Første leveranse: varig «Undersøk senere»
 
 Dette gjenbruker den eksisterende kommandoen, det krypterte Personkontroll-lageret,
@@ -51,6 +59,10 @@ ny autentisering, ny tjeneste eller nettleserlagring av personopplysninger innf�
   kommandoens hash i saksloggen. En gammel sak med samme ID er ikke tilstrekkelig.
 - Batchen er fortsatt atomisk. Manglende rettighet, kildekonflikt, overlappende
   starter eller én ugyldig beslutning stopper hele lagringen.
+- Alle eksisterende konsekvens- og konfliktkontroller kjøres på den samlede
+  kandidaten før første skriving. Mellomliggende pakker trenger ingen egne
+  helsideprojeksjoner: to syntetiske aliasendringer gikk fra fem til tre
+  projeksjoner, uten å fjerne noen av de endelige kontrollene.
 - Ved ny historikk kan uendret navne-/aliasgrunnlag bevare oppfølgingen. Endret
   identitetsgrunnlag krever ny vurdering; tidligere sak bevares i kildearkivet.
 - Utsettelse er ingen godkjenning, avvisning, sammenslåing eller publisering.

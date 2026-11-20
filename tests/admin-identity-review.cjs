@@ -170,6 +170,19 @@ test('batch saves two distinct-person decisions in one atomic private revision',
   assert.equal(loaded.approval,null);
 });
 
+test('a multi-change identity batch computes final consequences once without projecting every intermediate package',async t=>{
+  const f=await setup(t),projected=[];
+  f.context.project=async history=>{projected.push(await C.hash(history));return project(history);};
+  const commands=[
+    f.command('alias',{id:'first-alias',personIds:[ids[0]],name:'Syntetisk Registrert Nord'}),
+    f.command('alias',{id:'second-alias',personIds:[ids[1]],name:'Syntetisk Annen Vest'})];
+  const result=await f.service.decideBatch({...f.input,commands});
+  assert.equal(result.revision,1);assert.equal(result.review.ready,true);
+  assert.equal(result.review.impacts.length,2);
+  assert.equal(projected.length,3,'Two final per-case checks need only the shared final projection and each case-before projection');
+  assert.equal(new Set(projected).size,projected.length,'The batch must share the existing projection cache');
+});
+
 test('batch validation failure cannot write partial identity decisions', async t => {
   const f=await setup(t);
   const first=f.command('different-people',{id:'valid-first'});

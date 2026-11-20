@@ -29,6 +29,7 @@ const {
   } = require("../scripts/admin/review-runtime.cjs"),
   { buildSite } = require("../scripts/build-site.cjs");
 const { buildProtectedAdmin } = require("../scripts/build-protected-admin.cjs");
+const { createAdminGateway } = require("../scripts/admin/serverless/admin-gateway.cjs");
 const { ADMIN_SOURCES } = require("../scripts/lib/runtime-files.cjs");
 const C = require("../tools/diploma-admin/intake-model.js").Corrections,
   sample = require("./public/quick/fixtures/corrections-data.js");
@@ -102,7 +103,7 @@ test(
         .replace('data-admin-mode="protected"', 'data-admin-mode="public-preview"'));
       protectedFiles.set(name, bytes);
     }
-    let publicFiles = new Map([...runtime.files, ...protectedFiles]);
+    let publicFiles = new Map(runtime.files);
     const browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
       args: ["--no-sandbox"],
@@ -193,7 +194,7 @@ test(
           api.state.checks = "success";
           api.state.deploy = "success";
           if (api.prs.some((p) => p.merged))
-            publicFiles = new Map([...(await build()).files, ...protectedFiles]);
+            publicFiles = new Map((await build()).files);
         },
       }).run();
       if (!result.completed)
@@ -234,6 +235,16 @@ test(
         throw Error("not browser credentials");
       },
     });
+    const gateway = createAdminGateway({
+      portalOrigin: origin, apiOrigin: service, auth,
+      assetSource: async name => {
+        const bytes = protectedFiles.get("admin/" + name);
+        if (!bytes) return null;
+        return {bytes: name === "index.html" ? Buffer.from(bytes.toString().replace(
+          /name="morothon-admin-service" content="[^"]*"/,
+          'name="morothon-admin-service" content="' + service + '"')) : bytes};
+      },
+    });
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1050 },
     });
@@ -241,6 +252,16 @@ test(
     await context.route("**/*", async (route) => {
       const r = route.request(),
         u = new URL(r.url());
+      if (u.origin === origin && u.pathname.startsWith("/admin/")) {
+        const headers = await r.allHeaders();
+        // Model generated same-origin POST metadata only for our own synthetic
+        // frame. The real gateway still checks Origin, PKCE and HttpOnly session.
+        if (r.method() === "POST" && !headers.origin && new URL(r.frame().url()).origin === origin)
+          headers.origin = origin;
+        const res = await gateway(new Request(r.url(), {method:r.method(),headers,
+          ...(r.postData() ? {body:r.postData()} : {})}));
+        return route.fulfill({status:res.status,headers:Object.fromEntries(res.headers),body:await res.text()});
+      }
       if (u.origin === service) {
         const res = await broker.fetch(
           new Request(r.url(), {
@@ -298,17 +319,7 @@ test(
         bytes = publicFiles.get(name);
       if (!bytes) return route.fulfill({ status: 404, body: "Not found" });
       return route.fulfill({
-        body:
-          name === "admin/index.html"
-            ? Buffer.from(
-                bytes
-                  .toString()
-                  .replace(
-                    /name="morothon-admin-service" content="[^"]*"/,
-                    'name="morothon-admin-service" content="' + service + '"',
-                  ),
-              )
-            : bytes,
+        body: bytes,
         contentType:
           {
             ".html": "text/html",
@@ -335,7 +346,9 @@ test(
       });
     async function login() {
       await page.goto(origin + "/admin/#rettelser");
-      await page.locator("#resultServiceLogin").click();
+      assert.equal(await page.locator(".portal-shell").count(),0,"Anonymous login page must not contain the old admin shell");
+      assert.equal(await page.locator("#resultServiceLogin").count(),0,"Protected login does not use the legacy toolbar button");
+      await page.locator("#login").click();
       try {
         await page.waitForFunction(
           () =>
@@ -355,6 +368,9 @@ test(
       await page.waitForFunction(
         () => document.querySelector("#resultServiceSave")?.disabled === false,
       );
+      await page.locator('body[data-admin-ready="true"]').waitFor();
+      assert.equal(await page.locator("body").getAttribute("data-admin-ready"),"true");
+      await page.locator('a[href="#rettelser"]').first().click();
     }
     async function settled(text) {
       try {
@@ -423,11 +439,15 @@ test(
       "No API or provider credentials persist in browser storage",
     );
     await page.reload();
-    await page.locator("#resultServiceLogin").waitFor();
+    await page.locator('body[data-admin-ready="true"]').waitFor();
+    assert.equal(await page.locator("#resultServiceLogin").isVisible(),false,
+      "Reload reuses the verified HttpOnly session instead of flashing the legacy login toolbar");
     assert.equal(
       await page.locator("#resultServicePublish").isDisabled(),
       true,
     );
+    await page.click("#resultServiceLogout");
+    await page.locator("#login").waitFor();
     await login();
     await page.click("#resultServiceLoad");
     await page.waitForFunction(

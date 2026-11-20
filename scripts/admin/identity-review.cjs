@@ -140,7 +140,7 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
       normalized = C.transition(normalized, c.id, 'handoff', c.reason, review.impacts.find(i => i.caseId === c.id));
     return {draft:normalized, review};
   }
-  async function prepare(input, draftOverride = null) {
+  async function prepare(input, draftOverride = null, reviewCandidate = true) {
     await access(input, 'write');
     const intent = command(input.command), saved = await service.load(input), current = await context(input.organizer);
     if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0) fail('Ugyldig forventet revisjon.');
@@ -198,7 +198,7 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
       action:requestId, reason:'Gjenbruk av kommando-ID med endret innhold er ikke tillatt.'});
     next.cases.find(c => c.id === caseId).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
       action:'identity-' + intent.kind, reason:intent.reason});
-    return {...await checked(current, next), saved, current, repeated:false, requestId:intent.id};
+    return {...(reviewCandidate ? await checked(current, next) : {draft:next}), saved, current, repeated:false, requestId:intent.id};
   }
   async function preview(input) {
     const result = await prepare(input);
@@ -229,17 +229,20 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     }
     let accumulated=null, final=null;
     for(const c of commands) {
-      final=await prepare({...input,command:c},accumulated);
+      final=await prepare({...input,command:c},accumulated,false);
       if(final.repeated)fail('En avgjørelse finnes allerede. Hent lagrede avgjørelser før ny innsending.');
       accumulated=final.draft;
     }
+    // Keep every existing per-case consequence and conflict check, but run them
+    // on the complete candidate once. Intermediate packages are never saved.
+    const verified=await checked(final.current,accumulated);
     await access(input,'write');
     if(!equal((await loadContext(input.organizer)).base,final.current.base))
       fail('Historikkgrunnlaget endret seg under samlet kontroll.');
-    const saved=await service.save({...input,draft:accumulated});
+    const saved=await service.save({...input,draft:verified.draft});
     return {...saved,scope:SCOPE,persisted:true,batchCount:commands.length,
       productionApplied:false,publicationAuthorized:false,
-      review:final.review};
+      review:verified.review};
   }
 
   async function approve(input) {
