@@ -25,6 +25,14 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const built=await buildSite(path.join(assets,'browser-site'),{dataDir:data,approvalFile:approval});
  const runtime=await approvedRuntime(built.out,approval),protectedDir=path.join(assets,'protected-assets');
  await buildProtectedAdmin(protectedDir);
+ const protectedHtml=await fs.readFile(path.join(protectedDir,'admin/index.html'),'utf8');
+ const bootStylePosition=protectedHtml.indexOf('<style data-morothon-protected-boot>');
+ assert.ok(bootStylePosition>0,'protected admin must include critical pre-paint shell-hiding CSS');
+ assert.ok(bootStylePosition<protectedHtml.indexOf('href="./intake.css"'),
+   'legacy shell must be hidden before loading external CSS');
+ assert.ok(protectedHtml.slice(bootStylePosition,protectedHtml.indexOf('</style>',bootStylePosition))
+   .includes(':not([data-admin-ready="true"]) .portal-shell{visibility:hidden}'),
+   'critical style must hide the uninitialized protected admin shell');
  const files=new Map(runtime.files);
  for(const name of Object.keys(ADMIN_SOURCES)){
   let bytes=await fs.readFile(path.join(protectedDir,name));
