@@ -55,3 +55,17 @@
 #resultBulkReview #resultComplete{width:24px;height:24px;min-width:24px;min-height:24px;accent-color:#14616b;cursor:pointer}
 #resultBulkReview .result-coverage-warning{font-size:13px;font-weight:700;color:#874414;background:#fff0df;padding:11px 14px;border-radius:8px;margin:10px 0}
 @media(max-width:560px){#resultBulkReview .result-coverage-confirm{padding:12px;font-size:13px}}
+
+
+/* Protected Personkontroll: clearly differentiated, immediately visible decisions. */
+#identityService .identity-quick-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 10px}
+#identityService .identity-quick-actions button{flex:1 1 190px;min-height:46px;border-radius:10px;font-weight:700;line-height:1.35;white-space:normal;box-shadow:none}
+#identityService .identity-quick-actions button[id^="identityQuickSame-"]{background:#116d62;border:2px solid #116d62;color:#fff}
+#identityService .identity-quick-actions button[id^="identityQuickDifferent-"]{background:#a34a30;border:2px solid #a34a30;color:#fff}
+#identityService .identity-quick-actions button[id^="identityQuickSame-"]:hover:not(:disabled){background:#0a4e47;border-color:#0a4e47}
+#identityService .identity-quick-actions button[id^="identityQuickDifferent-"]:hover:not(:disabled){background:#813923;border-color:#813923}
+#identityService .identity-quick-compare{background:#edf3f1;border:1px solid #a4bdb6;color:#173c43;min-height:44px}
+#identityService button:focus-visible,#identityService #identityEditor:focus-visible{outline:3px solid #147d93;outline-offset:3px}
+#identityService #identityEditor{scroll-margin-top:20px}
+#identityService .identity-quick-actions button:disabled{opacity:.56;cursor:wait}
+@media(max-width:560px){#identityService .identity-quick-actions{display:grid;grid-template-columns:1fr}#identityService .identity-quick-actions button{width:100%}}
