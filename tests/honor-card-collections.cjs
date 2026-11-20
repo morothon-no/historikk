@@ -8,10 +8,12 @@ test('V3.5.2 all overview cards show complete unique honors from the shared prof
    await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();assert.equal(await p.locator('[data-honoree]').count(),43);
    for(const m of require('./helpers/honors.cjs').visibleMembers(data)){
     const state=H.honorProfile(data,m),card=p.locator(`[data-honoree="${m.id}"]`),expected=[state.main.badgeId,...state.secondaryHonorIds,...state.collectionIds].filter(Boolean);
-    // Wait for browser image decoding/loading before asserting the artwork.
-    // A DOM-ready page can still have pending images on slower CI workers.
-    await card.locator('img').first().waitFor();
-    await card.locator('img').evaluateAll(es=>Promise.all(es.map(e=>e.complete ? null : new Promise(resolve=>{e.addEventListener('load',resolve,{once:true});e.addEventListener('error',resolve,{once:true});}))));
+    // CI may paint the cards before image requests have settled.
+    // Bound the wait and retain strict failure on missing or broken artwork.
+    await p.waitForFunction(id=>{
+      const card=document.querySelector('[data-honoree="'+id+'"]');
+      return card&&[...card.querySelectorAll('img')].every(e=>e.complete);
+    },m.id,{timeout:12000});
     const images=await card.locator('img').evaluateAll(es=>es.map(e=>({src:e.src,alt:e.alt,loaded:e.complete&&e.naturalWidth>0,primary:e.classList.contains('honor-card-medal')})));
     assert.equal(images.length,expected.length,m.id);assert.equal(new Set(images.map(i=>i.src)).size,images.length,m.id);assert.ok(images.every(i=>i.loaded&&i.alt));
     const registry=await p.evaluate(()=>MorothonBadges.list());for(const id of expected)assert.ok(images.some(i=>i.src.endsWith(registry.find(b=>b.id===id).src)),m.id+': '+id);
