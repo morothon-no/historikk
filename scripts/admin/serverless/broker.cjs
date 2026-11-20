@@ -75,10 +75,13 @@ function createBroker({
           "actions/workflows/morothon-result-job.yml/runs?event=workflow_dispatch&per_page=30",
         );
         const run = response?.workflow_runs?.find(r =>
-          r.name === "Morothon private result processor" &&
+          // GitHub REST exposes workflow run-name in BOTH name and display_title.
+          // Bind to the task's pinned private workflow commit, including older
+          // queued tasks created before an operator-approved pin update.
+          r.name === "Morothon task " + task.id &&
           r.display_title === "Morothon task " + task.id &&
           r.path === ".github/workflows/morothon-result-job.yml" &&
-          r.head_sha === workflowSha &&
+          r.head_sha === task.workflowSha &&
           String(r.actor?.id) === String(dispatchActorId) &&
           r.event === "workflow_dispatch" &&
           r.status === "completed" && r.conclusion !== "success");
