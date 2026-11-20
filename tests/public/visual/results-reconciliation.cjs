@@ -17,6 +17,14 @@ async function download(p,selector){const wait=p.waitForEvent('download');await 
 test('C2.3a static annual portal imports, compares, explicitly reviews two corrections, previews actual engine consequences and transfers a bound package to C2.2',async()=>{
  const {p,context}=await open(),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r));const before=await fs.readFile(path.join(build.out,'data/history.json'));
  try{
+  assert.deepEqual(await p.locator('#annualImportKind option').allTextContents(),[
+   'Før konkurransen – startliste og merkeprognose',
+   'Etter konkurransen – importer endelige resultater',
+   'Historiske resultater – korriger uten ny fil'
+  ]);
+  await p.selectOption('#annualImportKind','corrections');
+  assert.equal(await p.getByRole('link',{name:'Åpne resultatkontroll og rettelser'}).isVisible(),true);
+  await p.selectOption('#annualImportKind','results');
   assert.equal(await p.locator('#annualStartlist').isVisible(),false);await upload(p);assert.match(await p.locator('#resultFileInfo').textContent(),/9 resultatlinjer/);await compare(p);
   const bulk=p.locator('#resultBulkReview'),completeness=bulk.locator('#resultComplete');
   assert.equal(await completeness.isVisible(),true,'completeness checkbox must be beside the annual bulk action');
