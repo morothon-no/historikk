@@ -93,6 +93,8 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.equal(await first.getByRole('button',{name:'Forskjellige personer',exact:true}).count(),1,'Every pending pair must expose the distinct-person quick choice');
  assert.equal(await first.getByRole('button',{name:'Samme person – velg hovednavn'}).count(),1,'Every pending pair must expose main-name review');
  await first.getByRole('button',{name:'Samme person – velg hovednavn'}).click();
+ assert.equal(await page.locator('#identityEditor').evaluate(e=>document.activeElement===e),true,'comparison must receive focus');
+ assert.equal(await page.locator('#identityEditor').evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=-2&&r.top<innerHeight-60;}),true,'comparison must be scrolled into the visible viewport');
  await page.selectOption('#identityMainPerson','MOR-C220002');
  const firstDecision=page.waitForResponse(r=>new URL(r.url()).pathname==='/identity/decide'&&r.request().method()==='POST');
  await page.click('#identitySame');
