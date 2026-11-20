@@ -108,7 +108,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.match(await page.locator('#identityServiceCounts').textContent(),/2Ubehandlede/);
  await first.getByRole('button',{name:'Undersøk senere'}).click();
  await page.waitForFunction(()=>document.querySelector('#identityServiceCounts').textContent.includes('1Ubehandlede'));
- assert.match(await page.locator('#identityServiceCounts').textContent(),/1Undersøk senere \\(kun økten\\)/);
+ assert.match(await page.locator('#identityServiceCounts').textContent(),/1Undersøk senere \(kun økten\)/);
  assert.equal((await f.identities.get('sogne-morothon')),null,'defer must not persist identities');
  await page.selectOption('#identityFilter','followup');
  assert.equal(await page.locator('#identityWorklist article').count(),1);
