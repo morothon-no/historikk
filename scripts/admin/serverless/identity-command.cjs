@@ -11,9 +11,9 @@ function command(value) {
       value.format !== 'morothon-identity-decision-v1' || value.version !== 1)
     fail('Ukjent identitetskommando eller felt.');
   C.empty(value.base);
-  if (!['same-person','different-people','rename','alias'].includes(value.kind))
+  if (!['same-person','different-people','defer','rename','alias'].includes(value.kind))
     fail('Resultatimport og resultatkorrigering hører til Årets arrangement.');
-  const paired = ['same-person','different-people'].includes(value.kind);
+  const paired = ['same-person','different-people','defer'].includes(value.kind);
   if (!Array.isArray(value.personIds) || value.personIds.length !== (paired ? 2 : 1) ||
       new Set(value.personIds).size !== value.personIds.length ||
       value.personIds.some(id => typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)))

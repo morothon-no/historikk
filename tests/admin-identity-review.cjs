@@ -33,6 +33,97 @@ async function setup(t) {
   return {directory,key,history,context,store,options,input,command,sessions,service:createIdentityReview(options)};
 }
 
+test('deferred identities survive a fresh service in the existing encrypted batch without becoming identity decisions',async t=>{
+  const f=await setup(t),original=structuredClone(f.history);
+  const result=await f.service.decideBatch({...f.input,commands:[
+    f.command('defer',{id:'follow-up-pair',reason:'En syntetisk kilde må undersøkes nærmere.'}),
+    f.command('different-people',{id:'distinct-pair',personIds:['MOR-C220003','MOR-C220004']})]});
+  assert.equal(result.revision,1);assert.equal(result.batchCount,2);
+  const fresh=createIdentityReview({...f.options,store:privateIdentityFileStore({directory:f.directory,key:f.key})});
+  const loaded=await fresh.load(f.input);
+  assert.equal(loaded.counts.followup,1);assert.equal(loaded.counts.unprocessed,0);
+  assert.equal(loaded.counts.rejected,1);assert.equal(loaded.counts.processed,0);
+  const deferred=loaded.draft.cases.find(c=>c.id==='follow-up-pair');
+  assert.equal(deferred.change,null);assert.equal(deferred.status,'review');
+  assert.ok(deferred.events.some(e=>e.action==='identity-defer'));
+  assert.equal(loaded.worklist.identity.find(c=>c.caseId===deferred.id).bucket,'followup');
+  assert.deepEqual((await C.applyCandidate(f.history,loaded.draft,f.context.base)).history,original);
+  await assert.rejects(()=>fresh.approve({...f.input,expectedRevision:1,expectedDigest:loaded.digest}),/Uavklarte/);
+  assert.equal(loaded.productionApplied,false);assert.equal(loaded.publicationAuthorized,false);
+  const encrypted=await fs.readFile(path.join(f.directory,SCOPE,org+'.review.aesgcm'));
+  assert.equal(encrypted.includes(Buffer.from('follow-up-pair')),false);
+});
+
+test('a saved follow-up can be resolved once while preserving its case, audit and command idempotency',async t=>{
+  const f=await setup(t),defer=f.command('defer',{id:'initial-follow-up'});
+  await f.service.decide({...f.input,command:defer});
+  const resolve=f.command('same-person',{id:'resolve-follow-up'});
+  const resolved=await f.service.decide({...f.input,expectedRevision:1,command:resolve});
+  assert.equal(resolved.revision,2);
+  const saved=await f.service.load(f.input);
+  assert.equal(saved.draft.cases.length,1);assert.equal(saved.draft.cases[0].id,defer.id);
+  assert.equal(saved.draft.cases[0].change.kind,'merge');
+  assert.equal(saved.counts.followup,0);assert.equal(saved.counts.processed,1);
+  assert.ok(saved.draft.cases[0].events.some(e=>e.action==='identity-defer'));
+  assert.ok(saved.draft.cases[0].events.some(e=>e.action==='identity-same-person'));
+  for(const command of [resolve,defer]){
+    const repeated=await f.service.decide({...f.input,expectedRevision:2,command});
+    assert.equal(repeated.repeated,true);assert.equal(repeated.revision,2);
+  }
+  await assert.rejects(()=>f.service.decide({...f.input,expectedRevision:2,
+    command:{...resolve,kind:'different-people',mainPersonId:null}}),/Saks-ID/);
+  assert.equal((await f.service.load(f.input)).draft.cases[0].change.kind,'merge');
+});
+
+test('follow-up batches retain atomic failure, roles and source-version controls',async t=>{
+  const f=await setup(t),defer=f.command('defer');
+  await assert.rejects(()=>f.service.decide({...f.input,session:'viewer',command:defer}),/Ingen tilgang/);
+  await assert.rejects(()=>f.service.decideBatch({...f.input,commands:[defer,
+    f.command('same-person',{id:'invalid-merge',personIds:['MOR-C220003','MOR-C220004'],mainPersonId:'MOR-C220004'})]}),/Overlapp/);
+  assert.equal(await f.store.get(org),null);
+  await assert.rejects(()=>f.service.decide({...f.input,command:{...defer,mainPersonId:ids[0]}}),/hovedprofil/);
+  await assert.rejects(()=>f.service.decide({...f.input,command:{...defer,base:{...defer.base,dataVersion:999}}}),/Foreldet/);
+  assert.equal(await f.store.get(org),null);
+});
+
+test('resolving a follow-up as different people stays private and cannot be silently replaced by a merge',async t=>{
+  const f=await setup(t);await f.service.decide({...f.input,command:f.command('defer')});
+  await f.service.decide({...f.input,expectedRevision:1,command:f.command('different-people',{id:'resolved-distinct'})});
+  const saved=await createIdentityReview(f.options).load(f.input);
+  assert.equal(saved.counts.followup,0);assert.equal(saved.counts.rejected,1);
+  assert.equal(saved.draft.cases[0].change,null);
+  assert.ok(saved.draft.cases[0].events.some(e=>e.action==='identity-defer'));
+  assert.deepEqual((await C.applyCandidate(f.history,saved.draft,f.context.base)).history,f.history);
+  await assert.rejects(()=>f.service.decide({...f.input,expectedRevision:2,
+    command:f.command('same-person',{id:'contrary-merge'})}),/allerede vurdert/);
+});
+
+test('a follow-up preserves the explicitly selected canonical name even when pair order is reversed',async t=>{
+  const f=await setup(t);await f.service.decide({...f.input,command:f.command('defer',{personIds:ids.slice().reverse()})});
+  const resolve=f.command('same-person',{id:'reversed-resolution',personIds:ids.slice().reverse(),mainPersonId:ids[0]});
+  await f.service.decide({...f.input,expectedRevision:1,command:resolve});
+  const saved=await f.service.load(f.input),change=saved.draft.cases[0].change;
+  assert.deepEqual(change.personIds,[ids[1],ids[0]]);
+  const candidate=await C.applyCandidate(f.history,saved.draft,f.context.base);
+  assert.equal(H.create(candidate.history).resolve(ids[1]),ids[0]);
+  assert.equal((await f.service.decide({...f.input,expectedRevision:2,command:resolve})).repeated,true);
+});
+
+test('source revalidation carries an unchanged deferred identity basis but archives changed identity evidence',async t=>{
+  const f=await setup(t);await f.service.decide({...f.input,command:f.command('defer')});
+  let previous=await f.service.load(f.input);
+  f.history.results[0][5]='49:20';f.context.base=await C.binding(f.history,{...sample.meta,dataVersion:3});
+  let refreshed=await f.service.revalidate({...f.input,expectedRevision:1,expectedDigest:previous.digest});
+  assert.equal(refreshed.counts.followup,1);assert.equal(refreshed.draft.cases[0].change,null);
+  assert.deepEqual(refreshed.archives[0].draft,previous.draft);
+  previous=refreshed;
+  f.history.aliases[ids[0]].push(f.history.people[1].n);
+  f.context.base=await C.binding(f.history,{...sample.meta,dataVersion:4});
+  refreshed=await f.service.revalidate({...f.input,expectedRevision:previous.revision,expectedDigest:previous.digest});
+  assert.equal(refreshed.draft.cases.length,0);assert.equal(refreshed.archives.length,2);
+  assert.ok(refreshed.worklist.identity.some(c=>c.personIds.includes(ids[0])&&c.bucket==='pending'));
+});
+
 test('identity merge is previewed by the existing engine, encrypted, reopened in a fresh service and never published', async t => {
   const f = await setup(t), original = structuredClone(f.history), command = f.command();
   const preview = await f.service.preview({...f.input,command});
@@ -344,7 +435,7 @@ test('a new organizer starts with an empty worklist, without Morothon seeds or i
   f.context.base = await C.binding(f.history,sample.meta);
   const loaded = await f.service.load(f.input);
   assert.equal(loaded.persisted,false); assert.equal(loaded.draft,null);
-  assert.deepEqual(loaded.counts,{unprocessed:0,processed:0,rejected:0});
+  assert.deepEqual(loaded.counts,{unprocessed:0,followup:0,processed:0,rejected:0});
   assert.deepEqual(loaded.worklist,{identity:[],reports:[]});
   assert.equal(await f.store.get(org),null);
 });
