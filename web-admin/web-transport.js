@@ -501,6 +501,7 @@
   function stage() {
     const p = saved?.publication,
       t = saved?.task;
+    if (t?.state === "blocked") return t.error || "Tidligere privat kontrolljobb krever avklaring.";
     if (t && !["completed", "failed"].includes(t.state))
       return t.action === "validate"
         ? "Kontrollerer rettelsen …"
@@ -561,6 +562,8 @@
       !saved?.publication ||
       ["published", "cancelled"].includes(saved.publication.stage);
     actions.continue.disabled = busy || !editable;
+    actions.recover.hidden = saved?.task?.state !== "blocked";
+    actions.recover.disabled = busy || !principal || !Number.isSafeInteger(saved?.task?.queueRevision);
     actions.retry.hidden = saved?.task?.state !== "queued";
     actions.retry.disabled = busy || !principal;
     actions.cancel.hidden = actions.retry.hidden;
@@ -891,6 +894,19 @@
         });
         await read();
         await monitor();
+      },
+    );
+    actions.recover = button(
+      "Avklar gammel ugyldig jobbpeker",
+      "resultServiceRecover",
+      async () => {
+        if (!saved?.task || saved.task.state !== "blocked") return;
+        if (!confirm("En eldre kontrolljobb har en ugyldig intern referanse. Bekrefter du å rydde KUN denne ugyldige jobbpekeren? Lagrede utkast og publiserte resultater beholdes.")) return;
+        await api("/task/recover-invalid", {
+          expectedRevision: saved.task.queueRevision,
+          confirmation: true,
+        });
+        await read();
       },
     );
     actions.retry = button(
