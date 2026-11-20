@@ -365,7 +365,21 @@
         c.bucket===s.scope&&(s.scope!=='finished'||c.caseStatus!=='rejected')))&&
         [c.reason,...c.personIds.map(name)].join(' ').toLocaleLowerCase('nb-NO').includes(s.query.toLocaleLowerCase('nb-NO')));
       for(const c of rows.slice(0,40)){const card=node('article');card.className='correction-case';
-        card.append(node('h3',c.personIds.map(name).join(' / ')),node('p',c.reason));
+        card.append(node('h3',c.personIds.map(name).join(' / ')));
+        // Surface source-backed participation years before any identity choice.
+        // DNS is not participation, DNF remains participation by event rules.
+        const allYears=c.personIds.map(id=>[...new Set(model.resultsFor(id)
+          .filter(H.countsAsParticipation).map(row=>row[0]))].sort((a,b)=>a-b));
+        const shared=allYears.length===2?allYears[0].filter(year=>allYears[1].includes(year)):[];
+        for(let i=0;i<c.personIds.length;i++){
+          const y=node('p',name(c.personIds[i])+': '+(allYears[i].length?allYears[i].join(', '):'ingen tellende deltakelser'));
+          y.className='identity-participation-years';card.append(y);
+        }
+        if(shared.length){
+          const evidence=node('p','Begge er registrert i '+shared.join(', ')+'. Kontroller løp, distanse og tider før eventuell sammenslåing.');
+          evidence.className='identity-shared-years';card.append(evidence);
+        }
+        card.append(node('p',c.reason));
         const stored=s.saved.draft?.cases.find(x=>x.id===c.caseId);
         if(!stored && c.personIds.length===2 && c.bucket==='pending'){
           // Restore the original quick workflow on each suggestion. Reuse the

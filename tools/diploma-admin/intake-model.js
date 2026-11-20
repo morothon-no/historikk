@@ -488,11 +488,13 @@
    for(const i of groups[a][1])for(const j of groups[b][1])if(i!==j)candidatePairs.add(pairKey(i,j));
   }
   const ordered=[...candidatePairs].map(key=>key.split(':').map(Number)).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
-  const finishes=new Map();for(const row of history.results){const seconds=H.isCompletedResult(row)&&!H.isRelayRace(row)?H.timeSeconds(row[5]):null;if(seconds===null)continue;const id=model.resolve(row[1]),key=JSON.stringify([row[0],row[2],H.parseDistanceKm(row[3])]);if(!finishes.has(id))finishes.set(id,new Map());const events=finishes.get(id);if(!events.has(key))events.set(key,new Set());events.get(key).add(seconds);}
+  const finishes=new Map();for(const row of history.results){const seconds=H.isCompletedResult(row)&&!H.isRelayRace(row)?H.timeSeconds(row[5]):null;if(seconds===null)continue;const id=model.resolve(row[1]),key=JSON.stringify([row[0],H.parseDistanceKm(row[3])]);if(!finishes.has(id))finishes.set(id,new Map());const events=finishes.get(id);if(!events.has(key))events.set(key,new Set());events.get(key).add(seconds);}
   for(const [i,j]of ordered){
    const a=people[i],b=people[j],aParts=split(a.n),bParts=split(b.n);
-   // Different completed times in the same edition/course are independent
-   // counterevidence. Suppress the automatic suggestion, never assign identity.
+   // Different completed times in the same year and distance are strong
+   // counterevidence even when historical event labels have changed.
+   // Suppress the automatic suggestion, never assign identity or merge data.
+   // Distinct distances/relays are not treated as proof of separate identities.
    const left=finishes.get(a.i),right=finishes.get(b.i);if(left&&right&&[...left].some(([key,times])=>right.has(key)&&[...times].some(x=>[...right.get(key)].some(y=>x!==y))))continue;
    if(documented.has(pairKey(i,j))){
     const match=same(aParts,bParts)?compareNameParts(aParts,bParts):{category:'Navn eller alias',strength:'strong',reason:'Et fullt registrert navn, godkjent alias eller en tidligere godkjent ID-kobling samsvarer på tvers av kanoniske profiler. Kontroller identiteten.'};

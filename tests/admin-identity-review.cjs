@@ -222,6 +222,17 @@ test('same-year collisions and contradictory identities cannot pass the establis
   assert.equal((await f.service.load(f.input)).revision,0);
 });
 
+test('same-year same-distance different times suppress automatic merge even with historical event label mismatch', async t => {
+  const f = await setup(t);
+  // Preserve a valid historical registration but emulate renamed event labels.
+  f.history.results[3][0] = 2020;
+  f.history.results[3][5] = '51:00';
+  f.history.results[3][2] = 'Langmoro';
+  // The other profile uses a source event label distinct from Langmoro.
+  assert.notEqual(f.history.results[0][2], f.history.results[3][2]);
+  assert.equal(C.discover(f.history).some(s=>s.personIds.includes(ids[0])&&s.personIds.includes(ids[1])), false);
+});
+
 test('explicit distinct decisions also persist when automatic suggestions were suppressed by same-year times', async t => {
   const f = await setup(t);
   f.history.results[3][0] = 2020; f.history.results[3][5] = '51:00';
