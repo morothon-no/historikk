@@ -252,7 +252,7 @@
       revalidate.hidden=!s.saved?.stale;revalidate.disabled=s.busy||active();
       reload.hidden=!(s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base));
       check.disabled=s.busy||active()||stale()||!s.saved?.draft?.cases.length;
-      retry.hidden=!s.request&&!active();
+      retry.hidden=s.saved?.task?.state==='blocked'||(!s.request&&!active());
       for(const button of editor.querySelectorAll('button'))button.disabled=s.busy||active()||stale()||!!s.request;
     }
     async function read(){
@@ -265,9 +265,10 @@
     }
     async function monitor(){
       const end=Date.now()+10*60000;
-      for(;;){await read();if(!active())break;
+      for(;;){await read();if(!active()||s.saved?.task?.state==='blocked')break;
         if(Date.now()>end){status.textContent='Kontrollen pågår fortsatt. Hent status senere; ingen ny innsending er nødvendig.';return;}
         await new Promise(resolve=>setTimeout(resolve,4000));}
+      if(s.saved.task?.state==='blocked')throw Error(s.saved.task.error||'Privat kontrolljobb er sperret. Avklar gammel jobbpeker i Resultatkontroll.');
       if(s.saved.task?.state==='failed'){
         if(s.request?.command.id===s.saved.task.requestId)s.request=null;
         throw Error(s.saved.task.error || 'Kontrollen stoppet. Ny avgjørelse er ikke bekreftet lagret.');
@@ -753,7 +754,7 @@
         await read();
         if (
           !saved?.task ||
-          ["completed", "failed"].includes(saved.task.state)
+          ["completed", "failed", "blocked"].includes(saved.task.state)
         ) {
           if (
             restoreWhenDone &&
@@ -995,7 +996,7 @@
       if (principal) {
         await read();
         await mountIdentity();
-        if (saved?.task && !["completed", "failed"].includes(saved.task.state))
+        if (saved?.task && !["completed", "failed", "blocked"].includes(saved.task.state))
           await monitor();
       }
     } catch (e) {
