@@ -12,6 +12,7 @@ function createBroker({
   apiOrigin,
   ownerUserId,
   ownerGithubId,
+  dispatchActorId,
   codeSha,
   workflowSha,
   auth,
@@ -63,6 +64,32 @@ function createBroker({
       return { id: null, state: 'blocked', action: 'unknown', queueRevision: q.revision,
         error: 'En tidligere privat kontrolljobb har en ugyldig referanse. Ingen ny jobb er startet. Kontakt administrator for sikker avklaring.' };
     let task = await control.get("task-" + q.taskId);
+    // The private workflow can fail before obtaining an OIDC lease. Its job
+    // ID is then absent and the browser must not poll a permanently queued task.
+    // Match only a completed failed run with the exact workflow, commit,
+    // task title and authorized dispatch actor; never infer successful saving.
+    if (task?.state === "queued" && !task.runId &&
+        Date.parse(task.createdAt) + 10000 <= clock() && dispatchActorId) {
+      try {
+        const response = await privateApi.request(
+          "actions/workflows/morothon-result-job.yml/runs?event=workflow_dispatch&per_page=30",
+        );
+        const run = response?.workflow_runs?.find(r =>
+          r.name === "Morothon private result processor" &&
+          r.display_title === "Morothon task " + task.id &&
+          r.path === ".github/workflows/morothon-result-job.yml" &&
+          r.head_sha === workflowSha &&
+          String(r.actor?.id) === String(dispatchActorId) &&
+          r.event === "workflow_dispatch" &&
+          r.status === "completed" && r.conclusion !== "success");
+        if (run) task = await control.transact("task-" + task.id, task.revision, p => ({
+          ...p, revision: p.revision + 1, state: "failed",
+          error: "Den private kontrolljobben feilet før lagring. Ingen avgjørelse er bekreftet. Kontroller jobbkjøringen før ny innsending.",
+        }));
+      } catch {
+        // A read/discovery error must not approve work or silently reset queue.
+      }
+    }
     if (task?.state === "running" && task.runId) {
       const run = await privateApi.request("actions/runs/" + task.runId);
       if (run.status === "completed" && run.conclusion !== "success") {
