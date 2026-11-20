@@ -396,7 +396,8 @@
       if(stale()){draft=structuredClone(draft);for(const c of draft.cases)if(c.change&&c.status!=='rejected')c.status='review';}
       const work=await C.worklist(suggestions,draft);if(version!==s.version)return;
       counts.replaceChildren();
-      for(const [label,n] of [['Ubehandlede',work.identity.filter(c=>c.bucket==='pending').length],
+      for(const [label,n] of [['Ubehandlede',work.identity.filter(c=>c.bucket==='pending'&&!s.deferred.has([...c.personIds].sort().join(':'))).length],
+        ['Undersøk senere (kun økten)',work.identity.filter(c=>s.deferred.has([...c.personIds].sort().join(':'))).length],
         ['Behandlede',work.identity.filter(c=>c.bucket==='finished'&&c.caseStatus!=='rejected').length],
         ['Avviste par',work.identity.filter(c=>c.caseStatus==='rejected').length]]){
         const card=node('article');card.append(node('strong',String(n)),node('span',label));counts.append(card);}
