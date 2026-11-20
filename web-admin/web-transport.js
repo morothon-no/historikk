@@ -324,10 +324,22 @@
       editor.replaceChildren();s.selected=ids;s.selectedCase=stored?.id || null;
       const title=node('h2',stored?'Lagret identitetsavgjørelse':'Sammenlign og bekreft identitet');editor.append(title);
       const profiles=node('div');profiles.className='correction-profiles';
+      const years=ids.map(id=>new Set(model.resultsFor(id).filter(H.countsAsParticipation).map(r=>r[0])));
+      if(years.length===2){
+        const shared=[...years[0]].filter(year=>years[1].has(year)).sort((a,b)=>a-b);
+        if(shared.length)editor.append(node('p','Begge profilene har deltakelse i '+shared.join(', ')+'. Undersøk distanse, status og tid før du slår sammen.','identity-shared-years'));
+      }
       for(const id of ids){const p=node('article');p.className='correction-profile';const stats=model.stats(id);
         p.append(node('h3',name(id)),node('p',(stats?.count||0)+' tellende deltakelsesår'),node('p',(stats?.years||[]).join(', ')));
-        const results=node('details');results.append(node('summary','Registrerte resultater'));
-        for(const row of model.resultsFor(id))results.append(node('p',[row[0],row[2],row[3],row[5]].join(' · ')));
+        const aliases=identityContext.history.aliases?.[id]||[];
+        if(aliases.length)p.append(node('p','Tidligere navn/alias: '+aliases.join(', ')));
+        const results=node('details');results.open=true;results.append(node('summary','Alle registrerte resultater'));
+        for(const row of model.resultsFor(id).slice().sort((a,b)=>b[0]-a[0]))
+          results.append(node('p',[
+            row[0],row[2],row[3],row[4],
+            'Tid '+(row[5]||'ikke oppgitt'),
+            'Plass '+(row[6]??'ikke oppgitt'),
+            'Startnr '+(row[9]||'ikke oppgitt')].join(' · ')));
         p.append(results);profiles.append(p);}
       editor.append(profiles);
       if(stored){
