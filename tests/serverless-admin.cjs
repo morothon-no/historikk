@@ -379,6 +379,7 @@ async function brokerFixture(t) {
     control = memory(),
     reviews = memory(),
     dispatches = [],
+    runs = [],
     leaseCalls = [],
     auth = {
       authenticate: async (r) => {
@@ -393,6 +394,7 @@ async function brokerFixture(t) {
       apiOrigin,
       ownerUserId: userId,
       ownerGithubId: "123",
+      dispatchActorId: "358260624",
       codeSha,
       workflowSha,
       auth,
@@ -402,6 +404,7 @@ async function brokerFixture(t) {
       // The Worker separately supplies a contents-scoped API to OAuth storage.
       privateApi: {
         request: async (route, o) => {
+          if (route.includes("morothon-result-job.yml/runs?")) return {workflow_runs:runs};
           if (route.includes("dispatches")) {
             dispatches.push(JSON.parse(o.body));
             return null;
@@ -445,7 +448,7 @@ async function brokerFixture(t) {
     );
     return { status: r.status, body: await r.json(), headers: r.headers };
   }
-  return { ...f, broker, control, dispatches, leaseCalls, request };
+  return { ...f, broker, control, dispatches, runs, leaseCalls, request };
 }
 test("private job IDs remain lowercase, and legacy invalid queue references cannot crash read-only login", async (t) => {
   const f = await brokerFixture(t);
@@ -470,6 +473,24 @@ test("private job IDs remain lowercase, and legacy invalid queue references cann
   assert.equal((await f.request("/task/recover-invalid", {expectedRevision:1,confirmation:true})).status,409,
     "recovery must be one-use and version-bound");
 });
+test("completed failed GitHub job before OIDC lease ends queue instead of hanging admin", async t => {
+  const f = await brokerFixture(t), draft = await f.draft();
+  assert.equal((await f.request("/review/save", {draft,expectedRevision:0})).status,200);
+  const start = await f.request("/review/validate", {expectedRevision:1,expectedDigest:sha(draft)});
+  assert.equal(start.status,202);
+  const id=start.body.id, task=f.control.data.get("task-"+id);
+  task.createdAt=new Date(Date.now()-20000).toISOString();
+  f.runs.push({name:"Morothon private result processor",display_title:"Morothon task "+id,
+    path:".github/workflows/morothon-result-job.yml",head_sha:workflowSha,
+    actor:{id:358260624},event:"workflow_dispatch",status:"completed",conclusion:"failure"});
+  const view=await f.request("/review");
+  assert.equal(view.status,200);
+  assert.equal(view.body.task.state,"failed");
+  assert.match(view.body.task.error,/før lagring/);
+  assert.equal(f.control.data.get("task-"+id).revision,2);
+  assert.equal(f.dispatches.length,1,"never resubmit failed decisions automatically");
+});
+
 test("broker rejects unauthenticated and foreign-origin writes; saves only source-bound result drafts, without authenticating client flags", async (t) => {
   const f = await brokerFixture(t),
     draft = await f.draft();
