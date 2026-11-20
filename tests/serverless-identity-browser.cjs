@@ -104,8 +104,12 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.equal(colored.length,3);
  assert.notEqual(colored[0].color,colored[1].color,'same and distinct identity decisions must have distinct visible colors');
  assert.ok(colored.every(b=>b.height>=44),'quick choices must have usable touch targets');
- // Deferring a suggestion changes the active worklist only; it is never persisted.
+ // Deferring a suggestion changes the active worklist and counts, never storage.
+ assert.match(await page.locator('#identityServiceCounts').textContent(),/2Ubehandlede/);
  await first.getByRole('button',{name:'Undersøk senere'}).click();
+ await page.waitForFunction(()=>document.querySelector('#identityServiceCounts').textContent.includes('1Ubehandlede'));
+ assert.match(await page.locator('#identityServiceCounts').textContent(),/1Undersøk senere \\(kun økten\\)/);
+ assert.equal((await f.identities.get('sogne-morothon')),null,'defer must not persist identities');
  await page.selectOption('#identityFilter','followup');
  assert.equal(await page.locator('#identityWorklist article').count(),1);
  await page.selectOption('#identityFilter','pending');
