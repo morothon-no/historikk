@@ -158,6 +158,55 @@ async function readConfig() {
   );
   return validateConfig(JSON.parse(text.replace(/^\/\/[^\n]*\n/, "")));
 }
+// Out-of-band maintainer approval of ONE complete release, never PR input.
+// Keeping the tuple outside source commits avoids mutually recursive public
+// and private Git pins. The private workflow still hardcodes the public SHA.
+function releaseConfig(c, env) {
+  validateConfig(c);
+  let approved;
+  try {
+    requireThat(typeof env.MOROTHON_ADMIN_RELEASE === "string" &&
+      env.MOROTHON_ADMIN_RELEASE.length < 1024, "missing");
+    approved = JSON.parse(env.MOROTHON_ADMIN_RELEASE);
+  } catch { throw Error("Et separat maintainer-godkjent utrullingssett mangler."); }
+  requireThat(approved && !Array.isArray(approved) &&
+    same(Object.keys(approved).sort(), ["version", "processorCodeSha", "privateWorkflowSha", "rollbackVersionId"].sort()) &&
+    approved.version === 1 &&
+    [approved.processorCodeSha, approved.privateWorkflowSha].every(s=>typeof s === "string" && /^[a-f0-9]{40}$/.test(s) && /[1-9a-f]/.test(s)) &&
+    UUID.test(approved.rollbackVersionId || ""),
+    "Ugyldig eller ufullstendig godkjent utrullingssett.");
+  requireThat(String(env.GITHUB_ACTOR_ID || "") === c.vars.OWNER_GITHUB_ID,
+    "Bare den bekreftede hovedeieren kan starte denne utrullingen.");
+  requireThat(env.ROLLBACK_VERSION_ID === approved.rollbackVersionId &&
+    env.VERIFIED_PRIVATE_WORKFLOW_SHA === approved.privateWorkflowSha,
+    "Operatørvalgene samsvarer ikke med det separat godkjente utrullingssettet.");
+  const next = structuredClone(c);
+  next.vars.PROCESSOR_CODE_SHA = approved.processorCodeSha;
+  next.vars.PRIVATE_WORKFLOW_SHA = approved.privateWorkflowSha;
+  validateConfig(next);
+  validateDispatch(next, env);
+  return next;
+}
+function verifyReleaseSource(c, env, {git = args=>execFileSync("git", args, {
+  cwd:ROOT, encoding:"utf8", stdio:["ignore","pipe","pipe"],
+})} = {}) {
+  requireThat(/^[a-f0-9]{40}$/.test(env.GITHUB_SHA || "") &&
+    git(["rev-parse", "HEAD"]).trim() === env.GITHUB_SHA,
+    "Checkout må samsvare med utrullingens eksakte main-SHA.");
+  const report = verifySource(c, {git});
+  // A reviewed PR head and its main merge may have different commit IDs but
+  // must have identical trees. No later code, config OR data drift is accepted.
+  requireThat(!git(["diff", c.vars.PROCESSOR_CODE_SHA, "HEAD", "--name-only"]).trim(),
+    "Godkjent prosessorkode og deploy-main har forskjellig innhold.");
+  const configPath = "deploy/admin-serverless/wrangler.jsonc";
+  const dirty = git(["diff", "HEAD", "--name-only"]).trim().split("\n").filter(Boolean);
+  requireThat(dirty.every(p=>p === configPath), "Uventede endringer i utrullingskilden.");
+  const committed = validateConfig(JSON.parse(git(["show", "HEAD:"+configPath]).replace(/^\/\/[^\n]*\n/, "")));
+  committed.vars.PROCESSOR_CODE_SHA = c.vars.PROCESSOR_CODE_SHA;
+  committed.vars.PRIVATE_WORKFLOW_SHA = c.vars.PRIVATE_WORKFLOW_SHA;
+  requireThat(same(committed, c), "Bare de to godkjente versjonsbindingene kan endres ved utrulling.");
+  return {...report, workerSourceSha:env.GITHUB_SHA, privateWorkflowSha:c.vars.PRIVATE_WORKFLOW_SHA};
+}
 function verifySource(
   c,
   {
@@ -472,6 +521,8 @@ async function verifyHealth(c, {
 }
 module.exports = {
   readConfig,
+  releaseConfig,
+  verifyReleaseSource,
   validateConfig,
   verifySource,
   validateDispatch,
@@ -481,19 +532,27 @@ module.exports = {
 };
 if (require.main === module)
   (async () => {
-    const c = await readConfig(),
-      mode = process.argv[2];
+    const mode = process.argv[2], baseConfig = await readConfig();
     requireThat(
-      ["local", "dispatch", "remote", "health"].includes(mode),
+      ["local", "prepare-release", "dispatch", "remote", "health"].includes(mode),
       "Velg eksplisitt kontrollmodus.",
     );
+    const c = ["prepare-release", "dispatch", "remote"].includes(mode) ? releaseConfig(baseConfig, process.env) : baseConfig;
     let report;
     if (mode === "local") report = verifySource(c);
+    if (mode === "prepare-release") {
+      report = verifyReleaseSource(c, process.env);
+      await fs.writeFile(path.join(__dirname, "wrangler.jsonc"),
+        "// Runtime-only approved bindings; never commit this generated configuration.\n"+JSON.stringify(c,null,2)+"\n");
+    }
     if (mode === "dispatch") {
       validateDispatch(c, process.env);
-      report = verifySource(c);
+      report = verifyReleaseSource(c, process.env);
     }
-    if (mode === "remote") report = await remotePreflight(c, process.env);
+    if (mode === "remote") {
+      verifyReleaseSource(c, process.env);
+      report = await remotePreflight(c, process.env);
+    }
     if (mode === "health") report = await verifyHealth(c);
     console.log(JSON.stringify(report));
   })().catch(error => {
