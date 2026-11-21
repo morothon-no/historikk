@@ -4,6 +4,11 @@ Bygger videre på #155 og [årsimportkontrakten](arsimport-kontrakt.md). Dette e
 integrasjonen i eksisterende «Årets arrangement → Endelige resultater», ikke en
 ny adminside, importmotor eller database. Publisering av årsresultater er sperret.
 
+Neste avgrensede leveranse er implementert i
+[kontrollert årspublisering](arsresultat-publisering.md), fortsatt deaktivert frem
+til særskilt godkjent aktivering. Beskrivelsen nedenfor dokumenterer #156 sin
+import-/lagringsleveranse; de nye, sperrede publiseringsrutene beskrives separat.
+
 ## Det arrangøren kan gjøre etter godkjent aktivering
 
 1. Laste opp CSV/TSV med eksisterende parser og filoppsett. En entydig årkolonne

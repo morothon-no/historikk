@@ -42,7 +42,7 @@ function createResultPublication({authenticate,authorizeActor,review,reviewStore
   if(!strategy){const restored=await C.restoreCandidate(packet.result.history,packet);if(!same(restored.history,context.history))throw Error('Tilbakeføringskontrollen feilet.');}
   const snapshot=await adapter.snapshot();
   if(hash(snapshot.files.get('public-data/data/history.json'))!==context.base.historySha256||hash(snapshot.files.get('public-data/manifest.json'))!==context.base.manifestSha256)throw Error('Main og redigeringsgrunnlaget har ulike dataversjoner.');
-  const release=strategy?strategy.release({files:snapshot.files,after:packet.result.history}):releaseFiles({files:snapshot.files,after:packet.result.history}),before=backupFiles(snapshot.files),after=backupFiles(release.files);
+  const release=strategy?strategy.release({files:snapshot.files,after:packet.result.history,packet}):releaseFiles({files:snapshot.files,after:packet.result.history}),before=backupFiles(snapshot.files),after=backupFiles(release.files);
   // Restore the actual saved backup bytes before accepting the publication plan.
   const recovered=restoreFiles(before);for(const p of PATHS)if(!recovered.get(p).equals(snapshot.files.get(p)))throw Error('Sikkerhetskopien kunne ikke gjenopprettes.');
   const build=await (checkBuild||checkReleaseBuild)(release,snapshot,{directory});

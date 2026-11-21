@@ -13,8 +13,18 @@ test('isolated public build and existing site test need no administrative files,
   h=await createHarness({rootDir:out});const p=await h.browser.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();const ref=JSON.parse(await fs.readFile(path.join(dir,'tests/fixtures/a1c-public-reference.json'),'utf8'));
   for(const width of [390,1440]){await p.setViewportSize({width,height:900});assert.deepEqual(await p.locator('[data-honoree]').evaluateAll(nodes=>nodes.map(n=>n.dataset.honoree)),ref.ids);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
-  const actual=await p.evaluate(async()=>{const data=await MorothonHonorsData.load(),all=[];for(const m of data.groups.flatMap(g=>g.members))for(const display of ['all','latest']){const d=await MorothonDiplomas.serviceDraft(m.id,display);all.push({id:m.id,display,proof:d.contentProof,mode:d.printMode,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,title:d.title,tribute:d.tribute});}return all;});
-  assert.deepEqual(actual,ref.diplomas);assert.equal(actual.length,86);
-  await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));const counts=await p.evaluate(async()=>{const h=await MorothonHistoryData.load();return [h.data.people.length,h.data.results.length,h.data.teamResults.length];});assert.deepEqual(counts,[2643,6914,4]);assert.deepEqual(errors,[]);
+  const readDiplomas=()=>p.evaluate(async()=>{const data=await MorothonHonorsData.load(),all=[];for(const m of data.groups.flatMap(g=>g.members))for(const display of ['all','latest']){const d=await MorothonDiplomas.serviceDraft(m.id,display);all.push({id:m.id,display,proof:d.contentProof,mode:d.printMode,count:d.contributionCount,first:d.contributionFirst,last:d.contributionLast,date:d.dateLabel,title:d.title,tribute:d.tribute});}return all;});
+  const live=await readDiplomas();assert.equal(live.length,86);
+  for(const d of live){const prior=ref.diplomas.find(p=>p.id===d.id&&p.display===d.display);assert.ok(prior);
+   if(JSON.stringify(d.proof)!==JSON.stringify(prior.proof)){assert.equal(d.mode,'draft','changed content must lose clean-print approval');
+    for(const k of ['assetSha256','cssSha256','watermarkSha256'])assert.equal(d.proof[k],prior.proof[k]);}
+   else assert.deepEqual(d,prior);
+  }
+  // Preserve the full historical 86-variant oracle using exact journal undo;
+  // separately verify current content above, including invalidated approvals.
+  await p.route('**/data/history.json',r=>r.fulfill({json:require('./public/quick/fixtures/frozen-history.js')(dir)}));
+  await p.goto(h.base+'/heder.html');await p.locator('[data-honoree]').first().waitFor();
+  const actual=await readDiplomas();assert.deepEqual(actual,ref.diplomas);assert.equal(actual.length,86);await p.unroute('**/data/history.json');
+  await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));const counts=await p.evaluate(async()=>{const h=await MorothonHistoryData.load();return [h.data.people.length,h.data.results.length,h.data.teamResults.length];});const expected=JSON.parse(await fs.readFile(path.join(dir,'public-data/data/history.json')));assert.deepEqual(counts,[expected.people.length,expected.results.length,expected.teamResults.length]);assert.deepEqual(errors,[]);
  }finally{if(h)await h.close();await fs.rm(dir,{recursive:true,force:true});}
 });

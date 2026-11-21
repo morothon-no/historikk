@@ -1,22 +1,24 @@
 // Public result bytes and regression provenance only. No users, notes or credentials.
 'use strict';
-const {createHash}=require('node:crypto'),H=require('../../js/history-data.js');
+const {createHash}=require('node:crypto'),H=require('../../js/history-data.js'),Annual=require('./annual-release-data.cjs');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const fields=(o,n)=>{if(!o||Array.isArray(o)||Object.keys(o).sort().join('|')!==n.slice().sort().join('|'))throw Error('Ukjent publiseringsformat.');};
 function encode(history){return Buffer.from(JSON.stringify(history));}
 function validateJournal(journal){
  fields(journal,['schemaVersion','baselineSha256','entries']);
- if(![1,2].includes(journal.schemaVersion)||!/^[a-f0-9]{64}$/.test(journal.baselineSha256)||!Array.isArray(journal.entries)||journal.entries.length>10000)throw Error('Ugyldig resultatjournal.');
+ if(![1,2,3].includes(journal.schemaVersion)||!/^[a-f0-9]{64}$/.test(journal.baselineSha256)||!Array.isArray(journal.entries)||journal.entries.length>10000)throw Error('Ugyldig resultatjournal.');
  let previous=journal.baselineSha256,parent=null;
  for(const e of journal.entries){
-  const identity=e.kind==='identity';
-  fields(e,['beforeSha256','afterSha256','manifestSha256','dataVersion','changes','parent','sha256',...(identity?['kind']:[])]);
-  if(identity&&journal.schemaVersion!==2)throw Error('Identitetsjournal krever versjon 2.');
+  const identity=e.kind==='identity',annual=e.kind==='annual';
+  fields(e,['beforeSha256','afterSha256','manifestSha256','dataVersion','changes','parent','sha256',...(annual?['kind','reverses']:identity?['kind']:[])]);
+  if(identity&&journal.schemaVersion<2)throw Error('Identitetsjournal krever versjon 2.');
   if(e.beforeSha256!==previous||e.parent!==parent||![e.afterSha256,e.manifestSha256,e.sha256].every(s=>/^[a-f0-9]{64}$/.test(s))||!Number.isSafeInteger(e.dataVersion)||e.dataVersion<1||!Array.isArray(e.changes)||!e.changes.length)throw Error('Brudd i resultatjournalen.');
   const {sha256,...body}=e;if(hash(JSON.stringify(body))!==sha256)throw Error('Resultatjournalens kontrollsum er feil.');
+  if(annual&&(journal.schemaVersion!==3||!(e.reverses===null||/^[a-f0-9]{64}$/.test(e.reverses))))throw Error('Ugyldig årsjournal.');
   const seen=new Set();for(const c of e.changes){
-   if(identity){validateIdentityPatch(c);const key=c.field+':'+c.key;if(seen.has(key))throw Error('Duplisert identitetsendring.');seen.add(key);}
+   if(annual){Annual.validatePatch(c);const key=c.field+':'+c.index;if(seen.has(key))throw Error('Duplisert årsendring.');seen.add(key);}
+   else if(identity){validateIdentityPatch(c);const key=c.field+':'+c.key;if(seen.has(key))throw Error('Duplisert identitetsendring.');seen.add(key);}
    else{fields(c,['index','before','after']);if(!Number.isSafeInteger(c.index)||c.index<0||seen.has(c.index)||!Array.isArray(c.before)||!Array.isArray(c.after)||equal(c.before,c.after))throw Error('Ugyldig eksakt resultatendring.');seen.add(c.index);}}
   previous=e.afterSha256;parent=e.sha256;
  }
@@ -27,7 +29,7 @@ function undoPublishedResults(bytes,journal){
  if(!current.equals(encode(JSON.parse(current))))throw Error('Historikken må beholde sin kanoniske bytekoding.');
  for(const e of journal.entries.slice().reverse()){
   if(hash(current)!==e.afterSha256)throw Error('Resultatjournalen gjelder en annen historikk.');
-  const data=JSON.parse(current);if(e.kind==='identity')applyIdentityPatches(data,e.changes,true);else for(const c of e.changes){if(!equal(data.results[c.index],c.after))throw Error('Resultatjournalens etterverdier er endret.');data.results[c.index]=c.before;}
+  let data=JSON.parse(current);if(e.kind==='annual')data=Annual.apply(data,e.changes,true);else if(e.kind==='identity')applyIdentityPatches(data,e.changes,true);else for(const c of e.changes){if(!equal(data.results[c.index],c.after))throw Error('Resultatjournalens etterverdier er endret.');data.results[c.index]=c.before;}
   current=encode(data);if(hash(current)!==e.beforeSha256)throw Error('Andre historiske data er endret uten grunnlag.');
  }
  if(hash(current)!==journal.baselineSha256)throw Error('Resultatjournalens originalgrunnlag stemmer ikke.');return current;
@@ -76,7 +78,7 @@ function identityChanges(before,after){
 function appendIdentityPublication(beforeBytes,after,journal,{manifestSha256,dataVersion}){
  undoPublishedResults(beforeBytes,journal);const changes=identityChanges(JSON.parse(beforeBytes),after),bytes=encode(after),
   body={beforeSha256:hash(beforeBytes),afterSha256:hash(bytes),manifestSha256,dataVersion,changes,parent:journal.entries.at(-1)?.sha256||null,kind:'identity'},
-  next={...journal,schemaVersion:2,entries:[...journal.entries,{...body,sha256:hash(JSON.stringify(body))}]};
+  next={...journal,schemaVersion:Math.max(2,journal.schemaVersion),entries:[...journal.entries,{...body,sha256:hash(JSON.stringify(body))}]};
  undoPublishedResults(bytes,next);return {bytes,journal:next,changes};
 }
 function undoIdentityPublication(history,journal,manifestSha256){
@@ -95,4 +97,17 @@ function appendPublication(beforeBytes,after,journal,{manifestSha256,dataVersion
  const bytes=encode(after),body={beforeSha256:hash(beforeBytes),afterSha256:hash(bytes),manifestSha256,dataVersion,changes,parent:journal.entries.at(-1)?.sha256||null};
  const next={...journal,entries:[...journal.entries,{...body,sha256:hash(JSON.stringify(body))}]};undoPublishedResults(bytes,next);return {bytes,journal:next,changes};
 }
-module.exports={hash,encode,validateJournal,undoPublishedResults,appendPublication,appendIdentityPublication,identityChanges,undoIdentityPublication};
+function undoAnnualPublication(history,journal,manifestSha256){
+ undoPublishedResults(encode(history),journal);const index=journal.entries.findIndex(e=>e.manifestSha256===manifestSha256),e=journal.entries[index];
+ if(!e||e.kind!=='annual')throw Error('Velg en verifisert årspublisering.');
+ const keys=new Set(e.changes.map(c=>c.field+':'+c.index)),rows=new Set(e.changes.filter(c=>c.field==='results').map(c=>c.index));
+ if(journal.entries.slice(index+1).some(x=>x.kind==='annual'?x.changes.some(c=>keys.has(c.field+':'+c.index)||c.before===null):x.kind==='identity'?x.changes.some(c=>e.changes.some(p=>p.field==='people'&&p.after?.i===c.key)):x.changes.some(c=>rows.has(c.index))))throw Error('Årsresultatene har nyere endringer. Avklar tilbakeføringen manuelt.');
+ return Annual.apply(history,e.changes,true);
+}
+function appendAnnualPublication(beforeBytes,after,journal,{manifestSha256,dataVersion,reverses=null}){
+ undoPublishedResults(beforeBytes,journal);const before=JSON.parse(beforeBytes);
+ if(reverses&&!equal(undoAnnualPublication(before,journal,reverses),after))throw Error('Tilbakeføringen avviker fra verifisert backup.');
+ const changes=Annual.changes(before,after,{reverse:!!reverses}),bytes=encode(after),body={beforeSha256:hash(beforeBytes),afterSha256:hash(bytes),manifestSha256,dataVersion,changes,parent:journal.entries.at(-1)?.sha256||null,kind:'annual',reverses},next={...journal,schemaVersion:3,entries:[...journal.entries,{...body,sha256:hash(JSON.stringify(body))}]};
+ undoPublishedResults(bytes,next);return {bytes,journal:next,changes};
+}
+module.exports={appendAnnualPublication,undoAnnualPublication,hash,encode,validateJournal,undoPublishedResults,appendPublication,appendIdentityPublication,identityChanges,undoIdentityPublication};

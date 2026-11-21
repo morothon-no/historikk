@@ -1,6 +1,6 @@
 'use strict';
 // Thin private workspace over the existing encrypted CAS adapter. No HTTP route,
-// new database, approval, publisher, background job or production file writer.
+// new database or production file writer. Publication uses a separate adapter.
 const path=require('node:path'),Contract=require('./annual-result-import.cjs'),
  {privateFileStore}=require('./review-workspace.cjs'),{authorize}=require('./access-control.cjs'),
  C=require('../../tools/diploma-admin/intake-model.js').Corrections;
@@ -17,7 +17,8 @@ function annualImportStore({openNamespace}){
  const backing=openNamespace(SCOPE);
  if(!backing?.get||!backing?.transact)throw Error('Separat kryptert årsimportlager kreves.');
  function checked(record,organizer){
-  if(record&&(record.module!==SCOPE||record.organizer!==organizer||record.status!=='draft'))throw Error('Feil arrangør eller modul i årsimportlageret.');
+  if(record&&(record.module!==SCOPE||record.organizer!==organizer||!['draft','review-approved'].includes(record.status)))throw Error('Feil arrangør eller modul i årsimportlageret.');
+  if(record&&!record.annualImport){C.validatePackage(record.draft);if(record.digest!==null||!same(record.base,record.draft.base)||record.status!=='draft'&&!record.annualReversal||record.draft.cases.length)throw Error('Ugyldig tomt årsgrunnlag.');return record;}
   if(record){Contract.validate(record.annualImport.input);const plan=record.annualImport.plan,{checksum,...body}=plan;
    if(record.digest!==Contract.hash(record.annualImport.input)||checksum!==Contract.hash(body)||
       plan.productionApplied!==false||plan.publicationAuthorized!==false||!same(record.base,record.annualImport.input.base))throw Error('Årsimportgrunnlaget er endret.');
@@ -41,24 +42,24 @@ function createAnnualImportReview({authenticate,loadContext,store,clock=Date.now
  function current(record,input){if((record?.revision||0)!==input.expectedRevision||(record?.digest||null)!==input.expectedDigest)throw Error('Årsimporten er endret. Hent siste private revisjon.');}
  const flags={productionApplied:false,publicationAuthorized:false};
  async function load(input){await access(input,'read');const [record,ctx]=await Promise.all([store.get(input.organizer),context(input.organizer)]);
-  if(!record)return {scope:SCOPE,revision:0,digest:null,status:'empty',persisted:false,stale:false,input:null,plan:null,...flags};
+  if(!record?.annualImport)return {scope:SCOPE,revision:record?.revision||0,digest:null,status:'empty',persisted:false,stale:false,input:null,plan:null,lastPublication:record?.lastAnnualPublication||null,...flags};
   const stale=!same(record.base,ctx.base);
   if(!stale)await Contract.verify(ctx,record.annualImport.input,record.annualImport.plan);
-  return {scope:SCOPE,revision:record.revision,digest:record.digest,status:'draft',persisted:true,stale,
+  return {scope:SCOPE,revision:record.revision,digest:record.digest,status:record.status,persisted:true,stale,
    input:copy(record.annualImport.input),plan:copy(record.annualImport.plan),events:copy(record.events),archives:copy(record.archives||[]),...flags};
  }
  async function preview(input){input={...input,input:copy(input.input)};await access(input,'write');const ctx=await context(input.organizer),record=await store.get(input.organizer);
   const plan=await Contract.prepare(ctx,input.input);
   if(!same((await context(input.organizer)).base,ctx.base))throw Error('Historikken ble oppdatert under kontrollen.');
-  return {plan,previous:record?{revision:record.revision,digest:record.digest,summary:copy(record.annualImport.plan.summary)}:null,
-   comparison:record?comparePlans(record.annualImport.plan,plan):null,
-   replacesPrivateSource:!!record&&Contract.hash(record.annualImport.input.source)!==Contract.hash(input.input.source),...flags};
+  return {plan,previous:record?.annualImport?{revision:record.revision,digest:record.digest,summary:copy(record.annualImport.plan.summary)}:null,
+   comparison:record?.annualImport?comparePlans(record.annualImport.plan,plan):null,
+   replacesPrivateSource:!!record?.annualImport&&Contract.hash(record.annualImport.input.source)!==Contract.hash(input.input.source),...flags};
  }
  async function save(input){input={...input,input:copy(input.input)};await access(input,'write');binding(input);
   if(typeof input.replaceCurrent!=='boolean')throw Error('Velg uttrykkelig om forrige private fil skal erstattes.');
-  const previous=await store.get(input.organizer);current(previous,input);
+  const previous=await store.get(input.organizer);current(previous,input);if(previous?.publicationLock||previous?.annualReversal)throw Error('Avklar årspubliseringen før importen endres.');
   const checked=await preview(input),digest=Contract.hash(input.input),ctx=await context(input.organizer);
-  if(previous&&!same(previous.base,ctx.base))throw Error('Lagret årsimport bruker en foreldet historikk. Bevar den og avklar ny kilde først.');
+  if(previous?.annualImport&&!same(previous.base,ctx.base))throw Error('Lagret årsimport bruker en foreldet historikk. Bevar den og avklar ny kilde først.');
   if(checked.replacesPrivateSource&&!input.replaceCurrent)throw Error('En annen fil er lagret privat. Gjennomgå forskjellene og bekreft utskifting av utkastet.');
   const actor=await access(input,'write');
   if(!same(checked.plan.base,ctx.base)||!same((await context(input.organizer)).base,ctx.base))throw Error('Historikken er endret. Ingen ny årsimport er lagret.');

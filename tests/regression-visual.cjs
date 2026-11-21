@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '..');
 const siteRoot = process.env.MOROTHON_TEST_SITE || root;
 let server, browser, base, data;
 before(async () => {
-  data = JSON.parse(await fs.readFile(path.join(root, 'public-data/data/history.json'), 'utf8'));
+  data = require('./public/quick/fixtures/frozen-history.js')(root); // Stable historical visual oracle.
   server = http.createServer(async (req, res) => {
     const file = path.resolve(siteRoot, '.' + (req.url === '/' ? '/index.html' : req.url.split('?')[0]));
     if (!file.startsWith(siteRoot + path.sep)) { res.writeHead(403).end(); return; }
@@ -30,7 +30,7 @@ async function load(options = {}, withoutTeams = false, fixture = data) {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  if (withoutTeams || fixture !== data) await page.route('**/data/history.json', route => {
+  await page.route('**/data/history.json', route => {
     const { teamResults, ...individualData } = fixture;
     return route.fulfill({ json: withoutTeams ? individualData : fixture });
   });

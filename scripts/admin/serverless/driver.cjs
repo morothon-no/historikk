@@ -7,6 +7,7 @@ const { createResultReview } = require("../result-review.cjs"),
 const {createIdentityPublication}=require('./identity-publication.cjs'),
   {ENABLED}=require('./identity-publication-policy.cjs');
 const {createAnnualImportReview,annualImportStore,SCOPE:ANNUAL_SCOPE}=require('../annual-import-review.cjs');
+const {createAnnualPublication}=require('./annual-publication.cjs'),{ENABLED:ANNUAL_ENABLED,digest:annualDigest}=require('./annual-publication-policy.cjs');
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function createDriver({
@@ -24,6 +25,7 @@ function createDriver({
   onPublished,
   checkBuild,
   identityPublicationEnabled = ENABLED,
+  annualPublicationEnabled = ANNUAL_ENABLED,
   clock = Date.now,
   pause = (ms) => new Promise((r) => setTimeout(r, ms)),
 }) {
@@ -43,7 +45,9 @@ function createDriver({
   const publicationMode = task.action.startsWith('identity-publication-');
   if(publicationMode && identityPublicationEnabled !== true) throw Error('Identitetspublisering er ikke aktivert.');
   const identityMode = publicationMode || ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check'].includes(task.action);
-  const annualMode=['annual-preview','annual-save'].includes(task.action);
+  const annualPublicationMode=task.action.startsWith('annual-publication-');
+  if(annualPublicationMode&&annualPublicationEnabled!==true)throw Error('Årspublisering er ikke aktivert.');
+  const annualMode=annualPublicationMode||['annual-preview','annual-save'].includes(task.action);
   if(annualMode!==(task.scope===ANNUAL_SCOPE))throw Error('Feil modul for årsimport.');
   if (identityMode !== (task.scope === SCOPE)) throw Error('Feil modul for privat jobb.');
   const review = annualMode ? createAnnualImportReview({authenticate:async()=>actor,loadContext,
@@ -69,7 +73,7 @@ function createDriver({
       checkBuild,
       clock,
     },
-    publication = annualMode ? null : publicationMode ? createIdentityPublication({...publicationOptions,enabled:true,
+    publication = annualPublicationMode ? createAnnualPublication({...publicationOptions,enabled:true,store:annualImportStore({openNamespace:()=>annualImports})}) : annualMode ? null : publicationMode ? createIdentityPublication({...publicationOptions,enabled:true,
       identity:review,store:identityReviewStore({openNamespace:()=>identities})}) : identityMode ? null :
       createResultPublication({...publicationOptions,review,reviewStore:reviews});
   const projectionKey=(publicationMode?'identity-publication-':'projection-')+ORG;
@@ -99,6 +103,9 @@ function createDriver({
     if (!publication) return null;
     const { job } = await publication.status(input);
     if (!job) return null;
+    if(annualPublicationMode){
+      await annualProjection({job});return job;
+    }
     const old = await control.get(projectionKey),
       history = [...(old?.history || [])];
     if (job.stage === "published" && !history.some((h) => h.id === job.id)) {
@@ -114,6 +121,14 @@ function createDriver({
     await updateProjection({ publication: job, history, validation: null });
     return job;
   }
+  // Large annual reports share the existing encrypted request store, not the
+  // small control journal. Binding is refreshed after each private mutation.
+  async function annualProjection(values){
+    const key='publication-'+ORG,old=await annualRequests.get(key),p=await annualImports.get(ORG),ctx=await loadContext(ORG),history=[...(old?.history||[])];
+    if(values.job?.stage==='published'&&!history.some(h=>h.id===values.job.id))history.unshift(values.job);
+    await annualRequests.transact(key,old?.revision||0,()=>({v:1,revision:(old?.revision||0)+1,history,
+      job:old?.job||null,review:null,...values,revisionOfDraft:p?.revision||0,digest:annualDigest(p),base:ctx.base}));
+  }
   async function run() {
     let error;
     try {
@@ -122,15 +137,43 @@ function createDriver({
         if(!request||request.binding!==task.annualBinding||request.task.id!==task.id||
           request.binding!==sha([task.actor,task.action,request.command,task.codeSha,task.workflowSha]))throw Error('Årsimportforespørselen er endret.');
         const command={...input,...request.command};
-        const saved=task.action==='annual-save'?await review.save(command):null,
-          result=saved?{saved:true,revision:saved.revision,digest:saved.digest,changed:saved.changed,productionApplied:false,publicationAuthorized:false}:await review.preview(command);
+        let result;
+        if(annualPublicationMode){
+          const current=await publication.load(input);
+          if(current.revision!==command.expectedRevision||current.digest!==command.expectedDigest||
+            current.stale&&!['annual-publication-continue','annual-publication-cancel'].includes(task.action))throw Error('Årsgrunnlaget er endret. Hent siste kontroll.');
+          if(['annual-publication-publish','annual-publication-continue','annual-publication-reverse'].includes(task.action)&&
+            ((await reviews.get(ORG))?.publicationLock||(await identities?.get(ORG))?.publicationLock))throw Error('En annen publisering må avklares først.');
+          const preview=async()=>{const p=await publication.load(input);await annualProjection({review:await publication.preview({...input,expectedRevision:p.revision,expectedDigest:p.digest})});};
+          if(task.action==='annual-publication-check')await preview();
+          else if(task.action==='annual-publication-approve'){await publication.approve(command);await preview();}
+          else if(task.action==='annual-publication-publish'){if(command.confirmation!==true)throw Error('Bekreft publisering.');await publication.publish(command);}
+          else if(task.action==='annual-publication-continue'){
+            const {job}=await publication.status(input);if(!job)throw Error('Ingen årspublisering å fortsette.');
+            if(job.stage==='prepared'&&!(await annualImports.get(ORG))?.publicationLock)throw Error('Publiseringen er ikke autorisert.');
+            if(['failed','needs-review'].includes(job.stage))await publication.retry({...input,id:job.id});
+          }else if(task.action==='annual-publication-reverse'){if(command.confirmation!==true)throw Error('Bekreft tilbakeføring.');await publication.reverse({...command,id:command.publicationId});await preview();}
+          else if(task.action==='annual-publication-cancel'){await publication.cancel(command);await annualProjection({review:null});}
+          else throw Error('Ukjent årspublisering.');
+          if(['annual-publication-publish','annual-publication-continue'].includes(task.action)){
+            const deadline=clock()+35*60000;
+            for(;;){await publication.progress(input);const job=await projectPublication();
+              if(!job||['published','failed','needs-review','cancelled'].includes(job.stage))break;
+              if(clock()>=deadline)throw Error('Kontrollen tar lengre tid. Lagret publiseringsstatus er bevart.');await pause(60000);
+            }
+          }
+          result={publication:true,completed:true};
+        }else{
+        const saved=task.action==='annual-save'?await review.save(command):null;
+        result=saved?{saved:true,revision:saved.revision,digest:saved.digest,changed:saved.changed,productionApplied:false,publicationAuthorized:false}:await review.preview(command);
+        }
         await annualRequests.transact(key,request.revision,p=>({...p,revision:p.revision+1,result}));
       } else if (publicationMode) {
         const current=await publication.load(input),bound={...input,expectedRevision:task.expectedRevision,expectedDigest:task.expectedDigest};
         if(current.revision!==task.expectedRevision || current.digest!==task.expectedDigest ||
           (!['identity-publication-continue','identity-publication-cancel'].includes(task.action) && current.stale)) throw Error('Identitetsgrunnlaget er endret. Hent siste kontroll.');
         if(['identity-publication-publish','identity-publication-continue','identity-publication-reverse'].includes(task.action) &&
-          (await reviews.get(ORG))?.publicationLock) throw Error('En resultatretting må avklares før identitetspublisering.');
+          ((await reviews.get(ORG))?.publicationLock||(await annualImports?.get(ORG))?.publicationLock)) throw Error('En annen publisering må avklares før identitetspublisering.');
         async function preview(){const saved=await publication.load(input);await updateProjection({review:await publication.preview({...input,
           expectedRevision:saved.revision,expectedDigest:saved.digest})});}
         if(task.action==='identity-publication-check') await preview();
@@ -182,7 +225,7 @@ function createDriver({
             base:saved.draft.base,digest:saved.digest,report}));
         }
       } else {
-      if(['publish','continue','reverse'].includes(task.action) && (await identities?.get(ORG))?.publicationLock)
+      if(['publish','continue','reverse'].includes(task.action) && ((await identities?.get(ORG))?.publicationLock||(await annualImports?.get(ORG))?.publicationLock))
         throw Error('En identitetspublisering må avklares før resultatrettinger.');
       let current = await review.load(input);
       if (

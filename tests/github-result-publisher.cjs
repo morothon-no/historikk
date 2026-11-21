@@ -64,3 +64,14 @@ test('identity publication uses the same protected five-file GitHub path with it
  assert.deepEqual(JSON.parse(api.read('data/history.json')).results,JSON.parse(api.read('data/history.json',api.codeSha)).results);
  assert.equal(api.calls.some(c=>c.path.includes('rulesets')||c.method==='DELETE'),false);
 });
+test('annual publication keeps the five-file allowlist, independent artifact gate and protected merge with an idempotent annual branch',async t=>{
+ const api=await fakeGitHub(t),adapter=createGitHubPublisher({api:api.api,codeSha:api.codeSha,appId:'123'}),s=await adapter.snapshot(),D=require('../tools/diploma-admin/result-release-data.cjs'),h=JSON.parse(s.files.get('data/history.json'));
+ h.results.push([2027,h.people[0].i,'Kortmoro','10 km','DNF','','','','','']);h.yearStats.push([2027,1,1,1,0,1,0,1,0,0]);h.range='1992–2027';
+ const r=releaseFiles({files:s.files,after:h},D.appendAnnualPublication),job={publicationKind:'annual',id:'e'.repeat(64),baseCommit:s.sha,variables:s.variables,approval:r.approval,after:backupFiles(r.files)};
+ job.remote=await adapter.submit(job);assert.match(job.remote.branch,/^codex\/annual-/);assert.deepEqual(await adapter.submit(job),job.remote);assert.equal(api.prs.length,1);
+ assert.match(api.calls.find(c=>c.path==='pulls'&&c.method==='POST').body.title,/årsresultater/);
+ assert.deepEqual(api.calls.find(c=>c.path==='git/trees').body.tree.map(e=>e.path).sort(),PATHS.slice().sort());assert.equal((await adapter.advance(job)).stage,'checking');assert.equal(api.prs[0].merged,false);
+ api.state.checks='failed';assert.equal((await adapter.advance(job)).stage,'failed');assert.equal(api.prs[0].merged,false);
+ api.state.checks='success';assert.equal((await adapter.advance(job)).stage,'deploying');assert.deepEqual(JSON.parse(api.read('data/history.json')),h);
+ assert.deepEqual(D.undoPublishedResults(api.read('data/history.json'),JSON.parse(api.read('tests/public/quick/fixtures/result-publications.json'))),api.read('data/history.json',api.codeSha));
+});

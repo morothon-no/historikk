@@ -1,13 +1,13 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),vm=require('node:vm');
 const {createHarness}=require('../scripts/diploma-harness.cjs');
 const root=path.resolve(__dirname,'..');let h,rules,history;
-before(async()=>{const context=vm.createContext({window:{}});for(const file of ['history-data','loyalty'])vm.runInContext(await fs.readFile(path.join(root,`js/${file}.js`),'utf8'),context);rules=context.window;history=JSON.parse(await fs.readFile(path.join(root,'public-data/data/history.json'),'utf8'));h=await createHarness();});
+before(async()=>{const context=vm.createContext({window:{}});for(const file of ['history-data','loyalty'])vm.runInContext(await fs.readFile(path.join(root,`js/${file}.js`),'utf8'),context);rules=context.window;history=require('./public/quick/fixtures/frozen-history.js')(root);h=await createHarness();});
 after(async()=>{await h?.close();});
 const years=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
 const row=(y,id='runner',status='Fullført',race='Morothon')=>[y,id,race,'20 km',status,status==='Fullført'?'2:00:00':status,1];
 const plain=x=>JSON.parse(JSON.stringify(x));
 const calc=(ys,editions)=>rules.MorothonLoyalty.calculate(ys.map(y=>row(y)),editions);
-async function page(width=390,fixture){const p=await h.browser.newPage({viewport:{width,height:1000}});if(fixture)await p.route('**/data/history.json',r=>r.fulfill({json:fixture}));await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));return p;}
+async function page(width=390,fixture){const p=await h.browser.newPage({viewport:{width,height:1000}});await p.route('**/data/history.json',r=>r.fulfill({json:fixture||history}));await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));return p;}
 test('V3.2 profile, card and loyalty calendar distinguish period share, historical honours and latest participants at all widths',async()=>{
  for(const width of [320,390,768,1440]){const p=await page(width);try{
   const r=await p.evaluate(()=>{openProfile('MOR-0C5F6C9');const m=MorothonCard.model('MOR-0C5F6C9');return {stats:MorothonCard.cardStats(m),card:document.querySelector('.brag-card').textContent,details:document.querySelector('.runner-full-details').textContent,L:loyalty(person(m.p.i))};});

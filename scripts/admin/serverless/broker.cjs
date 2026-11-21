@@ -5,8 +5,9 @@ const { sha, fail } = require("./github-store.cjs"),
 const C = require("../../../tools/diploma-admin/intake-model.js").Corrections;
 const {validateIdentityCommand, SCOPE} = require("./identity-command.cjs");
 const {mergeResultImport} = require("./result-import.cjs");
-const {SCOPE:ANNUAL_SCOPE,createAnnualImportTransport}=require('./annual-import.cjs');
+const {SCOPE:ANNUAL_SCOPE,PUBLICATION_ACTIONS,createAnnualImportTransport}=require('./annual-import.cjs');
 const {ENABLED, digest:publicationDigest} = require('./identity-publication-policy.cjs');
+const {ENABLED:ANNUAL_ENABLED}=require('./annual-publication-policy.cjs');
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b),
   copy = (v) => structuredClone(v);
@@ -29,6 +30,7 @@ function createBroker({
   verifyOidc,
   leaseTokens,
   identityPublicationEnabled = ENABLED,
+  annualPublicationEnabled = ANNUAL_ENABLED,
   rateLimit = async () => true,
   clock = Date.now,
 }) {
@@ -187,7 +189,9 @@ function createBroker({
     );
   }
   const annual=createAnnualImportTransport({imports:annualImports,requests:annualRequests,control,base,active,idle,queue,dispatch,
-    ownerGithubId,codeSha,workflowSha,clock});
+    ownerGithubId,codeSha,workflowSha,clock,publicationEnabled:annualPublicationEnabled,publicationIdle:async()=>{
+     if((await reviews.get(ORG))?.publicationLock||(await identities?.get(ORG))?.publicationLock)throw fail('En annen publisering må avklares først.',409);
+    }});
   async function startTask(actor, action, input) {
     const identityPublication = action.startsWith('identity-publication-');
     if (identityPublication && identityPublicationEnabled !== true) throw fail('Identitetspublisering er ikke aktivert.',404);
@@ -272,7 +276,7 @@ function createBroker({
       throw fail("Velg rettelsen som skal trekkes tilbake.");
     if (['publish','continue','reverse','identity-publication-publish','identity-publication-continue','identity-publication-reverse'].includes(action)) {
       const other=await (identity ? reviews : identities)?.get(ORG);
-      if(other?.publicationLock) throw fail('En annen publisering må avklares først.',409);
+      if(other?.publicationLock || (await annualImports?.get(ORG))?.publicationLock) throw fail('En annen publisering må avklares først.',409);
     }
     const q = await queue(),
       // Lowercase hex is accepted by both the private GitHub store and the
@@ -437,7 +441,7 @@ function createBroker({
         if (
           !task ||
           (task.action.startsWith('identity-publication-') && (identityPublicationEnabled !== true || task.scope !== SCOPE)) ||
-          (task.action.startsWith('annual-') && (!annual.available || task.scope!==ANNUAL_SCOPE || !['annual-preview','annual-save'].includes(task.action))) ||
+          (task.action.startsWith('annual-') && (!annual.available || task.scope!==ANNUAL_SCOPE || !['annual-preview','annual-save',...(annualPublicationEnabled===true?PUBLICATION_ACTIONS:[])].includes(task.action))) ||
           task.nonce !== input.nonce ||
           task.actor !== ownerUserId ||
           task.ownerGithubId !== ownerGithubId ||
@@ -479,6 +483,7 @@ function createBroker({
           identityPersistence: !!identities,
           resultImportPersistence: true,
           annualImportPersistence: annual.available,
+          annualPublicationEnabled: annualPublicationEnabled === true,
           identityPublicationEnabled: identityPublicationEnabled === true,
         });
       if (route === "/logout" && request.method === "POST") {
@@ -495,6 +500,13 @@ function createBroker({
       if(['/annual-import/preview','/annual-import/save'].includes(route)&&request.method==='POST')
         return json(202,await annual.start(actor,route.endsWith('/save')?'annual-save':'annual-preview',
           await body(request,['id','input','expectedRevision','expectedDigest','replaceCurrent'],6*1024*1024)));
+      if(route.startsWith('/annual-import/publication/')&&request.method==='POST'){
+        if(annualPublicationEnabled!==true)throw fail('Årspublisering er ikke aktivert.',404);
+        const action='annual-publication-'+route.slice('/annual-import/publication/'.length);
+        if(!PUBLICATION_ACTIONS.includes(action))throw fail('Ukjent årspublisering.',404);
+        const keys=['id','expectedRevision','expectedDigest',...(action.endsWith('-approve')?['candidateDigest']:action.endsWith('-publish')?['confirmation']:action.endsWith('-reverse')?['publicationId','confirmation']:[])];
+        return json(202,await annual.start(actor,action,await body(request,keys)));
+      }
       if (route.startsWith('/identity/publication/') && request.method === 'POST') {
         if(identityPublicationEnabled !== true) throw fail('Identitetspublisering er ikke aktivert.',404);
         const action=route.slice('/identity/publication/'.length);

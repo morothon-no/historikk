@@ -220,8 +220,9 @@
   }
   async function annualRequest(action,value){
     if(!protectedPortal||!principal?.annualImportPersistence)throw Error('Privat årsimport er ikke aktivert i denne versjonen.');
-    const paths={load:'/annual-import',preview:'/annual-import/preview',save:'/annual-import/save',retry:'/task/retry',cancel:'/task/cancel'};
+    const paths={load:'/annual-import',preview:'/annual-import/preview',save:'/annual-import/save',retry:'/task/retry',cancel:'/task/cancel',...Object.fromEntries(['check','approve','publish','continue','reverse','cancel'].map(a=>['publication-'+a,'/annual-import/publication/'+a]))};
     if(!Object.hasOwn(paths,action))throw Error('Ukjent årsimporthandling.');
+    if(action.startsWith('publication-')&&principal?.annualPublicationEnabled!==true)throw Error('Årspublisering er ikke aktivert.');
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000),
       path=paths[action]+(action==='load'&&value?.requestId?'?requestId='+encodeURIComponent(value.requestId):'');
     try{return await api(path,action==='load'?undefined:value,controller.signal);}

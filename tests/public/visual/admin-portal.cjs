@@ -24,7 +24,7 @@ async function openHonorDetails(page,id){
 async function editHonorSection(page,id,label){await openHonorDetails(page,id);await page.locator('#'+id).getByRole('button',{name:label,exact:true}).click();}
 
 test('C1.1 portal derives current edition, participation, milestones, canonical identities and historical badges from the shared data model', async () => {
-  const p = createPortalData({ history, badges, honorCount: 43 }), overview = p.overview();
+  const baseline=require('../quick/fixtures/frozen-history.js')(root),p = createPortalData({ history:baseline, badges, honorCount: 43 }), overview = p.overview();
   assert.equal(overview.latestParticipants, 398); assert.equal(overview.debutants, 195); assert.equal(overview.newBadges, 22); assert.equal(overview.latestYear, 2026); assert.equal(overview.honorCount, 43);
   const inger = p.participants(new URLSearchParams({ q: 'Inger Katherin Dahl Frantzen' })); assert.equal(inger.total, 1);
   const profile = p.participant(inger.people[0].id); assert.equal(profile.count, 12); assert.equal(profile.highestBadge.level, 10); assert.equal(profile.highestBadge.year, 2024); assert.equal(profile.nextBadge.remaining, 3);
@@ -55,7 +55,7 @@ test('C1.1 all portal APIs share local session enforcement, reject invalid queri
   assert.equal((await request('participants/not-a-person')).status, 404);
   assert.equal((await fetch(app.origin + '/api/participants', { method: 'POST', headers: { 'X-Morothon-Token': app.token, Origin: app.origin, 'Content-Type': 'application/json' }, body: '{}' })).status, 404);
   for (const route of ['/data/honors.json', '/tools/diploma-admin/api.cjs', '/api/volunteers', '/api/import', '/api/awards']) assert.notEqual((await fetch(app.origin + route, { headers: { 'X-Morothon-Token': app.token } })).status, 200);
-  const overview = await (await request('overview')).json(); assert.equal(overview.latestParticipants, 398);
+  const overview = await (await request('overview')).json(); assert.equal(overview.latestParticipants,new Set(history.results.filter(r=>r[0]===Math.max(...history.yearStats.map(s=>s[0]))&&require('../../../js/history-data.js').countsAsParticipation(r)).map(r=>require('../../../js/history-data.js').resolveId(r[1],history.redirects))).size);
   const second = await (await request('participants?limit=2&offset=2')).json(); assert.equal(second.people.length, 2); assert.equal(second.offset, 2);
 });
 test('C1.1 desktop and tablet navigation, participant history, upcoming milestones and C2 placeholders work without changing the diploma selection', async () => {
