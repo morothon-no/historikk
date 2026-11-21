@@ -33,6 +33,8 @@ test('C2.3a static annual portal imports, compares, explicitly reviews two corre
   assert.equal(await p.getByRole('link',{name:'Åpne resultatkontroll og rettelser'}).isVisible(),true);
   await p.selectOption('#annualImportKind','results');
   assert.equal(await p.locator('#annualStartlist').isVisible(),false);await upload(p);assert.match(await p.locator('#resultFileInfo').textContent(),/9 resultatlinjer/);await compare(p);
+  assert.equal(await p.locator('#resultPrivateSave').isVisible(),false,'public/local preview never offers private saving without the authenticated service capability');
+  assert.equal(await p.locator('#resultTransfer').isVisible(),true,'existing local review remains available without private service');
   const bulk=p.locator('#resultBulkReview'),completeness=bulk.locator('#resultComplete');
   assert.equal(await completeness.isVisible(),true,'completeness checkbox must be beside the annual bulk action');
   assert.equal(await p.locator('.result-settings #resultComplete').count(),0,'no faraway duplicate checkbox at year selection');

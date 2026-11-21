@@ -448,8 +448,107 @@ async function brokerFixture(t) {
     );
     return { status: r.status, body: await r.json(), headers: r.headers };
   }
-  return { ...f, broker, control, dispatches, runs, leaseCalls, request };
+  return { ...f, broker, reviews, control, dispatches, runs, leaseCalls, request };
 }
+async function importProposal(f,index,time,id='synthetic-import') {
+  const before=f.context.history.results[index],after=[...before];after[5]=time;
+  let draft=C.report(C.empty(f.context.base),{id,personIds:[before[1]],category:'Resultatavstemming',
+    description:'Syntetisk gjennomgått import',source:'Syntetisk filhash og radreferanse'});
+  return C.propose(f.context.history,draft,id,{kind:'result',personIds:[before[1]],
+    selector:await C.resultSelector(f.context.history,index,f.context.base),after,
+    source:'Syntetisk filhash og radreferanse',reason:'Kontrollert syntetisk testgrunnlag.'});
+}
+async function importRequest(f,draft,replaceConflicts=false,basis) {
+  const current=(await f.request('/review')).body;
+  return f.request('/review/import',{draft,expectedRevision:basis?.revision??current.revision,
+    expectedDigest:basis?basis.digest:current.digest,replaceConflicts});
+}
+test('private result import preserves unrelated manual cases, deduplicates reimport and never publishes or approves',async t=>{
+  const f=await brokerFixture(t),manual=await f.draft(),original=structuredClone(f.context.history);
+  assert.equal((await f.request('/session')).body.resultImportPersistence,true);
+  assert.equal((await f.request('/review/save',{draft:manual,expectedRevision:0})).status,200);
+  const incoming=await importProposal(f,0,'49:57'),saved=await importRequest(f,incoming);
+  assert.equal(saved.status,200);assert.deepEqual([saved.body.added,saved.body.replaced,saved.body.changed],[1,0,true]);
+  const record=await f.reviews.get(organizer);
+  assert.deepEqual(record.draft.cases[0],manual.cases[0]);assert.equal(record.draft.cases.length,2);
+  assert.equal(record.status,'draft');assert.equal(record.approval,null);assert.equal(f.dispatches.length,0);
+  const duplicate=await importRequest(f,await importProposal(f,0,'49:57','synthetic-reimport'));
+  assert.equal(duplicate.status,200);assert.equal(duplicate.body.changed,false);assert.equal(duplicate.body.duplicates,1);
+  assert.deepEqual(await f.reviews.get(organizer),record);assert.deepEqual(f.context.history,original);
+  const restored=(await f.request('/review')).body;
+  assert.equal(restored.revision,record.revision);assert.equal(restored.draft.cases.length,2);
+});
+test('conflicting reimport requires exact revision/digest and explicit replacement, preserving the old private proposal in audit history',async t=>{
+  const f=await brokerFixture(t),first=await importProposal(f,0,'49:57');
+  await importRequest(f,first);const record=await f.reviews.get(organizer),next=await importProposal(f,0,'49:56','synthetic-second-file');
+  const conflict=await importRequest(f,next);
+  assert.equal(conflict.status,409);assert.equal(conflict.body.conflicts.length,1);
+  assert.equal(conflict.body.conflicts[0].privateAfter[5],'49:57');assert.equal(conflict.body.conflicts[0].importedAfter[5],'49:56');
+  assert.deepEqual(await f.reviews.get(organizer),record);
+  const rejected=await importRequest(f,next,true,{revision:record.revision,digest:'f'.repeat(64)});
+  assert.equal(rejected.status,409);assert.deepEqual(await f.reviews.get(organizer),record);
+  const replacement=await importRequest(f,next,true,{revision:conflict.body.revision,digest:conflict.body.digest});
+  assert.equal(replacement.status,200);assert.equal(replacement.body.replaced,1);
+  const stored=await f.reviews.get(organizer);
+  assert.equal(stored.draft.cases.length,1);assert.equal(stored.draft.cases[0].id,first.cases[0].id);
+  assert.equal(stored.draft.cases[0].change.after[5],'49:56');assert.equal(stored.approval,null);
+  assert.deepEqual(stored.events.at(-1).replaced,[record.draft.cases[0]]);
+  assert.deepEqual(stored.draft.cases[0].events.slice(0,record.draft.cases[0].events.length),record.draft.cases[0].events);
+  assert.equal(f.dispatches.length,0);
+  assert.equal((await importRequest(f,next,true,{revision:record.revision,digest:conflict.body.digest})).status,409);
+});
+test('private result import keeps authentication, origin, source, publication, job and per-row guards',async t=>{
+  const f=await brokerFixture(t),draft=await importProposal(f,0,'49:57'),input={draft,expectedRevision:0,expectedDigest:null,replaceConflicts:false};
+  for(const options of [{auth:false},{origin:'https://untrusted.example.test'},{origin:null}])
+    assert.ok([401,403].includes((await f.request('/review/import',input,options)).status));
+  for(const alter of [p=>p.expectedRevision=-1,p=>p.expectedDigest='f'.repeat(64),p=>p.replaceConflicts='yes',
+    p=>p.draft.base.dataVersion++,p=>p.draft.cases[0].change.after[0]++,
+    p=>p.draft.cases[0].change.after[1]='MOR-C220002',p=>p.draft.cases[0].change.selector.rowSha256='f'.repeat(64),
+    p=>p.draft.cases[0].status='review',p=>{const c=p.draft.cases[0].change;c.kind='add';c.before=null;c.selector=null;},
+    p=>p.draft.cases.push({...structuredClone(p.draft.cases[0]),id:'duplicate-row'})]){
+    const changed=structuredClone(input);alter(changed);
+    assert.ok([400,409].includes((await f.request('/review/import',changed)).status));
+    assert.equal(await f.reviews.get(organizer),null);
+  }
+  await f.control.transact('queue-'+organizer,0,()=>({revision:1,taskId:'a'.repeat(24)}));
+  await f.control.transact('task-'+'a'.repeat(24),0,()=>({revision:1,id:'a'.repeat(24),state:'running'}));
+  assert.equal((await importRequest(f,draft)).status,409);assert.equal(await f.reviews.get(organizer),null);
+  await f.control.transact('task-'+'a'.repeat(24),1,p=>({...p,revision:2,state:'completed'}));
+  assert.equal((await importRequest(f,draft)).status,200);
+  await f.reviews.transact(organizer,1,p=>({...p,revision:2,publicationLock:{id:'synthetic-lock'}}));
+  assert.equal((await importRequest(f,draft)).status,409);
+  await f.reviews.transact(organizer,2,p=>({...p,revision:3,publicationLock:null,status:'published'}));
+  assert.equal((await importRequest(f,draft)).status,409);
+});
+test('private result import enforces the combined 20-case limit without dropping existing work',async t=>{
+  const f=await brokerFixture(t);let saved=await f.draft();
+  for(let i=0;i<19;i++)saved=C.report(saved,{id:'synthetic-report-'+i,description:'Uavklart syntetisk sak'});
+  assert.equal((await f.request('/review/save',{draft:saved,expectedRevision:0})).status,200);
+  const before=await f.reviews.get(organizer),response=await importRequest(f,await importProposal(f,0,'49:57'));
+  assert.equal(response.status,400);assert.match(response.body.error,/20 saker/);
+  assert.deepEqual(await f.reviews.get(organizer),before);
+});
+test('reimport never silently revives or skips a previously rejected or deferred result proposal',async t=>{
+  const f=await brokerFixture(t),draft=await importProposal(f,0,'49:57');
+  for(const status of ['rejected','review']){
+    const previous=(await f.request('/review')).body;
+    const changed=C.transition(draft,draft.cases[0].id,status,'Tidligere syntetisk beslutning må avklares.');
+    assert.equal((await f.request('/review/save',{draft:changed,expectedRevision:previous.revision})).status,200);
+    const before=await f.reviews.get(organizer),conflict=await importRequest(f,draft);
+    assert.equal(conflict.status,409);assert.equal(conflict.body.conflicts[0].privateStatus,status);
+    assert.deepEqual(await f.reviews.get(organizer),before);
+    const replaced=await importRequest(f,draft,true);
+    assert.equal(replaced.status,200);
+    assert.equal((await f.reviews.get(organizer)).draft.cases[0].status,'proposed');
+  }
+  const before=(await f.request('/review')).body,deferred=structuredClone(draft);
+  deferred.cases[0].change=null;deferred.cases[0].status='review';
+  assert.equal((await f.request('/review/save',{draft:deferred,expectedRevision:before.revision})).status,200);
+  const conflict=await importRequest(f,draft);
+  assert.equal(conflict.status,409);assert.equal(conflict.body.conflicts[0].privateAfter,null);
+  assert.equal((await importRequest(f,draft,true)).status,200);
+  assert.equal((await f.reviews.get(organizer)).draft.cases[0].change.after[5],'49:57');
+});
 test("private job IDs remain lowercase, and legacy invalid queue references cannot crash read-only login", async (t) => {
   const f = await brokerFixture(t);
   const q = await f.control.transact("queue-" + organizer, 0, () => ({

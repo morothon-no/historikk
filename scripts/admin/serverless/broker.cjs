@@ -4,6 +4,7 @@ const { sha, fail } = require("./github-store.cjs"),
   { token } = require("./auth.cjs");
 const C = require("../../../tools/diploma-admin/intake-model.js").Corrections;
 const {validateIdentityCommand, SCOPE} = require("./identity-command.cjs");
+const {mergeResultImport} = require("./result-import.cjs");
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b),
   copy = (v) => structuredClone(v);
@@ -437,6 +438,7 @@ function createBroker({
           role: "owner",
           canPublish: true,
           identityPersistence: !!identities,
+          resultImportPersistence: true,
         });
       if (route === "/logout" && request.method === "POST") {
         await body(request, []);
@@ -445,6 +447,39 @@ function createBroker({
       if (route === "/review" && request.method === "GET")
         return json(200, await view());
       if (route === '/identity' && request.method === 'GET') return json(200,await identityView());
+      if (route === "/review/import" && request.method === "POST") {
+        await idle();
+        const input = await body(request,["draft","expectedRevision","expectedDigest","replaceConflicts"]);
+        const b = await base(), previous = await reviews.get(ORG);
+        if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0 ||
+            input.expectedRevision !== (previous?.revision || 0) ||
+            input.expectedDigest !== (previous ? sha(previous.draft) : null))
+          throw fail("Det private utkastet er endret. Hent det på nytt før import.",409);
+        if (previous?.publicationLock || previous?.status === "published")
+          throw fail("Avklar publiseringen og åpne et nytt rettingsgrunnlag før import.",409);
+        if (!same(input.draft?.base,b)) throw fail("Resultatene er oppdatert. Last inn og kontroller på nytt.",409);
+        let plan;
+        try { plan = mergeResultImport(previous?.draft,input.draft,{replaceConflicts:input.replaceConflicts,at:stamp()}); }
+        catch (error) {
+          if (error.importConflicts) return json(409,{error:error.message,conflicts:error.importConflicts,
+            revision:input.expectedRevision,digest:input.expectedDigest,incomingDigest:sha(input.draft)});
+          throw error;
+        }
+        // An identical reimport is a read, not a new revision or invalidation.
+        if (!plan.changed) return json(200,{saved:true,changed:false,revision:previous.revision,
+          digest:sha(previous.draft),added:0,duplicates:plan.duplicates,replaced:0});
+        const result = await reviews.transact(ORG,input.expectedRevision,p => {
+          if ((p ? sha(p.draft) : null) !== input.expectedDigest || p?.publicationLock || p?.status === "published")
+            throw fail("Det private utkastet er endret. Ingen import er lagret.",409);
+          return {v:1,revision:input.expectedRevision+1,status:"draft",base:b,draft:plan.draft,approval:null,
+            events:[...(p?.events||[]),{action:"result-import-saved",actor:actor.subject,at:stamp(),
+              incomingDigest:sha(input.draft),added:plan.added,duplicates:plan.duplicates,
+              // Exact old proposals remain inside encrypted private history.
+              replaced:plan.replaced}]};
+        });
+        return json(200,{saved:true,changed:true,revision:result.revision,digest:sha(result.draft),
+          added:plan.added,duplicates:plan.duplicates,replaced:plan.replaced.length});
+      }
       if (['/identity/decide','/identity/batch','/identity/approve','/identity/revalidate','/identity/check'].includes(route) && request.method === 'POST') {
         const deciding=route.endsWith('/decide'),batch=route.endsWith('/batch');
         return json(202,await startTask(actor,
