@@ -97,6 +97,8 @@ async function main(env = process.env) {
     }),
     identities = githubStore({api:privateApi,key,repositoryId:lease.privateRepositoryId,
       prefix:'identity-reviews'}),
+    annualImports=githubStore({api:privateApi,key,repositoryId:lease.privateRepositoryId,prefix:'annual-imports'}),
+    annualRequests=githubStore({api:privateApi,key,repositoryId:lease.privateRepositoryId,prefix:'annual-requests'}),
     control = githubStore({
       api: privateApi,
       key,
@@ -164,20 +166,28 @@ async function main(env = process.env) {
         approvalFile,
       }),
       runtime = await approvedRuntime(built.out, approvalFile);
-    projector = await createProjector(runtime);
-    await projector.checkSandbox();
+    // Annual plans do not render diplomas or publish; use their existing row
+    // engine directly, without starting an unrelated browser projection.
+    if(!['annual-preview','annual-save'].includes(lease.task.action)){
+      projector = await createProjector(runtime);
+      await projector.checkSandbox();
+    }
     const driver = createDriver({
       lease,
       reviews,
       identities,
+      annualImports,
+      annualRequests,
       control,
       stateStore,
       directory,
       adapter,
-      loadContext: async () => ({ ...runtime, project: projector.project }),
-      verifyLive: createDeploymentVerifier({
-        verifyProfiles: projector.verifyProfiles,
-      }),
+      loadContext: async () => ({ ...runtime, project: projector?.project,
+        organizer:'sogne-morothon',personIdPrefix:'MOR-',
+        profile:JSON.parse(await fs.readFile(path.resolve(__dirname,'../../../web-admin/event-profile.json'),'utf8')),
+        registry:JSON.parse(runtime.files.get('data/badges.json')),
+        honors:JSON.parse(runtime.files.get('data/honors.json')),volunteers:JSON.parse(runtime.files.get('data/volunteers.json')) }),
+      verifyLive: projector?createDeploymentVerifier({verifyProfiles:projector.verifyProfiles}):undefined,
       onPublished: async (job, verified) => {
         const manifest = JSON.parse(verified.files.get("public-manifest.json")),
           base = await C.binding(verified.history, {

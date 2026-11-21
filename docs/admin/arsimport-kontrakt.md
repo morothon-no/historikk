@@ -1,5 +1,8 @@
 # Årsimport – serverkontrakt og privat utkast
 
+Dette dokumenterer første leveranse i #155. [P1A – web-admin-integrasjon](arsimport-web-admin.md)
+bygger videre på den samme kontrakten og beskriver transport, brukerflyt og aktivering.
+
 Første avgrensede del av hovedleveransen for nye resultatår. Dette er kjørbar
 serverkode, ikke en ny importmotor eller en offentlig importtjeneste. Ingen
 nettside, produksjonsfil, Worker-binding eller eksisterende rettingskontrakt endres.

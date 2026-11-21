@@ -6,12 +6,15 @@ const { createResultReview } = require("../result-review.cjs"),
   { sha } = require("./github-store.cjs");
 const {createIdentityPublication}=require('./identity-publication.cjs'),
   {ENABLED}=require('./identity-publication-policy.cjs');
+const {createAnnualImportReview,annualImportStore,SCOPE:ANNUAL_SCOPE}=require('../annual-import-review.cjs');
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function createDriver({
   lease,
   reviews,
   identities,
+  annualImports,
+  annualRequests,
   stateStore,
   control,
   loadContext,
@@ -40,8 +43,11 @@ function createDriver({
   const publicationMode = task.action.startsWith('identity-publication-');
   if(publicationMode && identityPublicationEnabled !== true) throw Error('Identitetspublisering er ikke aktivert.');
   const identityMode = publicationMode || ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check'].includes(task.action);
+  const annualMode=['annual-preview','annual-save'].includes(task.action);
+  if(annualMode!==(task.scope===ANNUAL_SCOPE))throw Error('Feil modul for årsimport.');
   if (identityMode !== (task.scope === SCOPE)) throw Error('Feil modul for privat jobb.');
-  const review = identityMode ? createIdentityReview({
+  const review = annualMode ? createAnnualImportReview({authenticate:async()=>actor,loadContext,
+      store:annualImportStore({openNamespace:()=>annualImports}),clock}) : identityMode ? createIdentityReview({
       authenticate:async()=>actor, loadContext,
       store:identityReviewStore({openNamespace:()=>identities}), clock,
     }) : createResultReview({
@@ -63,7 +69,7 @@ function createDriver({
       checkBuild,
       clock,
     },
-    publication = publicationMode ? createIdentityPublication({...publicationOptions,enabled:true,
+    publication = annualMode ? null : publicationMode ? createIdentityPublication({...publicationOptions,enabled:true,
       identity:review,store:identityReviewStore({openNamespace:()=>identities})}) : identityMode ? null :
       createResultPublication({...publicationOptions,review,reviewStore:reviews});
   const projectionKey=(publicationMode?'identity-publication-':'projection-')+ORG;
@@ -111,7 +117,15 @@ function createDriver({
   async function run() {
     let error;
     try {
-      if (publicationMode) {
+      if(annualMode){
+        const key='request-'+task.annualRequestId,request=await annualRequests.get(key);
+        if(!request||request.binding!==task.annualBinding||request.task.id!==task.id||
+          request.binding!==sha([task.actor,task.action,request.command,task.codeSha,task.workflowSha]))throw Error('Årsimportforespørselen er endret.');
+        const command={...input,...request.command};
+        const saved=task.action==='annual-save'?await review.save(command):null,
+          result=saved?{saved:true,revision:saved.revision,digest:saved.digest,changed:saved.changed,productionApplied:false,publicationAuthorized:false}:await review.preview(command);
+        await annualRequests.transact(key,request.revision,p=>({...p,revision:p.revision+1,result}));
+      } else if (publicationMode) {
         const current=await publication.load(input),bound={...input,expectedRevision:task.expectedRevision,expectedDigest:task.expectedDigest};
         if(current.revision!==task.expectedRevision || current.digest!==task.expectedDigest ||
           (!['identity-publication-continue','identity-publication-cancel'].includes(task.action) && current.stale)) throw Error('Identitetsgrunnlaget er endret. Hent siste kontroll.');

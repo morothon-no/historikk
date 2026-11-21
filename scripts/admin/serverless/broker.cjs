@@ -5,6 +5,7 @@ const { sha, fail } = require("./github-store.cjs"),
 const C = require("../../../tools/diploma-admin/intake-model.js").Corrections;
 const {validateIdentityCommand, SCOPE} = require("./identity-command.cjs");
 const {mergeResultImport} = require("./result-import.cjs");
+const {SCOPE:ANNUAL_SCOPE,createAnnualImportTransport}=require('./annual-import.cjs');
 const {ENABLED, digest:publicationDigest} = require('./identity-publication-policy.cjs');
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b),
@@ -20,6 +21,8 @@ function createBroker({
   auth,
   reviews,
   identities,
+  annualImports,
+  annualRequests,
   control,
   privateApi,
   publicApi,
@@ -138,7 +141,7 @@ function createBroker({
           : null,
       publication: p?.publication || null,
       history: p?.history || [],
-      task: task && task.scope !== SCOPE
+      task: task && task.scope !== SCOPE && task.scope !== ANNUAL_SCOPE
         ? {
             id: task.id,
             state: task.state,
@@ -183,6 +186,8 @@ function createBroker({
       },
     );
   }
+  const annual=createAnnualImportTransport({imports:annualImports,requests:annualRequests,control,base,active,idle,queue,dispatch,
+    ownerGithubId,codeSha,workflowSha,clock});
   async function startTask(actor, action, input) {
     const identityPublication = action.startsWith('identity-publication-');
     if (identityPublication && identityPublicationEnabled !== true) throw fail('Identitetspublisering er ikke aktivert.',404);
@@ -311,10 +316,10 @@ function createBroker({
     }
     return { queued: true, id };
   }
-  async function body(request, keys) {
+  async function body(request, keys, maxBytes=65536) {
     const declared = +(request.headers.get("content-length") || 0);
     if (
-      declared > 65536 ||
+      declared > maxBytes ||
       request.headers.get("content-type")?.split(";")[0] !== "application/json"
     )
       throw fail("Ugyldig forespørsel.");
@@ -324,7 +329,7 @@ function createBroker({
       for (;;) {
         const {done, value} = await reader.read(); if (done) break;
         size += value.byteLength;
-        if (size > 65536) { await reader.cancel(); throw fail("Velg et mindre rettingsutvalg.", 413); }
+        if (size > maxBytes) { await reader.cancel(); throw fail("Forespørselen er for stor.", 413); }
         chunks.push(Buffer.from(value));
       }
     } finally { reader.releaseLock(); }
@@ -432,6 +437,7 @@ function createBroker({
         if (
           !task ||
           (task.action.startsWith('identity-publication-') && (identityPublicationEnabled !== true || task.scope !== SCOPE)) ||
+          (task.action.startsWith('annual-') && (!annual.available || task.scope!==ANNUAL_SCOPE || !['annual-preview','annual-save'].includes(task.action))) ||
           task.nonce !== input.nonce ||
           task.actor !== ownerUserId ||
           task.ownerGithubId !== ownerGithubId ||
@@ -472,6 +478,7 @@ function createBroker({
           canPublish: true,
           identityPersistence: !!identities,
           resultImportPersistence: true,
+          annualImportPersistence: annual.available,
           identityPublicationEnabled: identityPublicationEnabled === true,
         });
       if (route === "/logout" && request.method === "POST") {
@@ -481,6 +488,13 @@ function createBroker({
       if (route === "/review" && request.method === "GET")
         return json(200, await view());
       if (route === '/identity' && request.method === 'GET') return json(200,await identityView());
+      if(route==='/annual-import'&&request.method==='GET'){
+        if([...url.searchParams.keys()].some(k=>k!=='requestId')||url.searchParams.getAll('requestId').length>1)throw fail('Ukjente importfelt.');
+        return json(200,await annual.load(url.searchParams.get('requestId')));
+      }
+      if(['/annual-import/preview','/annual-import/save'].includes(route)&&request.method==='POST')
+        return json(202,await annual.start(actor,route.endsWith('/save')?'annual-save':'annual-preview',
+          await body(request,['id','input','expectedRevision','expectedDigest','replaceCurrent'],6*1024*1024)));
       if (route.startsWith('/identity/publication/') && request.method === 'POST') {
         if(identityPublicationEnabled !== true) throw fail('Identitetspublisering er ikke aktivert.',404);
         const action=route.slice('/identity/publication/'.length);
