@@ -89,3 +89,6 @@ body.portal-app[data-admin-mode="protected"]:not([data-admin-ready="true"])::bef
 #identityBatchTray .identity-batch-entry{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #cddbd2;padding:7px 0;font-size:12px}
 #identityBatchTray .identity-batch-entry button{flex:none;min-height:44px}
 #identityBatchSubmit{background:#165d66!important;color:white!important;border-color:#165d66!important;font-weight:700}
+.identity-publication-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.identity-publication-table th,.identity-publication-table td{padding:.6rem;text-align:left;vertical-align:top;border-bottom:1px solid #d9e3df;overflow-wrap:anywhere}
+.identity-publication-table th{color:#123b41}

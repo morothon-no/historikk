@@ -5,7 +5,7 @@ const {validatePublicData}=require('../lib/public-schema.cjs');
 const D=require('../../tools/diploma-admin/result-release-data.cjs');
 const JOURNAL='tests/public/quick/fixtures/result-publications.json';
 const PATHS=['data/history.json','public-data/data/history.json','public-data/manifest.json','.github/public-data-approval.json',JOURNAL];
-function releaseFiles({files,after}){
+function releaseFiles({files,after},append=D.appendPublication){
  const canonical=files.get('data/history.json'),publicHistory=files.get('public-data/data/history.json');
  if(!canonical?.equals(publicHistory))throw Error('Kanonisk kilde og offentlig historikk er ulike. Publisering er stoppet.');
  const oldManifest=JSON.parse(files.get('public-data/manifest.json')),oldApproval=JSON.parse(files.get('.github/public-data-approval.json'));
@@ -13,7 +13,7 @@ function releaseFiles({files,after}){
  validatePublicData('history',after);
  const bytes=D.encode(after),manifest={...oldManifest,dataVersion:oldManifest.dataVersion+1,historySha256:D.hash(bytes),files:{...oldManifest.files,'data/history.json':entry(bytes)}};
  const manifestBytes=Buffer.from(JSON.stringify(manifest,null,2)+'\n'),approval=approvalFor(manifestBytes),journal=JSON.parse(files.get(JOURNAL));
- const appended=D.appendPublication(canonical,after,journal,{manifestSha256:approval.manifestSha256,dataVersion:approval.dataVersion});
+ const appended=append(canonical,after,journal,{manifestSha256:approval.manifestSha256,dataVersion:approval.dataVersion});
  const output=new Map([['data/history.json',appended.bytes],['public-data/data/history.json',appended.bytes],['public-data/manifest.json',manifestBytes],['.github/public-data-approval.json',Buffer.from(JSON.stringify(approval,null,2)+'\n')],[JOURNAL,Buffer.from(JSON.stringify(appended.journal,null,2)+'\n')]]);
  return {files:output,approval,changes:appended.changes,history:after};
 }

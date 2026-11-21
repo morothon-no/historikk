@@ -27,7 +27,7 @@ verifiseres ved separat godkjent aktivering.
 | Område | Implementert og testet i kode | Ikke aktivert / gjenstår |
 | --- | --- | --- |
 | Innlogging | Beskyttet gateway, PKCE, HttpOnly-cookie, kontroll av eier og skjult admin før oppstart er ferdig. Forsinket oppstart testes med den ekte beskyttede HTML-en og uendret kritisk CSS. | Virkelig innlogging og aktiv Worker-versjon er ikke verifisert fra dette miljøet. |
-| Personkontroll | Hurtigvalg, hovednavn, detaljsammenligning, atomisk privat batch og varig «Undersøk senere» fra #151. Lagring, godkjenning og publisering er separate statuser. | Offentlig identitetspublisering finnes ikke ennå. Ingen virkelig personavgjørelse utføres i denne leveransen. |
+| Personkontroll | Hurtigvalg, hovednavn, detaljsammenligning, atomisk privat batch og varig «Undersøk senere» fra #151. [Fase 3](identitetspublisering.md) implementerer serverkontroll, særskilt godkjenning, publisering og reversering. | Identitetspublisering er deaktivert. Ingen virkelig personavgjørelse utføres i denne leveransen. |
 | Tellere | #148 tilpasses main: ubehandlede, øktens ulagrede utsettelser og serverlagret oppfølging skilles. Angre, innsending og ny innlogging kontrolleres. | #148 var eneste åpne offentlige PR ved kartleggingen og er fortsatt Draft. Den oppdateres i stedet for å lage en overlappende PR. |
 | Navigasjon | De seks oppgavekortene fra #150 gjenbrukes. Samme beskyttede økt brukes på tvers av Personkontroll og Årets arrangement. | Ingen ny adminflate eller designombygging. |
 | Resultater | #152 gir [privat lagring og reimport](privat-resultatreimport.md), konfliktvalg og gjenåpning. DNS/DNF-reglene og eksisterende publiseringsmotor beholdes. | Nye årganger, nye resultatlinjer og nye personer krever senere publiseringskontrakt. Grensene på 20 saker og 64 KiB er uendret. |
@@ -87,14 +87,16 @@ seg; ingen rød eller ikke-verifisert jobb omtales som grønn.
 
 ## Neste prioritet etter grønn eksisterende flyt
 
-1. Egen avgrenset leveranse for autorisert identitetspublisering: serverberegnet
-   før/etter, eksakt lagret godkjenning, backup, versjonsbinding, etterkontroll og
-   reversering. Dagens `productionApplied:false` og `publicationAuthorized:false`
-   beholdes inntil hele denne kjeden finnes. Ingen operativ knapp på forhånd.
+1. Gjennomgå den implementerte [identitetspubliseringen](identitetspublisering.md):
+   serverberegnet før/etter, eksakt godkjenning, backup, versjonsbinding,
+   etterkontroll og reversering. Kjeden er koblet til eksisterende outbox, men
+   `ENABLED=false` og ingen nye publiseringsknapper er tilgjengelige i drift.
+   Eksisterende privat statuskontrakt beholdes; verifisert publiseringsstatus
+   ligger separat i jobbvisningen. Aktivering krever egen godkjenning.
 2. Deretter planlegges nye resultatår, nye løpere og nye registreringer, med
    kildebevaring, tydelig usikker identitet og ingen blind sletting av manglende rader.
 
-Dette er ikke en ny arkitekturplan eller aktivering av disse funksjonene.
+Dette er ikke en aktivering av funksjonene eller en ny arkitekturplan.
 
 ## Aktivering og tilbakeføring krever separat godkjenning
 

@@ -38,18 +38,30 @@ async function createProjector(runtime,{executablePath=process.env.CHROMIUM_PATH
   const context=await browser.newContext({serviceWorkers:'block'}),base=new URL(siteUrl);
   try{
    await context.route('**/*',route=>{const request=route.request(),url=new URL(request.url()),name=url.pathname.slice(base.pathname.length)||'index.html',bytes=files.get(name);if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||request.method()!=='GET'||!bytes)return route.abort();return route.fulfill({body:bytes,contentType:({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.woff':'font/woff','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon'})[path.extname(name)]||'application/octet-stream'});});
-   const page=await context.newPage();
    for(const id of personIds){
+    // A hash-only navigation reuses the previous document. The public site
+    // opens a deep-linked profile at startup, so verify each link in a fresh
+    // page rather than accidentally checking the preceding person's panel.
+    const page=await context.newPage();try{
     await page.goto(new URL('index.html#lop='+encodeURIComponent(id),base).href);await page.waitForFunction(()=>typeof S!=='undefined'&&S.data&&!document.querySelector('#loading'));
     await page.locator('#panel:not([hidden])').waitFor();
-    const checked=await page.evaluate(({id,expected})=>{const model=MorothonHistoryData.create(S.data),person=model.person(id);return {person:!!person,results:JSON.stringify(S.results)===JSON.stringify(expected.results),years:JSON.stringify(startedYears(person))===JSON.stringify(model.stats(id)?.years||[])};},{id,expected:history});
-    if(!checked.person||!checked.results||!checked.years)throw Error('Løperprofilen viser et annet resultatgrunnlag.');
+    const checked=await page.evaluate(({id,expected})=>{
+     const model=MorothonHistoryData.create(expected),canonical=model.resolve(id),p=person(id),stats=model.stats(id);
+     return {person:!!p,results:JSON.stringify(S.results)===JSON.stringify(expected.results),
+      canonical:resolvePid(id)===canonical,name:p?.n===model.person(id)?.n,
+      count:p?.c===(stats?.count||0),years:JSON.stringify(startedYears(p))===JSON.stringify(stats?.years||[]),
+      rows:JSON.stringify(resultsFor(id))===JSON.stringify(model.resultsFor(id)),
+      rendered:document.querySelector('#panel')?.getAttribute('aria-label')==='Løperprofil for '+model.person(id)?.n};
+    },{id,expected:history});
+    const failed=Object.keys(checked).filter(key=>checked[key]!==true);
+    if(failed.length)throw Error('Løperprofilen viser et annet resultatgrunnlag. Kontrollpunkter: '+failed.join(', ')+'.');
     const older=page.locator('#profile .older-results');if(await older.count())await older.locator('summary').click();
-    for(const c of changes.filter(c=>c.after[1]===id)){
+    for(const c of changes.filter(c=>Number.isInteger(c.index)&&Array.isArray(c.after)&&c.after[1]===id)){
      if(require('../../js/history-data.js').effectiveStatus(c.after)==='DNS')continue;
      const descriptor=await page.evaluate(row=>resultDescriptor(row),c.after),rows=page.locator('#profile .result-row').filter({has:page.getByText(String(c.after[0]),{exact:true})});
      if(!await rows.filter({hasText:descriptor}).count())throw Error('Den korrigerte registreringen vises ikke i profilen.');
     }
+    }finally{await page.close();}
    }
   }finally{await context.close();}
  }

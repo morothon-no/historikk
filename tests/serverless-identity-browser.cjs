@@ -101,6 +101,8 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.equal(await page.locator('body').getAttribute('data-admin-ready'),'true','protected admin shell appears only after confirmed startup');
  assert.equal(await page.locator('#identityWorklist article').count(),2);
  assert.equal(await page.locator('#identityApprove').isEnabled(),false);
+ assert.equal(await page.locator('#identityPublication').isVisible(),false,'default-off identity publication must have no operative owner controls');
+ assert.equal(await page.locator('#identityPublicationPublish').count(),0);
  assert.equal(await page.locator('#navCorrections').textContent(),'Resultatkontroll');
  assert.equal(await page.locator('[data-correction-tab="suggestions"]').isVisible(),false);
  assert.ok((await page.locator('#view-import').textContent()).includes('Rett og kontroller eksisterende resultater'));
