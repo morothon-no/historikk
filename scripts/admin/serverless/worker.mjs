@@ -64,7 +64,7 @@ export async function cloudflareGithubFetch(url, options = {}, fetchImpl = fetch
 export function sameOriginBrokerRead(request, apiOrigin) {
   const url = new URL(request.url);
   if (url.origin !== apiOrigin || request.method !== "GET" ||
-      !["/session", "/review", "/identity"].includes(url.pathname) ||
+      !["/session", "/review", "/identity", "/annual-import"].includes(url.pathname) ||
       request.headers.has("origin") ||
       request.headers.get("sec-fetch-site") !== "same-origin" ||
       !/^Bearer [A-Za-z0-9_-]{43}$/.test(request.headers.get("authorization") || ""))
@@ -186,6 +186,8 @@ export default {
             }),
             identities: githubStore({api:privateApi,key,repositoryId:env.PRIVATE_REPOSITORY_ID,
               prefix:'identity-reviews'}),
+            annualImports: githubStore({api:privateApi,key,repositoryId:env.PRIVATE_REPOSITORY_ID,prefix:'annual-imports'}),
+            annualRequests: githubStore({api:privateApi,key,repositoryId:env.PRIVATE_REPOSITORY_ID,prefix:'annual-requests'}),
             control: githubStore({
               api: privateApi,
               key,
@@ -215,6 +217,8 @@ export default {
           auth,
           reviews: stores.reviews,
           identities: stores.identities,
+          annualImports: stores.annualImports,
+          annualRequests: stores.annualRequests,
           control: stores.control,
           // The pinned broker only dispatches/reads private Actions through
           // privateApi. OAuth/review/control state independently use

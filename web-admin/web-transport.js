@@ -184,11 +184,12 @@
         await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
       ),
     );
-  async function api(path, value) {
+  async function api(path, value, signal) {
     const r = await fetch(origin + path, {
       method: value === undefined ? "GET" : "POST",
       cache: "no-store",
       credentials: "omit",
+      ...(signal?{signal}:{}),
       headers: {
         ...(sessionToken ? { Authorization: "Bearer " + sessionToken } : {}),
         ...(value === undefined ? {} : { "Content-Type": "application/json" }),
@@ -216,6 +217,16 @@
         importConflict:{conflicts:data.conflicts,revision:data.revision,digest:data.digest,incomingDigest:data.incomingDigest}
       }:{})});
     return data;
+  }
+  async function annualRequest(action,value){
+    if(!protectedPortal||!principal?.annualImportPersistence)throw Error('Privat årsimport er ikke aktivert i denne versjonen.');
+    const paths={load:'/annual-import',preview:'/annual-import/preview',save:'/annual-import/save',retry:'/task/retry',cancel:'/task/cancel'};
+    if(!Object.hasOwn(paths,action))throw Error('Ukjent årsimporthandling.');
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000),
+      path=paths[action]+(action==='load'&&value?.requestId?'?requestId='+encodeURIComponent(value.requestId):'');
+    try{return await api(path,action==='load'?undefined:value,controller.signal);}
+    catch(error){if(controller.signal.aborted||(!error.status&&principal))throw Error('Serverresultatet er ukjent. Hent status før du sender på nytt. Lagret arbeid er bevart.');throw error;}
+    finally{clearTimeout(timer);}
   }
   // Separate UI, same authenticated transport and existing Corrections engine.
   // Only server-confirmed packages populate this list; no browser storage.
@@ -757,6 +768,7 @@
     actions.reload.hidden = saved?.publication?.stage !== "published";
     actions.reload.disabled = busy;
     window.MorothonReviewClient = {canEdit:!!principal,matchesSavedResult:matches,
+      annualImportAvailable:protectedPortal && principal?.annualImportPersistence === true,annualRequest,
       resultImportAvailable:protectedPortal && principal?.resultImportPersistence === true,
       resultImportBusy:busy || !editable};
     document.dispatchEvent(new CustomEvent('morothon:result-service-state'));

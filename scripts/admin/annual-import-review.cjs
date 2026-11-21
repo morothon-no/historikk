@@ -5,6 +5,14 @@ const path=require('node:path'),Contract=require('./annual-result-import.cjs'),
  {privateFileStore}=require('./review-workspace.cjs'),{authorize}=require('./access-control.cjs'),
  C=require('../../tools/diploma-admin/intake-model.js').Corrections;
 const SCOPE='annual-result-import-v1',scoped=Symbol('annual-import-store'),copy=x=>structuredClone(x),same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+function comparePlans(previous,next){
+ const entries=plan=>(plan?.operations||[]).filter(o=>o.after).map(o=>[o.beforeIndex!==null?'existing-'+o.beforeIndex:
+  JSON.stringify([o.after[0],o.after[1],o.after[2],o.after[3],o.after[9]]),o.after]),old=new Map(entries(previous)),fresh=new Map(entries(next)),items=[];
+ for(const [key,after]of fresh){const before=old.get(key)||null;items.push({kind:before?same(before,after)?'unchanged':'changed':'added',before,after});}
+ for(const [key,before]of old)if(!fresh.has(key))items.push({kind:'missing',before,after:null});
+ return {added:items.filter(i=>i.kind==='added').length,changed:items.filter(i=>i.kind==='changed').length,
+  unchanged:items.filter(i=>i.kind==='unchanged').length,missing:items.filter(i=>i.kind==='missing').length,items};
+}
 function annualImportStore({openNamespace}){
  const backing=openNamespace(SCOPE);
  if(!backing?.get||!backing?.transact)throw Error('Separat kryptert årsimportlager kreves.');
@@ -43,6 +51,7 @@ function createAnnualImportReview({authenticate,loadContext,store,clock=Date.now
   const plan=await Contract.prepare(ctx,input.input);
   if(!same((await context(input.organizer)).base,ctx.base))throw Error('Historikken ble oppdatert under kontrollen.');
   return {plan,previous:record?{revision:record.revision,digest:record.digest,summary:copy(record.annualImport.plan.summary)}:null,
+   comparison:record?comparePlans(record.annualImport.plan,plan):null,
    replacesPrivateSource:!!record&&Contract.hash(record.annualImport.input.source)!==Contract.hash(input.input.source),...flags};
  }
  async function save(input){input={...input,input:copy(input.input)};await access(input,'write');binding(input);
