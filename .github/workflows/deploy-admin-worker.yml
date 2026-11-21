@@ -65,6 +65,7 @@ jobs:
           /scripts/admin/serverless/
           /scripts/admin/account-directory.cjs
           /scripts/admin/access-control.cjs
+          /scripts/admin/annual-result-import.cjs
           /tools/diploma-admin/index.html
           /tools/diploma-admin/admin.css
           /tools/diploma-admin/admin.js

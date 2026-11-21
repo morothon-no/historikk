@@ -489,3 +489,33 @@ test('real Git prepare/dispatch accepts an identical-tree merge and rejects a fo
   prepared.vars.OWNER_GITHUB_ID='999';await fs.writeFile(file,JSON.stringify(prepared));assert.notEqual(run('dispatch').status,0);
   assert.equal(git(['rev-parse','HEAD']).trim(),head,'preparation must never commit or rewrite Git');
 });
+
+test('the exact deployment sparse file selection loads the real Worker without original registers',async t=>{
+  const os=require('node:os'),{spawnSync}=require('node:child_process'),root=path.resolve(__dirname,'..');
+  const workflow=await fs.readFile(path.join(root,'.github/workflows/deploy-admin-worker.yml'),'utf8');
+  const block=workflow.match(/<<'PATHS'\n([\s\S]*?)^\s*PATHS$/m);assert.ok(block,'explicit deployment sparse checkout is required');
+  const selected=block[1].trim().split('\n').map(p=>p.trim());
+  for(const entry of selected){
+    const relative=entry.slice(1).replace(/\/$/,'');
+    assert.ok(entry.startsWith('/')&&relative&&!entry.split('/').includes('..'),'explicit repository-relative paths only');
+    assert.ok(['.github','deploy','scripts','tools','web-admin','js','tests'].includes(relative.split('/')[0]),'source/test-only selection required');
+    assert.ok(!['scripts/lib/public-data.cjs','scripts/export-public-data.cjs'].includes(relative),'administrative export sources are outside deployment checkout');
+  }
+  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-deploy-sparse-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+  async function copy(source,dest){
+    const stat=await fs.lstat(source);assert.equal(stat.isSymbolicLink(),false,'deployment source must not follow a symlink');
+    if(stat.isDirectory()){
+      await fs.mkdir(dest,{recursive:true});
+      for(const name of await fs.readdir(source))await copy(path.join(source,name),path.join(dest,name));
+    }else{assert.equal(stat.isFile(),true);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(source,dest);}
+  }
+  for(const entry of selected){
+    const relative=entry.slice(1).replace(/\/$/,'');await copy(path.join(root,relative),path.join(dir,relative));
+  }
+  for(const forbidden of ['data','public-data','scripts/lib/public-data.cjs','scripts/export-public-data.cjs']){
+    await assert.rejects(fs.access(path.join(dir,forbidden)),{code:'ENOENT'},'original/public registers are not needed to load the Worker');
+  }
+  const result=spawnSync(process.execPath,['--input-type=module','-e',"await import('./scripts/admin/serverless/worker.mjs');"],
+    {cwd:dir,env:{PATH:process.env.PATH},encoding:'utf8',timeout:10000});
+  assert.ifError(result.error);assert.equal(result.status,0,'isolated Worker dependency closure: '+result.stderr);
+});
