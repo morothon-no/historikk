@@ -535,8 +535,8 @@
       field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
     workspace().usePrivateIdentities?.();
-    document.querySelector('.local-tag').textContent='Beskyttet administrasjon';
-    document.querySelector('.sidebar-note strong').textContent='Privat lagring';
+    // The shared session renderer owns authentication labels. Mounting a
+    // module must not replace the already confirmed owner/session state.
     const annual=node('a','Rett og kontroller eksisterende resultater');annual.href='#rettelser';$('view-import').prepend(annual);
     try{await read();if(active())await monitor();}catch(error){status.textContent=error.message+' Ingen ny lagring er bekreftet.';disable();}
   }
