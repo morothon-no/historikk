@@ -51,7 +51,7 @@ function memory() {
   };
 }
 test(
-  "Pages admin logs in, edits synthetic existing result, reopens private draft, publishes and withdraws through real build/profile controls",
+  "protected admin privately saves manual and CSV corrections, safely reimports, reopens after login, publishes and withdraws through real build/profile controls",
   { timeout: 300000 },
   async (t) => {
     const root = path.resolve(__dirname, ".."),
@@ -423,6 +423,11 @@ test(
       "Syntetisk arrangørbekreftet testkilde",
     );
     await page.fill("#correctionReason", "Kontrollert syntetisk rettelse.");
+    await importFile('49:57');
+    await page.waitForFunction(()=>document.querySelector('#resultStatus')?.dataset.error==='true');
+    assert.match(await page.locator('#resultStatus').innerText(),/annet ulagret arbeid/);
+    assert.equal(await reviews.get(organizer),null,'Import must not overwrite unsaved manual work');
+    await page.locator('a[href="#rettelser"]').first().click();
     await page.click("#resultServiceSave");
     await settled("Lagret utkast");
     assert.equal(api.prs.length, 0);
@@ -430,6 +435,52 @@ test(
       () => !document.querySelector("#resultServicePublish").disabled,
     );
     assert.match(await page.locator("#resultService").innerText(), /49:58/);
+    async function importFile(time,name='synthetic-results.csv'){
+      await page.locator('a[href="#import"]').first().click();
+      await page.selectOption('#annualImportKind','results');
+      await page.locator('#resultFile').setInputFiles({name,mimeType:'text/csv',buffer:Buffer.from(
+        'Year;Name;Race;Distance;Time;Bib\n2021;Syntetisk Kari Nord;Kortmoro;10 km;'+time+';2')});
+      await page.waitForFunction(()=>!document.querySelector('#resultCompare').disabled);
+      await page.click('#resultCompare');
+      await page.waitForFunction(()=>document.querySelector('#resultStatus')?.textContent.startsWith('Sammenligningen er klar.'));
+      if(await page.locator('[data-result-approve]').count()){
+        await page.locator('.result-case textarea').fill('Kontrollert syntetisk kilde; ingen ekte resultatdata.');
+        await page.locator('[data-result-approve]').click();
+      }
+      await page.waitForFunction(()=>document.querySelector('#resultAttentionCount')?.textContent.includes('0 saker'));
+      assert.equal(await page.locator('#resultPrivateSave').isVisible(),true);
+      assert.equal(await page.locator('#resultTransfer').isVisible(),false);
+      await page.click('#resultPrivateSave');
+    }
+    async function imported(){
+      await page.waitForFunction(()=>document.querySelector('#resultStatus')?.textContent.includes('privat og kontrollert') ||
+        document.querySelector('#resultStatus')?.textContent.includes('allerede lagret') ||
+        document.querySelector('#resultStatus')?.dataset.error==='true',null,{timeout:100000});
+      assert.equal(await page.locator('#resultStatus').getAttribute('data-error'),'false',await page.locator('#resultStatus').innerText());
+      const work=await page.evaluate(()=>MorothonCorrectionWorkspace.exportDraft());
+      assert.equal(work.cases.length,2,'CSV import retains the unrelated manual correction');
+      assert.equal(work.cases.find(c=>c.change.selector.index===0).change.after[5],'49:58');
+      assert.equal(api.prs.length,0,'Private saving and validation do not approve or publish');
+      return work;
+    }
+    await importFile('49:57');await imported();
+    const firstImport=await reviews.get(organizer);
+    await importFile('49:57');await imported();
+    assert.equal((await reviews.get(organizer)).revision,firstImport.revision,'Identical reimport does not create a new revision');
+    await importFile('49:56','synthetic-updated-results.csv');
+    await page.locator('#resultReplacePrivate').waitFor();
+    assert.equal((await reviews.get(organizer)).revision,firstImport.revision,'Conflict leaves saved data intact');
+    assert.match(await page.locator('#resultPrivateConflicts').innerText(),/49:57/);
+    assert.match(await page.locator('#resultPrivateConflicts').innerText(),/49:56/);
+    for(const width of [1440,768,390]){
+      await page.setViewportSize({width,height:1050});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      if(process.env.MOROTHON_C1_REVIEW_DIR){const out=path.join(process.env.MOROTHON_C1_REVIEW_DIR,'serverless');await fs.mkdir(out,{recursive:true});
+        await page.screenshot({path:path.join(out,'privat-reimport-'+width+'.png'),fullPage:true});}
+    }
+    await page.click('#resultReplacePrivate');await imported();
+    assert.equal((await reviews.get(organizer)).draft.cases.find(c=>c.change.selector.index===1).change.after[5],'49:56');
+    await page.locator('a[href="#rettelser"]').first().click();
     assert.deepEqual(
       await page.evaluate(() => ({
         local: { ...localStorage },
@@ -460,6 +511,7 @@ test(
       ),
       "49:58",
     );
+    assert.equal(await page.evaluate(()=>MorothonCorrectionWorkspace.exportDraft().cases.find(c=>c.change.selector.index===1).change.after[5]),'49:56');
     for (const width of [1440, 768, 390]) {
       await page.setViewportSize({ width, height: 1050 });
       assert.equal(
@@ -495,6 +547,7 @@ test(
       api.read("data/history.json"),
       api.read("public-data/data/history.json"),
     );
+    assert.equal(JSON.parse(api.read('data/history.json')).results[1][5],'49:56');
     const actual = await context.newPage();
     await actual.goto(origin + "/index.html#lop=MOR-C220001");
     await actual.locator("#panel:not([hidden])").waitFor();
@@ -524,6 +577,7 @@ test(
       "50:00",
     );
     assert.equal(api.prs.length, 2);
+    assert.equal(JSON.parse(api.read('data/history.json')).results[1][5],'50:00');
     assert.deepEqual(errors, []);
     assert.deepEqual(
       await fs.readFile(path.join(root, "public-data/data/history.json")),

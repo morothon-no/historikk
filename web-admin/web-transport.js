@@ -212,7 +212,9 @@
       throw Object.assign(Error(
         data.error ||
           "Kunne ikke fullføre handlingen. Lagret arbeid er bevart.",
-      ),{status:r.status});
+      ),{status:r.status,...(path==='/review/import'&&Array.isArray(data.conflicts)?{
+        importConflict:{conflicts:data.conflicts,revision:data.revision,digest:data.digest,incomingDigest:data.incomingDigest}
+      }:{})});
     return data;
   }
   // Separate UI, same authenticated transport and existing Corrections engine.
@@ -678,6 +680,10 @@
     actions.cancel.disabled = busy || !principal;
     actions.reload.hidden = saved?.publication?.stage !== "published";
     actions.reload.disabled = busy;
+    window.MorothonReviewClient = {canEdit:!!principal,matchesSavedResult:matches,
+      resultImportAvailable:protectedPortal && principal?.resultImportPersistence === true,
+      resultImportBusy:busy || !editable};
+    document.dispatchEvent(new CustomEvent('morothon:result-service-state'));
   }
   function showReview() {
     diff.replaceChildren();
@@ -806,7 +812,6 @@
   }
   function render() {
     if (!box) return;
-    window.MorothonReviewClient = { canEdit: !!principal };
     const text = principal
       ? stage()
       : "Logg inn med GitHub for å lagre, kontrollere og publisere resultatkorrigeringer.";
@@ -878,6 +883,49 @@
       polling = false;
     }
   }
+  // Same owner-authenticated CAS store and private validator as manual corrections.
+  // The imported packet is never an authorization to approve or publish.
+  document.addEventListener('morothon:save-result-import',event=>{
+    (async()=>{
+      if(!protectedPortal || !principal?.resultImportPersistence)
+        throw Error('Privat importlagring er ikke tilgjengelig i denne versjonen.');
+      if(busy || polling)throw Error('Vent til den pågående kontrollen er ferdig.');
+      const detail=event.detail, snapshot=JSON.stringify(workspace().exportDraft()), version=edits;
+      if(workspace().exportDraft().cases.length && !matches())
+        throw Error('Du har annet ulagret arbeid i Resultatkontroll. Lagre eller avklar det først; importen er beholdt her.');
+      busy=true;renderControls();let receipt;
+      try{
+        const previousRevision=saved?.revision||0;
+        await read();
+        if(previousRevision!==(saved?.revision||0) && workspace().exportDraft().cases.length)
+          throw Error('Det private utkastet er oppdatert. Hent det på nytt før import.');
+        if(saved?.task && !['completed','failed'].includes(saved.task.state))
+          throw Error('En privat kontroll pågår. Vent til den er ferdig.');
+        if(!detail.isCurrent() || snapshot!==JSON.stringify(workspace().exportDraft()))
+          throw Error('Arbeidsgrunnlaget ble endret. Kontroller importen på nytt.');
+        const basis=detail.replaceBasis;
+        if(basis && (basis.revision!==(saved?.revision||0) || basis.digest!==(saved?.digest||null) ||
+          basis.incomingDigest!==await MorothonCorrections.hash(detail.package)))
+          throw Error('Et av forslagene er endret. Gjennomgå forskjellene på nytt.');
+        const result=receipt=await api('/review/import',{draft:detail.package,
+          expectedRevision:saved?.revision||0,expectedDigest:saved?.digest||null,replaceConflicts:!!basis});
+        localSaved=null;
+        await read();
+        if(result.changed || !saved?.validation?.ready){
+          await api('/review/validate',{expectedRevision:result.revision,expectedDigest:result.digest});
+          await read();await monitor();
+        }
+        const restored=detail.isCurrent() && edits===version && snapshot===JSON.stringify(workspace().exportDraft()) &&
+          saved?.task?.state!=='failed' && saved?.task?.state!=='blocked';
+        if(restored)await restore();
+        return {...result,ready:saved?.validation?.ready===true,restored,
+          problem:saved?.task?.error||null};
+      }catch(error){
+        if(receipt?.saved)error.message='Rettingene er lagret privat, men videre kontroll kunne ikke bekreftes. Hent lagret utkast i Resultatkontroll. '+error.message;
+        throw error;
+      }finally{busy=false;render();}
+    })().then(event.detail.resolve,event.detail.reject);
+  });
   async function mount() {
     if (box || !workspace()) return;
     box = node("section");

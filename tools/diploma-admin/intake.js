@@ -394,6 +394,9 @@
   }else message(imported.added+' resultatsaker klargjort under Til oppfølging. Ingen retting er publisert.');return imported;
  })().then(e.detail.resolve,e.detail.reject);});
  document.addEventListener('morothon:result-source-changed',e=>{
+  // A server-saved proposal still belongs to its original file. Reimport is a
+  // separate comparison, not permission to demote or overwrite that proposal.
+  if(window.MorothonReviewClient?.matchesSavedResult?.())return;
   if(!state.package)return;let next=state.package,count=0;for(const c of state.package.cases)if(['proposed','handoff'].includes(c.status)&&c.events.some(x=>x.action==='result-source-'+e.detail.previousSha)){next=C.transition(next,c.id,'review','Resultatfil eller tolkning er endret. Kontroller kildehash og avvik på nytt før overlevering.');count++;}if(count){state.package=next;state.impact=null;render();message(count+' tidligere resultatforslag krever ny gjennomgang etter endret kildegrunnlag.');}
  });
  document.addEventListener('morothon:corrections-ready',async e=>{
@@ -456,7 +459,7 @@
  function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=node('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  function request(name,detail={}){return new Promise((resolve,reject)=>document.dispatchEvent(new CustomEvent(name,{detail:{...detail,resolve,reject}})));}
  function sourceChanged(previousSha){if(previousSha)document.dispatchEvent(new CustomEvent('morothon:result-source-changed',{detail:{previousSha}}));}
- function clearAnalysis(){state.revision++;if(state.session)sourceChanged(state.session.source.sha256);state.session=null;state.analysis=null;state.decisions.clear();state.page=0;$('resultSummary').replaceChildren();$('resultCases').replaceChildren();$('resultImpact').replaceChildren();$('resultQuestions').replaceChildren();$('resultStages').replaceChildren();$('resultActions').hidden=true;}
+ function clearAnalysis(){state.revision++;if(state.session)sourceChanged(state.session.source.sha256);state.session=null;state.analysis=null;state.decisions.clear();state.page=0;$('resultSummary').replaceChildren();$('resultCases').replaceChildren();$('resultImpact').replaceChildren();$('resultQuestions').replaceChildren();$('resultStages').replaceChildren();$('resultPrivateConflicts')?.replaceChildren();$('resultActions').hidden=true;}
  function mapping(){return Object.fromEntries(Object.keys(R.fields).map(key=>[key,Number($('result-map-'+key).value)]));}
  function showMapping(){const box=$('resultMapping');box.replaceChildren();for(const [key,label]of Object.entries(R.fields)){const s=select([['-1','Ikke i filen'],...state.staged.headers.map((v,i)=>[String(i),v+' (kolonne '+(i+1)+')'])],'result-map-'+key,String(state.staged.mapping[key]));s.onchange=()=>{state.manual=true;state.confirmedFields.push(key);if(['event','distance','year'].includes(key)){state.profileChoices={};state.fixedCourse=null;}clearAnalysis();status('Feltvalget er endret. Bruk «Analyser på nytt» for å fortsette.');};box.append(field(label,s));}$('resultMappingDetails').hidden=false;}
  function setField(key,value){const index=Number(value);for(const other of Object.keys(R.fields))if(other!==key&&index>=0&&Number($('result-map-'+other).value)===index)$('result-map-'+other).value=-1;$('result-map-'+key).value=index;state.confirmedFields=[...new Set([...state.confirmedFields,key])];if(['event','distance','year'].includes(key)){state.profileChoices={};state.fixedCourse=null;}state.manual=true;}
@@ -584,6 +587,45 @@
   const paging=node('div',undefined,'actions'),prev=button('Forrige saker',()=>{state.page--;render();}),next=button('Neste saker',()=>{state.page++;render();});prev.disabled=state.page===0;next.disabled=(state.page+1)*size>=rows.length;paging.append(prev,hint(rows.length+' saker · side '+(state.page+1)),next);box.append(paging);$('resultActions').hidden=false;
  }
  async function packet(){if(!state.session)throw Error('Start sammenligning først.');return R.prepare(state.context,state.session,state.decisions);}
+ function privateControls(){
+  const available=window.MorothonReviewClient?.resultImportAvailable===true,b=$('resultPrivateSave');
+  if(b){b.hidden=!available;b.disabled=state.busy||window.MorothonReviewClient?.resultImportBusy===true;}
+  if($('resultTransfer'))$('resultTransfer').hidden=available;
+ }
+ document.addEventListener('morothon:result-service-state',privateControls);
+ async function savePrivateImport(replaceBasis=null){
+  if(state.analysis.pending)throw Error(state.analysis.pending+' saker trenger fortsatt behandling. Bekreft, avvis eller utsett dem først.');
+  const revision=state.revision,session=state.session,decisions=state.decisions,p=await packet(),
+    isCurrent=()=>revision===state.revision&&session===state.session&&decisions===state.decisions;
+  if(!isCurrent())throw Error('Importgrunnlaget er endret. Kontroller det på nytt.');
+  const conflicts=$('resultPrivateConflicts');conflicts.replaceChildren();
+  status('Lagrer de gjennomgåtte rettelsene privat og kjører samlet kontroll …');
+  try{
+   const result=await request('morothon:save-result-import',{package:p,replaceBasis,isCurrent});
+   if(!isCurrent())return;
+   const link=node('a','Åpne lagret før/etter og godkjenn publisering');link.href='#rettelser';
+   conflicts.append(hint('Lagret privat. Offentlige resultater er uendret.'),link);
+   status(result.ready?(result.changed?'Rettingene er lagret privat og kontrollert.':'Samme rettelser er allerede lagret; ingen duplikater opprettet.')+
+    (result.restored?' Åpne resultatkontrollen for særskilt godkjenning.':' Hent lagret utkast i Resultatkontroll; annet arbeid i fanen er beholdt.'):
+    'Rettingene er lagret privat, men kontrollen krever avklaring. '+(result.problem||'Åpne Resultatkontroll for detaljer.'),!result.ready);
+  }catch(error){
+   if(isCurrent()&&error.importConflict){
+    const basis=error.importConflict;
+    conflicts.append(node('h4','Ny fil eller lagret forslag?'),hint('Ingenting er overskrevet. Du kan beholde det lagrede utkastet, eller erstatte bare forslagene nedenfor. Andre private saker beholdes.'));
+    for(const c of basis.conflicts){
+     const card=node('article',undefined,'correction-case');
+     card.append(node('strong',(state.context.model.person(c.personIds[0])?.n||'Resultat')+' · '+c.before[0]+' · '+c.before[2]));
+     for(const [label,row]of [['Lagret privat · '+(C.labels[c.privateStatus]||'Til vurdering'),c.privateAfter],['Fra ny fil',c.importedAfter]])
+      card.append(hint(label+': '+(row?R.differences(c.before,row).map(d=>d.label+' '+d.before+' → '+d.after).join(' · '):'Ingen foreslått retting')));
+     conflicts.append(card);
+    }
+    const choices=node('div',undefined,'actions');
+    choices.append(button('Behold lagrede forslag',()=>{conflicts.replaceChildren();status('Det lagrede private utkastet er beholdt. Ingen publisering.');},'resultKeepPrivate'),
+     button('Erstatt '+basis.conflicts.length+' private forslag med ny fil',()=>savePrivateImport(basis),'resultReplacePrivate'));conflicts.append(choices);
+   }
+   throw error;
+  }
+ }
  async function consequences(){
   const revision=state.revision,p=await packet(),cases=p.cases.filter(c=>c.change);if(!cases.length)throw Error('Bekreft minst ett konkret resultatavvik først. Nye personer, lag og ukjente årganger krever separat behandling.');
   status('Beregner med eksisterende resultat-, merke- og diplommotor …');const project=await request('morothon:request-result-projection'),out=$('resultImpact');out.replaceChildren();
@@ -635,7 +677,9 @@
       'Samlet forhåndskontroll bestått for '+result.review.proposed+' endringsforslag. Ingen ekstra bekreftelser per løper. Lagre arbeidsgrunnlaget i Resultatkontroll. Ingenting er publisert.':
       'Samlet kontroll har registrert forslagene, men krever nærmere avklaring: '+[...(result.review?.uncertain||[]),...(result.review?.errors||[]).map(e=>String(e.code||e))].join(' '),!result.review?.ready);
     },'resultTransfer'),button('Last ned rettingspakke',async()=>download(C.serialize(await packet()),'morothon-'+state.session.source.year+'-resultatrettinger.json'),'resultExport'),button('Last ned kontrollrapport',async()=>download(await R.report(state.context,state.session,state.decisions),'morothon-'+state.session.source.year+'-resultatkontroll.json'),'resultReport'));
-   work.append(banner,hint('CSV og TSV fra ulike resultatleverandører · filen behandles bare i denne nettleseren. Ingen opplasting eller automatisk endring av historikken.'),settings,field('Velg endelig resultatfil',file),fileInfo,templateInfo,fileTools,statusNode,questionsBox,previewBox,stagesBox,summary,cases,templatePanel,advanced,actions,impact);
+   const privateSave=button('Lagre og kontroller rettelsene privat',()=>savePrivateImport(),'resultPrivateSave');privateSave.hidden=true;
+   const privateConflicts=node('section');privateConflicts.id='resultPrivateConflicts';privateConflicts.setAttribute('aria-live','polite');actions.insertBefore(privateSave,$('resultCheck'));actions.append(privateConflicts);privateControls();
+   work.append(banner,hint('CSV og TSV fra ulike resultatleverandører · selve filen behandles i nettleseren. I beskyttet admin kan gjennomgåtte rettingsforslag lagres privat. Ingen automatisk endring av historikken.'),settings,field('Velg endelig resultatfil',file),fileInfo,templateInfo,fileTools,statusNode,questionsBox,previewBox,stagesBox,summary,cases,templatePanel,advanced,actions,impact);
    await restoreLayouts();file.disabled=false;if(state.storageMessage)templateInfo.textContent=state.storageMessage;
    window.addEventListener('beforeunload',event=>{if(state.session){event.preventDefault();event.returnValue='';}});
   }catch(error){host.append(node('p','Resultatkontrollen kunne ikke starte: '+error.message));}

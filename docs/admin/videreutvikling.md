@@ -12,7 +12,7 @@ Eksisterende lokale utsjekkinger med upushet arbeid er ikke endret.
 | Personkontroll | #141 gir atomisk privat batch, #147 hurtigvalg, sammenligning og 50-valgsgrense. | Lagre også «Undersøk senere» privat, og gjenoppta samme sak etter ny innlogging. |
 | Tellere | #148 er åpen på `38934742df4a8ec0c80f91198cafaaa99f711878`. Den retter telling av valg som bare finnes i økten. | Behold den separate PR-en; test at privat oppfølging virker sammen med den. Ingen dobbeltimplementering. |
 | Oversikt | #150 er merget og setter seks eksisterende oppgavekort først. | Gjenbruk oppgavene og rutene; ikke lag en ny adminflate. |
-| Startliste og resultater | Parser, feltvalg, prognoser, differanser og trygg reimport finnes. Den private resultatlagringen tillater bare rettelser av eksisterende rader. | Koble komplett/delvis eksport og nye årganger til eksisterende kontroll- og publiseringsport; ingen blind sletting av manglende rader. |
+| Startliste og resultater | Parser, feltvalg, prognoser og differanser finnes. [Privat lagring og trygg reimport](privat-resultatreimport.md) av gjennomgåtte rettelser er koblet til eksisterende kontroll- og publiseringsløp. | Nye årganger, nye resultatlinjer og nye personer krever egen kontrollert publiseringskontrakt; ingen blind sletting av manglende rader. |
 | Publisering | Resultatpublisering, etterkontroll og reversering finnes. Identitetskontroll rapporterer fortsatt `productionApplied:false` og `publicationAuthorized:false`. | Egen kontrollert identitetspublisering med serverberegnet før/etter, backup og reversering. Ikke vis en operativ knapp før hele kjeden er testet. |
 
 Relatert: #115, #116, #122, #123 og siste avklaringer i #129. Senere krav om én
