@@ -106,6 +106,12 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const {f,root,original,open,errors,writes,traffic,pages}=fixture;
  try {
  let {page,context,session}=await open();
+ async function submitQueued(){
+  const receipt=page.waitForResponse(r=>new URL(r.url()).pathname==='/identity/batch'&&r.request().method()==='POST');
+  await page.click('#identityBatchSubmit');
+  assert.equal((await receipt).status(),202,'Process a synthetic job only after the server has accepted this batch');
+  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ }
  assert.equal((await fs.stat(f.directory)).mode&0o777,0o700,'The private store must create its own 0700 directory under CI umask 0022');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
  assert.equal(await page.locator('body').getAttribute('data-admin-ready'),'true','protected admin shell appears only after confirmed startup');
@@ -150,8 +156,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  await page.selectOption('#identityFilter','pending');
  assert.equal(await page.locator('#identityWorklist article').count(),1);
  await page.selectOption('#identityFilter','all');
- await page.click('#identityBatchSubmit');
- await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ await submitQueued();
  assert.equal((await f.processNext()).completed,true);
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
  assert.equal(await page.locator('#identityBatchTray .identity-batch-entry').count(),0);
@@ -199,13 +204,12 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  // server check must not remove them or block a subsequent distinct decision.
  await page.locator('#identityWorklist article').getByRole('button',{name:'Sammenlign resultater / flere valg'}).click();
  await page.selectOption('#identityMainPerson','MOR-C220004');
- await page.click('#identitySame');await page.click('#identityBatchSubmit');await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ await page.click('#identitySame');await submitQueued();
  assert.equal((await f.processNext()).completed,false);
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Overlapp'));
  assert.equal((await f.identities.get('sogne-morothon')).revision,2);
  await page.click('#identityDifferent');
- await page.click('#identityBatchSubmit');
- await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ await submitQueued();
  assert.equal((await f.processNext()).completed,true);
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('revisjon 3'));
  assert.equal(await page.locator('#identityWorklist article').count(),0);
@@ -263,11 +267,15 @@ test('Personkontroll keeps unsaved batches and errors truthful through version m
   await first().getByRole('button',{name:'Samme person',exact:true}).click();
   await second().getByRole('button',{name:'Forskjellige personer',exact:true}).click();
   assert.match(await status(),/2 ulagrede avgjørelser/);
+  assert.equal(await page.locator('#identityWorklist article').count(),0);
+  assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'0');
+  await page.selectOption('#identityFilter','all');
   assert.match(await first().locator('.identity-unsaved').textContent(),/hovednavn: Syntetisk Kari N. Nord/);
   assert.equal(await first().locator('select').inputValue(),'MOR-C220002');
   assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'2');
   assert.equal(await page.locator('[data-identity-count="finished"] strong').textContent(),'0');
   assert.equal(f.dispatches.length,0);assert.equal(await f.identities.get('sogne-morothon'),null);
+  await page.selectOption('#identityFilter','pending');
   for(let n=0;n<2;n++)await page.locator('#identityBatchTray').getByRole('button',{name:'Angre',exact:true}).first().click();
   assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'0');
  });
@@ -429,5 +437,59 @@ test('Personkontroll keeps unsaved batches and errors truthful through version m
   assert.equal(await page.locator('#identityService').count(),0);
  });
  assert.deepEqual(fixture.errors,[]);assert.equal(f.remote.submitted,0);assert.equal(f.remote.merged,0);
+ assert.ok((await fs.readFile(path.join(fixture.root,'public-data/data/history.json'))).equals(fixture.original));
+});
+
+test('staged same and different decisions leave pending immediately, undo restores them, and refresh explicitly reads without saving', {timeout:60000},async t=>{
+ const fixture=await identityBrowser(t),{f,open,writes}=fixture;
+ const {page}=await open();
+ if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR)await fs.mkdir(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,{recursive:true});
+ const first=()=>page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+ const second=()=>page.locator('#identityWorklist article').filter({hasText:'Syntetisk Samme Navn'});
+ for(const width of [1440,768,390]){
+  await page.setViewportSize({width,height:1000});
+  await first().locator('select').selectOption('MOR-C220002');
+  await first().getByRole('button',{name:'Samme person',exact:true}).click();
+  assert.equal(await first().count(),0,'A same-person choice must leave pending before private submission');
+  assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'1');
+  await second().getByRole('button',{name:'Forskjellige personer',exact:true}).click();
+  assert.equal(await page.locator('#identityWorklist article').count(),0,'A distinct choice must also leave pending');
+  assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'0');
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'2');
+  assert.equal(await page.locator('[data-identity-count="finished"] strong').textContent(),'0');
+  assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'0','Local choices are not saved rejections');
+  assert.match(await page.locator('#identityWorklist').textContent(),/fortsatt ulagret/);
+  await page.selectOption('#identityFilter','all');
+  assert.match(await first().locator('.identity-unsaved').textContent(),/hovednavn: Syntetisk Kari N. Nord/);
+  assert.equal(await first().locator('select').inputValue(),'MOR-C220002');
+  await page.selectOption('#identityFilter','pending');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Unsaved decisions fit '+width);
+  if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,'ulagrede-valg-'+width+'.png'),fullPage:true});
+  for(let n=0;n<2;n++)await page.locator('#identityBatchTray').getByRole('button',{name:'Angre',exact:true}).first().click();
+  assert.equal(await page.locator('#identityWorklist article').count(),2,'Undo returns both pairs to pending');
+  assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'2');
+ }
+ await first().getByRole('button',{name:'Forskjellige personer',exact:true}).click();
+ let release,received;
+ const hold=new Promise(r=>{release=r;}),waiting=new Promise(r=>{received=r;});
+ fixture.intercept(async(route,url)=>{
+  if(url.pathname!=='/identity')return false;
+  assert.equal(route.request().method(),'GET');received();await hold;return false;
+ });
+ await page.click('#identityRefresh');await waiting;
+ try{
+  assert.match(await page.locator('#identityServiceStatus').textContent(),/Henter lagrede avgjørelser/);
+  assert.equal(await page.locator('#identityRefresh').isEnabled(),false);
+ }finally{release();}
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Status hentet fra serveren'));
+ assert.match(await page.locator('#identityServiceStatus').textContent(),/1 avgjørelse er fortsatt ulagret/);
+ assert.match(await page.locator('#identityServiceStatus').textContent(),/Ingen lagrede avgjørelser/);
+ assert.equal(await first().count(),0,'A refresh must not put a locally decided pair back into pending');
+ assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'1');
+ assert.equal(await page.locator('#identityBatchSubmit').textContent(),'Lagre avgjørelser privat');
+ assert.equal(await page.locator('#identityBatchSubmit').isEnabled(),true);
+ assert.equal(writes.length,0,'Choices, undo and refresh must not write or start a private task');
+ assert.equal(f.dispatches.length,0);assert.equal(await f.identities.get('sogne-morothon'),null);
+ assert.deepEqual(fixture.errors,[]);
  assert.ok((await fs.readFile(path.join(fixture.root,'public-data/data/history.json'))).equals(fixture.original));
 });
