@@ -9,7 +9,7 @@ const {approvedRuntime,createProjector}=require('../scripts/admin/review-runtime
 const {createAdminGateway}=require('../scripts/admin/serverless/admin-gateway.cjs');
 const {ADMIN_SOURCES}=require('../scripts/lib/runtime-files.cjs');
 
-test('protected Personkontroll saves, approves and reopens after a fresh login; failed merges never become saved, and responsive worklists hide handled pairs', {timeout:120000},async t=>{
+async function identityBrowser(t){
  // Each test file has its own Node process. Exercise CI's usual umask even
  // when the local shell uses 0077, which previously hid an unsafe fixture root.
  const previousUmask=process.umask(0o022);t.after(()=>process.umask(previousUmask));
@@ -53,12 +53,14 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const gateway=createAdminGateway({portalOrigin:f.origin,apiOrigin:f.origin,auth:f.auth,
   assetSource:async name=>files.has('admin/'+name)?{bytes:files.get('admin/'+name)}:null});
  const errors=[],writes=[],traffic=[],pages=[];let modeledIdentityReads=0;
+ let intercept=null;
  async function open({authenticated=true,width=1440}={}){
   const context=await browser.newContext({viewport:{width,height:1000}});t.after(()=>context.close());
   const session=authenticated?await f.login():null;
   if(session)await context.addCookies([{name:'__Host-morothon-admin',value:session,url:f.origin,httpOnly:true,secure:true,sameSite:'Strict'}]);
   await context.route('**/*',async route=>{
    const r=route.request(),url=new URL(r.url());if(url.origin!==f.origin)return route.abort();
+   if(intercept && await intercept(route,url))return;
    const headers=await r.allHeaders();
    // Reproduce the initial GET without browser-generated Fetch Metadata. This
    // must reach the real read normalizer, not leave startup waiting forever.
@@ -94,6 +96,14 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
    assert.equal((await identityRead).status(),200,'Initial private identity read must pass the real read/authentication gate');}
   return {context,page,session};
  }
+ return {f,root,original,open,errors,writes,traffic,pages,
+  get modeledIdentityReads(){return modeledIdentityReads;},
+  intercept(fn){intercept=fn;}};
+}
+
+test('protected Personkontroll saves, approves and reopens after a fresh login; failed merges never become saved, and responsive worklists hide handled pairs', {timeout:120000},async t=>{
+ const fixture=await identityBrowser(t);
+ const {f,root,original,open,errors,writes,traffic,pages}=fixture;
  try {
  let {page,context,session}=await open();
  assert.equal((await fs.stat(f.directory)).mode&0o777,0o700,'The private store must create its own 0700 directory under CI umask 0022');
@@ -225,7 +235,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok((await fs.readFile(path.join(root,'public-data/data/history.json'))).equals(original));
  const anonymous=await open({authenticated:false});await anonymous.page.locator('#login').waitFor();
  assert.equal(await anonymous.page.locator('#identityService').count(),0);
- assert.ok(modeledIdentityReads>=3,'Every fresh login must exercise the initial read without generated Fetch Metadata');
+ assert.ok(fixture.modeledIdentityReads>=3,'Every fresh login must exercise the initial read without generated Fetch Metadata');
  } catch(error) {
   const ui=await Promise.all(pages.filter(p=>!p.isClosed()).map(p=>p.evaluate(()=>({
    hash:location.hash,status:document.querySelector('#identityServiceStatus')?.textContent,
@@ -234,4 +244,190 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
   })).catch(()=>({unavailable:true}))));
   throw new Error(error.message+'\nSynthetic HTTP/UI diagnostics: '+JSON.stringify({errors,traffic,ui}),{cause:error});
  }
+});
+
+test('Personkontroll keeps unsaved batches and errors truthful through version mismatch, network loss, bounded waits and exact receipts', {timeout:120000},async t=>{
+ const fixture=await identityBrowser(t),{f,open,writes}=fixture;
+ let {page,context,session}=await open();
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
+ const status=()=>page.locator('#identityServiceStatus').textContent();
+ const first=()=>page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+ const second=()=>page.locator('#identityWorklist article').filter({hasText:'Syntetisk Samme Navn'});
+ const fulfilled=(route,status,body)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body)});
+ async function eventually(check){
+  const end=Date.now()+5000;
+  while(!await check()){if(Date.now()>end)assert.fail('Expected synthetic browser state was not reached');await new Promise(r=>setTimeout(r,20));}
+ }
+ await t.test('quick choices show unsaved status, preserve chosen main name and undo without a server job',async()=>{
+  await first().locator('select').selectOption('MOR-C220002');
+  await first().getByRole('button',{name:'Samme person',exact:true}).click();
+  await second().getByRole('button',{name:'Forskjellige personer',exact:true}).click();
+  assert.match(await status(),/2 ulagrede avgjørelser/);
+  assert.match(await first().locator('.identity-unsaved').textContent(),/hovednavn: Syntetisk Kari N. Nord/);
+  assert.equal(await first().locator('select').inputValue(),'MOR-C220002');
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'2');
+  assert.equal(await page.locator('[data-identity-count="finished"] strong').textContent(),'0');
+  assert.equal(f.dispatches.length,0);assert.equal(await f.identities.get('sogne-morothon'),null);
+  for(let n=0;n<2;n++)await page.locator('#identityBatchTray').getByRole('button',{name:'Angre',exact:true}).first().click();
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'0');
+ });
+ await t.test('404 and 409 keep local choices editable; filtering cannot erase a 502 or its explanation',async()=>{
+  await first().getByRole('button',{name:'Forskjellige personer',exact:true}).click();
+  for(const [code,html] of [[404,false],[404,true],[409,false]]){
+   fixture.intercept(async(route,url)=>{
+    if(url.pathname==='/identity/batch') {
+     if(html)await route.fulfill({status:code,contentType:'text/html',body:'Not found'});
+     else await fulfilled(route,code,{error:'Syntetisk revisjonskonflikt'});
+     return true;
+    }
+    return false;
+   });
+   await page.click('#identityBatchSubmit');
+   await eventually(async()=>await page.locator('#identityBatchSubmit').isEnabled());
+   assert.match(await status(),code===404?/serverversjonen.*samlet personkontroll/:/revisjonskonflikt/);
+   assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'1');
+   assert.equal(f.dispatches.length,0);
+  }
+  fixture.intercept(async(route,url)=>{
+   if(url.pathname==='/identity'){await fulfilled(route,502,{error:'Syntetisk privat tjenestefeil'});return true;}return false;
+  });
+  await page.click('#identityRefresh');
+  await eventually(async()=>/privat tjenestefeil/.test(await status()));
+  const error=await status();
+  await page.fill('#identitySearch','Kari');await page.selectOption('#identityFilter','all');
+  assert.equal(await status(),error);
+  assert.equal(await page.locator('#identityServiceStatus').getAttribute('data-error'),'true');
+  assert.equal(await page.locator('#identityRefresh').isEnabled(),true);
+  fixture.intercept(null);await page.click('#identityRefresh');
+  await eventually(async()=>!/privat tjenestefeil/.test(await status()));
+  await page.fill('#identitySearch','');await page.selectOption('#identityFilter','pending');
+ });
+ await t.test('an HTTP request stops after 20 seconds and can be refreshed without resubmission',async()=>{
+  await page.clock.install();
+  let release,received;
+  const waiting=new Promise(r=>{received=r;}),hold=new Promise(r=>{release=r;});
+  fixture.intercept(async(route,url)=>{
+   if(url.pathname!=='/identity')return false;
+   received();await hold;await route.abort().catch(()=>{});return true;
+  });
+  await page.click('#identityRefresh');await waiting;
+  await page.clock.runFor(20001);
+  await eventually(async()=>/20 sekunder/.test(await status()));
+  assert.equal(await page.locator('#identityRefresh').isEnabled(),true);
+  assert.match(await page.locator('#identityActionHelp').textContent(),/ulagret/);
+  release();fixture.intercept(null);await page.click('#identityRefresh');
+  await eventually(async()=>await page.locator('#identityBatchSubmit').isEnabled());
+  assert.equal(f.dispatches.length,0);
+ });
+ await t.test('a lost queued response, unknown status and unrelated failed task never fake saving or unlock resubmission',async()=>{
+  let queued;
+  fixture.intercept(async(route,url)=>{
+   if(url.pathname!=='/identity/batch')return false;
+   queued=await f.request('/identity/batch',route.request().postDataJSON(),session);
+   await route.abort();return true;
+  });
+  await page.click('#identityBatchSubmit');
+  await eventually(async()=>await page.locator('#identityRefresh').isEnabled());
+  assert.equal(queued.status,202);assert.equal(f.dispatches.length,1);
+  assert.equal(await page.locator('#identityBatchSubmit').isEnabled(),false);
+  assert.equal(await f.identities.get('sogne-morothon'),null);
+  // A second authenticated session must open immediately while the private
+  // workflow is still queued; waiting for that job is not a login requirement.
+  fixture.intercept(null);
+  const duringJob=await open({width:768});
+  assert.equal(await duringJob.page.locator('body').getAttribute('data-admin-ready'),'true');
+  assert.match(await duringJob.page.locator('#identityServiceStatus').textContent(),/Privat kontroll pågår/);
+  assert.equal(await duringJob.page.locator('#identityRefresh').isEnabled(),true);
+  await duringJob.context.close();
+  for(const change of [
+   task=>({...task,state:'unrecognized'}),
+   task=>({...task,id:'a'.repeat(32),state:'failed',requestIds:['another-request'],error:'Syntetisk annen jobb feilet'})
+  ]){
+   fixture.intercept(async(route,url)=>{
+    if(url.pathname!=='/identity')return false;
+    const current=(await f.request('/identity',undefined,session)).body;
+    current.task=change(current.task);await fulfilled(route,200,current);return true;
+   });
+   await page.click('#identityRetry');
+   await eventually(async()=>await page.locator('#identityRetry').isEnabled());
+   assert.equal(await page.locator('#identityBatchSubmit').isEnabled(),false);
+   assert.match(await page.locator('#identityActionHelp').textContent(),/Valgene er låst/);
+   assert.equal(f.dispatches.length,1);
+  }
+  fixture.intercept(null);
+  const queuedRead=page.waitForResponse(r=>new URL(r.url()).pathname==='/identity');
+  await page.click('#identityRetry');await queuedRead;
+  await page.clock.setSystemTime(new Date(Date.now()+180000));
+  await page.clock.runFor(4001);
+  await eventually(async()=>/Kontrollen pågår fortsatt/.test(await status()));
+  assert.equal(await page.locator('#identityRetry').isEnabled(),true);
+  assert.equal(await page.locator('#identityLogout').isEnabled(),true);
+  assert.equal(f.dispatches.length,1);
+  // Complete the existing immutable request; fetching status performs no POST.
+  assert.equal((await f.processNext()).completed,true);
+  const posts=writes.length;
+  await page.click('#identityRetry');
+  await eventually(async()=>/Lagret privat/.test(await status()));
+  assert.equal(writes.length,posts);
+  assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'0');
+ });
+ await t.test('one 202 batch saves two choices only after both exact receipts and survives a fresh login',async()=>{
+  // First pair was rejected above. Reopen with a fresh session, without any
+  // browser-side command replay; the saved negative must stay out of pending.
+  await page.click('#identityLogout');await page.locator('#login').waitFor();await context.close();f.restart();
+  ({page,context,session}=await open({width:390}));
+  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
+  assert.equal(await first().count(),0);
+  assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
+  // Add a second, explicit single-profile alias through the existing editor.
+  await second().getByRole('button',{name:'Sammenlign resultater / flere valg'}).click();
+  await page.click('#identityLater');
+  await page.locator('#identityEditor details').filter({has:page.getByText('Hovednavn og alias uten sammenslåing',{exact:true})}).locator('summary').click();
+  await page.fill('#identityNewName','Syntetisk Kontrollalias');await page.click('#identityAlias');
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'2');
+  const revision=(await f.identities.get('sogne-morothon')).revision;
+  // A later revision and completed task alone are insufficient. Every exact
+  // command marker is required, including the single-profile alias command.
+  fixture.intercept(async(route,url)=>{
+   if(url.pathname!=='/identity')return false;
+   const current=(await f.request('/identity',undefined,session)).body;
+   if(current.revision<=revision){await fulfilled(route,200,current);return true;}
+   const submitted=current.task.requestIds;
+   const storedCommands=current.draft.cases.flatMap(c=>c.events).filter(e=>/^request-[a-f0-9]{64}$/.test(e.action));
+   assert.equal(submitted.length,2);assert.ok(storedCommands.length>=3);
+   const marker=storedCommands.at(-1).action;
+   for(const c of current.draft.cases)c.events=c.events.filter(e=>e.action!==marker);
+   await fulfilled(route,200,current);return true;
+  });
+  const accepted=page.waitForResponse(r=>new URL(r.url()).pathname==='/identity/batch');
+  await page.click('#identityBatchSubmit');assert.equal((await accepted).status(),202);
+  assert.equal(f.dispatches.length,1);
+  assert.equal((await f.identities.get('sogne-morothon')).revision,revision);
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'2');
+  assert.equal((await f.processNext()).completed,true);
+  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen samlet lagringskvittering')).catch(async error=>{throw Error(error.message+' status='+await status()+' '+JSON.stringify(fixture.traffic.slice(-5)));});
+  assert.equal(await page.locator('[data-identity-count="unsaved"] strong').textContent(),'2');
+  assert.equal(await page.locator('#identityBatchSubmit').isEnabled(),false);
+  fixture.intercept(null);await page.click('#identityRetry');
+  await page.waitForFunction(()=>document.querySelector('[data-identity-count="unsaved"] strong').textContent==='0');
+  assert.equal((await f.identities.get('sogne-morothon')).revision,revision+1);
+  assert.equal(await page.locator('#identityPublication').isVisible(),false);
+  await page.click('#identityLogout');await page.locator('#login').waitFor();await context.close();f.restart();
+  ({page,context,session}=await open({width:768}));
+  assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
+  assert.equal(await page.locator('[data-identity-count="followup"] strong').textContent(),'1');
+ });
+ await t.test('a non-JSON 401 clears the authenticated shell instead of leaving private controls visible',async()=>{
+  await f.request('/logout',{},session);
+  fixture.intercept(async(route,url)=>{
+   if(url.pathname!=='/identity')return false;
+   await route.fulfill({status:401,contentType:'text/html',body:'Session expired'});return true;
+  });
+  await page.click('#identityRefresh');
+  await page.locator('#login').waitFor();
+  assert.equal(await page.locator('#identityService').count(),0);
+ });
+ assert.deepEqual(fixture.errors,[]);assert.equal(f.remote.submitted,0);assert.equal(f.remote.merged,0);
+ assert.ok((await fs.readFile(path.join(fixture.root,'public-data/data/history.json'))).equals(fixture.original));
 });

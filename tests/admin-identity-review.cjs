@@ -324,6 +324,23 @@ test('changed result versions retain stable negative identity evidence, but neve
   assert.equal((await f.store.get(org)).revision,1);
 });
 
+test('a newly imported result year cannot reopen an unchanged rejected identity pair after private reload and explicit source revalidation',async t=>{
+  const f=await setup(t);
+  await f.service.decide({...f.input,command:f.command('different-people')});
+  const imported=[...f.history.results[0]];imported[0]=2027;imported[5]='DNF';
+  f.history.results.push(imported);
+  f.context.base=await C.binding(f.history,{...sample.meta,dataVersion:3});
+  const reopened=createIdentityReview({...f.options,store:privateIdentityFileStore({directory:f.directory,key:f.key})});
+  const loaded=await reopened.load(f.input);
+  assert.equal(loaded.stale,true);assert.equal(loaded.counts.rejected,1);
+  assert.equal(loaded.worklist.identity.find(c=>c.personIds.includes(ids[0])).bucket,'finished');
+  const refreshed=await reopened.revalidate({...f.input,expectedRevision:loaded.revision,expectedDigest:loaded.digest});
+  assert.equal(refreshed.counts.rejected,1);
+  assert.equal(refreshed.worklist.identity.find(c=>c.personIds.includes(ids[0])).bucket,'finished');
+  assert.equal(refreshed.productionApplied,false);assert.equal(refreshed.publicationAuthorized,false);
+  assert.deepEqual(f.history.results.at(-1),imported);
+});
+
 test('rename and alias commands preserve ID and original names without merging or changing results', async t => {
   for (const kind of ['rename','alias']) {
     const f = await setup(t), command = f.command(kind,{personIds:[ids[0]],name:'Syntetisk Kari Vestvik'});
