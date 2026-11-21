@@ -29,6 +29,7 @@ const {
   } = require("../scripts/admin/review-runtime.cjs"),
   { buildSite } = require("../scripts/build-site.cjs");
 const { buildProtectedAdmin } = require("../scripts/build-protected-admin.cjs");
+const { createAdminGateway } = require("../scripts/admin/serverless/admin-gateway.cjs");
 const { ADMIN_SOURCES } = require("../scripts/lib/runtime-files.cjs");
 const C = require("../tools/diploma-admin/intake-model.js").Corrections,
   sample = require("./public/quick/fixtures/corrections-data.js");
@@ -50,7 +51,7 @@ function memory() {
   };
 }
 test(
-  "Pages admin logs in, edits synthetic existing result, reopens private draft, publishes and withdraws through real build/profile controls",
+  "protected admin privately saves manual and CSV corrections, safely reimports, reopens after login, publishes and withdraws through real build/profile controls",
   { timeout: 300000 },
   async (t) => {
     const root = path.resolve(__dirname, ".."),
@@ -102,7 +103,7 @@ test(
         .replace('data-admin-mode="protected"', 'data-admin-mode="public-preview"'));
       protectedFiles.set(name, bytes);
     }
-    let publicFiles = new Map([...runtime.files, ...protectedFiles]);
+    let publicFiles = new Map(runtime.files);
     const browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
       args: ["--no-sandbox"],
@@ -193,7 +194,7 @@ test(
           api.state.checks = "success";
           api.state.deploy = "success";
           if (api.prs.some((p) => p.merged))
-            publicFiles = new Map([...(await build()).files, ...protectedFiles]);
+            publicFiles = new Map((await build()).files);
         },
       }).run();
       if (!result.completed)
@@ -234,6 +235,16 @@ test(
         throw Error("not browser credentials");
       },
     });
+    const gateway = createAdminGateway({
+      portalOrigin: origin, apiOrigin: service, auth,
+      assetSource: async name => {
+        const bytes = protectedFiles.get("admin/" + name);
+        if (!bytes) return null;
+        return {bytes: name === "index.html" ? Buffer.from(bytes.toString().replace(
+          /name="morothon-admin-service" content="[^"]*"/,
+          'name="morothon-admin-service" content="' + service + '"')) : bytes};
+      },
+    });
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1050 },
     });
@@ -241,6 +252,16 @@ test(
     await context.route("**/*", async (route) => {
       const r = route.request(),
         u = new URL(r.url());
+      if (u.origin === origin && u.pathname.startsWith("/admin/")) {
+        const headers = await r.allHeaders();
+        // Model generated same-origin POST metadata only for our own synthetic
+        // frame. The real gateway still checks Origin, PKCE and HttpOnly session.
+        if (r.method() === "POST" && !headers.origin && new URL(r.frame().url()).origin === origin)
+          headers.origin = origin;
+        const res = await gateway(new Request(r.url(), {method:r.method(),headers,
+          ...(r.postData() ? {body:r.postData()} : {})}));
+        return route.fulfill({status:res.status,headers:Object.fromEntries(res.headers),body:await res.text()});
+      }
       if (u.origin === service) {
         const res = await broker.fetch(
           new Request(r.url(), {
@@ -298,17 +319,7 @@ test(
         bytes = publicFiles.get(name);
       if (!bytes) return route.fulfill({ status: 404, body: "Not found" });
       return route.fulfill({
-        body:
-          name === "admin/index.html"
-            ? Buffer.from(
-                bytes
-                  .toString()
-                  .replace(
-                    /name="morothon-admin-service" content="[^"]*"/,
-                    'name="morothon-admin-service" content="' + service + '"',
-                  ),
-              )
-            : bytes,
+        body: bytes,
         contentType:
           {
             ".html": "text/html",
@@ -335,7 +346,9 @@ test(
       });
     async function login() {
       await page.goto(origin + "/admin/#rettelser");
-      await page.locator("#resultServiceLogin").click();
+      assert.equal(await page.locator(".portal-shell").count(),0,"Anonymous login page must not contain the old admin shell");
+      assert.equal(await page.locator("#resultServiceLogin").count(),0,"Protected login does not use the legacy toolbar button");
+      await page.locator("#login").click();
       try {
         await page.waitForFunction(
           () =>
@@ -355,6 +368,9 @@ test(
       await page.waitForFunction(
         () => document.querySelector("#resultServiceSave")?.disabled === false,
       );
+      await page.locator('body[data-admin-ready="true"]').waitFor();
+      assert.equal(await page.locator("body").getAttribute("data-admin-ready"),"true");
+      await page.locator('a[href="#rettelser"]').first().click();
     }
     async function settled(text) {
       try {
@@ -407,6 +423,11 @@ test(
       "Syntetisk arrangørbekreftet testkilde",
     );
     await page.fill("#correctionReason", "Kontrollert syntetisk rettelse.");
+    await importFile('49:57');
+    await page.waitForFunction(()=>document.querySelector('#resultStatus')?.dataset.error==='true');
+    assert.match(await page.locator('#resultStatus').innerText(),/annet ulagret arbeid/);
+    assert.equal(await reviews.get(organizer),null,'Import must not overwrite unsaved manual work');
+    await page.locator('a[href="#rettelser"]').first().click();
     await page.click("#resultServiceSave");
     await settled("Lagret utkast");
     assert.equal(api.prs.length, 0);
@@ -414,6 +435,54 @@ test(
       () => !document.querySelector("#resultServicePublish").disabled,
     );
     assert.match(await page.locator("#resultService").innerText(), /49:58/);
+    async function importFile(time,name='synthetic-results.csv'){
+      await page.locator('a[href="#import"]').first().click();
+      await page.selectOption('#annualImportKind','results');
+      await page.locator('#resultFile').setInputFiles({name,mimeType:'text/csv',buffer:Buffer.from(
+        'Year;Name;Race;Distance;Time;Bib\n2021;Syntetisk Kari Nord;Kortmoro;10 km;'+time+';2')});
+      await page.waitForFunction(()=>!document.querySelector('#resultCompare').disabled);
+      await page.click('#resultCompare');
+      await page.waitForFunction(()=>document.querySelector('#resultStatus')?.textContent.startsWith('Sammenligningen er klar.'));
+      if(await page.locator('[data-result-approve]').count()){
+        await page.locator('.result-case textarea').fill('Kontrollert syntetisk kilde; ingen ekte resultatdata.');
+        await page.locator('[data-result-approve]').click();
+      }
+      await page.waitForFunction(()=>document.querySelector('#resultAttentionCount')?.textContent.includes('0 saker'));
+      assert.equal(await page.locator('#resultPrivateSave').isVisible(),true);
+      assert.equal(await page.evaluate(()=>!!(document.querySelector('#resultPrivateSave').compareDocumentPosition(document.querySelector('#resultCheck')) & Node.DOCUMENT_POSITION_FOLLOWING)),true,
+        'The private save action is initialized above secondary controls after the detached view enters the document');
+      assert.equal(await page.locator('#resultTransfer').isVisible(),false);
+      await page.click('#resultPrivateSave');
+    }
+    async function imported(){
+      await page.waitForFunction(()=>document.querySelector('#resultStatus')?.textContent.includes('privat og kontrollert') ||
+        document.querySelector('#resultStatus')?.textContent.includes('allerede lagret') ||
+        document.querySelector('#resultStatus')?.dataset.error==='true',null,{timeout:100000});
+      assert.equal(await page.locator('#resultStatus').getAttribute('data-error'),'false',await page.locator('#resultStatus').innerText());
+      const work=await page.evaluate(()=>MorothonCorrectionWorkspace.exportDraft());
+      assert.equal(work.cases.length,2,'CSV import retains the unrelated manual correction');
+      assert.equal(work.cases.find(c=>c.change.selector.index===0).change.after[5],'49:58');
+      assert.equal(api.prs.length,0,'Private saving and validation do not approve or publish');
+      return work;
+    }
+    await importFile('49:57');await imported();
+    const firstImport=await reviews.get(organizer);
+    await importFile('49:57');await imported();
+    assert.equal((await reviews.get(organizer)).revision,firstImport.revision,'Identical reimport does not create a new revision');
+    await importFile('49:56','synthetic-updated-results.csv');
+    await page.locator('#resultReplacePrivate').waitFor();
+    assert.equal((await reviews.get(organizer)).revision,firstImport.revision,'Conflict leaves saved data intact');
+    assert.match(await page.locator('#resultPrivateConflicts').innerText(),/49:57/);
+    assert.match(await page.locator('#resultPrivateConflicts').innerText(),/49:56/);
+    for(const width of [1440,768,390]){
+      await page.setViewportSize({width,height:1050});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      if(process.env.MOROTHON_C1_REVIEW_DIR){const out=path.join(process.env.MOROTHON_C1_REVIEW_DIR,'serverless');await fs.mkdir(out,{recursive:true});
+        await page.screenshot({path:path.join(out,'privat-reimport-'+width+'.png'),fullPage:true});}
+    }
+    await page.click('#resultReplacePrivate');await imported();
+    assert.equal((await reviews.get(organizer)).draft.cases.find(c=>c.change.selector.index===1).change.after[5],'49:56');
+    await page.locator('a[href="#rettelser"]').first().click();
     assert.deepEqual(
       await page.evaluate(() => ({
         local: { ...localStorage },
@@ -423,11 +492,15 @@ test(
       "No API or provider credentials persist in browser storage",
     );
     await page.reload();
-    await page.locator("#resultServiceLogin").waitFor();
+    await page.locator('body[data-admin-ready="true"]').waitFor();
+    assert.equal(await page.locator("#resultServiceLogin").isVisible(),false,
+      "Reload reuses the verified HttpOnly session instead of flashing the legacy login toolbar");
     assert.equal(
       await page.locator("#resultServicePublish").isDisabled(),
       true,
     );
+    await page.click("#resultServiceLogout");
+    await page.locator("#login").waitFor();
     await login();
     await page.click("#resultServiceLoad");
     await page.waitForFunction(
@@ -440,6 +513,7 @@ test(
       ),
       "49:58",
     );
+    assert.equal(await page.evaluate(()=>MorothonCorrectionWorkspace.exportDraft().cases.find(c=>c.change.selector.index===1).change.after[5]),'49:56');
     for (const width of [1440, 768, 390]) {
       await page.setViewportSize({ width, height: 1050 });
       assert.equal(
@@ -475,6 +549,7 @@ test(
       api.read("data/history.json"),
       api.read("public-data/data/history.json"),
     );
+    assert.equal(JSON.parse(api.read('data/history.json')).results[1][5],'49:56');
     const actual = await context.newPage();
     await actual.goto(origin + "/index.html#lop=MOR-C220001");
     await actual.locator("#panel:not([hidden])").waitFor();
@@ -504,6 +579,7 @@ test(
       "50:00",
     );
     assert.equal(api.prs.length, 2);
+    assert.equal(JSON.parse(api.read('data/history.json')).results[1][5],'50:00');
     assert.deepEqual(errors, []);
     assert.deepEqual(
       await fs.readFile(path.join(root, "public-data/data/history.json")),

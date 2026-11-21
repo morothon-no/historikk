@@ -12,8 +12,7 @@
 <header class="portal-header"><div><p class="breadcrumb">MOROTHON / ADMINISTRASJON</p><h1 id="pageTitle" tabindex="-1">Oversikt</h1><p id="pageDescription">Et godt utgangspunkt for neste Morothon.</p></div><span class="local-tag">Utviklingsversjon · lokal tilgang</span></header>
 <main id="portalMain" tabindex="-1">
 <section id="view-oversikt" data-view="oversikt" aria-label="Oversikt">
-  <div class="welcome-card"><div><span class="eyebrow">SAMMEN SKAPER VI MOROTHON</span><h2>Små forberedelser.<br>Store øyeblikk.</h2><p>Historikken, menneskene og milepælene samlet på ett sted.</p><a class="action-link light" href="#diplomer">Åpne diplomverkstedet <span aria-hidden="true" class="link-arrow"><svg viewBox="0 0 16 16"><path d="M3 13L13 3M4 3h9v9"/></svg></span></a></div><img id="overviewRunner" alt="" hidden></div>
-  <div id="overviewMetrics" class="metric-grid" aria-label="Nøkkeltall"><p>Laster historikken …</p></div>
+  <!-- Task-first dashboard: retain existing routes and data contracts. -->
   <section class="admin-work-hub" aria-labelledby="adminWorkHeading">
     <div class="section-heading"><div><h2 id="adminWorkHeading">Hva vil du gjøre?</h2></div></div>
     <p class="hint">Velg en oppgave. Du får bare spørsmålene som trengs underveis. Ingenting publiseres automatisk.</p>
@@ -27,6 +26,10 @@
     </div>
     <p class="admin-work-footnote">Lagring, godkjenning og offentlig publisering er ulike steg. Funksjoner som ennå ikke støtter publisering, skal ikke fremstilles som publiserte endringer.</p>
   </section>
+
+  <div class="welcome-card"><div><span class="eyebrow">SAMMEN SKAPER VI MOROTHON</span><h2>Små forberedelser.<br>Store øyeblikk.</h2><p>Historikken, menneskene og milepælene samlet på ett sted.</p><a class="action-link light" href="#diplomer">Åpne diplomverkstedet <span aria-hidden="true" class="link-arrow"><svg viewBox="0 0 16 16"><path d="M3 13L13 3M4 3h9v9"/></svg></span></a></div><img id="overviewRunner" alt="" hidden></div>
+  <div id="overviewMetrics" class="metric-grid" aria-label="Nøkkeltall"><p>Laster historikken …</p></div>
+
   <div class="shortcut-grid"><a href="#deltakere"><span>01 · DELTAKERE</span><strong>Finn en løper</strong><p>Søk i navn, år og registrerte resultater.</p><b aria-hidden="true" class="link-arrow"><svg viewBox="0 0 16 16"><path d="M3 13L13 3M4 3h9v9"/></svg></b></a><a href="#merker"><span>02 · MERKER</span><strong>Se milepælene</strong><p>Opptjente merker og veien til neste nivå.</p><b aria-hidden="true" class="link-arrow"><svg viewBox="0 0 16 16"><path d="M3 13L13 3M4 3h9v9"/></svg></b></a><a href="#diplomer"><span>03 · DIPLOMER</span><strong>Gjør klar en utskriftsjobb</strong><p>Velg mottakere og lag en samlet A4-PDF.</p><b aria-hidden="true" class="link-arrow"><svg viewBox="0 0 16 16"><path d="M3 13L13 3M4 3h9v9"/></svg></b></a></div>
   <div class="dashboard-grid"><section class="panel"><div class="section-heading"><div><h2 id="milestoneTitle">Årets milepæler</h2></div><a href="#merker">Alle merker</a></div><p id="milestoneSummary" class="hint"></p><div id="overviewMilestones"></div></section><section class="panel"><div class="section-heading"><h2>De siste utgavene</h2></div><p class="hint">Individuelle deltakere · ett år per person</p><div id="overviewEditions" class="edition-list"></div><p class="hint">DNS teller ikke. DNF teller. Stafettlag holdes separat.</p></section></div>
 </section>

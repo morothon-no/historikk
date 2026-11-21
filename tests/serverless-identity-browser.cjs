@@ -25,6 +25,20 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const built=await buildSite(path.join(assets,'browser-site'),{dataDir:data,approvalFile:approval});
  const runtime=await approvedRuntime(built.out,approval),protectedDir=path.join(assets,'protected-assets');
  await buildProtectedAdmin(protectedDir);
+ const protectedHtml=await fs.readFile(path.join(protectedDir,'admin/index.html'),'utf8');
+ // Task-first overview is shared by the protected Worker shell and local admin.
+ const taskHub=protectedHtml.indexOf('class="admin-work-hub"');
+ const welcome=protectedHtml.indexOf('class="welcome-card"');
+ assert.ok(taskHub>0 && welcome>taskHub,'admin work cards must appear before decorative welcome content');
+ assert.equal((protectedHtml.match(/class="admin-work-card"/g)||[]).length,6,
+   'all six existing task routes must be retained after reordering');
+ const bootStylePosition=protectedHtml.indexOf('<style data-morothon-protected-boot>');
+ assert.ok(bootStylePosition>0,'protected admin must include critical pre-paint shell-hiding CSS');
+ assert.ok(bootStylePosition<protectedHtml.indexOf('href="./intake.css"'),
+   'legacy shell must be hidden before loading external CSS');
+ assert.ok(protectedHtml.slice(bootStylePosition,protectedHtml.indexOf('</style>',bootStylePosition))
+   .includes(':not([data-admin-ready="true"]) .portal-shell{visibility:hidden}'),
+   'critical style must hide the uninitialized protected admin shell');
  const files=new Map(runtime.files);
  for(const name of Object.keys(ADMIN_SOURCES)){
   let bytes=await fs.readFile(path.join(protectedDir,name));
@@ -81,7 +95,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
   return {context,page,session};
  }
  try {
- const {page,context,session}=await open();
+ let {page,context,session}=await open();
  assert.equal((await fs.stat(f.directory)).mode&0o777,0o700,'The private store must create its own 0700 directory under CI umask 0022');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Ingen lagrede'));
  assert.equal(await page.locator('body').getAttribute('data-admin-ready'),'true','protected admin shell appears only after confirmed startup');
@@ -99,22 +113,56 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok(actionWidths.every(w=>w<260),'quick decisions should not stretch to full card width');
  assert.equal(await first.getByRole('button',{name:'Forskjellige personer',exact:true}).count(),1,'Every pending pair must expose the distinct-person quick choice');
  assert.equal(await first.getByRole('button',{name:'Samme person',exact:true}).count(),1,'Every pending pair must expose direct same-person choice');
- assert.equal(await first.getByRole('button',{name:'Undersøk senere'}).count(),1,'Every pending pair must expose a session-only defer choice');
+ assert.equal(await first.getByRole('button',{name:'Undersøk senere'}).count(),1,'Every pending pair must expose an editable defer choice');
  const colored=await first.locator('.identity-quick-actions button').evaluateAll(buttons=>buttons.map(b=>({color:getComputedStyle(b).backgroundColor,foreground:getComputedStyle(b).color,height:b.getBoundingClientRect().height})));
  assert.equal(colored.length,3);
  assert.notEqual(colored[0].color,colored[1].color,'same and distinct identity decisions must have distinct visible colors');
  assert.ok(colored.every(b=>b.height>=44),'quick choices must have usable touch targets');
- // Deferring a suggestion changes the active worklist and counts, never storage.
- assert.match(await page.locator('#identityServiceCounts').textContent(),/2Ubehandlede/);
+ // A click is an editable choice only. The single batch action saves a real
+ // follow-up, which must survive logout, broker restart and a fresh login.
  await first.getByRole('button',{name:'Undersøk senere'}).click();
- await page.waitForFunction(()=>document.querySelector('#identityServiceCounts').textContent.includes('1Ubehandlede'));
- assert.match(await page.locator('#identityServiceCounts').textContent(),/1Undersøk senere \(kun økten\)/);
- assert.equal((await f.identities.get('sogne-morothon')),null,'defer must not persist identities');
+ await page.waitForFunction(()=>document.querySelectorAll('#identityBatchTray .identity-batch-entry').length===1);
+ assert.match(await page.locator('#identityServiceCounts').textContent(),/1Ubehandlede/,'A staged defer must leave only the remaining pair in the pending count');
+ assert.equal(await page.locator('[data-identity-count="session-followup"] strong').textContent(),'1');
+ assert.equal(await page.locator('[data-identity-count="followup"] strong').textContent(),'0','A local choice must never be counted as a server-saved follow-up');
+ assert.equal(await page.locator('#identityBatchTray .identity-batch-entry').count(),1);
+ assert.equal(await f.identities.get('sogne-morothon'),null);
+ await page.locator('#identityBatchTray').getByRole('button',{name:'Angre',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelectorAll('#identityBatchTray .identity-batch-entry').length===0);
+ await page.waitForFunction(()=>document.querySelectorAll('#identityWorklist article').length===2);
+ assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'2');
+ assert.equal(await page.locator('[data-identity-count="session-followup"] strong').textContent(),'0');
+ await first.getByRole('button',{name:'Undersøk senere'}).click();
  await page.selectOption('#identityFilter','followup');
  assert.equal(await page.locator('#identityWorklist article').count(),1);
  await page.selectOption('#identityFilter','pending');
  assert.equal(await page.locator('#identityWorklist article').count(),1);
  await page.selectOption('#identityFilter','all');
+ await page.click('#identityBatchSubmit');
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
+ assert.equal((await f.processNext()).completed,true);
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
+ assert.equal(await page.locator('#identityBatchTray .identity-batch-entry').count(),0);
+ assert.equal(await page.locator('[data-identity-count="followup"] strong').textContent(),'1');
+ assert.equal(await page.locator('[data-identity-count="session-followup"] strong').textContent(),'0');
+ const deferredId=(await f.identities.get('sogne-morothon')).draft.cases[0].id;
+ await page.click('#identityLogout');await page.locator('#login').waitFor();
+ await context.close();f.restart();
+ ({page,context,session}=await open({width:768}));
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
+ assert.equal(await page.locator('#identityWorklist article').count(),1,'Deferred pair is no longer unprocessed after a fresh login');
+ await page.selectOption('#identityFilter','followup');
+ assert.equal(await page.locator('#identityWorklist article').count(),1);
+ assert.ok((await page.locator('#identityWorklist').textContent()).includes('Syntetisk Kari N. Nord'));
+ for(const width of [1440,768,390]){
+  await page.setViewportSize({width,height:1000});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Saved follow-up fits viewport '+width);
+  if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR){
+   await fs.mkdir(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,{recursive:true});
+   await page.screenshot({path:path.join(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,'oppfolging-'+width+'.png'),fullPage:true});
+  }
+ }
+ await page.setViewportSize({width:768,height:1000});
  await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'}).getByRole('button',{name:'Sammenlign resultater / flere valg'}).click();
  assert.equal(await page.locator('#identityEditor').evaluate(e=>document.activeElement===e),true,'comparison must receive focus');
  assert.equal(await page.locator('#identityEditor').evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=-2&&r.top<innerHeight-60;}),true,'comparison must be scrolled into the visible viewport');
@@ -122,14 +170,17 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  const firstDecision=page.waitForResponse(r=>new URL(r.url()).pathname==='/identity/batch'&&r.request().method()==='POST');
  await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'}).getByRole('button',{name:'Samme person',exact:true}).click();
  assert.equal(await page.locator('#identityBatchTray .identity-batch-entry').count(),1);
- assert.equal((await f.identities.get('sogne-morothon')),null,'click alone must not write');
+ assert.equal((await f.identities.get('sogne-morothon')).revision,1,'click alone must not change the saved follow-up');
  await page.click('#identityBatchSubmit');
  assert.equal((await firstDecision).status(),202,'The authenticated identity POST must pass the real Origin gate');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
  assert.equal(await page.locator('#identityLogout').isEnabled(),true);
- assert.equal((await f.identities.get('sogne-morothon')),null);
+ assert.equal((await f.identities.get('sogne-morothon')).revision,1);
  assert.equal((await f.processNext()).completed,true);
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
+ assert.equal((await f.identities.get('sogne-morothon')).draft.cases[0].id,deferredId,'Resolving a follow-up preserves its case identity');
+ assert.equal(await page.locator('[data-identity-count="followup"] strong').textContent(),'0');
+ await page.selectOption('#identityFilter','pending');
  await page.waitForFunction(()=>document.querySelectorAll('#identityWorklist article').length===1);
  assert.ok((await page.locator('#identityServiceCounts').textContent()).includes('1Behandlede'));
  // The remaining identical-name profiles have overlapping starts. A failed
@@ -139,12 +190,12 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  await page.click('#identitySame');await page.click('#identityBatchSubmit');await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
  assert.equal((await f.processNext()).completed,false);
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Overlapp'));
- assert.equal((await f.identities.get('sogne-morothon')).revision,1);
+ assert.equal((await f.identities.get('sogne-morothon')).revision,2);
  await page.click('#identityDifferent');
  await page.click('#identityBatchSubmit');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
  assert.equal((await f.processNext()).completed,true);
- await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('revisjon 2'));
+ await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('revisjon 3'));
  assert.equal(await page.locator('#identityWorklist article').count(),0);
  const counts=await page.locator('#identityServiceCounts').textContent();
  assert.ok(counts.includes('0Ubehandlede'));assert.ok(counts.includes('1Behandlede'));assert.ok(counts.includes('1Avviste par'));
@@ -172,7 +223,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok((await fs.readFile(path.join(root,'public-data/data/history.json'))).equals(original));
  const anonymous=await open({authenticated:false});await anonymous.page.locator('#login').waitFor();
  assert.equal(await anonymous.page.locator('#identityService').count(),0);
- assert.ok(modeledIdentityReads>=2,'Both fresh logins must exercise the initial read without generated Fetch Metadata');
+ assert.ok(modeledIdentityReads>=3,'Every fresh login must exercise the initial read without generated Fetch Metadata');
  } catch(error) {
   const ui=await Promise.all(pages.filter(p=>!p.isClosed()).map(p=>p.evaluate(()=>({
    hash:location.hash,status:document.querySelector('#identityServiceStatus')?.textContent,

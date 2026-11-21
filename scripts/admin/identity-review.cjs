@@ -14,6 +14,8 @@ const copy = v => structuredClone(v);
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
 const sha = v => createHash('sha256').update(JSON.stringify(v)).digest('hex');
 const fail = message => { throw Error(message); };
+const deferred = c => c.status === 'review' && !c.change &&
+  c.events.filter(e => /^identity-(defer|same-person|different-people)$/.test(e.action)).at(-1)?.action === 'identity-defer';
 
 // A trusted server factory opens a physically separate namespace in an existing
 // encrypted CAS adapter. Never use an organizer ID as a pseudo-module/tenant ID.
@@ -73,7 +75,8 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     const identities = worklist.identity;
     return {...saved, scope:SCOPE, persisted:saved.revision > 0,
       digest:saved.draft ? sha(saved.draft) : null, worklist,
-      counts:{unprocessed:identities.filter(c => c.bucket !== 'finished').length,
+      counts:{unprocessed:identities.filter(c => c.bucket === 'pending').length,
+        followup:identities.filter(c => c.bucket === 'followup').length,
         processed:identities.filter(c => c.bucket === 'finished' && c.caseStatus !== 'rejected').length,
         rejected:identities.filter(c => c.caseStatus === 'rejected').length},
       requiresSourceReview:saved.stale,
@@ -137,13 +140,14 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
       normalized = C.transition(normalized, c.id, 'handoff', c.reason, review.impacts.find(i => i.caseId === c.id));
     return {draft:normalized, review};
   }
-  async function prepare(input, draftOverride = null) {
+  async function prepare(input, draftOverride = null, reviewCandidate = true) {
     await access(input, 'write');
     const intent = command(input.command), saved = await service.load(input), current = await context(input.organizer);
     if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0) fail('Ugyldig forventet revisjon.');
     if (!equal(intent.base, current.base) || saved.stale) fail('Foreldet identitetsgrunnlag krever ny kildekontroll.');
-    const request = 'request-' + sha(intent), draft = draftOverride || saved.draft || C.empty(current.base);
-    const previous = draft.cases.find(c => c.id === intent.id);
+    const request = 'request-' + sha(intent), requestId = 'request-id-' + sha(intent.id),
+      draft = draftOverride || saved.draft || C.empty(current.base);
+    const previous = draft.cases.find(c => c.id === intent.id || c.events.some(e => e.action === requestId));
     if (previous) {
       if (!previous.events.some(e => e.action === request)) fail('Saks-ID er allerede brukt for en annen beslutning.');
       return {saved, current, repeated:true, requestId:intent.id};
@@ -159,33 +163,42 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     const suggestion = suggestions.find(s => equal([...s.personIds].sort(), intent.personIds)) ||
       C.discover({...current.history, results:[]}).find(s => equal([...s.personIds].sort(), intent.personIds));
     const old = draft.cases.filter(c => equal([...c.personIds].sort(), intent.personIds));
-    if (old.length) {
+    const followup = old.length === 1 && deferred(old[0]) ? old[0] : null;
+    if (old.length && !followup) {
       const reviewed = suggestion && (await C.reviewSuggestions([suggestion], draft))[0];
       if (!reviewed || reviewed.caseId || old.some(c => c.status !== 'rejected') ||
           old.some(c => c.source === intent.source || c.reason === intent.reason))
         fail('Identiteten er allerede vurdert. Ny vurdering krever nytt dokumentert identitetsgrunnlag.');
     }
-    let next = suggestion ? (await C.openSuggestion(draft, suggestion, intent.id)).package :
+    const caseId = followup?.id || intent.id;
+    let next = followup ? copy(draft) : suggestion ? (await C.openSuggestion(draft, suggestion, intent.id)).package :
       C.report(draft, {id:intent.id, category:'Mulige duplikater', personIds:intent.personIds,
         description:intent.reason, source:intent.source});
-    if (!suggestion && intent.personIds.length === 2) next.cases.at(-1).events.push({
+    if (followup) next.cases.find(c => c.id === caseId).events.push({
+      at:new Date(clock ? clock() : Date.now()).toISOString(), action:'identity-followup-reviewed',
+      reason:'Tidligere oppfølgingskilde: ' + followup.source
+    });
+    if (!followup && !suggestion && intent.personIds.length === 2) next.cases.at(-1).events.push({
       at:new Date(clock ? clock() : Date.now()).toISOString(), action:'identity-basis-' + sha({manualPair:intent.personIds}),
       reason:'Manuelt vurdert par uten automatisk navnetreff. Nye navnesignaler krever separat vurdering.'
     });
-    next = C.updateNotes(next, intent.id, {description:intent.reason, source:intent.source, reason:intent.reason});
-    if (intent.kind === 'different-people') next = C.transition(next, intent.id, 'rejected', intent.reason);
+    next = C.updateNotes(next, caseId, {description:intent.reason, source:intent.source, reason:intent.reason});
+    if (intent.kind === 'defer') next = C.transition(next, caseId, 'review', intent.reason);
+    else if (intent.kind === 'different-people') next = C.transition(next, caseId, 'rejected', intent.reason);
     else {
       const kind = { 'same-person':'merge', rename:'person', alias:'alias' }[intent.kind];
       const personIds = kind === 'merge' ? [intent.personIds.find(id => id !== intent.mainPersonId), intent.mainPersonId] : intent.personIds;
       const after = kind === 'person' ? {n:intent.name} : kind === 'alias' ?
         [...new Set([...(current.history.aliases?.[personIds[0]] || []), intent.name])] : null;
-      next = await C.propose(current.history, next, intent.id, {kind, personIds, after, source:intent.source, reason:intent.reason});
+      next = await C.propose(current.history, next, caseId, {kind, personIds, after, source:intent.source, reason:intent.reason});
     }
-    next.cases.find(c => c.id === intent.id).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
+    next.cases.find(c => c.id === caseId).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
       action:request, reason:'Serverbundet identitetsbeslutning. Ingen publisering.'});
-    next.cases.find(c => c.id === intent.id).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
+    next.cases.find(c => c.id === caseId).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
+      action:requestId, reason:'Gjenbruk av kommando-ID med endret innhold er ikke tillatt.'});
+    next.cases.find(c => c.id === caseId).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
       action:'identity-' + intent.kind, reason:intent.reason});
-    return {...await checked(current, next), saved, current, repeated:false, requestId:intent.id};
+    return {...(reviewCandidate ? await checked(current, next) : {draft:next}), saved, current, repeated:false, requestId:intent.id};
   }
   async function preview(input) {
     const result = await prepare(input);
@@ -216,17 +229,20 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     }
     let accumulated=null, final=null;
     for(const c of commands) {
-      final=await prepare({...input,command:c},accumulated);
+      final=await prepare({...input,command:c},accumulated,false);
       if(final.repeated)fail('En avgjørelse finnes allerede. Hent lagrede avgjørelser før ny innsending.');
       accumulated=final.draft;
     }
+    // Keep every existing per-case consequence and conflict check, but run them
+    // on the complete candidate once. Intermediate packages are never saved.
+    const verified=await checked(final.current,accumulated);
     await access(input,'write');
     if(!equal((await loadContext(input.organizer)).base,final.current.base))
       fail('Historikkgrunnlaget endret seg under samlet kontroll.');
-    const saved=await service.save({...input,draft:accumulated});
+    const saved=await service.save({...input,draft:verified.draft});
     return {...saved,scope:SCOPE,persisted:true,batchCount:commands.length,
       productionApplied:false,publicationAuthorized:false,
-      review:final.review};
+      review:verified.review};
   }
 
   async function approve(input) {
@@ -261,14 +277,16 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     const suggestions = C.discover({...current.history,results:[]});
     let draft = C.empty(current.base);
     for (const old of previous.draft.cases) {
-      if (old.status !== 'rejected' || !old.events.some(e=>e.action === 'identity-different-people')) continue;
+      const followup = deferred(old);
+      if (!followup && (old.status !== 'rejected' || !old.events.some(e=>e.action === 'identity-different-people'))) continue;
       const suggestion = suggestions.find(s=>equal([...s.personIds].sort(),[...old.personIds].sort()));
       if (!suggestion || (await C.reviewSuggestions([suggestion],previous.draft))[0].caseId !== old.id) continue;
       draft = (await C.openSuggestion(draft,suggestion,old.id)).package;
       draft = C.updateNotes(draft,old.id,{description:old.description,source:old.source,reason:old.reason});
-      draft = C.transition(draft,old.id,'rejected',old.reason);
+      draft = C.transition(draft,old.id,followup ? 'review' : 'rejected',old.reason);
       draft.cases.at(-1).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
-        action:'identity-different-people',reason:'Tidligere bekreftet avvisning med uendret identitetsgrunnlag.'});
+        action:followup ? 'identity-defer' : 'identity-different-people',
+        reason:followup ? 'Tidligere utsatt sak med uendret identitetsgrunnlag.' : 'Tidligere bekreftet avvisning med uendret identitetsgrunnlag.'});
     }
     const actor = await authenticate(input.session); authorize(actor,input.organizer,'approve');
     if (!equal((await loadContext(input.organizer)).base,current.base)) fail('Historikken ble oppdatert under kontrollen.');

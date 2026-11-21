@@ -20,7 +20,18 @@ async function buildProtectedAdmin(out = DEST) {
     let bytes = await fs.readFile(path.join(root, source));
     if (filename === "admin/index.html") {
       let html = bytes.toString("utf8");
-      html = html.replace(/<meta name="local-session"[^>]*>/, "")
+      // Critical pre-paint CSS must be present in the initial HTML head.
+      // Waiting for intake.css to load can briefly reveal the legacy admin
+      // shell during OAuth handoff, even when the later CSS hides it.
+      const bootStyle = '<style data-morothon-protected-boot>' +
+        'body.portal-app[data-admin-mode="protected"]:not([data-admin-ready="true"]) .portal-shell{visibility:hidden}' +
+        'body.portal-app[data-admin-mode="protected"]:not([data-admin-ready="true"])::before{' +
+        'content:"Åpner administrasjonen …";position:fixed;inset:0;z-index:1000;display:grid;' +
+        'place-items:center;padding:24px;background:#f3f3ed;color:#123b41;' +
+        'font:600 16px/1.5 Arial,Helvetica,sans-serif;text-align:center}' +
+        '</style>';
+      html = html.replace('<head>', '<head>' + bootStyle)
+        .replace(/<meta name="local-session"[^>]*>/, "")
         .replace('<body class="portal-app">', '<body class="portal-app" data-admin-mode="protected">')
         .replace('sandbox="allow-same-origin"', 'sandbox="allow-same-origin allow-modals"')
         .replace('<meta name="morothon-admin-service" content="">',
@@ -34,6 +45,7 @@ async function buildProtectedAdmin(out = DEST) {
           '<script defer src="' + f + '"></script>').join("");
       html = html.replace('<script defer src="./admin.js', scripts + '<script defer src="./admin.js');
       if (!html.includes('data-admin-mode="protected"') ||
+          !html.includes('data-morothon-protected-boot') ||
           !html.includes('name="morothon-admin-service" content="' + API + '"') ||
           !html.includes('src="web-transport.js"'))
         throw Error("Protected admin HTML rewrite failed");
