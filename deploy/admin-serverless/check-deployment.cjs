@@ -320,6 +320,9 @@ async function verifyHealth(c, {
   fetchImpl = fetch,
   sleep = ms => new Promise(resolve => setTimeout(resolve, ms)),
 } = {}) {
+  // Only this locally constructed error may retain details through the final
+  // sanitizer. Never pass through upstream error text, bodies or raw Location.
+  class PublicPagesFailure extends Error {}
   // Workers and zone routes can propagate across edge locations after deploy.
   // A bounded retry never bypasses an individual security assertion.
   async function probe() {
@@ -407,23 +410,29 @@ async function verifyHealth(c, {
       signal: AbortSignal.timeout(20000),
     });
     let safe = [404, 410].includes(pagesAlias.status);
+    let observed = `HTTP ${pagesAlias.status}`;
     if (!safe && [301, 302, 307, 308].includes(pagesAlias.status)) {
       const location = pagesAlias.headers.get("location") || "";
       let target;
       try { target = new URL(location, aliasUrl); } catch {}
       const intended = new URL(asset, publicBase);
+      const reportable = target && target.origin === intended.origin &&
+        !target.username && !target.password &&
+        [intended.pathname, aliasUrl.pathname].includes(target.pathname);
+      observed += reportable ? ` → ${target.origin}${target.pathname}` : " → uventet omdirigeringsmål (skjult)";
       if (target && target.origin === intended.origin &&
           target.pathname === intended.pathname && target.search === intended.search) {
         const final = await fetchImpl(target, {
           method: "GET", redirect: "error", cache: "no-store",
           signal: AbortSignal.timeout(20000),
         });
+        observed += ` (HTTP ${final.status})`;
         safe = [404, 410].includes(final.status);
       }
     }
-    requireThat(safe,
+    if (!safe) throw new PublicPagesFailure(
       "Den gamle offentlige Pages-adressen leverer fortsatt admin: " +
-        aliasUrl.pathname);
+        aliasUrl.href + ` (${observed}). Krav: endelig HTTP 404 eller 410.`);
   }
   return {
     health: "ok",
@@ -457,6 +466,7 @@ async function verifyHealth(c, {
     "Den gamle offentlige Pages-adressen leverer fortsatt admin:",
   ];
   const msg = String(failure?.message || "");
+  if (failure instanceof PublicPagesFailure) throw failure;
   const detail = safeMessages.find(prefix => msg.startsWith(prefix));
   throw Error(detail || "Nettverksfeil eller uventet svar i Worker-kontrollen.");
 }
