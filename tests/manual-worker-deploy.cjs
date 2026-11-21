@@ -310,6 +310,42 @@ test("post-deploy health verification performs only safe GETs and rejects anonym
     /Anonym/,
   );
 });
+test("Pages canonical redirects still require a real missing route; failures identify the exact public URL and statuses without leaking response data", async () => {
+  const c=await readConfig(),alias='https://morothon-no.github.io/historikk/admin/',
+    canonical='https://historikk.morothon.no/admin/',calls=[];
+  let finalStatus=404,unexpected=false;
+  const fetchImpl=async (input,options)=>{
+    const url=String(input);calls.push({url,options});
+    if(url===c.vars.API_ORIGIN+'/health')return Response.json({status:'ok'});
+    if(url===c.vars.API_ORIGIN+'/review')return new Response('',{status:401});
+    if(url===c.vars.PORTAL_URL||url===c.vars.PORTAL_URL+'index.html')
+      return new Response('<html>Logg inn med GitHub</html>',{headers:{'Content-Type':'text/html'}});
+    if(url===c.vars.API_ORIGIN+'/site/public-manifest.json')return Response.json({schemaVersion:1});
+    if(url===c.vars.API_ORIGIN+'/site/admin/admin.js')return new Response('',{status:404});
+    if(url.startsWith(c.vars.PORTAL_URL))return new Response('',{status:401});
+    if(url.startsWith(alias))return new Response(null,{status:301,headers:{Location:
+      unexpected?'https://untrusted.example.test/admin/?token=synthetic-secret':new URL(url.slice(alias.length),canonical).href}});
+    if(url.startsWith(canonical))return new Response(finalStatus===404?'Not found':'synthetic-private-body portal-shell',{status:finalStatus,
+      headers:{'Content-Type':'text/html','Set-Cookie':'synthetic-private-cookie'}});
+    throw Error('Unexpected synthetic URL');
+  };
+  const check=()=>verifyHealth(c,{fetchImpl,sleep:async()=>{}});
+  assert.equal((await check()).publicPagesAlias,'no-admin-content');
+  for(const suffix of ['', 'index.html','admin.js','admin.css','web-transport.js','event-profile.json','diploma-adapter.js','admin.js.map'])
+    assert.ok(calls.some(call=>call.url===canonical+suffix),'final canonical status must be checked: '+suffix);
+  assert.ok(calls.every(call=>call.options.method==='GET'&&!call.options.headers?.Authorization));
+  for(finalStatus of [200,401,403,500])await assert.rejects(check(),error=>{
+    assert.ok(error.message.includes(alias));assert.ok(error.message.includes('HTTP 301'));
+    assert.ok(error.message.includes(canonical));assert.ok(error.message.includes('HTTP '+finalStatus));
+    assert.doesNotMatch(error.message,/synthetic-private|portal-shell/);return true;
+  });
+  unexpected=true;calls.length=0;
+  await assert.rejects(check(),error=>{
+    assert.ok(error.message.includes(alias));assert.match(error.message,/uventet omdirigeringsmål/);
+    assert.doesNotMatch(error.message,/synthetic-secret|untrusted/);return true;
+  });
+  assert.ok(!calls.some(call=>call.url.startsWith('https://untrusted.example.test')));
+});
 test("manual workflow has no automatic trigger, write/deploy permissions, public artifact or direct PR-code execution", async () => {
   const file = await fs.readFile(
     path.join(__dirname, "../.github/workflows/deploy-admin-worker.yml"),
