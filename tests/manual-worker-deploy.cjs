@@ -6,6 +6,8 @@ const test = require("node:test"),
   path = require("node:path");
 const {
   readConfig,
+  releaseConfig,
+  verifyReleaseSource,
   validateConfig,
   verifySource,
   validateDispatch,
@@ -147,6 +149,52 @@ test("source guard rejects changed Worker/runtime and non-ancestor pins, without
       }),
     /non-ancestor/,
   );
+});
+
+test('a coordinated release requires independent exact tuple approval and the numeric owner; operator inputs cannot approve themselves',async()=>{
+  const c=await readConfig(),approved={version:1,processorCodeSha:'a'.repeat(40),privateWorkflowSha:'b'.repeat(40),rollbackVersionId:version},
+    e={...environment(c),GITHUB_SHA:'c'.repeat(40),GITHUB_ACTOR_ID:c.vars.OWNER_GITHUB_ID,
+      VERIFIED_PRIVATE_WORKFLOW_SHA:approved.privateWorkflowSha,MOROTHON_ADMIN_RELEASE:JSON.stringify(approved)};
+  const next=releaseConfig(c,e);
+  assert.equal(next.vars.PROCESSOR_CODE_SHA,approved.processorCodeSha);
+  assert.equal(next.vars.PRIVATE_WORKFLOW_SHA,approved.privateWorkflowSha);
+  const expected=clone(c);expected.vars.PROCESSOR_CODE_SHA=approved.processorCodeSha;expected.vars.PRIVATE_WORKFLOW_SHA=approved.privateWorkflowSha;
+  assert.deepEqual(next,expected);assert.equal(c.vars.PROCESSOR_CODE_SHA,'ff7f99c1e60a951ba5ca6762edb95bff62c0f4d2');
+  for(const change of [
+    {MOROTHON_ADMIN_RELEASE:undefined},{MOROTHON_ADMIN_RELEASE:'{}'},{MOROTHON_ADMIN_RELEASE:'invalid'},
+    {GITHUB_ACTOR_ID:'999'},{GITHUB_EVENT_NAME:'pull_request'},{GITHUB_REF:'refs/heads/feature'},
+    {VERIFIED_PRIVATE_WORKFLOW_SHA:'d'.repeat(40)},{ROLLBACK_VERSION_ID:'22222222-2222-4222-8222-222222222222'},
+    {MOROTHON_ADMIN_RELEASE:JSON.stringify({...approved,extra:'unknown'})},
+    {MOROTHON_ADMIN_RELEASE:JSON.stringify({...approved,processorCodeSha:'0'.repeat(40)})},
+    {MOROTHON_ADMIN_RELEASE:JSON.stringify({...approved,processorCodeSha:['a'.repeat(40)]})},
+    {MOROTHON_ADMIN_RELEASE:JSON.stringify({...approved,privateWorkflowSha:'refs/heads/main'})},
+  ])assert.throws(()=>releaseConfig(c,{...e,...change}));
+  const operatorSubstitution={...e,VERIFIED_PRIVATE_WORKFLOW_SHA:'d'.repeat(40)};
+  assert.throws(()=>releaseConfig(c,operatorSubstitution),/separat godkjente/);
+});
+
+test('runtime release verifies exact checkout, identical committed trees, original core guard and only two mutable pin fields',async()=>{
+  const c=await readConfig(),source='a'.repeat(40),head='c'.repeat(40),next=clone(c);
+  next.vars.PROCESSOR_CODE_SHA=source;next.vars.PRIVATE_WORKFLOW_SHA='b'.repeat(40);
+  const base=args=>{
+    if(args[0]==='rev-parse')return head+'\n';
+    if(args[0]==='cat-file')return 'commit\n';
+    if(args[0]==='show')return JSON.stringify(c);
+    return '';
+  };
+  assert.equal(verifyReleaseSource(next,{GITHUB_SHA:head},{git:base}).workerSourceSha,head);
+  for(const git of [
+    args=>args[0]==='rev-parse'?'d'.repeat(40):base(args),
+    args=>args[0]==='merge-base'?(()=>{throw Error('unmerged');})():base(args),
+    args=>args[0]==='diff'&&args[1]===source&&args[2]==='HEAD'?'docs/new-unreviewed.md\n':base(args),
+    args=>args[0]==='diff'&&args[1]==='HEAD'?'web-admin/web-transport.js\n':base(args),
+    args=>args[0]==='diff'&&args.includes('scripts/admin/serverless')?'scripts/admin/serverless/broker.cjs\n':base(args),
+  ])assert.throws(()=>verifyReleaseSource(next,{GITHUB_SHA:head},{git}));
+  const dirtyConfig=args=>args[0]==='diff'&&args[1]==='HEAD'?'deploy/admin-serverless/wrangler.jsonc\n':base(args);
+  assert.doesNotThrow(()=>verifyReleaseSource(next,{GITHUB_SHA:head},{git:dirtyConfig}));
+  for(const mutate of [x=>x.vars.OWNER_GITHUB_ID='999',x=>x.vars.OAUTH_CLIENT_ID='Iv23AnotherApp',x=>x.vars.API_ORIGIN='https://untrusted.example']){
+    const altered=clone(next);mutate(altered);assert.throws(()=>verifyReleaseSource(altered,{GITHUB_SHA:head},{git:dirtyConfig}),/Bare de to/);
+  }
 });
 test("metadata guard requires all three secret names and an existing single-version rollback target, without values", async () => {
   const c = await readConfig(),
@@ -369,6 +417,11 @@ test("manual workflow has no automatic trigger, write/deploy permissions, public
   assert.match(file, /test ! -e public-data/);
   assert.match(file, /secrets.CLOUDFLARE_API_TOKEN/);
   assert.match(file, /vars.CLOUDFLARE_ACCOUNT_ID/);
+  assert.match(file, /MOROTHON_ADMIN_RELEASE: \$\{\{ vars\.MOROTHON_ADMIN_RELEASE \}\}/);
+  assert.doesNotMatch(file, /inputs\.processor_code_sha|inputs\.approved_release|vars\.STORAGE_KEY/);
+  const prepare = file.indexOf('check-deployment.cjs prepare-release');
+  assert.ok(prepare > file.indexOf('node --test tests/manual-worker-deploy.cjs'));
+  assert.ok(prepare < file.indexOf('check-deployment.cjs dispatch'));
   assert.doesNotMatch(
     file,
     /secrets\.(OAUTH_CLIENT_SECRET|GITHUB_APP_PRIVATE_KEY|STORAGE_KEY)/,
@@ -408,4 +461,31 @@ test("public runtime mirror is read-only, allowlisted and never serves admin sou
   assert.equal((await proxy(new Request(root + "/site/index.html", {method:"POST"}))).status,404);
   assert.equal(calls.length,count);
   assert.ok(calls.every(c => new URL(c.url).origin === "https://historikk.morothon.no"));
+});
+
+test('real Git prepare/dispatch accepts an identical-tree merge and rejects a forged approval, mutated asset or altered runtime binding',async t=>{
+  const os=require('node:os'),{execFileSync,spawnSync}=require('node:child_process');
+  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-release-synthetic-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+  const git=args=>execFileSync('git',args,{cwd:dir,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+  git(['init','-q','-b','main']);git(['config','user.name','Synthetic Release']);git(['config','user.email','synthetic@example.invalid']);
+  await fs.mkdir(path.join(dir,'deploy/admin-serverless'),{recursive:true});await fs.mkdir(path.join(dir,'web-admin'),{recursive:true});
+  const source=path.join(__dirname,'../deploy/admin-serverless');
+  for(const name of ['check-deployment.cjs','wrangler.jsonc'])await fs.copyFile(path.join(source,name),path.join(dir,'deploy/admin-serverless',name));
+  await fs.writeFile(path.join(dir,'web-admin/web-transport.js'),'// synthetic asset\n');
+  git(['add','.']);git(['commit','-qm','synthetic reviewed source']);const code=git(['rev-parse','HEAD']).trim();
+  git(['commit','--allow-empty','-qm','synthetic identical-tree merge']);const head=git(['rev-parse','HEAD']).trim();
+  assert.notEqual(code,head);
+  const c=await readConfig(),approval={version:1,processorCodeSha:code,privateWorkflowSha:'b'.repeat(40),rollbackVersionId:version},
+    env={PATH:process.env.PATH,...environment(c),GITHUB_SHA:head,GITHUB_ACTOR_ID:c.vars.OWNER_GITHUB_ID,
+      VERIFIED_PRIVATE_WORKFLOW_SHA:approval.privateWorkflowSha,MOROTHON_ADMIN_RELEASE:JSON.stringify(approval)};
+  const run=(mode,extra={})=>spawnSync(process.execPath,['deploy/admin-serverless/check-deployment.cjs',mode],{cwd:dir,env:{...env,...extra},encoding:'utf8'});
+  assert.notEqual(run('prepare-release',{MOROTHON_ADMIN_RELEASE:''}).status,0);
+  assert.equal(run('prepare-release').status,0);assert.equal(run('dispatch').status,0);
+  const file=path.join(dir,'deploy/admin-serverless/wrangler.jsonc'),prepared=JSON.parse((await fs.readFile(file,'utf8')).replace(/^\/\/[^\n]*\n/,''));
+  assert.equal(prepared.vars.PROCESSOR_CODE_SHA,code);assert.equal(prepared.vars.PRIVATE_WORKFLOW_SHA,approval.privateWorkflowSha);
+  assert.equal(prepared.vars.OWNER_USER_ID,c.vars.OWNER_USER_ID);
+  await fs.appendFile(path.join(dir,'web-admin/web-transport.js'),'// synthetic tamper\n');
+  assert.notEqual(run('dispatch').status,0);git(['checkout','--','web-admin/web-transport.js']);
+  prepared.vars.OWNER_GITHUB_ID='999';await fs.writeFile(file,JSON.stringify(prepared));assert.notEqual(run('dispatch').status,0);
+  assert.equal(git(['rev-parse','HEAD']).trim(),head,'preparation must never commit or rewrite Git');
 });

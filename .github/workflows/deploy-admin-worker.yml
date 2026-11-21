@@ -42,6 +42,7 @@ jobs:
     env:
       CI: 'true'
       WRANGLER_SEND_METRICS: 'false'
+      MOROTHON_ADMIN_RELEASE: ${{ vars.MOROTHON_ADMIN_RELEASE }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       CONFIRM_WORKER: ${{ inputs.confirm_worker }}
       VERIFIED_OAUTH_CLIENT_ID: ${{ inputs.verified_oauth_client_id }}
@@ -91,17 +92,19 @@ jobs:
           test ! -e data
           test ! -e public-data
           test ! -e scripts/lib/public-data.cjs
-          pin="$(node -e "const fs=require('node:fs');const t=fs.readFileSync('deploy/admin-serverless/wrangler.jsonc','utf8');console.log(JSON.parse(t.replace(/^\/\/[^\n]*\n/,'')).vars.PROCESSOR_CODE_SHA)")"
+          pin="$(node -e "const r=JSON.parse(process.env.MOROTHON_ADMIN_RELEASE||'null');if(!r||!/^[a-f0-9]{40}$/.test(r.processorCodeSha||''))throw Error('Et separat godkjent utrullingssett kreves.');console.log(r.processorCodeSha)")"
           [[ "$pin" =~ ^[a-f0-9]{40}$ ]]
           git fetch --quiet --filter=blob:none origin "$pin"
       - name: Set up Node without dependency cache
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-      - name: Verify dispatch, fixed target and existing Worker source
-        run: node deploy/admin-serverless/check-deployment.cjs dispatch
-      - name: Run isolated deployment safeguards
+      - name: Run isolated deployment safeguards before generating runtime config
         run: node --test tests/manual-worker-deploy.cjs tests/admin-gateway.cjs
+      - name: Verify dispatch, fixed target and existing Worker source
+        run: |
+          node deploy/admin-serverless/check-deployment.cjs prepare-release
+          node deploy/admin-serverless/check-deployment.cjs dispatch
       - name: Require latest main and green Pages production controls
         env:
           GH_TOKEN: ${{ github.token }}
