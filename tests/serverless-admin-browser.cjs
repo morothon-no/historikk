@@ -449,6 +449,8 @@ test(
       }
       await page.waitForFunction(()=>document.querySelector('#resultAttentionCount')?.textContent.includes('0 saker'));
       assert.equal(await page.locator('#resultPrivateSave').isVisible(),true);
+      assert.equal(await page.evaluate(()=>!!(document.querySelector('#resultPrivateSave').compareDocumentPosition(document.querySelector('#resultCheck')) & Node.DOCUMENT_POSITION_FOLLOWING)),true,
+        'The private save action is initialized above secondary controls after the detached view enters the document');
       assert.equal(await page.locator('#resultTransfer').isVisible(),false);
       await page.click('#resultPrivateSave');
     }

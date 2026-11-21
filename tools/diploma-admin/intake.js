@@ -678,8 +678,9 @@
       'Samlet kontroll har registrert forslagene, men krever nærmere avklaring: '+[...(result.review?.uncertain||[]),...(result.review?.errors||[]).map(e=>String(e.code||e))].join(' '),!result.review?.ready);
     },'resultTransfer'),button('Last ned rettingspakke',async()=>download(C.serialize(await packet()),'morothon-'+state.session.source.year+'-resultatrettinger.json'),'resultExport'),button('Last ned kontrollrapport',async()=>download(await R.report(state.context,state.session,state.decisions),'morothon-'+state.session.source.year+'-resultatkontroll.json'),'resultReport'));
    const privateSave=button('Lagre og kontroller rettelsene privat',()=>savePrivateImport(),'resultPrivateSave');privateSave.hidden=true;
-   const privateConflicts=node('section');privateConflicts.id='resultPrivateConflicts';privateConflicts.setAttribute('aria-live','polite');actions.insertBefore(privateSave,$('resultCheck'));actions.append(privateConflicts);privateControls();
+   const privateConflicts=node('section');privateConflicts.id='resultPrivateConflicts';privateConflicts.setAttribute('aria-live','polite');actions.insertBefore(privateSave,actions.querySelector('#resultCheck'));actions.append(privateConflicts);
    work.append(banner,hint('CSV og TSV fra ulike resultatleverandører · selve filen behandles i nettleseren. I beskyttet admin kan gjennomgåtte rettingsforslag lagres privat. Ingen automatisk endring av historikken.'),settings,field('Velg endelig resultatfil',file),fileInfo,templateInfo,fileTools,statusNode,questionsBox,previewBox,stagesBox,summary,cases,templatePanel,advanced,actions,impact);
+   privateControls();
    await restoreLayouts();file.disabled=false;if(state.storageMessage)templateInfo.textContent=state.storageMessage;
    window.addEventListener('beforeunload',event=>{if(state.session){event.preventDefault();event.returnValue='';}});
   }catch(error){host.append(node('p','Resultatkontrollen kunne ikke starte: '+error.message));}
