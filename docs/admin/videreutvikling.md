@@ -2,12 +2,21 @@
 
 ## Faktisk status 21. november 2026
 
-Kontrollert offentlig main: `2c79691819d4aba05f5213e55ed171837ea6a4d1`, etter
-merge av #151 og #152. [Pages-kjøringen](https://github.com/morothon-no/historikk/actions/runs/44881598802)
-er grønn, inkludert kildekoderegresjon, uavhengig artifact-gate og publisering.
-[Worker-kontrollen](https://github.com/morothon-no/historikk/actions/runs/44881598801)
-er også grønn. Dette er ulike kontroller; grønn Pages-CI beviser ikke at ny
-Worker-kode er aktivert eller at en virkelig eiersesjon er testet.
+Kontrollert offentlig main: `db730825ee37f8342a5ac4ee7f4d3a0b41c95443`, etter
+merge av #154. #148 er integrert gjennom #153; både tellerrettelsen og
+identitetspubliseringen finnes i main. Ingen av disse PR-ene skal gjenskapes.
+Siste ferdige, grønne [Pages-kjøring ved kartleggingen](https://github.com/morothon-no/historikk/actions/runs/44895040342)
+gjelder `cff1ee637342767d31f38b289b751b09de5bfb6e` (#153), inkludert
+kildekoderegresjon, uavhengig artifact-gate og publisering.
+[Ny main-kjøring etter #154](https://github.com/morothon-no/historikk/actions/runs/44901033647)
+må kontrolleres separat på `db73082`; den var pågående da kartleggingen ble oppdatert.
+
+Den opprinnelige [Worker-kontrollen #42](https://github.com/morothon-no/historikk/actions/runs/44895040258)
+feilet på den offentlige Pages-ruten. #154 forbedrer sikker diagnostikk og endrer
+ikke kriteriet eller rutingen. [Oppfølging #43](https://github.com/morothon-no/historikk/actions/runs/44901033821)
+er også rød. Den detaljerte HTTP-responsen er fortsatt ikke tilgjengelig fra dette
+miljøet. Les [undersøkelsen](worker-protection-42.md). Verken grønn Pages-CI eller
+merge av diagnostikken er bevis på at aktiv Worker/Pages-etterkontroll er rettet.
 
 Privat main i `historikk-admin` er fortsatt
 `7200efff68d3a5883abdf8610f887da67a0667b7`. Den private workflowen og offentlig
@@ -28,16 +37,16 @@ verifiseres ved separat godkjent aktivering.
 | --- | --- | --- |
 | Innlogging | Beskyttet gateway, PKCE, HttpOnly-cookie, kontroll av eier og skjult admin før oppstart er ferdig. Forsinket oppstart testes med den ekte beskyttede HTML-en og uendret kritisk CSS. | Virkelig innlogging og aktiv Worker-versjon er ikke verifisert fra dette miljøet. |
 | Personkontroll | Hurtigvalg, hovednavn, detaljsammenligning, atomisk privat batch og varig «Undersøk senere» fra #151. [Fase 3](identitetspublisering.md) implementerer serverkontroll, særskilt godkjenning, publisering og reversering. | Identitetspublisering er deaktivert. Ingen virkelig personavgjørelse utføres i denne leveransen. |
-| Tellere | #148 tilpasses main: ubehandlede, øktens ulagrede utsettelser og serverlagret oppfølging skilles. Angre, innsending og ny innlogging kontrolleres. | #148 var eneste åpne offentlige PR ved kartleggingen og er fortsatt Draft. Den oppdateres i stedet for å lage en overlappende PR. |
+| Tellere | #148 er merget gjennom #153: ubehandlede, øktens ulagrede utsettelser og serverlagret oppfølging skilles. Angre, innsending og ny innlogging kontrolleres. | Ingen ny overlappende tellerrettelse. |
 | Navigasjon | De seks oppgavekortene fra #150 gjenbrukes. Samme beskyttede økt brukes på tvers av Personkontroll og Årets arrangement. | Ingen ny adminflate eller designombygging. |
-| Resultater | #152 gir [privat lagring og reimport](privat-resultatreimport.md), konfliktvalg og gjenåpning. DNS/DNF-reglene og eksisterende publiseringsmotor beholdes. | Nye årganger, nye resultatlinjer og nye personer krever senere publiseringskontrakt. Grensene på 20 saker og 64 KiB er uendret. |
+| Resultater | #152 gir [privat lagring og reimport](privat-resultatreimport.md), konfliktvalg og gjenåpning. Første [årsimportkontrakt](arsimport-kontrakt.md) beregner nye år/personer/resultater og lagrer dem som kryptert privat utkast. | Den nye kontrakten er ennå ikke koblet til web-admin eller publiseringsmotor. Eksisterende flyt og dens grenser er uendret. |
 | Publisering | Resultatrettelser har serverberegnet før/etter, særskilt godkjenning, kilde-/versjonskontroll, backup, etterkontroll og reversering. | Aktiv drift krever gjennomgått Worker-/prosessorkombinasjon og separat godkjenning. |
 
-## Denne oppfølgingen: stabil eksisterende brukerreise i PR #148
+## Integrert oppfølging: stabil eksisterende brukerreise fra PR #148
 
 Tellerfeilen ble reprodusert på main med syntetiske personer: etter utsettelse
 viste arbeidslisten én ubehandlet sak, mens telleren fortsatt viste to. Det ble
-ikke skrevet til privat lager. Rettelsen fra #148 integreres med hele #151/#152,
+ikke skrevet til privat lager. Rettelsen fra #148 er integrert med hele #151/#152,
 inkludert den nye varige oppfølgingen. Gamle testforutsetninger om at en utsettelse
 aldri kan lagres, videreføres ikke.
 
@@ -85,7 +94,18 @@ hoppet over på en PR, betyr ikke at kildekodetestene er bestått. Lokal målret
 kontroll og den obligatoriske kildekodekontrollen på main må rapporteres hver for
 seg; ingen rød eller ikke-verifisert jobb omtales som grønn.
 
-## Neste prioritet etter grønn eksisterende flyt
+## Årsimport: første testbare del og neste prioritet
+
+Den nye [serverkontrakten og private utkasttjenesten](arsimport-kontrakt.md) er
+første avgrensede del av neste hovedleveranse. Den bygger på eksisterende parser,
+personforslag, resultatregler og kryptert CAS-lager. Ingen offentlig fil, eksisterende
+lagringsstruktur, Worker-rute eller visuell komponent endres.
+
+Før årsimport kan bli operativ i web-admin, gjenstår beskyttet transport til
+privat prosessor, overføring av uavklarte personvalg til eksisterende Personkontroll
+og en gjennomgått publiseringsadapter for nye personer/år/resultatlinjer. Denne må
+beregne alle offentlige aggregater, bruke dagens backup/reversering og verifisere
+faktisk publisert resultat. Ingen slik publisering aktiveres av denne kontrakten.
 
 1. Gjennomgå den implementerte [identitetspubliseringen](identitetspublisering.md):
    serverberegnet før/etter, eksakt godkjenning, backup, versjonsbinding,
@@ -93,8 +113,10 @@ seg; ingen rød eller ikke-verifisert jobb omtales som grønn.
    `ENABLED=false` og ingen nye publiseringsknapper er tilgjengelige i drift.
    Eksisterende privat statuskontrakt beholdes; verifisert publiseringsstatus
    ligger separat i jobbvisningen. Aktivering krever egen godkjenning.
-2. Deretter planlegges nye resultatår, nye løpere og nye registreringer, med
-   kildebevaring, tydelig usikker identitet og ingen blind sletting av manglende rader.
+2. Koble årsimportkontrakten til den eksisterende beskyttede arbeidsflyten og
+   gjennomfør serverberegnet konsekvens-/publiseringsadapter i en egen avgrenset PR.
+   Årsimporten beholder kildefil og tidligere private filversjoner; manglende rader
+   slettes aldri. Full erstatning av årsdata er ikke aktivert.
 
 Dette er ikke en aktivering av funksjonene eller en ny arkitekturplan.
 
