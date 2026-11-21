@@ -327,7 +327,7 @@
         blocked()?'Jobbstatus må avklares før nye avgjørelser kan sendes.':
         stale()?'Kildegrunnlaget må kontrolleres før du kan lagre nye avgjørelser.':
         publishing()?'En pågående publiseringskontroll sperrer nye avgjørelser.':
-        s.pending.size?'Valgene er ulagret. Du kan angre eller sende dem samlet.':'Velg en avgjørelse på et personkort eller sammenlign resultatene først.';
+        s.pending.size?'Valgene er ulagret. Bruk «Lagre avgjørelser privat», eller angre.':'Velg en avgjørelse på et personkort eller sammenlign resultatene først.';
     }
     async function read(){
       const current=await identityApi('/identity');
@@ -470,7 +470,7 @@
       if(stale()){draft=structuredClone(draft);for(const c of draft.cases)if(c.change&&c.status!=='rejected')c.status='review';}
       const work=await C.worklist(suggestions,draft);if(version!==s.version)return;
       counts.replaceChildren();
-      for(const [key,label,n] of [['pending','Ubehandlede',work.identity.filter(c=>c.bucket==='pending'&&!s.deferred.has([...c.personIds].sort().join(':'))).length],
+      for(const [key,label,n] of [['pending','Ubehandlede',work.identity.filter(c=>c.bucket==='pending'&&!s.pending.has([...c.personIds].sort().join(':'))).length],
         ['unsaved','Ulagrede avgjørelser',s.pending.size],
         ['session-followup','Undersøk senere · ikke lagret',work.identity.filter(c=>s.deferred.has([...c.personIds].sort().join(':'))).length],
         ['finished','Behandlede',work.identity.filter(c=>c.bucket==='finished'&&c.caseStatus!=='rejected').length],
@@ -491,9 +491,9 @@
       }
       list.replaceChildren();
       const rows=work.identity.filter(c=>{
-        const deferred=s.deferred.has([...c.personIds].sort().join(':'));
+        const key=[...c.personIds].sort().join(':'),deferred=s.deferred.has(key);
         const visible=s.scope==='all'||(s.scope==='followup'?deferred||c.bucket==='followup':
-          s.scope==='pending'?c.bucket==='pending'&&!deferred:
+          s.scope==='pending'?c.bucket==='pending'&&!s.pending.has(key):
           s.scope==='rejected'?c.caseStatus==='rejected':
           c.bucket===s.scope&&(s.scope!=='finished'||c.caseStatus!=='rejected'));
         return visible&&[c.reason,...c.personIds.map(name)].join(' ').toLocaleLowerCase('nb-NO').includes(s.query.toLocaleLowerCase('nb-NO'));
@@ -548,7 +548,9 @@
         }
         const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
         compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
-      if(!rows.length)list.append(node('p','Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
+      if(!rows.length)list.append(node('p',s.scope==='pending'&&s.pending.size?
+        'Ingen ubehandlede saker i dette utvalget. Valgene i denne økten er fortsatt ulagret.':
+        'Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
       if(rows.length>40)list.append(node('p','Viser de første 40 treffene. Avgrens med navnesøket.'));
       archive.replaceChildren(node('summary','Tidligere kildegrunnlag · '+(s.saved?.archives||[]).length));
       for(const old of s.saved?.archives||[]){const group=node('details');group.append(node('summary','Dataversjon '+old.base.dataVersion+' · '+old.draft.cases.length+' bevarte saker'));
@@ -628,8 +630,14 @@
       if((p.history||[]).length){const history=node('details');history.append(node('summary','Verifiserte publiseringer · '+p.history.length));
         for(const entry of p.history)history.append(node('p','Publisert og kontrollert · '+entry.publishedAt+(entry.reversalOf?' · tilbakeføring':'')));publicationPanel.append(history);}
     }
-    const submit=btn('Send endringer samlet','identityBatchSubmit',submitBatch);
-    const refresh=btn('Hent lagrede avgjørelser','identityRefresh',async()=>{s.notice=null;await monitor();});
+    const submit=btn('Lagre avgjørelser privat','identityBatchSubmit',submitBatch);
+    const refresh=btn('Hent lagrede avgjørelser','identityRefresh',async()=>{
+      s.notice={text:'Henter lagrede avgjørelser fra serveren. Dette lagrer ikke valgene dine.'};renderStatus();
+      await monitor();
+      s.notice={text:'Status hentet fra serveren. '+identityState()+' · revisjon '+s.saved.revision+'.'+
+        (s.pending.size?' '+s.pending.size+' avgjørelse'+(s.pending.size===1?' er':'r er')+' fortsatt ulagret. Bruk «Lagre avgjørelser privat».':'')+
+        (s.request?' Lagringen er fortsatt ikke bekreftet. Hent status før ny innsending.':'')};
+    });
     const approve=btn('Godkjenn lagrede avgjørelser','identityApprove',async()=>{
       if(!confirm('Godkjenne nøyaktig denne lagrede revisjonen? Dette publiserer ikke identitetsendringer.'))return;
       s.notice=null;await identityApi('/identity/approve',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
@@ -659,7 +667,7 @@
     manual.append(btn('Sammenlign valgte profiler','identityManualOpen',()=>{
       const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);}));
     panel.append(node('h2','Personkontroll'),node('p','Identiteter, hovednavn og alias. Resultatimport og resultatkorrigeringer behandles under Årets arrangement.'),
-      node('p','Velg raskt eller sammenlign nøye. «Send endringer samlet» lagrer økten privat. '+(principal?.identityPublicationEnabled===true?
+      node('p','Velg raskt eller sammenlign nøye. «Lagre avgjørelser privat» sender valgene samlet til serverkontroll. '+(principal?.identityPublicationEnabled===true?
         'Publisering krever separat før-/etter-kontroll, godkjenning og bekreftelse.':'Offisiell identitetspublisering er ennå ikke aktivert.')),status,controls,actionHelp,tray,counts,publicationPanel,
       field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);

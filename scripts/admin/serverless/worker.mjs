@@ -232,6 +232,7 @@ export default {
             workflowSha: env.PRIVATE_WORKFLOW_SHA,
             actorId: env.DISPATCH_ACTOR_ID,
             audience: env.API_ORIGIN + "/processor",
+            fetchImpl: cloudflareGithubFetch,
           }),
           rateLimit: async (r, { sensitive }) =>
             (
@@ -264,11 +265,13 @@ export default {
                       administration: "read",
                       variables: "read",
                     },
+                fetchImpl: cloudflareGithubFetch,
               }),
               processorConnection = connection({
                 ...common,
                 repository: env.PRIVATE_REPOSITORY,
                 permissions: { contents: "write" },
+                fetchImpl: cloudflareGithubFetch,
               });
             return {
               privateToken: await processorConnection.token(),

@@ -229,3 +229,76 @@ test("all Worker GitHub API and OAuth paths inject Cloudflare manual redirect ad
   assert.match(source,/store: stores\.auth,\s*fetchImpl: cloudflareGithubFetch/);
   assert.doesNotMatch(source,/fetch\(url, options\);/);
 });
+
+test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, while rejecting redirects and wrong claims', async t=>{
+  const {generateKeyPairSync,randomBytes,sign}=require('node:crypto');
+  const {seal,unseal,sha}=require('../scripts/admin/serverless/github-store.cjs');
+  const keys=generateKeyPairSync('rsa',{modulusLength:2048}),kid='synthetic-oidc';
+  const key=randomBytes(32),now=Math.floor(Date.now()/1000),taskId='a'.repeat(24);
+  const env={API_ORIGIN:'https://worker.example.test',PORTAL_URL:'https://worker.example.test/admin/',
+    OWNER_USER_ID:'11111111-1111-4111-8111-111111111111',OWNER_GITHUB_ID:'123',
+    OAUTH_CLIENT_ID:'synthetic-client',OAUTH_CLIENT_SECRET:'synthetic-secret',
+    GITHUB_APP_ID:'123',GITHUB_INSTALLATION_ID:'456',
+    GITHUB_APP_PRIVATE_KEY:keys.privateKey.export({type:'pkcs8',format:'pem'}).toString(),
+    STORAGE_KEY:key.toString('hex'),PRIVATE_REPOSITORY:'synthetic-org/private-state',PRIVATE_REPOSITORY_ID:'789',
+    PRIVATE_WORKFLOW_SHA:'b'.repeat(40),PROCESSOR_CODE_SHA:'c'.repeat(40),DISPATCH_ACTOR_ID:'456',
+    AUTH_LIMITER:{limit:async()=>({success:true})},API_LIMITER:{limit:async()=>({success:true})}};
+  const claims={iss:'https://token.actions.githubusercontent.com',aud:env.API_ORIGIN+'/processor',
+    iat:now,nbf:now,exp:now+300,repository:env.PRIVATE_REPOSITORY,repository_id:env.PRIVATE_REPOSITORY_ID,
+    repository_visibility:'private',ref:'refs/heads/main',event_name:'workflow_dispatch',runner_environment:'github-hosted',
+    actor_id:env.DISPATCH_ACTOR_ID,workflow_sha:env.PRIVATE_WORKFLOW_SHA,
+    workflow_ref:env.PRIVATE_REPOSITORY+'/.github/workflows/morothon-result-job.yml@refs/heads/main',run_id:'1122'};
+  const jwt=(changes={})=>{
+    const body=[{alg:'RS256',kid},{...claims,...changes}].map(v=>Buffer.from(JSON.stringify(v)).toString('base64url')).join('.');
+    return body+'.'+sign('RSA-SHA256',Buffer.from(body),keys.privateKey).toString('base64url');
+  };
+  const task={id:taskId,revision:1,state:'queued',action:'identity-batch',nonce:'n'.repeat(43),
+    actor:env.OWNER_USER_ID,ownerGithubId:env.OWNER_GITHUB_ID,codeSha:env.PROCESSOR_CODE_SHA,
+    workflowSha:env.PRIVATE_WORKFLOW_SHA,createdAt:new Date().toISOString()};
+  const filename='.morothon-state/control/task-'+taskId+'.aesgcm';
+  let bytes=seal(key,filename,task),redirectKeys=false;const calls=[];
+  t.mock.method(globalThis,'fetch',async(url,options={})=>{
+    // Workers reject redirect:error before network I/O. Node's normal fetch
+    // and broker-only fixtures do not reproduce this production restriction.
+    calls.push({url:String(url),method:options.method||'GET',redirect:options.redirect});
+    if(options.redirect==='error')throw new TypeError('Unsupported redirect mode');
+    assert.equal(options.redirect,'manual');
+    if(String(url)==='https://token.actions.githubusercontent.com/.well-known/jwks'){
+      assert.equal(new Headers(options.headers).has('authorization'),false,'Public signing keys do not receive a private credential');
+      if(redirectKeys)return new Response(null,{status:302,headers:{location:'https://untrusted.invalid/keys'}});
+      return Response.json({keys:[{...keys.publicKey.export({format:'jwk'}),kid,use:'sig'}]});
+    }
+    const u=new URL(url),base='/repos/'+env.PRIVATE_REPOSITORY;
+    if(u.hostname!=='api.github.com')throw Error('Unexpected synthetic host');
+    if(u.pathname==='/app/installations/456/access_tokens')return Response.json({token:'synthetic-installation',expires_at:new Date(Date.now()+3600000).toISOString()});
+    if(u.pathname===base)return Response.json({private:true,full_name:env.PRIVATE_REPOSITORY,id:789,default_branch:'main'});
+    if(u.pathname===base+'/contents/'+filename){
+      if(options.method==='PUT'){
+        const input=JSON.parse(options.body);assert.equal(input.branch,'admin-state');assert.equal(input.sha,sha(bytes).slice(0,40));
+        bytes=Buffer.from(input.content,'base64');return Response.json({});
+      }
+      assert.equal(u.searchParams.get('ref'),'admin-state');
+      return Response.json({type:'file',encoding:'base64',sha:sha(bytes).slice(0,40),size:bytes.length,content:bytes.toString('base64')});
+    }
+    throw Error('Unexpected synthetic API route');
+  });
+  const {default:worker}=await import('../scripts/admin/serverless/worker.mjs?synthetic-oidc-lease');
+  const lease=(proof,nonce=task.nonce)=>worker.fetch(new Request(env.API_ORIGIN+'/processor/lease',{
+    method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+proof},body:JSON.stringify({task:taskId,nonce})}),env);
+  const valid=await lease(jwt());
+  assert.equal(valid.status,200,'A correctly signed private job must reach the real encrypted task gate: '+JSON.stringify({response:await valid.clone().json(),calls}));
+  const issued=await valid.json();assert.equal(issued.task.runId,'1122');assert.equal(issued.codeSha,env.PROCESSOR_CODE_SHA);
+  assert.equal(unseal(key,filename,bytes).state,'running');
+  assert.ok(calls.every(c=>c.redirect==='manual'));
+  const before=Buffer.from(bytes),writes=calls.filter(c=>c.method==='PUT').length;
+  for(const changed of [{workflow_sha:'d'.repeat(40)},{actor_id:'999'},{repository_id:'000'},{aud:'https://other.example.test'}])
+    assert.equal((await lease(jwt(changed))).status,403);
+  const signed=jwt();assert.equal((await lease(signed.slice(0,-8)+'AAAAAAAA')).status,403);
+  assert.equal((await lease(jwt(),'wrong-nonce')).status,403);
+  assert.equal(calls.filter(c=>c.method==='PUT').length,writes);assert.ok(bytes.equals(before));
+  redirectKeys=true;calls.length=0;
+  const {default:fresh}=await import('../scripts/admin/serverless/worker.mjs?synthetic-oidc-redirect');
+  const denied=await fresh.fetch(new Request(env.API_ORIGIN+'/processor/lease',{
+    method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+jwt()},body:JSON.stringify({task:taskId,nonce:task.nonce})}),env);
+  assert.equal(denied.status,403);assert.equal(calls.length,1,'A redirected JWKS must never be followed or grant a lease');
+});
