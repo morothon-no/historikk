@@ -11,9 +11,10 @@ const fixture=results=>({schemaVersion:1,people:[{i:'runner',n:'Testløper',g:'H
 let h,out;
 before(async()=>{out=await fs.mkdtemp(path.join(os.tmpdir(),'morothon-a2-browser-'));await buildSite(out);h=await createHarness({rootDir:out});});
 after(async()=>{await h?.close();if(out)await fs.rm(out,{recursive:true,force:true});});
-test('A2 organizer-retained completion keeps all participations, completions and distance on mobile/PC, preserving current milestones and records',async()=>{
+test('A2 historical organizer-retained completion keeps all participations, completions and distance on mobile/PC, preserving current milestones and records',async()=>{
  const p=await h.browser.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
  try{
+  await p.route('**/data/history.json',r=>r.fulfill({json:require('./public/quick/fixtures/frozen-history.js')(root)}));
   await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));
   const numbers=await p.evaluate(()=>{
    const row=resultsFor('MOR-B1AC0FD').find(r=>r[0]===2007),total=runnerTotals(row[1]);

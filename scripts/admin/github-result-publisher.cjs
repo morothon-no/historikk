@@ -66,8 +66,8 @@ function createGitHubPublisher({api,codeSha,appId}={}){
  }
  async function submit(job){
   if(await main()!==job.baseCommit)throw Error('Main er endret. Klargjør rettelsen mot siste versjon.');await unchangedCode(job.baseCommit);await protection();
-  const identity=job.publicationKind==='identity',label=identity?'identitetsretting':'resultatretting';
-  const branch='codex/'+(identity?'identity-':'result-')+job.id.slice(0,32);let ref=await get('git/ref/heads/'+branch,{allow404:true});
+  const identity=job.publicationKind==='identity',label=identity?'identitetsretting':job.publicationKind==='annual'?'årsresultater':'resultatretting';
+  const branch='codex/'+(identity?'identity-':job.publicationKind==='annual'?'annual-':'result-')+job.id.slice(0,32);let ref=await get('git/ref/heads/'+branch,{allow404:true});
   if(!ref){
    const base=await get('git/commits/'+job.baseCommit),tree=[];
    for(const path of PATHS){const blob=await request('git/blobs',{method:'POST',body:{content:job.after[path].base64,encoding:'base64'}});tree.push({path,mode:'100644',type:'blob',sha:blob.sha});}

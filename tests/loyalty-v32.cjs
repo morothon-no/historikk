@@ -1,6 +1,6 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..');let rules,history;
-before(async()=>{const context=vm.createContext({window:{}});for(const file of ['history-data','loyalty'])vm.runInContext(await fs.readFile(path.join(root,`js/${file}.js`),'utf8'),context);rules=context.window;history=JSON.parse(await fs.readFile(path.join(root,'public-data/data/history.json'),'utf8'));});
+before(async()=>{const context=vm.createContext({window:{}});for(const file of ['history-data','loyalty'])vm.runInContext(await fs.readFile(path.join(root,`js/${file}.js`),'utf8'),context);rules=context.window;history=require('./public/quick/fixtures/frozen-history.js')(root);});
 const years=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
 const row=(y,id='runner',status='Fullført',race='Morothon')=>[y,id,race,'20 km',status,status==='Fullført'?'2:00:00':status,1];
 const plain=x=>JSON.parse(JSON.stringify(x));

@@ -7,9 +7,10 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..');
 const siteRoot = process.env.MOROTHON_TEST_SITE || root;
-let server, browser, base, data;
+let server, browser, base, data, baseline;
 before(async () => {
   data = JSON.parse(await fs.readFile(path.join(root, 'public-data/data/history.json'), 'utf8'));
+  baseline=require('./public/quick/fixtures/frozen-history.js')(root);
   server = http.createServer(async (req, res) => {
     const file = path.resolve(siteRoot, '.' + (req.url === '/' ? '/index.html' : req.url.split('?')[0]));
     if (!file.startsWith(siteRoot + path.sep)) { res.writeHead(403).end(); return; }
@@ -218,7 +219,7 @@ test('course record boundaries: 2014 included, exact distances, finish status, i
 
 test('annual milestones: 2026 control totals, calendar/profile agreement and mobile/desktop navigation', async () => {
   for (const width of [320, 390, 1440]) {
-    const { context, page, errors } = await load({ viewport: { width, height: 900 } });
+    const { context, page, errors } = await load({ viewport: { width, height: 900 } },false,baseline);
     try {
       const totals = await page.evaluate(() => {
         const r = MorothonMilestones.calculate(2026);
@@ -328,6 +329,7 @@ test('annual milestone rules: all ten thresholds, unique years, DNS, DNF, canoni
 });
 
 test('Enny-Karin correction: one documented 1999 result, canonical alias/redirect and preserved historical data', async () => {
+  const data=baseline; // Exact pinned historical correction, independently restored from the journal.
   const { createHash } = require('node:crypto');
   const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
   // Approved V28 fingerprints plus the documented Jon/junior correction; Enny rows remain checked separately.
@@ -346,7 +348,7 @@ test('Enny-Karin correction: one documented 1999 result, canonical alias/redirec
   assert.ok(data.aliases['MOR-72A949A'].includes('Enny Dvergsnes'));
   assert.deepEqual(data.yearStats.find(s => s[0] === 1999), [1999, 204, 204, 204, 204, 0, 0, 57, 147, 0]);
   assert.match(data.people.find(p => p.i === 'MOR-72A949A').z, /dokumentert.*1:22:22, 20\. plass/);
-  const { context, page, errors } = await load();
+  const { context, page, errors } = await load({},false,data);
   try {
     const state = await page.evaluate(() => {
       const p = person('MOR-4CB0E52');

@@ -15,11 +15,11 @@ test('Morothon legacy domain projection is exact and read-only, including all DN
  assert.equal(model.source.resultCount,history.results.length);
  assert.equal(model.people.length,history.people.length);
  assert.equal(model.source.teamResultCount,history.teamResults.length);
- assert.equal(model.results.length,6914,'public regression fixture should be revisited on planned annual history update');
+ assert.deepEqual(model.results.map(r=>r.legacyRow),history.results,'every current source row must survive in the same order');
  assert.equal(model.source.teamResultCount,4);
  assert.equal(model.results.filter(r=>!r.personLinked).length,79,'unlinked DNS source entries are never invented as people');
- assert.equal(model.results.filter(r=>r.status==='DNF').length,37);
- assert.equal(model.results.filter(r=>r.status==='Deltatt').length,2,'unusual historical status is preserved');
+ assert.equal(model.results.filter(r=>r.status==='DNF').length,history.results.filter(r=>r[4]==='DNF').length);
+ assert.equal(model.results.filter(r=>r.status==='Deltatt').length,history.results.filter(r=>r[4]==='Deltatt').length,'unusual historical status is preserved');
  for(const r of model.results){
   assert.equal(r.status,r.legacyRow[4]);
   assert.equal(r.timeRaw,r.legacyRow[5]);

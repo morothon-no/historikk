@@ -454,9 +454,10 @@
   if(annual.view?.stale)message='Historikken er oppdatert. Privat utkast er bevart; last siden på nytt og avklar grunnlaget før videre lagring.';
   if(message){$('annualPrivateStatus').textContent=message;if(!box.hidden)status(message);}
   for(const id of ['annualPreview','annualSave','annualLoad'])$(id).disabled=annual.busy||
-    (id==='annualLoad'?!annual.view?.persisted:!state.session||annual.view?.stale)||id==='annualSave'&&!annual.checked;
+    (id==='annualLoad'?!annual.view?.persisted:!state.session||annual.view?.stale)||id==='annualSave'&&(!annual.checked||annual.view?.publication?.locked||annual.view?.publication?.reversalOf);
   $('annualRefresh').disabled=annual.busy;
   const task=annual.view?.task,queued=task?.state==='queued';
+  annualPublicationDraw();
   $('annualRetry').hidden=!queued;$('annualCancel').hidden=!queued;
   const out=$('annualPrivateSummary');out.replaceChildren();
   const result=annual.view?.request?.result,plan=annual.checked?.plan||annual.view?.plan;
@@ -467,6 +468,52 @@
   const comparison=result?.comparison;if(comparison){out.append(node('h4','Forskjell fra privat lagret utkast'),hint(comparison.added+' nye · '+comparison.changed+' endrede · '+comparison.unchanged+' uendrede · '+comparison.missing+' mangler i den nye filen. Historikken slettes aldri.'));
    for(const item of comparison.items.filter(i=>i.kind==='changed').slice(0,20))out.append(hint((state.context.model.person(item.after[1])?.n||'Kontrollert ny løper')+': '+(item.before[5]||item.before[4])+' → '+(item.after[5]||item.after[4])));
   }
+ }
+ function annualPublicationMessage(){
+  const p=annual.view?.publication,j=p?.job;
+  annualDraw(j?.stage==='published'&&!annual.view.persisted&&!p.reversalOf?'Publisert · CI, offentlig bygg og løperprofiler er etterkontrollert.':
+   j&&!['published','failed','cancelled','needs-review'].includes(j.stage)?'Publisering pågår · hent status for videre kontroll.':
+   annual.view?.status==='review-approved'?'Godkjent · ikke publisert.':p?.review?'Serverkontrollert · venter på uttrykkelig godkjenning.':'Privat utkast · ikke publisert.');
+ }
+ function annualPublicationDraw(){
+  const panel=$('annualPublication');if(!panel)return;const p=annual.view?.publication;panel.hidden=p?.enabled!==true;if(panel.hidden)return;
+  const out=$('annualPublicationReport');out.replaceChildren();const report=p.review,j=p.job,
+   busy=annual.busy||['queued','running','blocked'].includes(annual.view?.task?.state)||!!annual.view?.otherTask,
+   clean=!annual.view.persisted||!state.session||annual.checked?.input&&JSON.stringify(annual.checked.input)===JSON.stringify(annual.view?.input),
+   blocked=busy||annual.view.stale||!clean||p.locked;
+  if(!clean)out.append(hint('Lagre de siste valgene privat før publiseringskontroll.'));
+  if(annual.view.status==='review-approved')out.append(hint('Godkjent · ingen offentlig endring ennå.'));
+  if(p.reversalOf)out.append(hint('Tilbakeføring er klargjort. Kontroller og godkjenn før publisering.'));
+  if(j){const labels={prepared:'Klargjort',submitting:'Starter publisering',checking:'Kontrollerer PR og CI',deploying:'Venter på offentlig bygg',verifying:'Etterkontrollerer',published:'Publisert og verifisert',failed:'Stoppet', 'needs-review':'Krever kontroll',cancelled:'Avbrutt'};
+   out.append(hint((j.stage==='published'&&annual.view.persisted?'Forrige publisering: ':'')+(labels[j.stage]||'Publisering pågår')+(j.error?' · '+j.error:'')));if(j.remote?.url){const a=node('a','Åpne publiserings-PR');try{const u=new URL(j.remote.url);if(u.protocol==='https:'&&u.hostname==='github.com'){a.href=u.href;out.append(a);}}catch{}}
+  }
+  if(report){out.append(node('h4','Serverberegnet før og etter'),hint(report.changes.length+' endrede kilderader/felt. DNS teller ikke; DNF teller som deltakelse.'));
+   if(report.effects.honors)out.append(hint('Ny årgang påvirker foreløpige Heder-estimater. Endret diplominnhold krever ny godkjenning før ren utskrift; registrerte utmerkelser endres ikke.'));
+   const labels={people:'Løperprofiler og deltakelser',annual:'Årsstatistikk',rankings:'Rangeringer',records:'Rekorder',placements:'Plasseringer',loyalty:'Lojalitet',diplomas:'Merker og diplomgrunnlag',honors:'Heder-estimater og diplomgodkjenninger'};
+   for(const [key,value]of Object.entries(report.effects)){const d=node('details'),pre=node('pre',JSON.stringify(value,null,2));pre.style.whiteSpace='pre-wrap';pre.style.overflowWrap='anywhere';d.append(node('summary',labels[key]||key),pre);out.append(d);}
+   const d=node('details');d.append(node('summary','Eksakte registreringer'),node('pre',JSON.stringify(report.changes,null,2)));d.lastChild.style.whiteSpace='pre-wrap';d.lastChild.style.overflowWrap='anywhere';out.append(d);
+  }
+  $('annualPublicationCheck').disabled=blocked||!(annual.view.persisted||p.reversalOf);
+  $('annualPublicationApprove').disabled=blocked||!report||annual.view.status==='review-approved';
+  $('annualPublicationPublish').disabled=blocked||!report||annual.view.status!=='review-approved';
+  $('annualPublicationContinue').disabled=busy||!j||['published','cancelled'].includes(j.stage);
+  $('annualPublicationCancel').disabled=busy||p.locked||!(annual.view.status==='review-approved'||p.reversalOf);
+  const history=$('annualPublicationHistory');history.replaceChildren();
+  for(const job of p.history||[]){const b=button('Tilbakefør publisering · dataversjon '+job.dataVersion,()=>annualPublishRun('reverse',job.id));b.disabled=blocked||annual.view.persisted||!!p.reversalOf;history.append(b);}
+ }
+ async function annualPublishRun(action,publicationId){
+  const p=annual.view?.publication;if(p?.enabled!==true)throw Error('Årspublisering er ikke aktivert.');
+  if(['approve','publish','reverse'].includes(action)&&!confirm(action==='approve'?'Godkjenne den serverberegnede før-/etter-rapporten?':action==='publish'?'Publisere denne godkjente oppdateringen gjennom PR, CI og etterkontroll?':'Klargjøre tilbakeføring? Den må kontrolleres og godkjennes før publisering.'))return;
+  const command={id:crypto.randomUUID().replaceAll('-',''),expectedRevision:annual.view.revision,expectedDigest:p.digest,
+   ...(action==='approve'?{candidateDigest:p.review.candidateDigest}:action==='publish'?{confirmation:true}:action==='reverse'?{publicationId,confirmation:true}:{})};
+  annual.busy=true;annualDraw('Serveren behandler publiseringskontrollen …');
+  try{await annualApi('publication-'+action,command);await annualWait(annual.version,{...command,publication:true});}
+  catch(error){annualDraw(error.message);throw error;}finally{annual.busy=false;annualDraw();}
+ }
+ function annualPublicationMount(panel){
+  const section=node('section');section.id='annualPublication';section.hidden=true;section.append(node('h3','Kontrollert årspublisering'));
+  const controls=node('div',undefined,'actions');for(const [action,title,id]of [['check','Beregn før og etter','Check'],['approve','Godkjenn kontrollen','Approve'],['publish','Publiser godkjent år','Publish'],['continue','Fortsett publiseringskontroll','Continue'],['cancel','Trekk godkjenning tilbake','Cancel']])controls.append(button(title,()=>annualPublishRun(action),'annualPublication'+id));
+  const report=node('div');report.id='annualPublicationReport';const history=node('div',undefined,'actions');history.id='annualPublicationHistory';section.append(controls,report,history);panel.append(section);
  }
  async function annualInput(){
   if(!state.session||!state.source?.data)throw Error('Last opp og analyser en resultatfil først.');
@@ -487,9 +534,10 @@
  async function annualWait(version,command){
   const until=Date.now()+120000;
   for(;;){const view=await annualRead(command.id),task=view.task;
-   if(view.stale)throw Error('Historikken er oppdatert. Privat utkast er bevart, men krever ny avklaring.');
+   if(view.stale&&!command.publication&&!view.request?.action?.startsWith('annual-publication-'))throw Error('Historikken er oppdatert. Privat utkast er bevart, men krever ny avklaring.');
    if(view.request?.id===command.id&&task?.state==='completed'){
     if(!view.request.result)throw Error('Kontrollen er ferdig uten en bekreftet kvittering. Hent status på nytt.');
+    if(view.request.result.publication){annualPublicationMessage();return;}
     if(version===annual.version){annual.checked=view.request.result.plan?view.request.result:{plan:view.plan};
      annualDraw(view.persisted&&JSON.stringify(view.input)===JSON.stringify(command.input)?
       'Lagret privat · revisjon '+view.revision+(view.plan.ready?' · klart til videre kontroll.':' · trenger avklaring.'):
@@ -533,12 +581,13 @@
   const summary=node('div');summary.id='annualPrivateSummary';const controls=node('div',undefined,'actions');
   controls.append(button('Serverkontroller årsimport',()=>annualRun('preview'),'annualPreview'),button('Lagre årsimport privat',()=>annualRun('save'),'annualSave'),button('Hent lagret årsimport',annualRestore,'annualLoad'),
    button('Hent status',async()=>{annual.busy=true;try{const view=await annualRead();if(view.request&&view.task&&!['completed','failed'].includes(view.task.state))await annualWait(annual.version,view.request);
+    else if(view.request?.result?.publication)annualPublicationMessage();
     else if(view.request?.result){annual.checked={...view.request.result,input:view.request.input};annualDraw(view.persisted&&JSON.stringify(view.input)===JSON.stringify(view.request.input)?'Lagret privat · revisjon '+view.revision:'Serverkontrollert · ennå ikke lagret privat.');}
     else annualDraw(view.task?.error||'Ingen ny lagring er bekreftet. Lagret arbeid er bevart.');
    }finally{annual.busy=false;annualDraw();}},'annualRefresh'),
    button('Prøv samme oppstart på nytt',async()=>{await annualApi('retry',{id:annual.view.task.id});await annualWait(annual.version,annual.view.request);},'annualRetry'),
    button('Avbryt oppstart',async()=>{if(confirm('Avbryte denne oppstarten? Lagret årsimport beholdes.')){await annualApi('cancel',{id:annual.view.task.id,confirmation:true});await annualRead();annualDraw('Oppstart avbrutt. Lagret årsimport er beholdt.');}},'annualCancel'));
-  panel.append(message,controls,summary,hint('Privat lagring er ikke godkjenning eller publisering. Nye årsresultater kan ikke publiseres i denne versjonen.'));work.append(panel);
+  panel.append(message,controls,summary,hint('Privat lagring er ikke godkjenning eller publisering. Offentlig historikk endres først etter særskilt godkjenning og verifisert publisering.'));annualPublicationMount(panel);work.append(panel);
   const ready=()=>{annualDraw();if(annualAvailable()){
    $('resultDataNotice').textContent='CSV og TSV analyseres først i nettleseren. Ved privat årsimport sendes filen og valgene til den beskyttede tjenesten og lagres kryptert. Ingen automatisk publisering.';
   }if(annualAvailable()&&!annual.loaded){annual.loaded=true;annualRead().then(view=>annualDraw(view.persisted?'Privat utkast finnes · bruk «Hent lagret årsimport».':'Ingen privat årsimport lagret ennå.')).catch(error=>{annual.loaded=false;annualDraw(error.message);});}};
@@ -550,7 +599,7 @@
  const groupCount=(a,key)=>key==='identity'?a.items.filter(inIdentity).length:key==='source'?a.items.filter(inSource).length:a.counts[key];
  const actionNames={confirm:'Bekreftet resultatvalg',new:'Markert ny person',reject:'Avvist / beholdt',defer:'Utsatt'};
  function status(text,bad=false){$('resultStatus').textContent=text;$('resultStatus').dataset.error=String(bad);}
- function button(label,fn,id){const b=node('button',label,'secondary');b.type='button';if(id)b.id=id;b.onclick=async()=>{if(state.busy)return;state.busy=true;b.disabled=true;try{await fn();}catch(e){status(e.message,true);}finally{state.busy=false;if(b.isConnected)b.disabled=false;}};return b;}
+ function button(label,fn,id){const b=node('button',label,'secondary');b.type='button';if(id)b.id=id;b.onclick=async()=>{if(state.busy)return;state.busy=true;b.disabled=true;try{await fn();}catch(e){status(e.message,true);}finally{state.busy=false;if(b.isConnected){b.disabled=false;if(id?.startsWith('annual'))annualDraw();}}};return b;}
  function field(text,input){const e=node('label',text);e.append(input);return e;}
  function hint(text){return node('p',text,'hint');}
  function input(type,id,value=''){const e=node('input');e.type=type;e.id=id;e.value=value;return e;}
@@ -668,7 +717,8 @@
   const a=state.analysis;if(!a)return;const summary=$('resultSummary');summary.replaceChildren();summary.append(node('h3',a.read+' leste resultater · '+a.existing+' eksisterende individuelle registreringer'));
   const completeness={partial:'Delvis / uavstemt eksport: historiske registreringer mangler kobling.',uncertain:'Usikkert utvalg: fullstendighet kan ikke bekreftes.', 'apparent-complete':'Fremstår som komplett for bekreftet utvalg. Dette er ingen garanti fra kilden.'};summary.append(hint(completeness[a.completeness]));
   stages();
-  const needBatch=a.items.some(i=>i.category==='changed'&&!i.decision);
+  const needBatch=a.items.some(i=>i.category==='changed'&&!i.decision),coverageField=$('resultCoverageField');
+  coverageField.hidden=needBatch;if(!needBatch)coverageField.append(state.coverageControl);
   if(needBatch){
    const plan=R.bulkPlan(state.context,state.session,a),box=node('section',undefined,'result-bulk-review');
    box.id='resultBulkReview';box.append(node('h4','Samlet kontroll av årsresultater'));
@@ -753,7 +803,7 @@
    const reanalyze=async()=>{clearAnalysis();if(state.staged)try{await compare();}catch(error){status(error.message,true);}};
    const year=input('number','resultYear',state.context.latestYear);year.min=1900;year.max=9999;year.onchange=()=>{state.profileChoices={};state.fixedCourse=null;state.coverageConfirmed=false;if(state.coverageControl)state.coverageControl.checked=false;return reanalyze();};
    const complete=input('checkbox','resultComplete');state.coverageControl=complete;complete.onchange=()=>{state.coverageConfirmed=complete.checked;return reanalyze();};const scope=input('text','resultScope','delimited-results-v1');scope.maxLength=100;scope.onchange=reanalyze;
-   const settings=node('div',undefined,'result-settings');settings.append(field('Arrangementsår',year));
+   const settings=node('div',undefined,'result-settings'),coverageField=field('Filen omfatter alle individuelle øvelser i valgt år',complete);coverageField.id='resultCoverageField';settings.append(field('Arrangementsår',year),coverageField);
    const advanced=node('details');advanced.id='resultAdvanced';const technical=hint('');technical.id='resultTechnical';advanced.append(node('summary','Avanserte valg'),field('Kildeområde for eventuelle dokumenterte eksterne ID-er',scope),technical,hint('Samme eksterne ID hos ulike leverandører betyr ikke samme person. Nye personer, lagrettinger og opprettelse av en ny årgang krever separat autorisert behandling.'));
    const file=input('file','resultFile');file.disabled=true;file.accept='.csv,.tsv,.txt,text/csv';file.onchange=async()=>{const selected=file.files[0];if(!selected)return;file.disabled=true;$('resultCompare').disabled=true;try{await loadFile(selected);}catch(error){status(error.message+(state.analysis?' Forrige gyldige analyse er beholdt.':' Ingen analyse er klargjort.'),true);}finally{file.disabled=false;file.value='';$('resultCompare').disabled=!state.staged;}};
    const fileInfo=node('p');fileInfo.id='resultFileInfo';const mapping=node('details');mapping.id='resultMappingDetails';mapping.hidden=true;mapping.append(node('summary','Kontroller eller korriger kolonnekoblinger'));const map=node('div',undefined,'intake-mapping');map.id='resultMapping';mapping.append(map);

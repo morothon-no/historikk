@@ -1,7 +1,7 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const {createHarness}=require('../scripts/diploma-harness.cjs');const root=path.resolve(__dirname,'..'),base='6a1febe';let h,data;
-before(async()=>{h=await createHarness();data=JSON.parse(await fs.readFile(path.join(root,'data/history.json'),'utf8'));});after(async()=>{await h?.close();});
-async function load(width=390,fixture){const p=await h.browser.newPage({viewport:{width,height:1100}});if(fixture)await p.route('**/data/history.json',r=>r.fulfill({json:fixture}));await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));return p;}
+before(async()=>{h=await createHarness();data=require('./public/quick/fixtures/frozen-history.js')(root);});after(async()=>{await h?.close();});
+async function load(width=390,fixture){const p=await h.browser.newPage({viewport:{width,height:1100}});await p.route('**/data/history.json',r=>r.fulfill({json:fixture||data}));await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));return p;}
 test('V3.2.1 fourth front-page metric is dynamically 33 with three participations; five-edition loyalty honours are unchanged',async()=>{
  // A2 shares participation filtering; threshold and historical-recognition parity is tested behaviorally.
  const vm=require('node:vm'),rules=require('../js/history-data.js'),old={window:{MorothonHistoryData:rules}},now={window:{MorothonHistoryData:rules}};
@@ -46,7 +46,7 @@ test('issue #9 single previous medal is 128px on 390 and 150px on desktop, retai
 });
 test('V3.2.1 PNG exports are byte-identical to published V3.2 for 1/2/5+ previous medals in both approved formats',async()=>{
  const before=await h.browser.newPage({viewport:{width:390,height:1100}}),after=await load();try{
-  const originals=new Map(['/index.html','/js/brag-card.js','/css/brag-card.css'].map(f=>[f,execFileSync('git',['show',base+':'+f.slice(1)],{cwd:root})]));await before.route('**/*',r=>{const f=new URL(r.request().url()).pathname,key=f==='/'?'/index.html':f;return originals.has(key)?r.fulfill({body:originals.get(key),contentType:key.endsWith('.js')?'text/javascript':key.endsWith('.css')?'text/css':'text/html'}):r.continue();});await before.goto(h.base);await before.waitForFunction(()=>!document.querySelector('#loading'));
+  const originals=new Map(['/index.html','/js/brag-card.js','/css/brag-card.css'].map(f=>[f,execFileSync('git',['show',base+':'+f.slice(1)],{cwd:root})]));await before.route('**/*',r=>{const f=new URL(r.request().url()).pathname,key=f==='/'?'/index.html':f;return originals.has(key)?r.fulfill({body:originals.get(key),contentType:key.endsWith('.js')?'text/javascript':key.endsWith('.css')?'text/css':'text/html'}):r.continue();});await before.route('**/data/history.json',r=>r.fulfill({json:data}));await before.goto(h.base);await before.waitForFunction(()=>!document.querySelector('#loading'));
   const ids=await after.evaluate(()=>['MOR-0C5F6C9',S.people.find(p=>p.c>=15&&p.c<20).i,S.people.find(p=>p.n==='Finn Gerhard Olsen').i]);for(const id of ids)for(const format of ['portrait','square']){const hashes=[];for(const p of [before,after])hashes.push(await p.evaluate(async({id,format})=>{const b=await MorothonCard.build(id,{format});URL.revokeObjectURL(b.url);return [...new Uint8Array(await crypto.subtle.digest('SHA-256',await b.blob.arrayBuffer()))];},{id,format}));assert.deepEqual(hashes[0],hashes[1],id+' '+format);}
  }finally{await before.close();await after.close();}
 });
