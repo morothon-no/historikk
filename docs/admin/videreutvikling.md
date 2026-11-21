@@ -5,11 +5,11 @@
 Kontrollert offentlig main: `db730825ee37f8342a5ac4ee7f4d3a0b41c95443`, etter
 merge av #154. #148 er integrert gjennom #153; både tellerrettelsen og
 identitetspubliseringen finnes i main. Ingen av disse PR-ene skal gjenskapes.
-Siste ferdige, grønne [Pages-kjøring ved kartleggingen](https://github.com/morothon-no/historikk/actions/runs/44895040342)
-gjelder `cff1ee637342767d31f38b289b751b09de5bfb6e` (#153), inkludert
-kildekoderegresjon, uavhengig artifact-gate og publisering.
-[Ny main-kjøring etter #154](https://github.com/morothon-no/historikk/actions/runs/44901033647)
-må kontrolleres separat på `db73082`; den var pågående da kartleggingen ble oppdatert.
+[Pages-kjøringen etter #154](https://github.com/morothon-no/historikk/actions/runs/44901033647)
+er grønn på `db730825ee37f8342a5ac4ee7f4d3a0b41c95443` (8 min 53 sek),
+inkludert kildekoderegresjon, uavhengig artifact-gate og publisering. Også
+[forrige kjøring etter #153](https://github.com/morothon-no/historikk/actions/runs/44895040342)
+er grønn. Disse resultatene gjelder main, ikke en ennå ikke opprettet årsimport-PR.
 
 Den opprinnelige [Worker-kontrollen #42](https://github.com/morothon-no/historikk/actions/runs/44895040258)
 feilet på den offentlige Pages-ruten. #154 forbedrer sikker diagnostikk og endrer

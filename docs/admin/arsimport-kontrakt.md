@@ -116,6 +116,9 @@ byggversjon `1161be8f67469fef`. Alle 59 filer er byteidentiske med kontrollpakke
 fra main. Ingen egne Heder-tester/gallerier er kjørt, og ingen produksjonsdata,
 offentlige manifest, sikkerhetsregler, workflows eller avhengigheter er endret.
 
+Eksisterende isolert PR-kildekontroll er også kjørt lokalt med betrodd godkjenning:
+**19 bestått, 0 feil**. Offentlig datapolicy består uten ny maintainer-SHA-godkjenning.
+
 Den nye testen oppdages automatisk av full kildekoderegresjon. Dagens avgrensede
 PR-kildejobb kjører bare sin eksisterende liste med fire tester. En grønn PR er
 derfor ikke bevis på at denne nye testen kjørte i Actions før merge; den eksplisitte
