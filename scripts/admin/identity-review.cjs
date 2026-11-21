@@ -17,6 +17,24 @@ const fail = message => { throw Error(message); };
 const deferred = c => c.status === 'review' && !c.change &&
   c.events.filter(e => /^identity-(defer|same-person|different-people)$/.test(e.action)).at(-1)?.action === 'identity-defer';
 
+async function carryIdentityEvidence(previous,current,at){
+  const suggestions = C.discover({...current.history,results:[]});
+  let draft = C.empty(current.base);
+  for (const old of previous.draft.cases) {
+    const followup = deferred(old);
+    if (!followup && (old.status !== 'rejected' || !old.events.some(e=>e.action === 'identity-different-people'))) continue;
+    const suggestion = suggestions.find(s=>equal([...s.personIds].sort(),[...old.personIds].sort()));
+    if (!suggestion || (await C.reviewSuggestions([suggestion],previous.draft))[0].caseId !== old.id) continue;
+    draft = (await C.openSuggestion(draft,suggestion,old.id)).package;
+    draft = C.updateNotes(draft,old.id,{description:old.description,source:old.source,reason:old.reason});
+    draft = C.transition(draft,old.id,followup ? 'review' : 'rejected',old.reason);
+    draft.cases.at(-1).events.push({at:at,
+    action:followup ? 'identity-defer' : 'identity-different-people',
+    reason:followup ? 'Tidligere utsatt sak med uendret identitetsgrunnlag.' : 'Tidligere bekreftet avvisning med uendret identitetsgrunnlag.'});
+  }
+  return draft;
+}
+
 // A trusted server factory opens a physically separate namespace in an existing
 // encrypted CAS adapter. Never use an organizer ID as a pseudo-module/tenant ID.
 function identityReviewStore({openNamespace} = {}) {
@@ -38,6 +56,7 @@ function identityReviewStore({openNamespace} = {}) {
       const next = update(previous);
       return checked({...next,
         ...(next.archives === undefined && previous?.archives ? {archives:copy(previous.archives)} : {}),
+        ...(next.lastIdentityPublication===undefined && previous?.lastIdentityPublication?{lastIdentityPublication:copy(previous.lastIdentityPublication)}:{}),
         module:SCOPE, organizer}, organizer);
     })
   };
@@ -274,20 +293,7 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     if (!previous || previous.revision !== input.expectedRevision || sha(previous.draft) !== input.expectedDigest)
       fail('Arbeidsgrunnlaget er endret. Hent siste revisjon.');
     if (equal(previous.base,current.base)) fail('Arbeidsgrunnlaget bruker allerede gjeldende historikk.');
-    const suggestions = C.discover({...current.history,results:[]});
-    let draft = C.empty(current.base);
-    for (const old of previous.draft.cases) {
-      const followup = deferred(old);
-      if (!followup && (old.status !== 'rejected' || !old.events.some(e=>e.action === 'identity-different-people'))) continue;
-      const suggestion = suggestions.find(s=>equal([...s.personIds].sort(),[...old.personIds].sort()));
-      if (!suggestion || (await C.reviewSuggestions([suggestion],previous.draft))[0].caseId !== old.id) continue;
-      draft = (await C.openSuggestion(draft,suggestion,old.id)).package;
-      draft = C.updateNotes(draft,old.id,{description:old.description,source:old.source,reason:old.reason});
-      draft = C.transition(draft,old.id,followup ? 'review' : 'rejected',old.reason);
-      draft.cases.at(-1).events.push({at:new Date(clock ? clock() : Date.now()).toISOString(),
-        action:followup ? 'identity-defer' : 'identity-different-people',
-        reason:followup ? 'Tidligere utsatt sak med uendret identitetsgrunnlag.' : 'Tidligere bekreftet avvisning med uendret identitetsgrunnlag.'});
-    }
+    const draft = await carryIdentityEvidence(previous,current,new Date(clock ? clock() : Date.now()).toISOString());
     const actor = await authenticate(input.session); authorize(actor,input.organizer,'approve');
     if (!equal((await loadContext(input.organizer)).base,current.base)) fail('Historikken ble oppdatert under kontrollen.');
     const at = new Date(clock ? clock() : Date.now()).toISOString();
@@ -301,8 +307,27 @@ function createIdentityReview({authenticate, loadContext, store, clock} = {}) {
     });
     return load(input);
   }
-  return {load, preview, decide, decideBatch, approve, inspect, revalidate}; // No production writer.
+  async function publicationCandidate(input){
+    await access(input,'approve');
+    const saved=await load(input),current=await context(input.organizer);
+    if(saved.stale||!saved.draft||saved.revision!==input.expectedRevision||sha(saved.draft)!==input.expectedDigest)
+      fail('Identitetsgrunnlaget er endret. Hent og kontroller siste revisjon.');
+    const active=saved.draft.cases.filter(c=>c.change&&['handoff','proposed'].includes(c.status));
+    if(!active.length||active.some(c=>c.change.kind!=='merge'||!c.events.some(e=>e.action==='identity-same-person')))
+      fail('Publiser bare bekreftede sammenslåinger. Separate navn-/aliasendringer krever egen kontroll.');
+    const selected={...copy(saved.draft),cases:saved.draft.cases.filter(c=>active.some(a=>a.id===c.id)||c.status==='rejected').map(copy)},
+      result=await checked(current,selected);
+    if(!result.review.ready)fail('Sammenslåingen krever avklaring: '+result.review.uncertain.join(' '));
+    const packet=await C.createCandidate(current.history,result.draft,current.base,current.project,{linkedRunnerIds:current.linkedRunnerIds||[]}),
+      restored=await C.restoreCandidate(packet.result.history,packet);
+    if(!equal(restored.history,current.history))fail('Tilbakeføringskontrollen feilet.');
+    await access(input,'approve');
+    if(!equal((await loadContext(input.organizer)).base,current.base))fail('Historikken ble endret under kontrollen.');
+    return {packet,review:result.review,selectedIds:active.map(c=>c.id),deferred:saved.draft.cases.filter(deferred).length,
+      different:saved.draft.cases.filter(c=>c.status==='rejected').length};
+  }
+  return {load, preview, decide, decideBatch, approve, inspect, revalidate, publicationCandidate}; // No production writer.
 }
 
 module.exports = {createIdentityReview, identityReviewStore, privateIdentityFileStore, SCOPE,
-  validateIdentityCommand:command};
+  validateIdentityCommand:command,carryIdentityEvidence};

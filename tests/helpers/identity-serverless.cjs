@@ -12,7 +12,7 @@ const origin='https://identity-admin.example.test',codeSha='a'.repeat(40),workfl
 function memory(){const data=new Map();return {get:async k=>structuredClone(data.get(k)||null),
   transact:async(k,r,fn)=>{const old=data.get(k);if((old?.revision||0)!==r)throw Object.assign(Error('endret'),{status:409});
     const next=fn(structuredClone(old||null));data.set(k,structuredClone(next));return structuredClone(next);}};}
-async function setup(t){
+async function setup(t,{identityPublicationEnabled=false,publicationOptions={}}={}){
   const f=await sourceFixture(t),control=memory(),authStore=memory(),key=randomBytes(32),dispatches=[];
   const directory=path.join(f.directory,'identity-private');
   const accounts=createAccountDirectory({users:[{userId,active:true}],
@@ -25,6 +25,7 @@ async function setup(t){
   function restart(){identities=privateFileStore({directory,key});broker=createBroker({
     portalUrl:origin+'/admin/',apiOrigin:origin,ownerUserId:userId,ownerGithubId:'123',codeSha,workflowSha,
     auth,reviews:f.reviewStore,identities,control,
+    identityPublicationEnabled,
     privateApi:{request:async(route,options)=>{if(route.includes('/dispatches')){dispatches.push(JSON.parse(options.body));return null;}
       return {status:'in_progress'};}},
     publicApi:{request:async()=>({encoding:'base64',content:f.repository.files.get('.github/public-data-approval.json').toString('base64')})},
@@ -44,7 +45,11 @@ async function setup(t){
     const response=await broker.fetch(new Request(origin+'/processor/lease',{method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer synthetic-oidc'},body:JSON.stringify(job.inputs)}));
     if(response.status!==200)throw Error('Syntetisk lease ble avvist.');const lease=await response.json();
     return createDriver({lease,identities,control,reviews:f.reviewStore,loadContext:async()=>f.context,
-      adapter:new Proxy({}, {get(){throw Error('Identity jobs must never access the public publisher');}})}).run();}
+      ...(identityPublicationEnabled ? {identityPublicationEnabled,stateStore:f.stateStore,directory:f.directory,adapter:f.adapter,
+        pause:async()=>{},verifyLive:async()=>{if(!f.remote.live)throw Error('Synthetic live verification failure');return true;},
+        onPublished:async()=>{f.context.history=JSON.parse(f.repository.files.get('data/history.json'));f.context.base=await f.bind(f.repository.files);return f.context.base;},
+        checkBuild:async()=>({version:'f'.repeat(16),siteUrl:'https://synthetic.example.test/',files:{}}),...publicationOptions}:
+        {adapter:new Proxy({}, {get(){throw Error('Identity jobs must never access the public publisher');}})})}).run();}
   function command(kind='same-person',extra={}){return {format:'morothon-identity-decision-v1',version:1,id:'synthetic-'+token().slice(0,20),
     base:structuredClone(f.context.base),kind,personIds:['MOR-C220001','MOR-C220002'],mainPersonId:kind==='same-person'?'MOR-C220002':null,name:null,
     source:'Syntetisk arrangørkilde',reason:'Identiteten er kontrollert i en syntetisk kilde.',...extra};}

@@ -81,6 +81,7 @@ import runtimeModule from "./public-runtime-proxy.cjs";
 import brokerModule from "./broker.cjs";
 import oidcModule from "./oidc.cjs";
 import accountsModule from "../account-directory.cjs";
+import identityPublicationPolicy from './identity-publication-policy.cjs';
 let cached;
 export default {
   async fetch(request, env) {
@@ -236,7 +237,8 @@ export default {
               })
             ).success,
           leaseTokens: async (task) => {
-            const write = ["publish", "continue"].includes(task.action),
+            const write = ["publish", "continue"].includes(task.action) ||
+                (identityPublicationPolicy.ENABLED === true && ['identity-publication-publish','identity-publication-continue'].includes(task.action)),
               publicConnection = connection({
                 ...common,
                 repository: "morothon-no/historikk",

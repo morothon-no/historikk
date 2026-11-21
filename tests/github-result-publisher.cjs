@@ -50,3 +50,17 @@ test('required PR review refusal remains a human checkpoint and malformed write 
 test('continuation may read a failed deploy snapshot but normal publication still requires green main and all code/protection checks',async t=>{
  const api=await fakeGitHub(t),publisher=createGitHubPublisher({api:async(route,o)=>{const r=await api.api(route,o);if(route.includes('event=push'))for(const run of r.workflow_runs)Object.assign(run,{status:'completed',conclusion:'failure'});return r;},codeSha:api.codeSha,appId:'123'});await assert.rejects(publisher.snapshot(),/grønn/);const readOnly=await publisher.snapshot({requireGreen:false});assert.ok(readOnly.files.get('data/history.json'));assert.equal(api.prs.length,0);await assert.rejects(publisher.snapshot(),/grønn/);api.state.strict=false;await assert.rejects(publisher.snapshot({requireGreen:false}),/obligatoriske tester/);
 });
+test('identity publication uses the same protected five-file GitHub path with its own idempotent branch and clear title',async t=>{
+ const api=await fakeGitHub(t),adapter=createGitHubPublisher({api:api.api,codeSha:api.codeSha,appId:'123'}),snapshot=await adapter.snapshot(),
+  D=require('../tools/diploma-admin/result-release-data.cjs'),history=JSON.parse(snapshot.files.get('data/history.json'));
+ history.redirects['MOR-C220001']='MOR-C220002';history.aliases['MOR-C220002']=['Syntetisk Kari Nord'];
+ const release=releaseFiles({files:snapshot.files,after:history},D.appendIdentityPublication),job={publicationKind:'identity',id:'d'.repeat(64),baseCommit:snapshot.sha,
+  variables:snapshot.variables,approval:release.approval,after:backupFiles(release.files)};
+ const first=await adapter.submit(job);assert.match(first.branch,/^codex\/identity-/);assert.deepEqual(await adapter.submit(job),first);
+ assert.equal(api.prs.length,1);assert.match(api.calls.find(c=>c.path==='pulls'&&c.method==='POST').body.title,/identitetsretting/);
+ assert.deepEqual(api.calls.find(c=>c.path==='git/trees').body.tree.map(e=>e.path).sort(),PATHS.slice().sort());
+ job.remote=first;assert.equal((await adapter.advance(job)).stage,'checking');assert.equal(api.prs[0].merged,false);
+ api.state.checks='success';assert.equal((await adapter.advance(job)).stage,'deploying');
+ assert.deepEqual(JSON.parse(api.read('data/history.json')).results,JSON.parse(api.read('data/history.json',api.codeSha)).results);
+ assert.equal(api.calls.some(c=>c.path.includes('rulesets')||c.method==='DELETE'),false);
+});

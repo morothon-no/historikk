@@ -66,11 +66,12 @@ function createGitHubPublisher({api,codeSha,appId}={}){
  }
  async function submit(job){
   if(await main()!==job.baseCommit)throw Error('Main er endret. Klargjør rettelsen mot siste versjon.');await unchangedCode(job.baseCommit);await protection();
-  const branch='codex/result-'+job.id.slice(0,32);let ref=await get('git/ref/heads/'+branch,{allow404:true});
+  const identity=job.publicationKind==='identity',label=identity?'identitetsretting':'resultatretting';
+  const branch='codex/'+(identity?'identity-':'result-')+job.id.slice(0,32);let ref=await get('git/ref/heads/'+branch,{allow404:true});
   if(!ref){
    const base=await get('git/commits/'+job.baseCommit),tree=[];
    for(const path of PATHS){const blob=await request('git/blobs',{method:'POST',body:{content:job.after[path].base64,encoding:'base64'}});tree.push({path,mode:'100644',type:'blob',sha:blob.sha});}
-   const nextTree=await request('git/trees',{method:'POST',body:{base_tree:base.tree.sha,tree}}),commit=await request('git/commits',{method:'POST',body:{message:'Morothon: godkjent resultatretting '+job.id.slice(0,12),tree:nextTree.sha,parents:[job.baseCommit]}});
+   const nextTree=await request('git/trees',{method:'POST',body:{base_tree:base.tree.sha,tree}}),commit=await request('git/commits',{method:'POST',body:{message:'Morothon: godkjent '+label+' '+job.id.slice(0,12),tree:nextTree.sha,parents:[job.baseCommit]}});
    await request('git/refs',{method:'POST',body:{ref:'refs/heads/'+branch,sha:commit.sha}});ref={object:{sha:commit.sha}};
   }
   const head=ref.object.sha;await verifyCommit(head,job);
@@ -79,7 +80,7 @@ function createGitHubPublisher({api,codeSha,appId}={}){
   await setVariable(VARIABLE_NAMES[0],job.approval.manifestSha256,job.variables[VARIABLE_NAMES[0]]);
   await setVariable(VARIABLE_NAMES[1],head,job.variables[VARIABLE_NAMES[1]]);
   const prs=await get('pulls?state=all&head=morothon-no:'+encode(branch)+'&base=main');let pr=prs[0];
-  if(!pr)pr=await request('pulls',{method:'POST',body:{base:'main',head:branch,title:'Morothon – godkjent resultatretting '+job.id.slice(0,12),body:'Autentisert publiseringshandling fra Morothon-admin. Kun eksakte, godkjente resultatdata. Jobb '+job.id+'. Ingen private notater eller originalregistre er inkludert.'}});
+  if(!pr)pr=await request('pulls',{method:'POST',body:{base:'main',head:branch,title:'Morothon – godkjent '+label+' '+job.id.slice(0,12),body:'Autentisert publiseringshandling fra Morothon-admin. Kun eksakte, godkjente offentlige data. Jobb '+job.id+'. Ingen private notater eller originalregistre er inkludert.'}});
   return {branch,head,pr:pr.number,url:pr.html_url};
  }
  async function advance(job){

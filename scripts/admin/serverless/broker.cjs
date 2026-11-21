@@ -5,6 +5,7 @@ const { sha, fail } = require("./github-store.cjs"),
 const C = require("../../../tools/diploma-admin/intake-model.js").Corrections;
 const {validateIdentityCommand, SCOPE} = require("./identity-command.cjs");
 const {mergeResultImport} = require("./result-import.cjs");
+const {ENABLED, digest:publicationDigest} = require('./identity-publication-policy.cjs');
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b),
   copy = (v) => structuredClone(v);
@@ -24,6 +25,7 @@ function createBroker({
   publicApi,
   verifyOidc,
   leaseTokens,
+  identityPublicationEnabled = ENABLED,
   rateLimit = async () => true,
   clock = Date.now,
 }) {
@@ -151,6 +153,7 @@ function createBroker({
     if (!identities) throw fail("Privat personkontroll er ikke aktivert.", 404);
     const record = await identities.get(ORG), b = await base(), task = await active(),
       inspection = await control.get('identity-inspection-'+ORG);
+    const publication = identityPublicationEnabled === true ? await control.get('identity-publication-'+ORG) : null;
     if (record && (record.module !== SCOPE || record.organizer !== ORG || record.status === 'published'))
       throw fail("Ugyldig privat identitetsgrunnlag.", 409);
     if (record) C.validatePackage(record.draft);
@@ -158,6 +161,11 @@ function createBroker({
       persisted:!!record, draft:record?.draft || null, digest:record?.draft ? sha(record.draft) : null,
       approval:record?.approval || null, events:record?.events || [], archives:record?.archives || [],
       stale:!!record && !same(record.base,b), productionApplied:false, publicationAuthorized:false,
+      publication: {enabled:identityPublicationEnabled === true, ...(identityPublicationEnabled === true ? {
+        digest:publicationDigest(record), locked:!!record?.publicationLock, reversalOf:record?.identityReversal?.publicationId || null,
+        review:record && publication?.review && publication.review.revision===record.revision && publication.review.digest===publicationDigest(record) && same(record.base,b) ? publication.review : null,
+        job:publication?.publication || null, history:publication?.history || [],
+      } : {})},
       inspection:record && inspection?.digest===sha(record.draft) && same(inspection.base,b) ? inspection.report : null,
       task:task && (task.scope === SCOPE || task.state === 'blocked') ? {id:task.id,state:task.state,action:task.action,queueRevision:task.queueRevision || null,
         requestId:task.identityCommand?.id || null,requestIds:task.identityCommands?.map(c=>c.id)||null,error:task.error || null} : null};
@@ -176,6 +184,8 @@ function createBroker({
     );
   }
   async function startTask(actor, action, input) {
+    const identityPublication = action.startsWith('identity-publication-');
+    if (identityPublication && identityPublicationEnabled !== true) throw fail('Identitetspublisering er ikke aktivert.',404);
     await idle();
     const identity = action.startsWith('identity-');
     if (identity && !identities) throw fail("Privat personkontroll er ikke aktivert.",404);
@@ -184,10 +194,14 @@ function createBroker({
     let identityCommand,identityCommands;
     if (identity) {
       if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 0 ||
-          (record?.revision || 0) !== input.expectedRevision || record && action !== 'identity-revalidate' && !same(record.base,b))
+          (record?.revision || 0) !== input.expectedRevision || record && !['identity-revalidate','identity-publication-continue','identity-publication-cancel'].includes(action) && !same(record.base,b))
         throw fail('Identitetsgrunnlaget er endret. Hent siste lagrede vurdering.',409);
       if (record && (record.module !== SCOPE || record.organizer !== ORG))
         throw fail('Feil privat identitetsgrunnlag.',409);
+      if (!identityPublication && (record?.publicationLock || record?.identityReversal))
+        throw fail('Avklar identitetspubliseringen eller tilbakeføringen før nye avgjørelser.',409);
+      if(identityPublication && record?.publicationLock && action!=='identity-publication-continue')
+        throw fail('Fortsett kontrollen av den pågående identitetspubliseringen først.',409);
       if (action === 'identity-decide' || action === 'identity-batch') {
         try {
           if(action === 'identity-batch') {
@@ -200,8 +214,21 @@ function createBroker({
         } catch (error) { throw fail(error.message,400); }
         if((identityCommands||[identityCommand]).some(c=>!same(c.base,b)))
           throw fail('Historikken er oppdatert. Last inn på nytt.',409);
-      } else if (!record?.draft || sha(record.draft) !== input.expectedDigest)
+      } else if (!record?.draft || (identityPublication ? publicationDigest(record) : sha(record.draft)) !== input.expectedDigest)
         throw fail('Godkjenningen gjelder en annen identitetsrevisjon.',409);
+      if(identityPublication) {
+        if (action === 'identity-publication-approve') {
+          const p=await control.get('identity-publication-'+ORG);
+          if(!p?.review?.ready || p.review.revision!==record.revision || p.review.digest!==publicationDigest(record) ||
+            p.review.candidateDigest!==input.candidateDigest)
+            throw fail('Kontroller nøyaktig dette før-/etter-grunnlaget før godkjenning.',409);
+        }
+        if(action === 'identity-publication-publish' && (record.status!=='review-approved' ||
+          record.approval?.scope!=='identity-publication' || record.approval.digest!==publicationDigest(record) || input.confirmation!==true))
+          throw fail('Godkjenn og bekreft siste lagrede identitetskontroll først.',409);
+        if(action === 'identity-publication-reverse' && (!/^[a-f0-9]{64}$/.test(input.publicationId||'') || input.confirmation!==true))
+          throw fail('Velg den verifiserte identitetspubliseringen som skal tilbakeføres.',409);
+      }
       if (action === 'identity-approve') {
         const inspection=await control.get('identity-inspection-'+ORG);
         if (!inspection?.report.ready || inspection.digest!==input.expectedDigest || !same(inspection.base,b))
@@ -238,6 +265,10 @@ function createBroker({
         input.confirmation !== true)
     )
       throw fail("Velg rettelsen som skal trekkes tilbake.");
+    if (['publish','continue','reverse','identity-publication-publish','identity-publication-continue','identity-publication-reverse'].includes(action)) {
+      const other=await (identity ? reviews : identities)?.get(ORG);
+      if(other?.publicationLock) throw fail('En annen publisering må avklares først.',409);
+    }
     const q = await queue(),
       // Lowercase hex is accepted by both the private GitHub store and the
       // processor lease contract. Base64url is not a valid storage identifier.
@@ -253,7 +284,8 @@ function createBroker({
         ownerGithubId,
         action,
         expectedRevision: record?.revision || 0,
-        expectedDigest: record?.draft ? sha(record.draft) : null,
+        expectedDigest: identityPublication ? publicationDigest(record) : record?.draft ? sha(record.draft) : null,
+        ...(identityPublication ? {candidateDigest:input.candidateDigest || null} : {}),
         publicationId: input.publicationId || null,
         reversalOf: record?.reversalOf || null,
         state: "queued",
@@ -399,6 +431,7 @@ function createBroker({
         let task = await control.get("task-" + input.task);
         if (
           !task ||
+          (task.action.startsWith('identity-publication-') && (identityPublicationEnabled !== true || task.scope !== SCOPE)) ||
           task.nonce !== input.nonce ||
           task.actor !== ownerUserId ||
           task.ownerGithubId !== ownerGithubId ||
@@ -439,6 +472,7 @@ function createBroker({
           canPublish: true,
           identityPersistence: !!identities,
           resultImportPersistence: true,
+          identityPublicationEnabled: identityPublicationEnabled === true,
         });
       if (route === "/logout" && request.method === "POST") {
         await body(request, []);
@@ -447,6 +481,13 @@ function createBroker({
       if (route === "/review" && request.method === "GET")
         return json(200, await view());
       if (route === '/identity' && request.method === 'GET') return json(200,await identityView());
+      if (route.startsWith('/identity/publication/') && request.method === 'POST') {
+        if(identityPublicationEnabled !== true) throw fail('Identitetspublisering er ikke aktivert.',404);
+        const action=route.slice('/identity/publication/'.length);
+        if(!['check','approve','publish','continue','reverse','cancel'].includes(action)) throw fail('Ukjent handling.',404);
+        const keys=['expectedRevision','expectedDigest',...(action==='approve'?['candidateDigest']:action==='publish'?['confirmation']:action==='reverse'?['publicationId','confirmation']:[])];
+        return json(202,await startTask(actor,'identity-publication-'+action,await body(request,keys)));
+      }
       if (route === "/review/import" && request.method === "POST") {
         await idle();
         const input = await body(request,["draft","expectedRevision","expectedDigest","replaceConflicts"]);

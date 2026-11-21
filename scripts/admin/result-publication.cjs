@@ -20,34 +20,34 @@ async function checkReleaseBuild(release,snapshot,{directory}){
   return {version:build.version,siteUrl:JSON.parse(await fs.readFile(path.join(build.out,'build-info.json'))).siteUrl,files:Object.fromEntries(await Promise.all(build.files.map(async p=>[p,hash(await fs.readFile(path.join(build.out,p)))])))};
  }finally{await fs.rm(dir,{recursive:true,force:true});}
 }
-function createResultPublication({authenticate,authorizeActor,review,reviewStore,stateStore,loadContext,adapter,verifyLive,onPublished,checkBuild,directory,clock=Date.now}={}){
+function createResultPublication({authenticate,authorizeActor,review,reviewStore,stateStore,loadContext,adapter,verifyLive,onPublished,checkBuild,directory,clock=Date.now,strategy=null}={}){
  if(!adapter?.snapshot||!adapter?.submit||!adapter?.advance||typeof verifyLive!=='function'||typeof onPublished!=='function'||typeof authorizeActor!=='function')throw Error('Autorisert publisering, deploy-verifikasjon og kildeoppdatering kreves.');
  let progressing=false,mutation=Promise.resolve();
  const exclusive=fn=>{const result=mutation.then(fn);mutation=result.catch(()=>{});return result;};
  const orgKey=org=>'latest-'+org,jobKey=id=>'job-'+id.slice(0,48);
  const stamp=()=>new Date(clock()).toISOString();
  async function access(session,organizer,action='publish'){const principal=await authenticate(session);authorize(principal,organizer,action);return principal.subject;}
- async function getJob(id){if(!/^[a-f0-9]{64}$/.test(id||''))throw Error('Ugyldig publiseringsjobb.');const job=(await stateStore.get(jobKey(id)))?.publication||null;if(job&&job.id!==id)throw Error('Publiserings-ID stemmer ikke.');return job;}
+ async function getJob(id){if(!/^[a-f0-9]{64}$/.test(id||''))throw Error('Ugyldig publiseringsjobb.');const job=(await stateStore.get(jobKey(id)))?.publication||null;if(job&&(job.id!==id||(strategy?job.publicationKind!==strategy.kind:job.publicationKind!==undefined)))throw Error('Publiserings-ID stemmer ikke.');return job;}
  async function writeJob(job,action){const key=jobKey(job.id),old=await stateStore.get(key);await stateStore.transact(key,old?.revision||0,p=>({v:1,revision:(p?.revision||0)+1,status:'draft',base:copy(job.base),draft:copy(job.draft),events:[...(p?.events||[]),{action,actor:job.actor,at:stamp()}],publication:copy(job)}));return job;}
  async function latest(org){const p=await stateStore.get(orgKey(org)),job=p?.publicationId?await getJob(p.publicationId):null;if(job&&job.organizer!==org)throw Error('Publiseringen tilhører en annen arrangør.');return job;}
  async function point(job){const key=orgKey(job.organizer),old=await stateStore.get(key);await stateStore.transact(key,old?.revision||0,p=>({v:1,revision:(p?.revision||0)+1,status:'draft',base:copy(job.base),draft:C.empty(job.base),events:[],publicationId:job.id}));}
- function publicJob(job){if(!job)return null;return {id:job.id,stage:job.stage,actor:job.actor,authorizedAt:job.authorizedAt||null,createdAt:job.createdAt,dataVersion:job.approval.dataVersion,manifestSha256:job.approval.manifestSha256,changes:job.changes,remote:job.remote||null,mergeCommit:job.mergeCommit||null,error:job.error||null,backupVerified:job.backupVerified,publishedAt:job.publishedAt||null,productionApplied:job.stage==='published',canReverse:job.stage==='published',profiles:job.stage==='published'?job.personIds.map(id=>new URL('index.html#lop='+encodeURIComponent(id),job.build.siteUrl).href):[]};}
+ function publicJob(job){if(!job)return null;return {...(strategy?{kind:strategy.kind,reversalOf:job.reversalOf||null}:{}),id:job.id,stage:job.stage,actor:job.actor,authorizedAt:job.authorizedAt||null,createdAt:job.createdAt,dataVersion:job.approval.dataVersion,manifestSha256:job.approval.manifestSha256,changes:job.changes,remote:job.remote||null,mergeCommit:job.mergeCommit||null,error:job.error||null,backupVerified:job.backupVerified,publishedAt:job.publishedAt||null,productionApplied:job.stage==='published',canReverse:job.stage==='published',profiles:job.stage==='published'?job.personIds.map(id=>new URL('index.html#lop='+encodeURIComponent(id),job.build.siteUrl).href):[]};}
  async function status({session,organizer}){await access(session,organizer,'read');return {enabled:true,job:publicJob(await latest(organizer))};}
  async function prepare(input){
   const actor=await access(input.session,input.organizer),current=await review.load(input),old=await latest(input.organizer);
   if((await reviewStore.get(input.organizer))?.publicationLock||old&&!terminal.has(old.stage)&&old.stage!=='prepared')throw Error('En publisering pågår allerede. Kontroller status først.');
   if(current.status!=='review-approved'||current.stale||current.revision!==input.expectedRevision||current.digest!==input.expectedDigest||current.approval?.digest!==current.digest)throw Error('Godkjenn nøyaktig siste lagrede rettelse før publisering.');
   const context=await loadContext(input.organizer);if(!same(context.base,current.draft.base))throw Error('Historikken er endret.');
-  const packet=await C.createCandidate(context.history,current.draft,context.base,context.project,{linkedRunnerIds:context.linkedRunnerIds||[]});
-  const restored=await C.restoreCandidate(packet.result.history,packet);if(!same(restored.history,context.history))throw Error('Tilbakeføringskontrollen feilet.');
+  const packet=strategy?await strategy.candidate(input,current,context):await C.createCandidate(context.history,current.draft,context.base,context.project,{linkedRunnerIds:context.linkedRunnerIds||[]});
+  if(!strategy){const restored=await C.restoreCandidate(packet.result.history,packet);if(!same(restored.history,context.history))throw Error('Tilbakeføringskontrollen feilet.');}
   const snapshot=await adapter.snapshot();
   if(hash(snapshot.files.get('public-data/data/history.json'))!==context.base.historySha256||hash(snapshot.files.get('public-data/manifest.json'))!==context.base.manifestSha256)throw Error('Main og redigeringsgrunnlaget har ulike dataversjoner.');
-  const release=releaseFiles({files:snapshot.files,after:packet.result.history}),before=backupFiles(snapshot.files),after=backupFiles(release.files);
+  const release=strategy?strategy.release({files:snapshot.files,after:packet.result.history}):releaseFiles({files:snapshot.files,after:packet.result.history}),before=backupFiles(snapshot.files),after=backupFiles(release.files);
   // Restore the actual saved backup bytes before accepting the publication plan.
   const recovered=restoreFiles(before);for(const p of PATHS)if(!recovered.get(p).equals(snapshot.files.get(p)))throw Error('Sikkerhetskopien kunne ikke gjenopprettes.');
   const build=await (checkBuild||checkReleaseBuild)(release,snapshot,{directory});
-  const id=hash(JSON.stringify({organizer:input.organizer,revision:current.revision,digest:current.digest,base:snapshot.sha,manifest:release.approval.manifestSha256}));
-  const job={id,organizer:input.organizer,actor,stage:'prepared',createdAt:stamp(),base:copy(context.base),draft:copy(current.draft),approvedRevision:current.revision,approvedDigest:current.digest,baseCommit:snapshot.sha,variables:snapshot.variables,approval:release.approval,before,after,otherFiles:Object.fromEntries([...snapshot.files].filter(([p])=>!PATHS.includes(p)).map(([p,b])=>[p,b.toString('base64')])),changes:release.changes,personIds:[...new Set(release.changes.flatMap(c=>[c.before[1],c.after[1]]))],backupVerified:true,build};
+  const id=hash(JSON.stringify({organizer:input.organizer,revision:current.revision,digest:current.digest,base:snapshot.sha,manifest:release.approval.manifestSha256,...(strategy?{kind:strategy.kind}:{})}));
+  const job={...(strategy?{publicationKind:strategy.kind,reversalOf:current.reversalOf||null}:{}),id,organizer:input.organizer,actor,stage:'prepared',createdAt:stamp(),base:copy(context.base),draft:copy(current.draft),approvedRevision:current.revision,approvedDigest:current.digest,baseCommit:snapshot.sha,variables:snapshot.variables,approval:release.approval,before,after,otherFiles:Object.fromEntries([...snapshot.files].filter(([p])=>!PATHS.includes(p)).map(([p,b])=>[p,b.toString('base64')])),changes:release.changes,personIds:strategy?strategy.personIds(release.changes):[...new Set(release.changes.flatMap(c=>[c.before[1],c.after[1]]))],backupVerified:true,build};
   await writeJob(job,'publication-prepared');if(old?.stage==='prepared'&&old.id!==job.id){old.stage='cancelled';await writeJob(old,'publication-plan-superseded');}await point(job);return publicJob(job);
  }
  async function publish({session,organizer,id,confirmation}){
@@ -62,9 +62,10 @@ function createResultPublication({authenticate,authorizeActor,review,reviewStore
  }
  async function unlock(job,success,newBase){
   const current=await reviewStore.get(job.organizer);if(current?.publicationLock?.id!==job.id)return;
+  const verifiedRecord=success&&strategy?await strategy.verified(job,current,newBase):null;
   await reviewStore.transact(job.organizer,current.revision,p=>{
    if(p.publicationLock?.id!==job.id)throw Error('Publiseringsreservasjonen er endret.');
-   const {publicationLock,...rest}=p;return {...rest,revision:p.revision+1,...(success?{status:'published',base:copy(newBase),draft:C.empty(newBase),approval:null,lastPublication:job.id}:{}),events:[...p.events,{action:success?'publication-verified':'publication-stopped',actor:job.actor,at:stamp(),digest:job.approval.manifestSha256}]};
+   const {publicationLock,...rest}=p;return {...rest,revision:p.revision+1,...(success?(verifiedRecord||{status:'published',base:copy(newBase),draft:C.empty(newBase),approval:null,lastPublication:job.id}):{}),events:[...p.events,{action:success?'publication-verified':'publication-stopped',actor:job.actor,at:stamp(),digest:job.approval.manifestSha256}]};
   });
  }
  async function progress(organizer){
@@ -95,6 +96,7 @@ function createResultPublication({authenticate,authorizeActor,review,reviewStore
  async function reverse(input){
   await access(input.session,input.organizer);const job=await getJob(input.id),current=await review.load(input);
   if(!job||job.organizer!==input.organizer||job.stage!=='published')throw Error('Velg en verifisert publisering for tilbakeføring.');
+  if(strategy)return strategy.reverse(input,job,await loadContext(input.organizer),await adapter.snapshot());
   if(current.draft?.cases.length)throw Error('Behandle eller forkast det pågående utkastet før tilbakeføring.');
   const context=await loadContext(input.organizer),currentBytes=Buffer.from(JSON.stringify(context.history));
   // Always inspect the journal: equal current bytes can hide a later change-away-and-back.

@@ -51,7 +51,7 @@ function memory() {
   };
 }
 test(
-  "protected admin privately saves manual and CSV corrections, safely reimports, reopens after login, publishes and withdraws through real build/profile controls",
+  "protected admin hides boot, persists two identity decisions across login, privately reimports results, publishes and reverses without mixing the stores",
   { timeout: 300000 },
   async (t) => {
     const root = path.resolve(__dirname, ".."),
@@ -98,9 +98,7 @@ test(
     await buildProtectedAdmin(protectedDir);
     const protectedFiles = new Map();
     for (const name of Object.keys(ADMIN_SOURCES)) {
-      let bytes = await fs.readFile(path.join(protectedDir, name));
-      if (name === "admin/index.html") bytes = Buffer.from(bytes.toString()
-        .replace('data-admin-mode="protected"', 'data-admin-mode="public-preview"'));
+      const bytes = await fs.readFile(path.join(protectedDir, name));
       protectedFiles.set(name, bytes);
     }
     let publicFiles = new Map(runtime.files);
@@ -118,6 +116,7 @@ test(
         directory: path.join(dir, "publication"),
         key: randomBytes(32),
       }),
+      identities = privateFileStore({directory:path.join(dir,'identities'),key:randomBytes(32)}),
       control = memory(),
       authStore = memory(),
       accounts = createAccountDirectory({
@@ -170,6 +169,7 @@ test(
       const result = await createDriver({
         lease: { task, ownerUserId: userId, codeSha: api.codeSha },
         reviews,
+        identities,
         stateStore,
         control,
         adapter,
@@ -209,6 +209,7 @@ test(
       workflowSha,
       auth,
       reviews,
+      identities,
       control,
       privateApi: {
         request: async (route, o) => {
@@ -249,6 +250,7 @@ test(
       viewport: { width: 1440, height: 1050 },
     });
     t.after(() => context.close());
+    let protectedBoot=null;
     await context.route("**/*", async (route) => {
       const r = route.request(),
         u = new URL(r.url());
@@ -260,6 +262,7 @@ test(
           headers.origin = origin;
         const res = await gateway(new Request(r.url(), {method:r.method(),headers,
           ...(r.postData() ? {body:r.postData()} : {})}));
+        if(u.pathname==='/admin/web-transport.js' && protectedBoot)await protectedBoot;
         return route.fulfill({status:res.status,headers:Object.fromEntries(res.headers),body:await res.text()});
       }
       if (u.origin === service) {
@@ -345,15 +348,24 @@ test(
           console.log(r.status(), u.origin + u.pathname);
       });
     async function login() {
-      await page.goto(origin + "/admin/#rettelser");
-      assert.equal(await page.locator(".portal-shell").count(),0,"Anonymous login page must not contain the old admin shell");
-      assert.equal(await page.locator("#resultServiceLogin").count(),0,"Protected login does not use the legacy toolbar button");
-      await page.locator("#login").click();
+      let release;
+      protectedBoot=new Promise(resolve=>{release=resolve;});
+      try{
+        await page.goto(origin + "/admin/#rettelser");
+        assert.equal(await page.locator(".portal-shell").count(),0,"Anonymous login page must not contain the old admin shell");
+        assert.equal(await page.locator("#resultServiceLogin").count(),0,"Protected login does not use the legacy toolbar button");
+        const script=page.waitForRequest(r=>new URL(r.url()).pathname==='/admin/web-transport.js');
+        await page.locator("#login").click();await script;
+        await page.locator('.portal-shell').waitFor({state:'attached'});
+        assert.equal(await page.locator('body').getAttribute('data-admin-mode'),'protected');
+        assert.equal(await page.locator('.portal-shell').evaluate(e=>getComputedStyle(e).visibility),'hidden',
+          'Real pre-paint CSS must hide the shell while authenticated startup is deliberately held');
+        assert.notEqual(await page.locator('body').getAttribute('data-admin-ready'),'true');
+        assert.equal(new URL(page.url()).origin+new URL(page.url()).pathname,origin+'/admin/');
+      }finally{release();protectedBoot=null;}
       try {
         await page.waitForFunction(
-          () =>
-            document.querySelector(".local-tag")?.textContent ===
-            "Innlogget · Hovedadministrator",
+          () => document.body.dataset.adminReady === 'true',
         );
       } catch {
         throw Error(
@@ -365,11 +377,16 @@ test(
             errors.join(";"),
         );
       }
+      assert.equal(await page.locator('.local-tag').textContent(),'Innlogget · Hovedadministrator',
+        'Mounting Personkontroll must preserve the confirmed shared authentication status');
       await page.waitForFunction(
         () => document.querySelector("#resultServiceSave")?.disabled === false,
       );
       await page.locator('body[data-admin-ready="true"]').waitFor();
       assert.equal(await page.locator("body").getAttribute("data-admin-ready"),"true");
+      assert.equal(await page.locator('.portal-shell').evaluate(e=>getComputedStyle(e).visibility),'visible');
+      await page.locator('#view-oversikt:not([hidden])').waitFor();
+      assert.equal(await page.locator('.admin-work-card').count(),6);
       await page.locator('a[href="#rettelser"]').first().click();
     }
     async function settled(text) {
@@ -401,6 +418,54 @@ test(
       );
     }
     await login();
+    await page.locator('a[href="#oversikt"]').first().click();
+    await page.locator('.admin-work-card[href="#personkontroll"]').click();
+    await page.waitForFunction(()=>document.querySelectorAll('#identityWorklist article').length===2);
+    const pair=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+    await pair.getByRole('button',{name:'Undersøk senere',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('[data-identity-count="pending"] strong')?.textContent==='1');
+    assert.equal(await page.locator('[data-identity-count="session-followup"] strong').textContent(),'1');
+    assert.equal(await identities.get(organizer),null);
+    await page.locator('#identityBatchTray').getByRole('button',{name:'Angre',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('[data-identity-count="pending"] strong')?.textContent==='2');
+    await pair.getByRole('button',{name:'Sammenlign resultater / flere valg',exact:true}).click();
+    assert.equal(await page.locator('#identityEditor .correction-profile').count(),2);
+    assert.match(await page.locator('#identityEditor').innerText(),/2020/);
+    assert.match(await page.locator('#identityEditor').innerText(),/2024/);
+    await page.selectOption('#identityMainPerson','MOR-C220002');
+    await page.click('#identitySame');
+    await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Samme Navn'})
+      .getByRole('button',{name:'Forskjellige personer',exact:true}).click();
+    assert.equal(await page.locator('#identityBatchTray .identity-batch-entry').count(),2);
+    assert.equal(await identities.get(organizer),null,'Two staged choices are not private persistence');
+    await page.click('#identityBatchSubmit');
+    await page.waitForFunction(()=>document.querySelector('#identityServiceStatus')?.textContent.includes('Lagret privat'));
+    assert.equal(jobError,undefined,jobError);
+    const privateIdentities=await identities.get(organizer);
+    assert.equal(privateIdentities.draft.cases.length,2);
+    assert.equal(privateIdentities.draft.cases.find(c=>c.change).change.personIds[1],'MOR-C220002');
+    assert.equal(privateIdentities.draft.cases.filter(c=>c.status==='rejected').length,1);
+    assert.match(await page.locator('#identityServiceStatus').innerText(),/ikke godkjent eller publisert/);
+    assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'0');
+    assert.equal(await page.locator('[data-identity-count="finished"] strong').textContent(),'1');
+    assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
+    await page.click('#identityLogout');await page.locator('#login').waitFor();
+    await page.setViewportSize({width:390,height:1050});await login();
+    await page.locator('a[href="#personkontroll"]').first().click();
+    await page.waitForFunction(()=>document.querySelector('#identityServiceStatus')?.textContent.includes('Lagret privat'));
+    assert.equal(await page.locator('#identityWorklist article').count(),0);
+    await page.selectOption('#identityFilter','finished');
+    await page.locator('#identityWorklist').getByRole('button',{name:'Vis lagret avgjørelse',exact:true}).click();
+    assert.match(await page.locator('#identityEditor').innerText(),/Syntetisk Kari N\. Nord/);
+    await page.selectOption('#identityFilter','rejected');
+    assert.equal(await page.locator('#identityWorklist article').count(),1);
+    assert.deepEqual(await identities.get(organizer),privateIdentities);
+    assert.equal(api.prs.length,0,'Saving identities never invokes result publication');
+    for(const width of [1440,768,390]){
+      await page.setViewportSize({width,height:1050});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    }
+    await page.setViewportSize({width:1440,height:1050});
     await page.locator('a[href="#deltakere"]').first().click();
     await page.fill("#participantSearch", "Syntetisk Kari Nord");
     await page
@@ -499,6 +564,7 @@ test(
       await page.locator("#resultServicePublish").isDisabled(),
       true,
     );
+    await page.setViewportSize({width:768,height:1050});
     await page.click("#resultServiceLogout");
     await page.locator("#login").waitFor();
     await login();
@@ -579,6 +645,10 @@ test(
       "50:00",
     );
     assert.equal(api.prs.length, 2);
+    assert.deepEqual(await identities.get(organizer),privateIdentities,'Result publication/reversal must not rewrite identity decisions');
+    assert.deepEqual(JSON.parse(api.read('data/history.json')).redirects,sample.history().redirects,
+      'Private identity decisions must not leak into result publication');
+    assert.deepEqual(JSON.parse(api.read('data/history.json')).people,sample.history().people);
     assert.equal(JSON.parse(api.read('data/history.json')).results[1][5],'50:00');
     assert.deepEqual(errors, []);
     assert.deepEqual(

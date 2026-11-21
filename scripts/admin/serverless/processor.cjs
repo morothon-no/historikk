@@ -135,7 +135,7 @@ async function main(env = process.env) {
   try {
     safeStage = 'public-snapshot';
     const snapshot = await adapter.snapshot({
-        requireGreen: lease.task.action !== "continue",
+        requireGreen: !['continue','identity-publication-continue'].includes(lease.task.action),
       }),
       data = path.join(directory, "package");
     await fs.mkdir(path.join(data, "data"), { recursive: true });

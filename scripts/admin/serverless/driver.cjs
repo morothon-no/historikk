@@ -4,6 +4,8 @@ const { createResultReview } = require("../result-review.cjs"),
   {createIdentityReview, identityReviewStore, SCOPE} = require('../identity-review.cjs'),
   { createResultPublication } = require("../result-publication.cjs"),
   { sha } = require("./github-store.cjs");
+const {createIdentityPublication}=require('./identity-publication.cjs'),
+  {ENABLED}=require('./identity-publication-policy.cjs');
 const ORG = "sogne-morothon",
   same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function createDriver({
@@ -18,6 +20,7 @@ function createDriver({
   verifyLive,
   onPublished,
   checkBuild,
+  identityPublicationEnabled = ENABLED,
   clock = Date.now,
   pause = (ms) => new Promise((r) => setTimeout(r, ms)),
 }) {
@@ -34,7 +37,9 @@ function createDriver({
     task.organizer !== ORG
   )
     throw Error("Jobben gjelder feil eier eller kodeversjon.");
-  const identityMode = ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check'].includes(task.action);
+  const publicationMode = task.action.startsWith('identity-publication-');
+  if(publicationMode && identityPublicationEnabled !== true) throw Error('Identitetspublisering er ikke aktivert.');
+  const identityMode = publicationMode || ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check'].includes(task.action);
   if (identityMode !== (task.scope === SCOPE)) throw Error('Feil modul for privat jobb.');
   const review = identityMode ? createIdentityReview({
       authenticate:async()=>actor, loadContext,
@@ -44,13 +49,11 @@ function createDriver({
       loadContext,
       store: reviews,
     }),
-    publication = identityMode ? null : createResultPublication({
+    publicationOptions = {
       authenticate: async () => actor,
       authorizeActor: async (id) => {
         if (id !== task.actor) throw Error("Ugyldig publiseringsaktør.");
       },
-      review,
-      reviewStore: reviews,
       stateStore,
       loadContext,
       adapter,
@@ -59,9 +62,13 @@ function createDriver({
       onPublished,
       checkBuild,
       clock,
-    });
+    },
+    publication = publicationMode ? createIdentityPublication({...publicationOptions,enabled:true,
+      identity:review,store:identityReviewStore({openNamespace:()=>identities})}) : identityMode ? null :
+      createResultPublication({...publicationOptions,review,reviewStore:reviews});
+  const projectionKey=(publicationMode?'identity-publication-':'projection-')+ORG;
   async function updateProjection(values) {
-    const key = "projection-" + ORG,
+    const key = projectionKey,
       old = await control.get(key),
       next = { ...(old || { v: 1, revision: 0, history: [] }), ...values };
     if (old && same({ ...old, revision: 0 }, { ...next, revision: 0 })) return;
@@ -86,14 +93,14 @@ function createDriver({
     if (!publication) return null;
     const { job } = await publication.status(input);
     if (!job) return null;
-    const old = await control.get("projection-" + ORG),
+    const old = await control.get(projectionKey),
       history = [...(old?.history || [])];
     if (job.stage === "published" && !history.some((h) => h.id === job.id)) {
       const ctx = await loadContext(ORG);
       history.unshift({
         ...job,
-        reverses: task.reversalOf || null,
-        names: [
+        reverses: job.reversalOf || task.reversalOf || null,
+        names: publicationMode ? [] : [
           ...new Set(job.changes.flatMap((c) => [c.before[1], c.after[1]])),
         ].map((id) => ctx.history.people.find((p) => p.i === id)?.n || "Løper"),
       });
@@ -104,7 +111,39 @@ function createDriver({
   async function run() {
     let error;
     try {
-      if (identityMode) {
+      if (publicationMode) {
+        const current=await publication.load(input),bound={...input,expectedRevision:task.expectedRevision,expectedDigest:task.expectedDigest};
+        if(current.revision!==task.expectedRevision || current.digest!==task.expectedDigest ||
+          (!['identity-publication-continue','identity-publication-cancel'].includes(task.action) && current.stale)) throw Error('Identitetsgrunnlaget er endret. Hent siste kontroll.');
+        if(['identity-publication-publish','identity-publication-continue','identity-publication-reverse'].includes(task.action) &&
+          (await reviews.get(ORG))?.publicationLock) throw Error('En resultatretting må avklares før identitetspublisering.');
+        async function preview(){const saved=await publication.load(input);await updateProjection({review:await publication.preview({...input,
+          expectedRevision:saved.revision,expectedDigest:saved.digest})});}
+        if(task.action==='identity-publication-check') await preview();
+        else if(task.action==='identity-publication-approve') {
+          await publication.approve({...bound,candidateDigest:task.candidateDigest});await preview();
+        } else if(task.action==='identity-publication-publish') await publication.publish(bound);
+        else if(task.action==='identity-publication-continue') {
+          const {job}=await publication.status(input);if(!job)throw Error('Ingen identitetspublisering å fortsette.');
+          if(job.stage==='prepared' && !(await identities.get(ORG))?.publicationLock)
+            throw Error('Planen er kontrollert, men ikke autorisert. Bekreft publisering eller avbryt godkjenningen.');
+          if(['failed','needs-review'].includes(job.stage))await publication.retry({...input,id:job.id});
+        } else if(task.action==='identity-publication-reverse') {
+          await publication.reverse({...bound,id:task.publicationId});await preview();
+        } else if(task.action==='identity-publication-cancel') {
+          await publication.cancel(bound);await updateProjection({review:null});
+        } else throw Error('Ukjent identitetspublisering.');
+        if(['identity-publication-publish','identity-publication-continue'].includes(task.action)) {
+          const deadline=clock()+35*60000;
+          for(;;){await publication.progress(input);const job=await projectPublication();
+            if(!job||['published','failed','needs-review','cancelled'].includes(job.stage))break;
+            if(clock()>=deadline)throw Error('Kontrollen tar lengre tid. Lagret publiseringsstatus er bevart.');
+            await pause(60000);
+          }
+        }
+      } else if (identityMode) {
+        const stored=await identities.get(ORG);
+        if(stored?.publicationLock || stored?.identityReversal)throw Error('Avklar identitetspubliseringen før nye avgjørelser.');
         let result;
         if (task.action === 'identity-decide') result = await review.decide({...input,
           expectedRevision:task.expectedRevision,command:task.identityCommand});
@@ -129,6 +168,8 @@ function createDriver({
             base:saved.draft.base,digest:saved.digest,report}));
         }
       } else {
+      if(['publish','continue','reverse'].includes(task.action) && (await identities?.get(ORG))?.publicationLock)
+        throw Error('En identitetspublisering må avklares før resultatrettinger.');
       let current = await review.load(input);
       if (
         current.revision !== task.expectedRevision ||
