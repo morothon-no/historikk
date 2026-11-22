@@ -256,7 +256,8 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
     actor:env.OWNER_USER_ID,ownerGithubId:env.OWNER_GITHUB_ID,codeSha:env.PROCESSOR_CODE_SHA,
     workflowSha:env.PRIVATE_WORKFLOW_SHA,createdAt:new Date().toISOString()};
   const filename='.morothon-state/control/task-'+taskId+'.aesgcm';
-  let bytes=seal(key,filename,task),redirectKeys=false,branchConflicts=0,tokenFailureStatus=null,badTokenScope=null;const calls=[];
+  let bytes=seal(key,filename,task),redirectKeys=false,branchConflicts=0,tokenFailureStatus=null,badTokenScope=null;
+  const calls=[],publicPermissions=[];
   t.mock.method(globalThis,'fetch',async(url,options={})=>{
     // Workers reject redirect:error before network I/O. Node's normal fetch
     // and broker-only fixtures do not reproduce this production restriction.
@@ -272,9 +273,17 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
     if(u.hostname!=='api.github.com')throw Error('Unexpected synthetic host');
     if(u.pathname==='/app/installations/456/access_tokens'){
       const input=JSON.parse(options.body),scope=input.repositories[0]==='historikk'?'public':'private';
+      if(scope==='public'){
+        publicPermissions.push(input.permissions);
+        // GitHub's server-to-server permission identifier is actions_variables.
+        // Echoing an arbitrary request here previously hid the invalid key.
+        if(Object.hasOwn(input.permissions,'variables')||!Object.hasOwn(input.permissions,'actions_variables'))
+          return Response.json({message:'Synthetic unsupported permission name'},{status:422});
+      }
       if(tokenFailureStatus&&scope==='public')
         return Response.json({message:'Synthetic provider details must not be logged'},{status:tokenFailureStatus});
       return Response.json({token:'synthetic-installation',permissions:badTokenScope===scope?{contents:'read'}:
+        badTokenScope==='legacy-public'&&scope==='public'?{...input.permissions,actions_variables:undefined,variables:input.permissions.actions_variables}:
         badTokenScope==='broad-public'&&scope==='public'?{...input.permissions,metadata:'read',contents:'write'}:{...input.permissions,metadata:'read'},
         expires_at:new Date(Date.now()+3600000).toISOString()});
     }
@@ -296,8 +305,14 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
   const valid=await lease(jwt());
   assert.equal(valid.status,200,'A correctly signed private job must reach the real encrypted task gate: '+JSON.stringify({response:await valid.clone().json(),calls}));
   const issued=await valid.json();assert.equal(issued.task.runId,'1122');assert.equal(issued.codeSha,env.PROCESSOR_CODE_SHA);
+  assert.deepEqual(publicPermissions.at(-1),{contents:'read',actions:'read',checks:'read',administration:'read',actions_variables:'read'});
   assert.equal(unseal(key,filename,bytes).state,'running');
   assert.ok(calls.every(c=>c.redirect==='manual'));
+  for(const action of ['publish','continue']){
+    bytes=seal(key,filename,{...task,action});
+    assert.equal((await lease(jwt())).status,200);
+    assert.deepEqual(publicPermissions.at(-1),{contents:'write',pull_requests:'write',actions_variables:'write',actions:'write',checks:'read',administration:'read'});
+  }
   const before=Buffer.from(bytes),writes=calls.filter(c=>c.method==='PUT').length;
   for(const changed of [{workflow_sha:'d'.repeat(40)},{actor_id:'999'},{repository_id:'000'},{aud:'https://other.example.test'}])
     assert.equal((await lease(jwt(changed))).status,403);
@@ -320,7 +335,7 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
     'The normalized 409 must not hide an installation-token permission refusal');
   assert.equal(unseal(key,filename,bytes).state,'running','A token refusal can occur after claim, before a decision is processed');
   tokenFailureStatus=null;
-  for(const scope of ['private','public','broad-public']){
+  for(const scope of ['private','public','broad-public','legacy-public']){
     bytes=seal(key,filename,task);badTokenScope=scope;
     const insufficient=await lease(jwt());assert.equal(insufficient.status,502);
     assert.deepEqual(await insufficient.json(),{error:'Tjenesten kunne ikke fullføre kontrollen. Lagret arbeid er bevart.',

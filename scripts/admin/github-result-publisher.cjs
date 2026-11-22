@@ -18,7 +18,7 @@ function createInstallationApi({appId,installationId,privateKey,fetchImpl=fetch,
   if(cached&&cached.until>clock()+60000)return cached.token;
   const sec=Math.floor(clock()/1000),part=v=>Buffer.from(JSON.stringify(v)).toString('base64url'),unsigned=part({alg:'RS256',typ:'JWT'})+'.'+part({iat:sec-30,exp:sec+540,iss:appId});
   const signer=createSign('RSA-SHA256');signer.update(unsigned);const jwt=unsigned+'.'+signer.sign(privateKey,'base64url');
-  const result=await call('/app/installations/'+installationId+'/access_tokens',{method:'POST',token:jwt,body:{repositories:['historikk'],permissions:{contents:'write',pull_requests:'write',variables:'write',actions:'write',checks:'read',administration:'read'}}});
+  const result=await call('/app/installations/'+installationId+'/access_tokens',{method:'POST',token:jwt,body:{repositories:['historikk'],permissions:{contents:'write',pull_requests:'write',actions_variables:'write',actions:'write',checks:'read',administration:'read'}}});
   if(typeof result?.token!=='string'||!Number.isFinite(Date.parse(result.expires_at)))throw Error('GitHub App-token kunne ikke verifiseres.');cached={token:result.token,until:Date.parse(result.expires_at)};return cached.token;
  }
  return async(route,options={})=>{
