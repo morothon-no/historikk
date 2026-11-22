@@ -256,7 +256,7 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
     actor:env.OWNER_USER_ID,ownerGithubId:env.OWNER_GITHUB_ID,codeSha:env.PROCESSOR_CODE_SHA,
     workflowSha:env.PRIVATE_WORKFLOW_SHA,createdAt:new Date().toISOString()};
   const filename='.morothon-state/control/task-'+taskId+'.aesgcm';
-  let bytes=seal(key,filename,task),redirectKeys=false;const calls=[];
+  let bytes=seal(key,filename,task),redirectKeys=false,branchConflicts=0,tokenFailureStatus=null,badTokenScope=null;const calls=[];
   t.mock.method(globalThis,'fetch',async(url,options={})=>{
     // Workers reject redirect:error before network I/O. Node's normal fetch
     // and broker-only fixtures do not reproduce this production restriction.
@@ -270,11 +270,19 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
     }
     const u=new URL(url),base='/repos/'+env.PRIVATE_REPOSITORY;
     if(u.hostname!=='api.github.com')throw Error('Unexpected synthetic host');
-    if(u.pathname==='/app/installations/456/access_tokens')return Response.json({token:'synthetic-installation',expires_at:new Date(Date.now()+3600000).toISOString()});
+    if(u.pathname==='/app/installations/456/access_tokens'){
+      const input=JSON.parse(options.body),scope=input.repositories[0]==='historikk'?'public':'private';
+      if(tokenFailureStatus&&scope==='public')
+        return Response.json({message:'Synthetic provider details must not be logged'},{status:tokenFailureStatus});
+      return Response.json({token:'synthetic-installation',permissions:badTokenScope===scope?{contents:'read'}:
+        badTokenScope==='broad-public'&&scope==='public'?{...input.permissions,metadata:'read',contents:'write'}:{...input.permissions,metadata:'read'},
+        expires_at:new Date(Date.now()+3600000).toISOString()});
+    }
     if(u.pathname===base)return Response.json({private:true,full_name:env.PRIVATE_REPOSITORY,id:789,default_branch:'main'});
     if(u.pathname===base+'/contents/'+filename){
       if(options.method==='PUT'){
         const input=JSON.parse(options.body);assert.equal(input.branch,'admin-state');assert.equal(input.sha,sha(bytes).slice(0,40));
+        if(branchConflicts-- > 0)return Response.json({message:'Synthetic branch-head conflict'},{status:409});
         bytes=Buffer.from(input.content,'base64');return Response.json({});
       }
       assert.equal(u.searchParams.get('ref'),'admin-state');
@@ -296,6 +304,30 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
   const signed=jwt();assert.equal((await lease(signed.slice(0,-8)+'AAAAAAAA')).status,403);
   assert.equal((await lease(jwt(),'wrong-nonce')).status,403);
   assert.equal(calls.filter(c=>c.method==='PUT').length,writes);assert.ok(bytes.equals(before));
+  // A confirmed Contents-API conflict with an unchanged encrypted task must
+  // not abort an otherwise valid job at worker-lease before any decision runs.
+  bytes=seal(key,filename,task);branchConflicts=1;
+  const recovered=await lease(jwt());
+  assert.equal(recovered.status,200,'The same source/owner/nonce-bound lease must survive an unrelated branch conflict');
+  assert.equal(unseal(key,filename,bytes).runId,'1122');
+  bytes=seal(key,filename,task);branchConflicts=99;
+  const exhausted=await lease(jwt());assert.equal(exhausted.status,409);
+  assert.deepEqual(await exhausted.json(),{error:'Arbeidet er endret. Hent siste versjon.',diagnostic:'LEASE_TASK_CLAIM',githubStatus:409,githubOperation:'GITHUB_STATE_WRITE'});
+  assert.equal(unseal(key,filename,bytes).state,'queued');
+  bytes=seal(key,filename,task);branchConflicts=0;tokenFailureStatus=422;
+  const rejectedToken=await lease(jwt());assert.equal(rejectedToken.status,409);
+  assert.deepEqual(await rejectedToken.json(),{error:'Arbeidet er endret. Hent siste versjon.',diagnostic:'LEASE_PUBLIC_TOKEN',githubStatus:422,githubOperation:'GITHUB_INSTALLATION_TOKEN'},
+    'The normalized 409 must not hide an installation-token permission refusal');
+  assert.equal(unseal(key,filename,bytes).state,'running','A token refusal can occur after claim, before a decision is processed');
+  tokenFailureStatus=null;
+  for(const scope of ['private','public','broad-public']){
+    bytes=seal(key,filename,task);badTokenScope=scope;
+    const insufficient=await lease(jwt());assert.equal(insufficient.status,502);
+    assert.deepEqual(await insufficient.json(),{error:'Tjenesten kunne ikke fullføre kontrollen. Lagret arbeid er bevart.',
+      diagnostic:scope==='private'?'LEASE_PRIVATE_TOKEN':'LEASE_PUBLIC_TOKEN',reasonCode:'TOKEN_PERMISSIONS'});
+  }
+  const forged=await lease(jwt({actor_id:'999'}));assert.equal(forged.status,403);
+  assert.equal(Object.hasOwn(await forged.json(),'diagnostic'),false,'Unverified OIDC must not obtain private checkpoint diagnostics');
   redirectKeys=true;calls.length=0;
   const {default:fresh}=await import('../scripts/admin/serverless/worker.mjs?synthetic-oidc-redirect');
   const denied=await fresh.fetch(new Request(env.API_ORIGIN+'/processor/lease',{

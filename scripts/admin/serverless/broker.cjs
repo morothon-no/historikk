@@ -384,6 +384,9 @@ function createBroker({
             ...(value.cookie ? { "Set-Cookie": value.cookie } : {}),
           },
         });
+    // Set only after verified private OIDC. These fixed checkpoint codes never
+    // contain task IDs, nonce, repository contents or provider response bodies.
+    let leaseDiagnostic = null;
     try {
       if (url.origin !== apiOrigin) throw fail("Ugyldig vertsadresse.", 403);
       if (
@@ -437,7 +440,9 @@ function createBroker({
           input = await body(request, ["task", "nonce"]);
         if (!/^[A-Za-z0-9]{20,32}$/.test(input.task || ""))
           throw fail("Ukjent jobb.", 403);
+        leaseDiagnostic = "LEASE_TASK_READ";
         let task = await control.get("task-" + input.task);
+        leaseDiagnostic = "LEASE_TASK_BINDING";
         if (
           !task ||
           (task.action.startsWith('identity-publication-') && (identityPublicationEnabled !== true || task.scope !== SCOPE)) ||
@@ -452,6 +457,7 @@ function createBroker({
           (task.runId && task.runId !== proof.runId)
         )
           throw fail("Jobben har ikke gyldig eiergodkjenning.", 403);
+        leaseDiagnostic = "LEASE_TASK_CLAIM";
         if (!task.runId)
           task = await control.transact(
             "task-" + task.id,
@@ -463,7 +469,12 @@ function createBroker({
               runId: proof.runId,
             }),
           );
-        return json(200, { task, ...(await leaseTokens(task)) });
+        leaseDiagnostic = "LEASE_TOKEN_ISSUE";
+        const credentials = await leaseTokens(task, part=>{
+          if(part==='private')leaseDiagnostic='LEASE_PRIVATE_TOKEN';
+          if(part==='public')leaseDiagnostic='LEASE_PUBLIC_TOKEN';
+        });
+        return json(200, { task, ...credentials });
       }
       if (origin !== portal.origin)
         throw fail("Åpne tjenesten fra Morothon-admin.", 403);
@@ -714,6 +725,10 @@ function createBroker({
             : status === 404
               ? "Handlingen finnes ikke."
               : "Tjenesten kunne ikke fullføre kontrollen. Lagret arbeid er bevart.",
+        ...(leaseDiagnostic ? {diagnostic:leaseDiagnostic,
+          ...([400,401,403,404,409,422,429,500,502,503].includes(error.githubStatus)?{githubStatus:error.githubStatus}:{}),
+          ...(['GITHUB_INSTALLATION_TOKEN','GITHUB_STATE_WRITE','GITHUB_STATE_READ','GITHUB_REPOSITORY_METADATA','GITHUB_OTHER'].includes(error.githubOperation)?{githubOperation:error.githubOperation}:{}),
+          ...(error.githubFailure==='TOKEN_PERMISSIONS'?{reasonCode:'TOKEN_PERMISSIONS'}:{})} : {}),
       });
     }
   }

@@ -266,6 +266,89 @@ test("encrypted GitHub CAS state persists on a separate branch and refuses publi
     unseal(randomBytes(32), p, seal(key, p, { revision: 1 })),
   );
 });
+
+test('encrypted GitHub writes recover a confirmed branch conflict only while the exact target record remains unchanged', async()=>{
+  const backing=privateApi(),key=randomBytes(32),store=githubStore({api:backing,key,prefix:'control'});
+  await store.transact('task',0,()=>({revision:1,state:'queued'}));
+  const attempted=[];let conflicts=1,updates=0;
+  const api={...backing,request:async(route,options={})=>{
+    if(options.method==='PUT'){
+      attempted.push(options.body);
+      if(conflicts-- > 0){
+        // GitHub Contents updates share one branch head. Another record can
+        // advance that head even though this file's encrypted SHA is unchanged.
+        await backing.request('contents/.morothon-state/control/unrelated.aesgcm',{
+          method:'PUT',body:JSON.stringify({branch:'admin-state',content:seal(key,'.morothon-state/control/unrelated.aesgcm',{revision:1}).toString('base64')})});
+        throw Object.assign(Error('Synthetic GitHub branch conflict'),{status:409,githubStatus:409,githubOperation:'GITHUB_STATE_WRITE'});
+      }
+    }
+    return backing.request(route,options);
+  }};
+  const next=await githubStore({api,key,prefix:'control'}).transact('task',1,p=>{
+    updates++;return {...p,revision:2,state:'running',runId:'123'};
+  });
+  assert.equal(next.state,'running');assert.equal(updates,1,'Retry must not regenerate IDs, audit or mutation intent');
+  assert.equal(attempted.length,2);assert.equal(attempted[0],attempted[1],'Retry the same encrypted bytes and original file SHA');
+  assert.equal((await store.get('task')).revision,2);
+  assert.equal((await store.get('unrelated')).revision,1);
+});
+
+test('GitHub conflict recovery never acknowledges a competing target write, repeats an uncertain request, or retries without a bound', async()=>{
+  for(const mode of ['changed','identical-winner','uncertain','persistent','validation','token-conflict']){
+    const backing=privateApi(),key=randomBytes(32),store=githubStore({api:backing,key,prefix:'auth'});
+    await store.transact('handoff',0,()=>({revision:1,spent:false}));
+    let puts=0,updates=0;
+    const api={...backing,request:async(route,options={})=>{
+      if(options.method==='PUT'){
+        puts++;
+        if(mode==='changed'||mode==='identical-winner')await backing.request(route,{...options,
+          body:JSON.stringify({...JSON.parse(options.body),content:seal(key,'.morothon-state/auth/handoff.aesgcm',
+            {revision:2,spent:mode==='identical-winner',...(mode==='changed'?{revoked:true}:{})}).toString('base64')})});
+        throw Object.assign(Error('Synthetic refusal'),{status:mode==='uncertain'?502:409,
+          githubStatus:mode==='validation'?422:409,uncertain:mode==='uncertain',
+          githubOperation:mode==='token-conflict'?'GITHUB_INSTALLATION_TOKEN':'GITHUB_STATE_WRITE'});
+      }
+      return backing.request(route,options);
+    }};
+    await assert.rejects(githubStore({api,key,prefix:'auth'}).transact('handoff',1,p=>{
+      updates++;return {...p,revision:2,spent:true};
+    }));
+    assert.equal(puts,mode==='persistent'?3:1,mode);
+    assert.equal(updates,1,mode);
+    const current=await store.get('handoff');
+    assert.equal(current.revision,['changed','identical-winner'].includes(mode)?2:1,mode);
+    if(mode==='changed')assert.equal(current.revoked,true);
+  }
+});
+
+test('a new encrypted record retries a definite Contents conflict only while the target is still absent',async()=>{
+  const backing=privateApi(),key=randomBytes(32);let writes=0,updates=0;
+  const api={...backing,request:async(route,options={})=>{
+    if(options.method==='PUT'&&++writes===1)throw Object.assign(Error('Synthetic branch conflict'),{
+      status:409,githubStatus:409,githubOperation:'GITHUB_STATE_WRITE'});
+    return backing.request(route,options);
+  }};
+  const store=githubStore({api,key,prefix:'control'});
+  const result=await store.transact('new-task',0,()=>{updates++;return {revision:1,state:'queued'};});
+  assert.equal(result.revision,1);assert.equal(updates,1);assert.equal(writes,2);
+  assert.equal(backing.writes.length,1);assert.equal((await store.get('new-task')).state,'queued');
+});
+
+test('private processor lease errors log only fixed checkpoints and bounded numeric statuses, never raw provider bodies',async()=>{
+  const {leaseFailureDiagnostic}=require('../scripts/admin/serverless/processor.cjs');
+  assert.equal(await leaseFailureDiagnostic(Response.json({diagnostic:'LEASE_TASK_CLAIM',githubStatus:409,error:'synthetic-private-details'})),
+    'LEASE_TASK_CLAIM upstream HTTP 409');
+  assert.equal(await leaseFailureDiagnostic(Response.json({diagnostic:'LEASE_TOKEN_ISSUE',githubStatus:422,error:'synthetic-private-details'})),
+    'LEASE_TOKEN_ISSUE upstream HTTP 422');
+  assert.equal(await leaseFailureDiagnostic(Response.json({diagnostic:'LEASE_PRIVATE_TOKEN',reasonCode:'TOKEN_PERMISSIONS'})),
+    'LEASE_PRIVATE_TOKEN TOKEN_PERMISSIONS');
+  assert.equal(await leaseFailureDiagnostic(Response.json({diagnostic:'LEASE_PUBLIC_TOKEN',githubOperation:'GITHUB_INSTALLATION_TOKEN',githubStatus:422})),
+    'LEASE_PUBLIC_TOKEN GITHUB_INSTALLATION_TOKEN upstream HTTP 422');
+  assert.equal(await leaseFailureDiagnostic(Response.json({diagnostic:'LEASE_TASK_READ',githubStatus:'409\nsecret'})),'LEASE_TASK_READ');
+  for(const body of ['<html>private</html>',JSON.stringify({diagnostic:'LEASE_TASK_CLAIM\nprivate'}),'x'.repeat(2049)])
+    assert.equal(await leaseFailureDiagnostic(new Response(body)),null);
+  assert.equal(await leaseFailureDiagnostic(new Response(null)),null);
+});
 test("compressed publication storage writes immutable backup payload once, verifies digest and hydrates after restart", async () => {
   const metadata = memory(),
     payloads = memory(),

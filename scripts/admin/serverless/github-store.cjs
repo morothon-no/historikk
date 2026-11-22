@@ -18,6 +18,13 @@ const sha = (v) =>
 const copy = (v) => (v === null ? null : structuredClone(v));
 const fail = (message, status = 400) =>
   Object.assign(Error(message), { status });
+function apiOperation(route,method='GET') {
+  const p='/'+route.replace(/^\//,'');
+  if(/^\/app\/installations\/\d+\/access_tokens$/.test(p))return 'GITHUB_INSTALLATION_TOKEN';
+  if(p.includes('/contents/.morothon-state/'))return method==='PUT'?'GITHUB_STATE_WRITE':'GITHUB_STATE_READ';
+  if(/^\/repos\/[^/]+\/[^/?#]+$/.test(p))return 'GITHUB_REPOSITORY_METADATA';
+  return 'GITHUB_OTHER';
+}
 function seal(key, name, value) {
   const iv = randomBytes(12),
     c = createCipheriv("aes-256-gcm", key, iv);
@@ -51,6 +58,7 @@ function connection({
   installationId,
   privateKey,
   permissions,
+  verifyPermissions = false,
   fetchImpl = fetch,
   clock = Date.now,
 }) {
@@ -84,12 +92,12 @@ function connection({
     }
     if (r.status === 404 && options?.allow404) return null;
     if (!r.ok)
-      throw fail(
+      throw Object.assign(fail(
         r.status === 409 || r.status === 422
           ? "Arbeidet er endret. Hent siste versjon."
           : "GitHub avviste forespørselen.",
         r.status === 409 || r.status === 422 ? 409 : 502,
-      );
+      ), { githubStatus: r.status, githubOperation: apiOperation(url,options?.method) });
     return r.status === 204
       ? null
       : options?.raw
@@ -124,6 +132,12 @@ function connection({
       !Number.isFinite(Date.parse(r.expires_at))
     )
       throw fail("GitHub-token kunne ikke bekreftes.", 502);
+    if (verifyPermissions && (!r.permissions ||
+        Object.entries(permissions).some(([name,level])=>r.permissions[name]!==level) ||
+        Object.keys(r.permissions).some(name=>!Object.hasOwn(permissions,name)&&
+          !(name==='metadata'&&r.permissions[name]==='read'))))
+      throw Object.assign(fail("GitHub-tokenets rettigheter kunne ikke bekreftes.",502),
+        {githubFailure:'TOKEN_PERMISSIONS'});
     cached = { value: r.token, until: Date.parse(r.expires_at) };
     return r.token;
   }
@@ -218,7 +232,7 @@ function tokenConnection(repository, token, fetchImpl = fetch) {
               : "GitHub avviste forespørselen.",
             r.status === 409 || r.status === 422 ? 409 : 502,
           ),
-          { githubStatus: r.status },
+          { githubStatus: r.status, githubOperation: apiOperation(route,method) },
         );
       try {
         return r.status === 204
@@ -308,7 +322,7 @@ function githubStore({
       throw fail("Ugyldig privat revisjon.");
     const bytes = seal(key, name(id), next);
     if (bytes.length > maxBytes * 2) throw fail("Arbeidet er for stort.");
-    await api.request("contents/" + name(id), {
+    const write = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -317,8 +331,26 @@ function githubStore({
         content: bytes.toString("base64"),
         ...(old.sha ? { sha: old.sha } : {}),
       }),
-    });
-    return copy(next);
+    };
+    // Contents writes share a Git branch, even across independent records.
+    // Retry only a definite upstream 409 after verifying that the exact target
+    // has NOT changed. A newer revision (even identical desired contents) must
+    // still fail: OAuth handoffs and other one-use transitions depend on CAS.
+    // Reuse the same mutation and ciphertext; never replay an uncertain write.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await api.request("contents/" + name(id), write);
+        return copy(next);
+      } catch (error) {
+        if (attempt === 2 || error.githubStatus !== 409 ||
+            error.githubOperation !== 'GITHUB_STATE_WRITE' || error.uncertain === true)
+          throw error;
+        const current = await read(id);
+        if (current.sha !== old.sha || (current.value?.revision || 0) !== expected ||
+            JSON.stringify(current.value) !== JSON.stringify(old.value))
+          throw fail("Arbeidet er endret. Hent siste versjon.", 409);
+      }
+    }
   }
   return { get, transact };
 }

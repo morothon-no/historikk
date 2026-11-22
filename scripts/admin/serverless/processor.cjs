@@ -21,6 +21,24 @@ const mask = (s) =>
       "\n",
   );
 let safeStage = 'setup';
+async function leaseFailureDiagnostic(response) {
+  try {
+    const reader=response.body?.getReader();if(!reader)return null;
+    const chunks=[];let size=0;
+    for(;;){
+      const {done,value}=await reader.read();if(done)break;
+      size+=value.byteLength;
+      if(size>2048){await reader.cancel();return null;}
+      chunks.push(Buffer.from(value));
+    }
+    const data=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    if(!['LEASE_TASK_READ','LEASE_TASK_BINDING','LEASE_TASK_CLAIM','LEASE_TOKEN_ISSUE','LEASE_PRIVATE_TOKEN','LEASE_PUBLIC_TOKEN'].includes(data.diagnostic))return null;
+    return data.diagnostic+
+      (['GITHUB_INSTALLATION_TOKEN','GITHUB_STATE_WRITE','GITHUB_STATE_READ','GITHUB_REPOSITORY_METADATA','GITHUB_OTHER'].includes(data.githubOperation)?' '+data.githubOperation:'')+
+      ([400,401,403,404,409,422,429,500,502,503].includes(data.githubStatus)?' upstream HTTP '+data.githubStatus:'')+
+      (data.reasonCode==='TOKEN_PERMISSIONS'?' TOKEN_PERMISSIONS':'');
+  }catch{return null;}
+}
 async function main(env = process.env) {
   safeStage = 'setup';
   const origin = new URL(env.MOROTHON_BROKER_ORIGIN);
@@ -66,6 +84,8 @@ async function main(env = process.env) {
     // Report only a bounded HTTP status, never the response body or bearer.
     console.error("Privat prosessor: lease HTTP " +
       ([400,401,403,404,409,429,500,502,503].includes(r.status) ? r.status : "other"));
+    const diagnostic=await leaseFailureDiagnostic(r);
+    if(diagnostic)console.error("Privat prosessor: "+diagnostic);
     throw Error("Jobben har ikke gyldig eierautorisasjon.");
   }
   safeStage = 'lease-response';
@@ -216,7 +236,7 @@ async function main(env = process.env) {
     await fs.rm(directory, { recursive: true, force: true });
   }
 }
-module.exports = { main };
+module.exports = { main, leaseFailureDiagnostic };
 if (require.main === module)
   main().catch(() => {
     console.error("Privat prosessorfase: " + safeStage);
