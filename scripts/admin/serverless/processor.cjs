@@ -21,6 +21,22 @@ const mask = (s) =>
       "\n",
   );
 let safeStage = 'setup';
+const snapshotStages=new Set(['main-ref','source-version','main-protection','main-ci','approved-files','approval-variables']);
+function failureDiagnostic(error){
+  const parts=[];
+  if(['SOURCE_VERSION','PROTECTION_STRICT','PROTECTION_ADMINS','PROTECTION_REVIEWS','PROTECTION_CHECKS','PROTECTION_BYPASS','MAIN_CI'].includes(error?.publicSnapshotReason))
+    parts.push(error.publicSnapshotReason);
+  if([400,401,403,404,409,422,429,500,502,503].includes(error?.githubStatus))parts.push('GITHUB_HTTP_'+error.githubStatus);
+  if(['ENOENT','EACCES','EPERM'].includes(error?.code))parts.push('FILESYSTEM_'+error.code);
+  if(error?.message==='Chromium-sandbox kunne ikke bekreftes.')parts.push('BROWSER_SANDBOX_UNCONFIRMED');
+  return parts.length?parts.join(' '):null;
+}
+function reportFailure(error,write=message=>console.error(message)){
+  const diagnostic=failureDiagnostic(error);
+  if(diagnostic)write('Privat prosessorkontroll: '+diagnostic);
+  write('Privat prosessorfase: '+safeStage);
+  write('Privat kontroll feilet før fullføring. Ingen vellykket publisering er meldt.');
+}
 async function leaseFailureDiagnostic(response) {
   try {
     const reader=response.body?.getReader();if(!reader)return null;
@@ -158,8 +174,10 @@ async function main(env = process.env) {
     safeStage = 'public-snapshot';
     const snapshot = await adapter.snapshot({
         requireGreen: !['continue','identity-publication-continue','annual-publication-continue'].includes(lease.task.action),
+        onStage: stage=>{if(snapshotStages.has(stage))safeStage='public-snapshot/'+stage;},
       }),
       data = path.join(directory, "package");
+    safeStage='public-package-write';
     await fs.mkdir(path.join(data, "data"), { recursive: true });
     for (const name of [
       "history",
@@ -181,15 +199,19 @@ async function main(env = process.env) {
       approvalFile,
       snapshot.files.get(".github/public-data-approval.json"),
     );
+    safeStage='public-package-build';
     const built = await buildSite(path.join(directory, "site"), {
         dataDir: data,
         approvalFile,
-      }),
-      runtime = await approvedRuntime(built.out, approvalFile);
+      });
+    safeStage='public-runtime-validation';
+    const runtime = await approvedRuntime(built.out, approvalFile);
     // Annual plans do not render diplomas or publish; use their existing row
     // engine directly, without starting an unrelated browser projection.
     if(!['annual-preview','annual-save'].includes(lease.task.action)){
+      safeStage='browser-start';
       projector = await createProjector(runtime);
+      safeStage='browser-sandbox';
       await projector.checkSandbox();
     }
     const driver = createDriver({
@@ -236,12 +258,9 @@ async function main(env = process.env) {
     await fs.rm(directory, { recursive: true, force: true });
   }
 }
-module.exports = { main, leaseFailureDiagnostic };
+module.exports = { main, leaseFailureDiagnostic, failureDiagnostic, reportFailure };
 if (require.main === module)
-  main().catch(() => {
-    console.error("Privat prosessorfase: " + safeStage);
-    console.error(
-      "Privat kontroll feilet før fullføring. Ingen vellykket publisering er meldt.",
-    );
+  main().catch(error => {
+    reportFailure(error);
     process.exitCode = 1;
   });

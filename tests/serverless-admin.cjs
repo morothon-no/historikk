@@ -1008,3 +1008,49 @@ test("broker rejects oversized chunked JSON before reading the rest of its strea
  const response=await f.broker.fetch(new Request(apiOrigin+'/review/save',{method:'POST',headers:{origin:new URL(portalUrl).origin,authorization:'Bearer synthetic-session','content-type':'application/json'},duplex:'half',body:stream}));
  assert.equal(response.status,413);assert.equal(cancelled,true);assert.ok(reads<=3);assert.equal((await f.request('/review')).body.revision,0);
 });
+test('private processor snapshot failure logs only fixed reason codes, never provider bodies, paths or credentials',()=>{
+ const {failureDiagnostic,reportFailure}=require('../scripts/admin/serverless/processor.cjs');
+ const secret='synthetic-private-credential-and-person-description';
+ const error=Object.assign(Error(secret),{publicSnapshotReason:'PROTECTION_ADMINS',githubStatus:403,code:secret,body:secret,path:'/private/'+secret});
+ assert.equal(failureDiagnostic(error),'PROTECTION_ADMINS GITHUB_HTTP_403');
+ assert.equal(failureDiagnostic({publicSnapshotReason:secret,githubStatus:'403',code:secret}),null);
+ assert.equal(failureDiagnostic({githubStatus:418,code:'ENOENT'}),'FILESYSTEM_ENOENT');
+ assert.equal(failureDiagnostic(Error('Chromium-sandbox kunne ikke bekreftes.')),'BROWSER_SANDBOX_UNCONFIRMED');
+ const lines=[];reportFailure(error,s=>lines.push(s));
+ assert.equal(lines[0],'Privat prosessorkontroll: PROTECTION_ADMINS GITHUB_HTTP_403');
+ assert.match(lines[1],/^Privat prosessorfase: /);
+ assert.equal(lines.some(s=>s.includes(secret)),false);
+});
+test('real private processor reports the exact failed snapshot gate after lease without weakening protection or leaking responses',async t=>{
+ const {main,reportFailure}=require('../scripts/admin/serverless/processor.cjs');
+ const code='a'.repeat(40),publicRoot='https://api.github.com/repos/morothon-no/historikk/';
+ const env={GITHUB_ACTIONS:'true',GITHUB_RUN_ID:'123',MOROTHON_BROKER_ORIGIN:'https://worker.example.test',
+  MOROTHON_TASK:'b'.repeat(24),MOROTHON_TASK_NONCE:'n'.repeat(43),MOROTHON_CODE_SHA:code,
+  ACTIONS_ID_TOKEN_REQUEST_URL:'https://token.actions.githubusercontent.com/oidc',ACTIONS_ID_TOKEN_REQUEST_TOKEN:'synthetic-oidc'};
+ for(const mode of ['strict','http']){
+  const calls=[];
+  const transport=t.mock.method(globalThis,'fetch',async(url,options={})=>{
+   calls.push({url:String(url),method:options.method||'GET'});
+   if(String(url).startsWith(env.ACTIONS_ID_TOKEN_REQUEST_URL))return Response.json({value:'synthetic-private-proof'});
+   if(String(url)===env.MOROTHON_BROKER_ORIGIN+'/processor/lease')return Response.json({
+    privateToken:'synthetic-private-token',publicToken:'synthetic-public-token',storageKey:'f'.repeat(64),
+    privateRepository:'synthetic-org/private-state',privateRepositoryId:'456',publicRepository:'morothon-no/historikk',
+    codeSha:code,appId:'123',ownerUserId:'11111111-1111-4111-8111-111111111111',task:{runId:'123',action:'identity-batch'}});
+   if(String(url)===publicRoot+'git/ref/heads/main')return Response.json({object:{sha:code}});
+   if(String(url)===publicRoot+'compare/'+code+'...'+code)return Response.json({status:'identical',merge_base_commit:{sha:code},files:[]});
+   if(String(url)===publicRoot+'branches/main/protection')return mode==='strict'?
+    Response.json({required_status_checks:{strict:false}}):Response.json({message:'synthetic-provider-secret'},{status:403});
+   throw Error('Unexpected synthetic route');
+  });
+  const output=[];
+  try{
+   await assert.rejects(()=>main(env),error=>{
+    reportFailure(error,s=>output.push(s));return true;
+   });
+  }finally{transport.mock.restore();}
+  assert.equal(output[0],mode==='strict'?'Privat prosessorkontroll: PROTECTION_STRICT':'Privat prosessorkontroll: GITHUB_HTTP_403');
+  assert.equal(output[1],'Privat prosessorfase: public-snapshot/main-protection');
+  assert.equal(output.some(s=>/synthetic-|Bearer|private-state/.test(s)),false);
+  assert.equal(calls.filter(c=>c.method!=='GET').length,1,'Only the existing source-bound lease may POST; no result/approval write occurs');
+ }
+});

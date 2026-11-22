@@ -5,6 +5,7 @@ const {PATHS}=require('./result-release.cjs');
 const {hash}=require('../../tools/diploma-admin/result-release-data.cjs');
 const REPO='morothon-no/historikk',WORKFLOW='pages.yml';
 const VARIABLE_NAMES=['MOROTHON_PUBLIC_DATA_SHA256','MOROTHON_REVIEWED_POLICY_HEAD'];
+const snapshotFailure=(message,reason)=>Object.assign(Error(message),{publicSnapshotReason:reason});
 function createInstallationApi({appId,installationId,privateKey,fetchImpl=fetch,clock=Date.now}){
  if(!/^\d+$/.test(appId||'')||!/^\d+$/.test(installationId||'')||!privateKey)throw Error('GitHub App, installasjon og privat servernøkkel må konfigureres.');
  let cached;
@@ -34,14 +35,17 @@ function createGitHubPublisher({api,codeSha,appId}={}){
  async function main(){const r=await get('git/ref/heads/main');if(!/^[a-f0-9]{40}$/.test(r?.object?.sha||''))throw Error('Main kunne ikke verifiseres.');return r.object.sha;}
  async function unchangedCode(sha){
   const comparison=await get('compare/'+codeSha+'...'+sha);
-  if(!['ahead','identical'].includes(comparison.status)||comparison.merge_base_commit?.sha!==codeSha||!Array.isArray(comparison.files)||comparison.files.some(f=>!PATHS.includes(f.filename)))throw Error('Main har nyere kode eller sikkerhetsregler. Oppdater den betrodde adminversjonen først.');
+  if(!['ahead','identical'].includes(comparison.status)||comparison.merge_base_commit?.sha!==codeSha||!Array.isArray(comparison.files)||comparison.files.some(f=>!PATHS.includes(f.filename)))throw snapshotFailure('Main har nyere kode eller sikkerhetsregler. Oppdater den betrodde adminversjonen først.','SOURCE_VERSION');
  }
  async function protection(){
   const p=await get('branches/main/protection');
-  if(p.required_status_checks?.strict!==true||p.enforce_admins?.enabled!==true||!p.required_pull_request_reviews)throw Error('Main må kreve oppdatert PR, pull request og obligatoriske tester også for administratorer.');
+  const message='Main må kreve oppdatert PR, pull request og obligatoriske tester også for administratorer.';
+  if(p.required_status_checks?.strict!==true)throw snapshotFailure(message,'PROTECTION_STRICT');
+  if(p.enforce_admins?.enabled!==true)throw snapshotFailure(message,'PROTECTION_ADMINS');
+  if(!p.required_pull_request_reviews)throw snapshotFailure(message,'PROTECTION_REVIEWS');
   const names=[...new Set([...(p.required_status_checks.contexts||[]),...(p.required_status_checks.checks||[]).map(c=>c.context)])];
-  for(const name of ['Public-safe source regression','Trusted policy and test plan','Public package, policy and site build','Independent trusted artifact gate'])if(!names.includes(name))throw Error('Main mangler påkrevd status: '+name+'.');
-  if((p.required_pull_request_reviews.bypass_pull_request_allowances?.apps||[]).some(a=>String(a.id)===String(appId)))throw Error('Publiseringsappen må ikke ha unntak fra PR-beskyttelsen.');return names;
+  for(const name of ['Public-safe source regression','Trusted policy and test plan','Public package, policy and site build','Independent trusted artifact gate'])if(!names.includes(name))throw snapshotFailure('Main mangler påkrevd status: '+name+'.','PROTECTION_CHECKS');
+  if((p.required_pull_request_reviews.bypass_pull_request_allowances?.apps||[]).some(a=>String(a.id)===String(appId)))throw snapshotFailure('Publiseringsappen må ikke ha unntak fra PR-beskyttelsen.','PROTECTION_BYPASS');return names;
  }
  async function variable(name){if(!VARIABLE_NAMES.includes(name))throw Error('Ukjent godkjenningsvariabel.');return (await get('actions/variables/'+name,{allow404:true}))?.value??null;}
  async function setVariable(name,value,previous){
@@ -50,12 +54,17 @@ function createGitHubPublisher({api,codeSha,appId}={}){
   await request('actions/variables'+(current===null?'':'/'+name),{method:current===null?'POST':'PATCH',body:{name,value}});
  }
  async function runs(sha,event){const r=await get('actions/workflows/'+WORKFLOW+'/runs?head_sha='+sha+'&event='+event+'&per_page=30');return (r.workflow_runs||[]).filter(r=>r.head_sha===sha&&r.event===event&&r.path==='.github/workflows/pages.yml');}
- async function snapshot({requireGreen=true}={}){
-  const sha=await main();await unchangedCode(sha);await protection();
+ async function snapshot({requireGreen=true,onStage=()=>{}}={}){
+  onStage('main-ref');const sha=await main();
+  onStage('source-version');await unchangedCode(sha);
+  onStage('main-protection');await protection();
+  onStage('main-ci');
   const production=(await runs(sha,'push')).sort((a,b)=>b.id-a.id)[0];
-  if(requireGreen&&(!production||production.status!=='completed'||production.conclusion!=='success'))throw Error('Siste produksjonskjøring på main må være grønn før ny publisering.');
+  if(requireGreen&&(!production||production.status!=='completed'||production.conclusion!=='success'))throw snapshotFailure('Siste produksjonskjøring på main må være grønn før ny publisering.','MAIN_CI');
   const paths=[...PATHS,...['honors','volunteers','badges','event-dates'].map(n=>'public-data/data/'+n+'.json')];
+  onStage('approved-files');
   const files=new Map(await Promise.all(paths.map(async p=>[p,await file(p,sha)])));
+  onStage('approval-variables');
   return {sha,files,variables:Object.fromEntries(await Promise.all(VARIABLE_NAMES.map(async n=>[n,await variable(n)])))};
  }
  async function verifyCommit(sha,job){

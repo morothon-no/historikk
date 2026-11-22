@@ -3,6 +3,28 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),{generate
 const {fakeGitHub}=require('./helpers/github-result-api.cjs'),{createInstallationApi,createGitHubPublisher}=require('../scripts/admin/github-result-publisher.cjs');
 const {releaseFiles,backupFiles,PATHS}=require('../scripts/admin/result-release.cjs');
 async function plan(api){const adapter=createGitHubPublisher({api:api.api,codeSha:api.codeSha,appId:'123'}),s=await adapter.snapshot(),h=JSON.parse(s.files.get('data/history.json'));h.results[0][5]='49:59';const r=releaseFiles({files:s.files,after:h});return {adapter,job:{id:'c'.repeat(64),baseCommit:s.sha,variables:s.variables,approval:r.approval,after:backupFiles(r.files)}};}
+test('snapshot diagnostics distinguish protection failures while retaining every guard and read-only behavior',async t=>{
+ const f=await fakeGitHub(t);
+ const variants=[
+  ['PROTECTION_STRICT',p=>{p.required_status_checks.strict=false;}],
+  ['PROTECTION_ADMINS',p=>{p.enforce_admins.enabled=false;}],
+  ['PROTECTION_REVIEWS',p=>{p.required_pull_request_reviews=null;}],
+  ['PROTECTION_CHECKS',p=>{p.required_status_checks.contexts=p.required_status_checks.contexts.filter(n=>n!=='Independent trusted artifact gate');}],
+  ['PROTECTION_BYPASS',p=>{p.required_pull_request_reviews.bypass_pull_request_allowances={apps:[{id:123}]};}],
+ ];
+ for(const [reason,change] of variants){
+  const stages=[],adapter=createGitHubPublisher({codeSha:f.codeSha,appId:'123',api:async(route,options)=>{
+   const value=structuredClone(await f.api(route,options));
+   if(route.endsWith('/branches/main/protection'))change(value);return value;
+  }});
+  await assert.rejects(()=>adapter.snapshot({onStage:s=>stages.push(s)}),e=>e.publicSnapshotReason===reason);
+  assert.deepEqual(stages,['main-ref','source-version','main-protection']);
+ }
+ const stages=[],adapter=createGitHubPublisher({api:f.api,codeSha:f.codeSha,appId:'123'});
+ assert.equal((await adapter.snapshot({onStage:s=>stages.push(s)})).sha,f.codeSha);
+ assert.deepEqual(stages,['main-ref','source-version','main-protection','main-ci','approved-files','approval-variables']);
+ assert.ok(f.calls.every(c=>c.method==='GET'),'Diagnosis cannot write a result, approval variable or publication branch');
+});
 test('GitHub publisher creates exactly five data files in a real isolated Git branch, requires green checks, then uses protected PR merge',async t=>{
  const api=await fakeGitHub(t),{adapter,job}=await plan(api),before=api.read('data/history.json');job.remote=await adapter.submit(job);assert.deepEqual(api.read('data/history.json'),before);assert.equal(api.prs.length,1);
  assert.equal((await adapter.advance(job)).stage,'checking');api.state.checks='success';const merged=await adapter.advance(job);assert.equal(merged.stage,'deploying');assert.equal(api.prs[0].merged,true);assert.notDeepEqual(api.read('data/history.json'),before);assert.deepEqual(api.read('data/history.json'),api.read('public-data/data/history.json'));
