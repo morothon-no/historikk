@@ -4,6 +4,8 @@ const C=require('../../../tools/diploma-admin/intake-model.js').Corrections;
 const copy=v=>structuredClone(v),equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const fail=message=>{throw Error(message);};
 const SCOPE='person-control-v1';
+const privateActions=new Set(['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check']);
+const isPrivateIdentityTask=task=>task?.scope===SCOPE&&privateActions.has(task.action);
 // Commands contain intent, not imported handoff/approval flags or client before-values.
 function command(value) {
   const fields = ['format','version','id','base','kind','personIds','mainPersonId','name','source','reason'];
@@ -33,4 +35,4 @@ function command(value) {
   return next;
 }
 
-module.exports={validateIdentityCommand:command,SCOPE};
+module.exports={validateIdentityCommand:command,SCOPE,isPrivateIdentityTask};

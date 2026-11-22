@@ -11,6 +11,7 @@ const { createGitHubPublisher } = require("../github-result-publisher.cjs"),
   { approvedRuntime, createProjector } = require("../review-runtime.cjs"),
   { createDeploymentVerifier } = require("../deployment-verifier.cjs");
 const C = require("../../../tools/diploma-admin/intake-model.js").Corrections;
+const {isPrivateIdentityTask}=require('./identity-command.cjs');
 const mask = (s) =>
   process.stdout.write(
     "::add-mask::" +
@@ -169,12 +170,14 @@ async function main(env = process.env) {
     path.join(os.tmpdir(), "morothon-private-job-"),
   );
   await fs.chmod(directory, 0o700);
-  let projector;
+  let projector,projectorPromise;
   try {
     safeStage = 'public-snapshot';
-    const snapshot = await adapter.snapshot({
+    const privateIdentity=isPrivateIdentityTask(lease.task),
+      onStage=stage=>{if(snapshotStages.has(stage))safeStage='public-snapshot/'+stage;};
+    const snapshot = privateIdentity ? await adapter.readApprovedSource({onStage}) : await adapter.snapshot({
         requireGreen: !['continue','identity-publication-continue','annual-publication-continue'].includes(lease.task.action),
-        onStage: stage=>{if(snapshotStages.has(stage))safeStage='public-snapshot/'+stage;},
+        onStage,
       }),
       data = path.join(directory, "package");
     safeStage='public-package-write';
@@ -208,12 +211,17 @@ async function main(env = process.env) {
     const runtime = await approvedRuntime(built.out, approvalFile);
     // Annual plans do not render diplomas or publish; use their existing row
     // engine directly, without starting an unrelated browser projection.
-    if(!['annual-preview','annual-save'].includes(lease.task.action)){
-      safeStage='browser-start';
-      projector = await createProjector(runtime);
-      safeStage='browser-sandbox';
-      await projector.checkSandbox();
+    async function requireProjector(){
+      if(!projectorPromise)projectorPromise=(async()=>{
+        safeStage='browser-start';projector=await createProjector(runtime);
+        safeStage='browser-sandbox';await projector.checkSandbox();
+        safeStage='private-decision';return projector;
+      })();
+      return projectorPromise;
     }
+    // Distinct/deferred decisions need no rendering. A merge still invokes the
+    // same consequence engine and must pass sandbox verification before use.
+    if(!privateIdentity&&!['annual-preview','annual-save'].includes(lease.task.action))await requireProjector();
     const driver = createDriver({
       lease,
       reviews,
@@ -224,7 +232,7 @@ async function main(env = process.env) {
       stateStore,
       directory,
       adapter,
-      loadContext: async () => ({ ...runtime, project: projector?.project,
+      loadContext: async () => ({ ...runtime, project: privateIdentity ? async history=>(await requireProjector()).project(history) : projector?.project,
         organizer:'sogne-morothon',personIdPrefix:'MOR-',
         profile:JSON.parse(await fs.readFile(path.resolve(__dirname,'../../../web-admin/event-profile.json'),'utf8')),
         registry:JSON.parse(runtime.files.get('data/badges.json')),

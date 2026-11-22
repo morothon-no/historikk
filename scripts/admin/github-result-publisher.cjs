@@ -54,18 +54,32 @@ function createGitHubPublisher({api,codeSha,appId}={}){
   await request('actions/variables'+(current===null?'':'/'+name),{method:current===null?'POST':'PATCH',body:{name,value}});
  }
  async function runs(sha,event){const r=await get('actions/workflows/'+WORKFLOW+'/runs?head_sha='+sha+'&event='+event+'&per_page=30');return (r.workflow_runs||[]).filter(r=>r.head_sha===sha&&r.event===event&&r.path==='.github/workflows/pages.yml');}
- async function snapshot({requireGreen=true,onStage=()=>{}}={}){
+ async function sourceHead(onStage){
   onStage('main-ref');const sha=await main();
   onStage('source-version');await unchangedCode(sha);
-  onStage('main-protection');await protection();
+  return sha;
+ }
+ async function sourceFiles(sha,paths,requireGreen,onStage){
   onStage('main-ci');
   const production=(await runs(sha,'push')).sort((a,b)=>b.id-a.id)[0];
   if(requireGreen&&(!production||production.status!=='completed'||production.conclusion!=='success'))throw snapshotFailure('Siste produksjonskjøring på main må være grønn før ny publisering.','MAIN_CI');
-  const paths=[...PATHS,...['honors','volunteers','badges','event-dates'].map(n=>'public-data/data/'+n+'.json')];
   onStage('approved-files');
   const files=new Map(await Promise.all(paths.map(async p=>[p,await file(p,sha)])));
+  return {sha,files};
+ }
+ // Private review reads the approved public package, never publication state.
+ // There is no option to disable source binding or green-main validation here.
+ async function readApprovedSource({onStage=()=>{}}={}){
+  const sha=await sourceHead(onStage);
+  return sourceFiles(sha,[...['history','honors','volunteers','badges','event-dates'].map(n=>'public-data/data/'+n+'.json'),
+    'public-data/manifest.json','.github/public-data-approval.json'],true,onStage);
+ }
+ async function snapshot({requireGreen=true,onStage=()=>{}}={}){
+  const sha=await sourceHead(onStage);
+  onStage('main-protection');await protection();
+  const source=await sourceFiles(sha,[...PATHS,...['honors','volunteers','badges','event-dates'].map(n=>'public-data/data/'+n+'.json')],requireGreen,onStage);
   onStage('approval-variables');
-  return {sha,files,variables:Object.fromEntries(await Promise.all(VARIABLE_NAMES.map(async n=>[n,await variable(n)])))};
+  return {...source,variables:Object.fromEntries(await Promise.all(VARIABLE_NAMES.map(async n=>[n,await variable(n)])))};
  }
  async function verifyCommit(sha,job){
   const commit=await get('git/commits/'+sha);if(commit.parents?.length!==1||commit.parents[0].sha!==job.baseCommit)throw Error('Publiseringsgrenen har feil forelder.');
@@ -125,6 +139,6 @@ function createGitHubPublisher({api,codeSha,appId}={}){
   if(merged.merged!==true)return {stage:'needs-review',error:'GitHub krever mer gjennomgang før merge. Ingen sperre er omgått.'};
   await setVariable(VARIABLE_NAMES[1],merged.sha,job.remote.head);return {stage:'deploying',mergeCommit:merged.sha};
  }
- return {snapshot,submit,advance,repository:REPO};
+ return {readApprovedSource,snapshot,submit,advance,repository:REPO};
 }
 module.exports={createInstallationApi,createGitHubPublisher};

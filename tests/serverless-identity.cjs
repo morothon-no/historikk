@@ -3,6 +3,90 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const {setup}=require('./helpers/identity-serverless.cjs');
 const C=require('../tools/diploma-admin/intake-model.js').Corrections;
 const {organizer}=require('./helpers/result-publication.cjs');
+test('private-only source routing is restricted to exact identity action and module, never publication or import',()=>{
+ const {isPrivateIdentityTask,SCOPE}=require('../scripts/admin/serverless/identity-command.cjs');
+ for(const action of ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check']){
+  assert.equal(isPrivateIdentityTask({scope:SCOPE,action}),true);
+  assert.equal(isPrivateIdentityTask({scope:'result-control-v1',action}),false);
+ }
+ for(const action of ['publish','continue','reverse','validate','identity-publication-publish','identity-publication-check','annual-save','annual-publication-publish','identity-batch-forged'])
+  assert.equal(isPrivateIdentityTask({scope:SCOPE,action}),false);
+ assert.equal(isPrivateIdentityTask(null),false);assert.equal(isPrivateIdentityTask({}),false);
+});
+test('actual private processor saves and reopens a distinct decision with encrypted CAS despite protection 404, without browser or public writes',async t=>{
+ const f=await setup(t),{main}=require('../scripts/admin/serverless/processor.cjs');
+ const {seal,unseal,sha,githubStore,tokenConnection}=require('../scripts/admin/serverless/github-store.cjs');
+ const {createIdentityReview,identityReviewStore}=require('../scripts/admin/identity-review.cjs');
+ const code='a'.repeat(40),id='b'.repeat(24),privateRepo='synthetic-org/private-state',command=f.command('different-people');
+ const task={id,revision:2,state:'running',runId:'123',scope:'person-control-v1',action:'identity-batch',
+  actor:f.sessions.get('owner').subject,organizer,codeSha:code,expectedRevision:0,identityCommands:[command]};
+ const taskPath='.morothon-state/control/task-'+id+'.aesgcm',encrypted=new Map([[taskPath,seal(f.key,taskPath,task)]]),calls=[];
+ const env={GITHUB_ACTIONS:'true',GITHUB_RUN_ID:'123',MOROTHON_BROKER_ORIGIN:'https://worker.example.test',
+  MOROTHON_TASK:id,MOROTHON_TASK_NONCE:'n'.repeat(43),MOROTHON_CODE_SHA:code,
+  ACTIONS_ID_TOKEN_REQUEST_URL:'https://token.actions.githubusercontent.com/oidc',ACTIONS_ID_TOKEN_REQUEST_TOKEN:'synthetic-oidc'};
+ t.mock.method(globalThis,'fetch',async(url,options={})=>{
+  const u=new URL(url),method=options.method||'GET';calls.push({path:u.pathname,method});
+  if(u.hostname==='token.actions.githubusercontent.com')return Response.json({value:'synthetic-private-proof'});
+  if(u.origin===env.MOROTHON_BROKER_ORIGIN)return Response.json({task,privateToken:'synthetic-private',publicToken:'synthetic-public',storageKey:f.key.toString('hex'),
+   privateRepository:privateRepo,privateRepositoryId:'456',publicRepository:'morothon-no/historikk',codeSha:code,ownerUserId:task.actor,appId:'123'});
+  const base='/repos/'+privateRepo;
+  if(u.pathname===base)return Response.json({private:true,full_name:privateRepo,id:456,default_branch:'main'});
+  if(u.pathname.startsWith(base+'/contents/')){
+   const name=u.pathname.slice((base+'/contents/').length),old=encrypted.get(name);
+   assert.match(name,/^\.morothon-state\/(identity-reviews|control)\//);
+   if(method==='PUT'){
+    const body=JSON.parse(options.body);assert.equal(body.branch,'admin-state');assert.equal(body.sha,old?sha(old).slice(0,40):undefined);
+    encrypted.set(name,Buffer.from(body.content,'base64'));return Response.json({});
+   }
+   return old?Response.json({type:'file',encoding:'base64',sha:sha(old).slice(0,40),size:old.length,content:old.toString('base64')}):Response.json({}, {status:404});
+  }
+  assert.equal(method,'GET','No operation may write to the public repository');
+  const p=u.pathname.replace('/repos/morothon-no/historikk/','');
+  if(p==='branches/main/protection')return Response.json({}, {status:404});
+  if(p==='git/ref/heads/main')return Response.json({object:{sha:code}});
+  if(p.startsWith('compare/'))return Response.json({status:'identical',merge_base_commit:{sha:code},files:[]});
+  if(p==='actions/workflows/pages.yml/runs')return Response.json({workflow_runs:[{id:1,head_sha:code,event:'push',path:'.github/workflows/pages.yml',status:'completed',conclusion:'success'}]});
+  if(p.startsWith('contents/')){
+   const file=p.slice(9);assert.ok(file.startsWith('public-data/')||file==='.github/public-data-approval.json');
+   const bytes=f.repository.files.get(file);assert.ok(bytes,file);return Response.json({type:'file',encoding:'base64',size:bytes.length,content:bytes.toString('base64')});
+  }
+  throw Error('Unexpected synthetic route');
+ });
+ await main(env);
+ assert.equal(unseal(f.key,taskPath,encrypted.get(taskPath)).state,'completed');
+ assert.ok(calls.every(c=>!c.path.includes('branches/main/protection')&&!c.path.includes('actions/variables')));
+ const reopen=()=>createIdentityReview({authenticate:session=>f.auth.authenticate(new Request(f.origin+'/identity',{headers:{authorization:'Bearer '+session}})),
+  loadContext:async()=>f.context,store:identityReviewStore({openNamespace:()=>githubStore({api:tokenConnection(privateRepo,'synthetic-private'),key:f.key,repositoryId:'456',prefix:'identity-reviews'})})});
+ const session=await f.login(),first=await reopen().load({session,organizer});
+ assert.equal(first.persisted,true);assert.equal(first.revision,1);assert.equal(first.counts.rejected,1);
+ assert.equal(first.productionApplied,false);assert.equal(first.publicationAuthorized,false);
+ await f.auth.logout(new Request(f.origin+'/logout',{headers:{authorization:'Bearer '+session}}));
+ await assert.rejects(()=>reopen().load({session,organizer}));
+ const second=await reopen().load({session:await f.login(),organizer});
+ assert.deepEqual(second.draft,first.draft);assert.equal(second.counts.rejected,1);
+ assert.equal(second.worklist.identity.some(c=>c.bucket==='pending'&&c.personIds.includes(command.personIds[0])&&c.personIds.includes(command.personIds[1])),false);
+ for(const bytes of encrypted.values())assert.equal(bytes.includes(Buffer.from(command.reason)),false,'Private decisions remain ciphertext');
+ // Positive identity changes still need the established consequence engine.
+ // Test both a verified sandbox and a refused sandbox; no fallback is allowed.
+ const processorPath=require.resolve('../scripts/admin/serverless/processor.cjs'),originalModule=require.cache[processorPath];
+ const runtime=require('../scripts/admin/review-runtime.cjs');let sandboxAllowed=true,checked=false,projections=0,closed=0;
+ const factory=t.mock.method(runtime,'createProjector',async()=>({
+  checkSandbox:async()=>{if(!sandboxAllowed)throw Error('Chromium-sandbox kunne ikke bekreftes.');checked=true;},
+  project:async history=>{assert.equal(checked,true);projections++;return f.context.project(history);},close:async()=>{closed++;}
+ }));
+ try{
+  delete require.cache[processorPath];const {main:mergeMain}=require(processorPath);
+  for(const allowed of [true,false]){
+   task.identityCommands=[f.command('same-person')];sandboxAllowed=allowed;checked=false;projections=0;closed=0;
+   encrypted.clear();encrypted.set(taskPath,seal(f.key,taskPath,task));
+   const oldExit=process.exitCode;
+   try{await mergeMain(env);}finally{process.exitCode=oldExit;}
+   assert.equal(unseal(f.key,taskPath,encrypted.get(taskPath)).state,allowed?'completed':'failed');
+   assert.equal(projections>0,allowed);assert.equal(closed,1);
+   assert.equal(encrypted.has('.morothon-state/identity-reviews/'+organizer+'.aesgcm'),allowed,'A refused sandbox cannot save a positive decision');
+  }
+ }finally{factory.mock.restore();require.cache[processorPath]=originalModule;}
+});
 
 test('identity reads fail closed when a pre-created private directory has unsafe permissions',async t=>{
  const f=await setup(t),session=await f.login();
