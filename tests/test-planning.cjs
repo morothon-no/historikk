@@ -71,3 +71,23 @@ test('B1 public test runner has a bounded subprocess timeout and forces cleanup 
  assert.match(runner,/killSignal:'SIGKILL'/);
  assert.match(workflow,/name: Public package, policy and site build\n    timeout-minutes: 25/);
 });
+test('Pages retries upload and deploy one attempt-specific artifact, even when old github-pages duplicates remain',async()=>{
+ const workflow=await fs.readFile(path.join(__dirname,'../.github/workflows/pages.yml'),'utf8');
+ const deploy=workflow.split('\n  deploy:\n')[1];
+ const upload=deploy.match(/uses: actions\/upload-pages-artifact@v3\n        with:\n([\s\S]*?)(?=      - name:)/)?.[1]||'';
+ const publish=deploy.match(/uses: actions\/deploy-pages@v4\n        with:\n([\s\S]*?)(?=      - name:)/)?.[1]||'';
+ const uploadName=upload.match(/^          name: (.+)$/m)?.[1];
+ const publishName=publish.match(/^          artifact_name: (.+)$/m)?.[1];
+ assert.equal(uploadName,'github-pages-${{ github.run_attempt }}');
+ assert.equal(publishName,uploadName);
+ assert.match(upload,/path: _site\//);
+ assert.match(deploy,/needs: \[artifact_gate, source_checks\]/);
+ assert.match(deploy,/name: morothon-site\n          path: _site\//);
+ const artifacts=[{id:10,name:'github-pages'},{id:11,name:'github-pages'}];
+ for(const attempt of [1,2,3]){
+  const resolve=template=>template.replace('${{ github.run_attempt }}',String(attempt));
+  const id=20+attempt;artifacts.push({id,name:resolve(uploadName)});
+  assert.deepEqual(artifacts.filter(a=>a.name===resolve(publishName)),[{id,name:resolve(publishName)}]);
+ }
+ assert.equal(artifacts.filter(a=>a.name==='github-pages').length,2,'Historical duplicates are preserved, never deleted to select a deployment');
+});
