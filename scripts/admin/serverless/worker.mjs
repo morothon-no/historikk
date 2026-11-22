@@ -253,7 +253,7 @@ export default {
                   ? {
                       contents: "write",
                       pull_requests: "write",
-                      variables: "write",
+                      actions_variables: "write",
                       actions: "write",
                       checks: "read",
                       administration: "read",
@@ -263,7 +263,7 @@ export default {
                       actions: "read",
                       checks: "read",
                       administration: "read",
-                      variables: "read",
+                      actions_variables: "read",
                     },
                 fetchImpl: cloudflareGithubFetch,
                 verifyPermissions: true,

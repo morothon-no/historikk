@@ -21,10 +21,15 @@ test('GitHub idempotent submission reuses the same branch and PR after reconnect
 });
 test('GitHub App uses a short-lived signed installation token scoped to one repository, not the login identity',async()=>{
  const {privateKey,publicKey}=generateKeyPairSync('rsa',{modulusLength:2048}),calls=[];
- const api=createInstallationApi({appId:'123',installationId:'456',privateKey,fetchImpl:async(url,options)=>{calls.push({url,options});if(url.includes('/access_tokens'))return {ok:true,status:201,json:async()=>({token:'synthetic-installation-token',expires_at:new Date(Date.now()+3600000).toISOString()})};return {ok:true,status:200,json:async()=>({ok:true})};}});
+ const api=createInstallationApi({appId:'123',installationId:'456',privateKey,fetchImpl:async(url,options)=>{calls.push({url,options});if(url.includes('/access_tokens')){
+  const input=JSON.parse(options.body);
+  if(Object.hasOwn(input.permissions,'variables')||input.permissions.actions_variables!=='write')
+   return {ok:false,status:422};
+  return {ok:true,status:201,json:async()=>({token:'synthetic-installation-token',expires_at:new Date(Date.now()+3600000).toISOString()})};
+ }return {ok:true,status:200,json:async()=>({ok:true})};}});
  await api('/repos/morothon-no/historikk/git/ref/heads/main');await api('/repos/morothon-no/historikk/compare/'+'a'.repeat(40)+'...'+'b'.repeat(40));assert.equal(calls.filter(c=>c.url.includes('/access_tokens')).length,1);
  const raw=calls[0].options.headers.Authorization.slice(7),parts=raw.split('.'),verify=createVerify('RSA-SHA256');verify.update(parts[0]+'.'+parts[1]);assert.equal(verify.verify(publicKey,parts[2],'base64url'),true);const claims=JSON.parse(Buffer.from(parts[1],'base64url'));assert.equal(claims.iss,'123');assert.ok(claims.exp-claims.iat<=600);
- const body=JSON.parse(calls[0].options.body);assert.deepEqual(body.repositories,['historikk']);assert.equal(body.permissions.contents,'write');assert.equal(body.permissions.checks,'read');assert.equal(body.permissions.administration,'read');assert.equal(body.permissions.pages,undefined);
+ const body=JSON.parse(calls[0].options.body);assert.deepEqual(body.repositories,['historikk']);assert.deepEqual(body.permissions,{contents:'write',pull_requests:'write',actions_variables:'write',actions:'write',checks:'read',administration:'read'});
  await assert.rejects(()=>api('/repos/another/private/git/ref/heads/main'),/avgrenset/);
  await assert.rejects(()=>api('/repos/morothon-no/historikk/../private'),/avgrenset/);
 });
