@@ -3,6 +3,36 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),{generate
 const {fakeGitHub}=require('./helpers/github-result-api.cjs'),{createInstallationApi,createGitHubPublisher}=require('../scripts/admin/github-result-publisher.cjs');
 const {releaseFiles,backupFiles,PATHS}=require('../scripts/admin/result-release.cjs');
 async function plan(api){const adapter=createGitHubPublisher({api:api.api,codeSha:api.codeSha,appId:'123'}),s=await adapter.snapshot(),h=JSON.parse(s.files.get('data/history.json'));h.results[0][5]='49:59';const r=releaseFiles({files:s.files,after:h});return {adapter,job:{id:'c'.repeat(64),baseCommit:s.sha,variables:s.variables,approval:r.approval,after:backupFiles(r.files)}};}
+test('private source reads need only green approved public data; protection 404 still blocks publication snapshot, submit and advance',async t=>{
+ const f=await fakeGitHub(t),{job}=await plan(f);let block=true;
+ const adapter=createGitHubPublisher({codeSha:f.codeSha,appId:'123',api:async(route,options)=>{
+  if(block&&route.endsWith('/branches/main/protection'))throw Object.assign(Error('Synthetic absent classic rule'),{githubStatus:404});
+  return f.api(route,options);
+ }});
+ f.calls.length=0;const stages=[],source=await adapter.readApprovedSource({onStage:s=>stages.push(s)});
+ assert.equal(source.sha,f.codeSha);assert.equal(source.variables,undefined);
+ assert.deepEqual([...source.files.keys()].sort(),['.github/public-data-approval.json','public-data/manifest.json',
+  ...['history','honors','volunteers','badges','event-dates'].map(n=>'public-data/data/'+n+'.json')].sort());
+ assert.deepEqual(stages,['main-ref','source-version','main-ci','approved-files']);
+ assert.ok(f.calls.every(c=>c.method==='GET'&&!c.path.includes('protection')&&!c.path.includes('actions/variables')));
+ assert.equal(f.prs.length,0);
+ await assert.rejects(()=>adapter.snapshot(),e=>e.githubStatus===404);
+ await assert.rejects(()=>adapter.submit(job),e=>e.githubStatus===404);assert.equal(f.prs.length,0);
+ block=false;job.remote=await adapter.submit(job);block=true;
+ const writes=f.calls.filter(c=>c.method!=='GET').length;
+ await assert.rejects(()=>adapter.advance(job),e=>e.githubStatus===404);
+ assert.equal(f.prs[0].merged,false);assert.equal(f.calls.filter(c=>c.method!=='GET').length,writes);
+});
+test('private source cannot opt out of green main or use changed code',async t=>{
+ const f=await fakeGitHub(t);
+ const adapter=createGitHubPublisher({codeSha:f.codeSha,appId:'123',api:async(route,o)=>{
+  const r=await f.api(route,o);if(route.includes('/actions/workflows/'))r.workflow_runs.forEach(x=>{x.status='completed';x.conclusion='failure';});return r;
+ }});
+ await assert.rejects(()=>adapter.readApprovedSource({requireGreen:false}),e=>e.publicSnapshotReason==='MAIN_CI');
+ await fsWriteSyntheticCode();
+ await assert.rejects(()=>adapter.readApprovedSource(),e=>e.publicSnapshotReason==='SOURCE_VERSION');
+ async function fsWriteSyntheticCode(){const fs=require('node:fs/promises'),path=require('node:path');await fs.writeFile(path.join(f.directory,'synthetic-code.js'),'synthetic');f.git(['add','.']);f.git(['commit','-qm','Synthetic changed code']);}
+});
 test('snapshot diagnostics distinguish protection failures while retaining every guard and read-only behavior',async t=>{
  const f=await fakeGitHub(t);
  const variants=[

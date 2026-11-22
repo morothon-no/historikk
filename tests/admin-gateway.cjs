@@ -277,7 +277,7 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
         publicPermissions.push(input.permissions);
         // GitHub's server-to-server permission identifier is actions_variables.
         // Echoing an arbitrary request here previously hid the invalid key.
-        if(Object.hasOwn(input.permissions,'variables')||!Object.hasOwn(input.permissions,'actions_variables'))
+        if(Object.keys(input.permissions).some(k=>!['contents','actions','checks','administration','actions_variables','pull_requests'].includes(k)))
           return Response.json({message:'Synthetic unsupported permission name'},{status:422});
       }
       if(tokenFailureStatus&&scope==='public')
@@ -308,6 +308,11 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
   assert.deepEqual(publicPermissions.at(-1),{contents:'read',actions:'read',checks:'read',administration:'read',actions_variables:'read'});
   assert.equal(unseal(key,filename,bytes).state,'running');
   assert.ok(calls.every(c=>c.redirect==='manual'));
+  for(const action of ['identity-decide','identity-batch','identity-approve','identity-revalidate','identity-check']){
+    bytes=seal(key,filename,{...task,action,scope:'person-control-v1'});
+    assert.equal((await lease(jwt())).status,200);
+    assert.deepEqual(publicPermissions.at(-1),{contents:'read',actions:'read'},'Private identity decisions cannot receive publication-control or write permissions');
+  }
   for(const action of ['publish','continue']){
     bytes=seal(key,filename,{...task,action});
     assert.equal((await lease(jwt())).status,200);

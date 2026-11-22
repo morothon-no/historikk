@@ -83,6 +83,7 @@ import oidcModule from "./oidc.cjs";
 import accountsModule from "../account-directory.cjs";
 import identityPublicationPolicy from './identity-publication-policy.cjs';
 import annualPublicationPolicy from './annual-publication-policy.cjs';
+import identityCommands from './identity-command.cjs';
 let cached;
 export default {
   async fetch(request, env) {
@@ -249,7 +250,9 @@ export default {
               publicConnection = connection({
                 ...common,
                 repository: "morothon-no/historikk",
-                permissions: write
+                permissions: identityCommands.isPrivateIdentityTask(task)
+                  ? { contents: "read", actions: "read" }
+                  : write
                   ? {
                       contents: "write",
                       pull_requests: "write",
