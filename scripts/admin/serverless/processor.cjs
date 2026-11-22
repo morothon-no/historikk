@@ -25,7 +25,7 @@ let safeStage = 'setup';
 const snapshotStages=new Set(['main-ref','source-version','main-protection','main-ci','approved-files','approval-variables']);
 function failureDiagnostic(error){
   const parts=[];
-  if(['SOURCE_VERSION','PROTECTION_STRICT','PROTECTION_ADMINS','PROTECTION_REVIEWS','PROTECTION_CHECKS','PROTECTION_BYPASS','MAIN_CI'].includes(error?.publicSnapshotReason))
+  if(['SOURCE_VERSION','PROTECTION_STRICT','PROTECTION_ADMINS','PROTECTION_REVIEWS','PROTECTION_CHECKS','PROTECTION_BYPASS','PROTECTION_RULESET','MAIN_CI'].includes(error?.publicSnapshotReason))
     parts.push(error.publicSnapshotReason);
   if([400,401,403,404,409,422,429,500,502,503].includes(error?.githubStatus))parts.push('GITHUB_HTTP_'+error.githubStatus);
   if(['ENOENT','EACCES','EPERM'].includes(error?.code))parts.push('FILESYSTEM_'+error.code);
