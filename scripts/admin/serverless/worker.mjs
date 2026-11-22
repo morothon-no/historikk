@@ -242,7 +242,7 @@ export default {
                 ),
               })
             ).success,
-          leaseTokens: async (task) => {
+          leaseTokens: async (task, reportTokenStage = () => {}) => {
             const write = ["publish", "continue"].includes(task.action) ||
                 (identityPublicationPolicy.ENABLED === true && ['identity-publication-publish','identity-publication-continue'].includes(task.action)) ||
                 (annualPublicationPolicy.ENABLED === true && ['annual-publication-publish','annual-publication-continue'].includes(task.action)),
@@ -266,16 +266,22 @@ export default {
                       variables: "read",
                     },
                 fetchImpl: cloudflareGithubFetch,
+                verifyPermissions: true,
               }),
               processorConnection = connection({
                 ...common,
                 repository: env.PRIVATE_REPOSITORY,
                 permissions: { contents: "write" },
                 fetchImpl: cloudflareGithubFetch,
+                verifyPermissions: true,
               });
+            reportTokenStage('private');
+            const privateToken = await processorConnection.token();
+            reportTokenStage('public');
+            const publicToken = await publicConnection.token();
             return {
-              privateToken: await processorConnection.token(),
-              publicToken: await publicConnection.token(),
+              privateToken,
+              publicToken,
               storageKey: env.STORAGE_KEY,
               privateRepository: env.PRIVATE_REPOSITORY,
               privateRepositoryId: env.PRIVATE_REPOSITORY_ID,
