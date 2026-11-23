@@ -2,7 +2,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {setup}=require('./helpers/identity-serverless.cjs'),{organizer}=require('./helpers/result-publication.cjs');
 const {createDriver}=require('../scripts/admin/serverless/driver.cjs'),{SCOPE}=require('../scripts/admin/identity-review.cjs');
-const {ENABLED}=require('../scripts/admin/serverless/identity-publication-policy.cjs');
 const view=async(f,session)=>(await f.request('/identity',undefined,session)).body;
 const bound=s=>({expectedRevision:s.revision,expectedDigest:s.publication.digest});
 async function run(f,session,action,extra={}){
@@ -13,8 +12,8 @@ async function run(f,session,action,extra={}){
 async function decision(f,session){assert.equal((await f.request('/identity/batch',{expectedRevision:0,commands:[f.command(),
  f.command('different-people',{personIds:['MOR-C220003','MOR-C220004']}),
  f.command('defer',{personIds:['MOR-C220003','MOR-C220005']})]},session)).status,202);assert.equal((await f.processNext()).completed,true);}
-test('default-off broker and private driver reject every publication action and cannot lease dormant identity-write tasks',async t=>{
- assert.equal(ENABLED,false);const f=await setup(t),session=await f.login();
+test('disabled broker and private driver reject every publication action and cannot lease dormant identity-write tasks',async t=>{
+ const f=await setup(t,{identityPublicationEnabled:false}),session=await f.login();
  assert.equal((await f.request('/session',undefined,session)).body.identityPublicationEnabled,false);
  for(const action of ['check','approve','publish','continue','reverse','cancel'])assert.equal((await f.request('/identity/publication/'+action,{},session)).status,404);
  assert.equal(f.dispatches.length,0);assert.equal(f.remote.submitted,0);
@@ -23,7 +22,7 @@ test('default-off broker and private driver reject every publication action and 
  await f.control.transact('task-'+id,0,()=>task);
  const lease=await f.broker.fetch(new Request(f.origin+'/processor/lease',{method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer synthetic-oidc'},body:JSON.stringify({task:id,nonce:'synthetic'})}));
  assert.equal(lease.status,403);assert.equal((await f.control.get('task-'+id)).state,'queued');
- assert.throws(()=>createDriver({lease:{task,ownerUserId:task.actor,codeSha:task.codeSha}}),/ikke aktivert/);
+ assert.throws(()=>createDriver({identityPublicationEnabled:false,lease:{task,ownerUserId:task.actor,codeSha:task.codeSha}}),/ikke aktivert/);
 });
 test('owner explicitly checks, approves and publishes private merges; fresh login retrieves verified status, remaining decisions and reversible history',async t=>{
  const f=await setup(t,{identityPublicationEnabled:true}),session=await f.login(),original=structuredClone(f.context.history);
