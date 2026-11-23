@@ -47,7 +47,10 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
    const req=new Request(request.url(),{method:request.method(),headers,...(request.postData()?{body:request.postData()}: {})}),
     response=url.pathname.startsWith('/admin/')?await gateway(req):await f.broker.fetch(sameOriginBrokerRead(req,f.origin));
    traffic.push({path:url.pathname,status:response.status});return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});});
-  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.goto(f.origin+'/admin/#personkontroll');
+  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>{
+   if(d.message().startsWith('Forberede tilbakeføring?'))return d.accept();
+   errors.push('Unexpected dialog: '+d.message());return d.dismiss();
+  });await page.goto(f.origin+'/admin/#personkontroll');
   await page.waitForFunction(()=>document.querySelector('#identityService'));
   try{await page.waitForFunction(()=>document.querySelector('#identityRefresh:enabled'));}
   catch(error){throw Error(error.message+' '+JSON.stringify({errors,traffic:traffic.slice(-15),status:await page.locator('#identityServiceStatus').textContent()}));}
@@ -89,7 +92,19 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
   if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR){await fs.mkdir(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,{recursive:true});await page.locator('#identityPublication').screenshot({path:path.join(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,'for-etter-'+width+'.png')});}}
  await page.setViewportSize({width:1440,height:1000});
  assert.equal(f.remote.merged,0);
- f.remote.checks='success';f.remote.deploy='success';await action('#identityPublicationPublish','/identity/publication/approve','/identity/publication/publish');
+ f.remote.checks='success';f.remote.deploy='success';
+ const approvalResponse=posted('/identity/publication/approve'), publish=posted('/identity/publication/publish');
+ await page.getByRole('button',{name:'Bekreft publisering',exact:true}).click();
+ await processResponse(approvalResponse);
+ assert.equal((await publish).status(),202);
+ await page.waitForFunction(()=>document.querySelector('#identityPublication').textContent.includes('Jobben fortsetter'));
+ await page.selectOption('#identityFilter','finished');
+ await page.locator('#identityWorklist .identity-quick-compare:visible').first().waitFor();
+ assert.equal(await page.locator('#identityWorklist .identity-quick-compare:visible').first().isEnabled(),true);
+ await page.locator('#identityWorklist .identity-quick-compare:visible').first().click();
+ assert.equal(await page.locator('#identityBatchSubmit').isDisabled(),true);
+ await processResponse(publish);
+ await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);assert.equal(f.remote.merged,1);
  assert.deepEqual(f.context.history.results,original.results);assert.equal(f.context.history.redirects['MOR-C220001'],'MOR-C220002');assert.equal(f.context.history.redirects['MOR-C220005'],'MOR-C220006');
  await page.click('#identityLogout');await context.close();f.restart();({page,context}=await open(390));
