@@ -156,6 +156,27 @@ function createGitHubPublisher({api,codeSha,appId}={}){
    const merge=pr.merge_commit_sha,commit=await get('git/commits/'+merge);
    if(commit.parents?.length!==2||commit.parents[0].sha!==job.baseCommit||commit.parents[1].sha!==job.remote.head)throw Error('Mergegrunnlaget er endret. Ingen publisering kan bekreftes.');
    for(const path of PATHS)if(hash(await file(path,merge))!==job.after[path].sha256)throw Error('Merget datagrunnlag stemmer ikke med godkjenningen.');
+   const deployedHead=await main();
+   if(deployedHead!==merge){
+    // A subsequent reviewed repair can deploy the original approved bytes.
+    // This path only verifies existing state and never moves approval variables.
+    await unchangedCode(deployedHead);
+    const ancestry=await get('compare/'+merge+'...'+deployedHead);
+    if(ancestry.status!=='ahead'||ancestry.merge_base_commit?.sha!==merge)
+     throw Error('Main viderefører ikke den godkjente publiseringscommitten.');
+    await protection();
+    for(const path of PATHS)if(hash(await file(path,deployedHead))!==job.after[path].sha256)
+     throw Error('Main inneholder andre data enn den godkjente publiseringen.');
+    const latest=(await runs(deployedHead,'push')).sort((a,b)=>b.id-a.id)[0];
+    if(!latest||latest.status!=='completed'||latest.conclusion!=='success'||
+      !Number.isSafeInteger(latest.id)||!Number.isSafeInteger(latest.run_attempt)||latest.run_attempt<1)
+     throw Error('Oppdatert main mangler en vellykket Pages-kjøring.');
+    const jobs=await get('actions/runs/'+latest.id+'/attempts/'+latest.run_attempt+'/jobs?per_page=100');
+    if(!jobs.jobs?.some(job=>job.name==='Publish tested main only'&&job.status==='completed'&&job.conclusion==='success'))
+     throw Error('Oppdatert main mangler en bekreftet Pages-utrulling.');
+    if(await main()!==deployedHead)throw Error('Main er endret under etterkontrollen.');
+    return {stage:'verifying',mergeCommit:merge,deployCommit:deployedHead,runId:latest.id};
+   }
    await setVariable(VARIABLE_NAMES[1],merge,job.remote.head);
    const run=(await runs(merge,'push')).sort((a,b)=>b.id-a.id)[0];
    if(!run||run.status!=='completed')return {stage:'deploying',mergeCommit:merge,runId:run?.id};

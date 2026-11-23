@@ -153,6 +153,38 @@ test('required PR review refusal remains a human checkpoint and malformed write 
  const transport=createInstallationApi({appId:'123',installationId:'456',privateKey,fetchImpl:async()=>({ok:true,status:201,json:async()=>{throw Error('synthetic-private-response');}})});
  await assert.rejects(()=>transport('/repos/morothon-no/historikk/git/refs',{method:'POST'}),e=>e.uncertain===true&&!e.message.includes('synthetic-private-response'));
 });
+test('a later trusted Pages deploy can verify the same merged release without any GitHub writes',async t=>{
+ const f=await fakeGitHub(t),{adapter,job}=await plan(f);
+ job.publicationKind='identity';
+ job.remote=await adapter.submit(job);
+ f.state.checks='success';
+ const {mergeCommit}=await adapter.advance(job);
+ f.state.deploy='failed';
+ assert.equal((await adapter.advance(job)).stage,'failed');
+ const tree=f.git(['show','-s','--format=%T',mergeCommit]).toString().trim();
+ const head=f.git(['commit-tree',tree,'-p',mergeCommit], 'Synthetic reviewed recovery').toString().trim();
+ f.git(['update-ref','refs/heads/main',head,mergeCommit]);
+ let deployed=false;
+ const recovered=createGitHubPublisher({codeSha:head,appId:'123',api:async(route,options)=>{
+  if(route.endsWith('actions/runs/20/attempts/1/jobs?per_page=100'))return {jobs:[{
+   name:'Publish tested main only',status:'completed',conclusion:deployed?'success':'skipped',
+  }]};
+  return f.api(route,options);
+ }});
+ f.calls.length=0;
+ await assert.rejects(()=>adapter.advance(job),/nyere kode|vellykket Pages/);
+ await assert.rejects(()=>recovered.advance(job),/vellykket Pages/);
+ f.state.deploy='success';
+ await assert.rejects(()=>recovered.advance(job),/bekreftet Pages/);
+ deployed=true;
+ assert.deepEqual(await recovered.advance(job),{stage:'verifying',mergeCommit,deployCommit:head,runId:20});
+ const fs=require('node:fs/promises'),path=require('node:path');
+ await fs.appendFile(path.join(f.directory,'data/history.json'),' ');
+ f.git(['add','data/history.json']);f.git(['commit','-qm','Synthetic unapproved replacement']);
+ await assert.rejects(()=>recovered.advance(job),/andre data/);
+ assert.ok(f.calls.every(call=>call.method==='GET'));
+ assert.equal(f.prs.length,1);
+});
 test('continuation may read a failed deploy snapshot but normal publication still requires green main and all code/protection checks',async t=>{
  const api=await fakeGitHub(t),publisher=createGitHubPublisher({api:async(route,o)=>{const r=await api.api(route,o);if(route.includes('event=push'))for(const run of r.workflow_runs)Object.assign(run,{status:'completed',conclusion:'failure'});return r;},codeSha:api.codeSha,appId:'123'});await assert.rejects(publisher.snapshot(),/grønn/);const readOnly=await publisher.snapshot({requireGreen:false});assert.ok(readOnly.files.get('data/history.json'));assert.equal(api.prs.length,0);await assert.rejects(publisher.snapshot(),/grønn/);api.state.strict=false;await assert.rejects(publisher.snapshot({requireGreen:false}),/obligatoriske tester/);
 });
