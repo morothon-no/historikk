@@ -342,7 +342,8 @@
         !s.saved.inspection?.ready||
         s.saved.draft.cases.some(c=>!['handoff','rejected'].includes(c.status));
       revalidate.hidden=!s.saved?.stale||s.saved?.publication?.locked===true;revalidate.disabled=s.busy||active()||blocked();
-      reload.hidden=!(s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base));
+      const historyChanged=!!s.saved?.draft&&JSON.stringify(s.saved.draft.base)!==JSON.stringify(base);
+      reload.hidden=!historyChanged||!!s.saved?.stale||publishing()||active()||blocked()||!!s.request;
       check.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length;
       retry.hidden=!s.request&&!active()&&!blocked();
       for(const button of panel.querySelectorAll('#identityEditor button, .identity-quick-actions button, #identityBatchTray button'))
@@ -354,8 +355,8 @@
         publicationRunning()?'Du kan velge saker til neste pulje mens publiseringen kjører. Valgene beholdes i denne fanen og kan sendes til privat lagring etterpå.':
         active()?'En privat kontrolljobb pågår. Vent eller hent status senere. Du kan logge ut.':
         blocked()?'Jobbstatus må avklares før nye avgjørelser kan sendes.':
-        stale()?'Kildegrunnlaget må kontrolleres før du kan lagre nye avgjørelser.':
-        publishing()?'En pågående publiseringskontroll sperrer nye avgjørelser.':
+        publishing()?'Avklar publiseringen før du fortsetter med nye avgjørelser. Se status under Publisering av identitet.':
+        stale()?(reload.hidden?'Kontroller ny historikkversjon før du gjør flere valg.':'Historikken er klar. Oppdater Personkontroll for å fortsette. Du må logge inn igjen hvis økten har utløpt.'):
         s.pending.size?'Valgene er ulagret. Bruk «Lagre avgjørelser privat», eller angre.':'Velg en avgjørelse på et personkort eller sammenlign resultatene først.';
     }
     async function read(){
@@ -732,7 +733,12 @@
       s.notice=null;await monitor();
       if(s.request)throw Error('Uavklart lagringsforsøk. Kontroller serverstatus før eventuell ny innsending.');
     });
-    const reload=btn('Last inn oppdatert historikk','identityReload',()=>location.reload());
+    const reload=btn('Oppdater Personkontroll','identityReload',()=>{
+      if(s.pending.size){
+        sessionStorage.setItem(draftKey,JSON.stringify([...s.pending.values()]));
+      }
+      location.reload();
+    });
     const check=btn('Kontroller lagrede avgjørelser','identityCheck',async()=>{
       s.notice=null;await identityApi('/identity/check',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
     approve.hidden=true;check.hidden=true;
