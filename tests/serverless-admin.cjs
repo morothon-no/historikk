@@ -1027,7 +1027,11 @@ test('real private processor reports the exact failed snapshot gate after lease 
  const env={GITHUB_ACTIONS:'true',GITHUB_RUN_ID:'123',MOROTHON_BROKER_ORIGIN:'https://worker.example.test',
   MOROTHON_TASK:'b'.repeat(24),MOROTHON_TASK_NONCE:'n'.repeat(43),MOROTHON_CODE_SHA:code,
   ACTIONS_ID_TOKEN_REQUEST_URL:'https://token.actions.githubusercontent.com/oidc',ACTIONS_ID_TOKEN_REQUEST_TOKEN:'synthetic-oidc'};
- for(const mode of ['strict','http']){
+ for(const [mode,expected] of [
+  ['strict','PROTECTION_STRICT'],
+  ['ruleset-missing','PROTECTION_RULESET'],
+  ['ruleset-forbidden','GITHUB_HTTP_403'],
+ ]){
   const calls=[];
   const transport=t.mock.method(globalThis,'fetch',async(url,options={})=>{
    calls.push({url:String(url),method:options.method||'GET'});
@@ -1040,6 +1044,10 @@ test('real private processor reports the exact failed snapshot gate after lease 
    if(String(url)===publicRoot+'compare/'+code+'...'+code)return Response.json({status:'identical',merge_base_commit:{sha:code},files:[]});
    if(String(url)===publicRoot+'branches/main/protection')return mode==='strict'?
     Response.json({required_status_checks:{strict:false}}):Response.json({message:'synthetic-provider-secret'},{status:403});
+   if(String(url)===publicRoot+'rules/branches/main?per_page=100'){
+    if(mode==='ruleset-missing')return Response.json([]);
+    if(mode==='ruleset-forbidden')return Response.json({message:'synthetic-ruleset-secret'},{status:403});
+   }
    throw Error('Unexpected synthetic route');
   });
   const output=[];
@@ -1048,9 +1056,10 @@ test('real private processor reports the exact failed snapshot gate after lease 
     reportFailure(error,s=>output.push(s));return true;
    });
   }finally{transport.mock.restore();}
-  assert.equal(output[0],mode==='strict'?'Privat prosessorkontroll: PROTECTION_STRICT':'Privat prosessorkontroll: GITHUB_HTTP_403');
+  assert.equal(output[0],'Privat prosessorkontroll: '+expected);
   assert.equal(output[1],'Privat prosessorfase: public-snapshot/main-protection');
   assert.equal(output.some(s=>/synthetic-|Bearer|private-state/.test(s)),false);
+  assert.equal(calls.some(c=>c.url===publicRoot+'rules/branches/main?per_page=100'),mode!=='strict');
   assert.equal(calls.filter(c=>c.method!=='GET').length,1,'Only the existing source-bound lease may POST; no result/approval write occurs');
  }
 });
