@@ -238,7 +238,7 @@
     finally{clearTimeout(timer);}
   }
   // Separate UI, same authenticated transport and existing Corrections engine.
-  // Only server-confirmed packages populate this list; no browser storage.
+  // Server-confirmed packages remain authoritative for saved decisions.
   async function mountIdentity() {
     if (identityMounted || !identityContext || !principal?.identityPersistence || !protectedPortal) return;
     // Do not permanently latch a broken Personkontroll mount if the initial
@@ -257,6 +257,27 @@
     }
     const MAX_SESSION_DECISIONS=50,REQUEST_TIMEOUT_MS=20000,MONITOR_TIMEOUT_MS=120000;
     const s={saved:null,busy:true,notice:null,scope:'pending',query:'',selected:null,selectedCase:null,request:null,pending:new Map(),deferred:new Set(),version:0};
+    const draftKey='morothon-personkontroll-next-'+principal.userId;
+    let keepNext=false;
+    const keyFor=ids=>[...ids].sort().join(':');
+    try{
+      const drafts=JSON.parse(sessionStorage.getItem(draftKey)||'[]');
+      for(const command of drafts.slice(0,MAX_SESSION_DECISIONS)){
+        if(command.format!=='morothon-identity-decision-v1'||!Array.isArray(command.personIds))continue;
+        const key=keyFor(command.personIds);
+        s.pending.set(key,command);
+        if(command.kind==='defer')s.deferred.add(key);
+        keepNext=true;
+      }
+    }catch{}
+    const persistNext=()=>{
+      if(!keepNext)return;
+      try{
+        if(s.pending.size)sessionStorage.setItem(draftKey,JSON.stringify([...s.pending.values()]));
+        else sessionStorage.removeItem(draftKey);
+      }catch{}
+    };
+    const needsReview=command=>JSON.stringify(command.base)!==JSON.stringify(base);
     const panel=node('section');panel.className='panel';panel.id='identityService';
     const status=node('p');status.id='identityServiceStatus';status.setAttribute('role','status');
     const counts=node('div');counts.id='identityServiceCounts';counts.className='identity-counts';
@@ -272,17 +293,20 @@
     const select=(options,value,id)=>{const e=node('select');e.id=id;
       for(const [key,label] of options){const o=node('option',label);o.value=key;e.append(o);}if(value!==undefined)e.value=value;return e;};
     const input=(id,value='')=>{const e=node('input');e.id=id;e.value=value;return e;};
-    const btn=(label,id,fn,{readOnly=false}={})=>{const e=node('button',label);e.type='button';e.id=id;e.className='secondary';
+    const btn=(label,id,fn,{readOnly=false,draftEdit=false}={})=>{const e=node('button',label);e.type='button';e.id=id;e.className='secondary';
       if(readOnly)e.dataset.readOnly='true';
-      e.onclick=async()=>{if(s.busy&&id!=='identityLogout'&&!readOnly)return;if(!readOnly){s.busy=true;disable();}try{await fn();}catch(error){
+      if(draftEdit)e.dataset.draftEdit='true';
+      e.onclick=async()=>{if(draftEdit&&!canEditDraft())return;const local=readOnly||draftEdit;
+        if(s.busy&&id!=='identityLogout'&&!local)return;if(!local){s.busy=true;disable();}try{await fn();}catch(error){
         s.notice={text:error.message+' Siste serverbekreftede vurderinger er beholdt.',error:true};
-      }finally{if(!readOnly)s.busy=false;renderStatus();disable();}};return e;};
+      }finally{if(!local)s.busy=false;renderStatus();disable();}};return e;};
     const active=()=>['queued','running'].includes(s.saved?.task?.state);
     const unknownTask=()=>s.saved?.task&&!['queued','running','completed','failed','blocked'].includes(s.saved.task.state);
     const blocked=()=>s.saved?.task?.state==='blocked'||unknownTask();
     const stale=()=>s.saved?.stale || s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base);
     const publishing=()=>!!s.saved?.publication?.reversalOf || s.saved?.publication?.locked===true;
     const publicationRunning=()=>active()&&['identity-publication-publish','identity-publication-continue'].includes(s.saved.task.action);
+    const canEditDraft=()=>!!s.saved&&!blocked()&&!s.request&&(publicationRunning()||!s.busy&&!active()&&!publishing()&&!stale());
     const name=id=>model.person(id)?.n || id;
     const deferredCase=c=>c?.status==='review'&&!c.change&&
       c.events.filter(e=>/^identity-(defer|same-person|different-people)$/.test(e.action)).at(-1)?.action==='identity-defer';
@@ -313,7 +337,7 @@
     };
     function disable(){
       for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout'&&button.dataset.readOnly!=='true';
-      submit.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!s.pending.size||!!s.request;
+      submit.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!s.pending.size||!!s.request||[...s.pending.values()].some(needsReview);
       approve.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length||s.saved.status==='review-approved'||
         !s.saved.inspection?.ready||
         s.saved.draft.cases.some(c=>!['handoff','rejected'].includes(c.status));
@@ -322,12 +346,12 @@
       check.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length;
       retry.hidden=!s.request&&!active()&&!blocked();
       for(const button of panel.querySelectorAll('#identityEditor button, .identity-quick-actions button, #identityBatchTray button'))
-        button.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!!s.request;
-      for(const button of panel.querySelectorAll('#identityPublication button, #identityPublicationHistory button'))button.disabled=button.dataset.blocked==='true'||s.busy||active()||blocked()||!!s.request||!!s.pending.size;
+        button.disabled=button===submit?submit.disabled:button.dataset.draftEdit==='true'?!canEditDraft():s.busy||!s.saved||active()||blocked()||stale()||publishing()||!!s.request;
+      for(const button of panel.querySelectorAll('#identityPublication button, #identityPublicationHistory button'))button.disabled=button.dataset.blocked==='true'||s.busy||active()||blocked()||!!s.request||(!!s.pending.size&&!['identityPublicationContinue','identityPublicationCancel'].includes(button.id));
       actionHelp.hidden=!!s.saved&&!s.request&&!active()&&!blocked()&&!stale()&&!publishing();
       actionHelp.textContent=!s.saved?'Hent privat status før du velger avgjørelser.':
         s.request?'Valgene er låst mens lagringen avklares. «Hent status» sender ikke avgjørelsene på nytt.':
-        publicationRunning()?'Du kan sammenligne profiler og bruke resten av Admin mens publiseringen kjører. Nye avgjørelser kan lagres når publiseringen er avklart.':
+        publicationRunning()?'Du kan velge saker til neste pulje mens publiseringen kjører. Valgene beholdes i denne fanen og kan sendes til privat lagring etterpå.':
         active()?'En privat kontrolljobb pågår. Vent eller hent status senere. Du kan logge ut.':
         blocked()?'Jobbstatus må avklares før nye avgjørelser kan sendes.':
         stale()?'Kildegrunnlaget må kontrolleres før du kan lagre nye avgjørelser.':
@@ -340,6 +364,15 @@
         !Number.isSafeInteger(current.revision)||current.revision<0)
         throw Error('Uventet identitetsstatus. Ingen ny vurdering er bekreftet.');
       s.saved=current;
+      if(keepNext&&!s.request&&current.draft?.cases.length){
+        const events=new Set(current.draft.cases.flatMap(c=>c.events.map(e=>e.action)));
+        for(const [key,command] of s.pending){
+          if(events.has('request-'+await C.hash({...command,personIds:[...command.personIds].sort()}))){
+            s.pending.delete(key);s.deferred.delete(key);
+          }
+        }
+        persistNext();
+      }
       const confirmations=s.request?.commands&&current.revision>s.request.expectedRevision ?
         await Promise.all(s.request.commands.map(async command=>{
           const marker='request-'+await C.hash({...command,personIds:[...command.personIds].sort()});
@@ -348,6 +381,7 @@
       if(confirmations?.length&&confirmations.every(Boolean)){
         for(const command of s.request.commands){const key=[...command.personIds].sort().join(':');s.pending.delete(key);s.deferred.delete(key);}
         s.request=null;
+        persistNext();
         s.notice=null;
       }
       await render();
@@ -369,12 +403,14 @@
       }
     }
     function choose(kind,ids,mainPersonId=null,nameValue=null,source='Arrangørens private personkontroll.',reason='Personidentiteten er kontrollert av arrangøren.'){
-      if(!s.saved||stale()||active()||blocked()||publishing()||s.request)throw Error('Fullfør eller avklar lagringen og publiseringen før du endrer økten.');
+      if(!canEditDraft())throw Error('Vent til status er avklart før du endrer valgene.');
+      if(publicationRunning())keepNext=true;
       const key=[...ids].sort().join(':');
       if(!s.pending.has(key)&&s.pending.size>=MAX_SESSION_DECISIONS)
         throw Error('En økt kan inneholde høyst '+MAX_SESSION_DECISIONS+' personavgjørelser. Send de valgte avgjørelsene samlet før du legger til flere.');
       s.pending.set(key,intent(kind,ids,mainPersonId,nameValue,source,reason));
       if(kind==='defer')s.deferred.add(key);else s.deferred.delete(key);
+      persistNext();
       s.notice=null;
       return render();
     }
@@ -383,6 +419,7 @@
       if(s.pending.size>MAX_SESSION_DECISIONS)throw Error('Maksimalt '+MAX_SESSION_DECISIONS+' avgjørelser kan sendes i én økt.');
       if(stale()||active()||publishing()||s.request)throw Error('Kontroller forrige innsending eller publisering først.');
       const commands=[...s.pending.values()];
+      if(commands.some(needsReview))throw Error('Gjennomgå valgene som er gjort mot forrige historikk, før du lagrer.');
       s.request={commands,expectedRevision:s.saved.revision};
       s.notice={text:'Lagring pågår. Sender '+commands.length+' avgjørelser til felles privat kontroll. Ingen er bekreftet lagret ennå.'};renderStatus();
       try {
@@ -462,17 +499,17 @@
         editor.append(field('Hovednavn ved sammenslåing',main),node('p','Alle registreringer og gamle lenker bevares. Deltakelser, merker og øvrige konsekvenser kontrolleres på serveren.'));
         editor.append(btn('Samme person – legg i økten','identitySame',async()=>{
           if(!main.value)throw Error('Velg hvilket hovednavn som skal beholdes.');
-          return choose('same-person',ids,main.value,null,source.value,reason.value);}),
+          return choose('same-person',ids,main.value,null,source.value,reason.value);},{draftEdit:true}),
         btn('Forskjellige personer – legg i økten','identityDifferent',async()=>{
-          return choose('different-people',ids,null,null,source.value,reason.value);}),
+          return choose('different-people',ids,null,null,source.value,reason.value);},{draftEdit:true}),
         btn('Undersøk senere – legg i økten','identityLater',()=>{
-          return choose('defer',ids,null,null,source.value,reason.value);}));
+          return choose('defer',ids,null,null,source.value,reason.value);},{draftEdit:true}));
       }
       const other=node('details');other.append(node('summary','Hovednavn og alias uten sammenslåing'));
       const target=select(ids.map(id=>[id,name(id)]),ids[0],'identityNameTarget'),value=input('identityNewName');value.maxLength=200;
       other.append(field('Profil',target),field('Navn eller alias',value),
-        btn('Legg navneendring i økten','identityRename',()=>choose('rename',[target.value],null,value.value,source.value,reason.value)),
-        btn('Legg alias i økten','identityAlias',()=>choose('alias',[target.value],null,value.value,source.value,reason.value)));
+        btn('Legg navneendring i økten','identityRename',()=>choose('rename',[target.value],null,value.value,source.value,reason.value),{draftEdit:true}),
+        btn('Legg alias i økten','identityAlias',()=>choose('alias',[target.value],null,value.value,source.value,reason.value),{draftEdit:true}));
       editor.append(other);disable();
     }
     async function render(){
@@ -497,15 +534,16 @@
       const selections=node('div');selections.className='identity-selection-list';
       for(const [key,cmd] of s.pending){
         const entry=node('div');entry.className='identity-batch-entry';
-        entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · Ulagret avgjørelse · '+({ 'same-person':'Samme person – hovednavn: '+(cmd.kind==='same-person'?name(cmd.mainPersonId):''),'different-people':'Forskjellige personer',defer:'Undersøk senere',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
-          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);s.notice=null;return render();}));selections.append(entry);
+        entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · '+(needsReview(cmd)?'Kontroller på nytt':'Ulagret avgjørelse')+' · '+({ 'same-person':'Samme person – hovednavn: '+(cmd.kind==='same-person'?name(cmd.mainPersonId):''),'different-people':'Forskjellige personer',defer:'Undersøk senere',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
+          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);persistNext();s.notice=null;return render();},{draftEdit:true}));selections.append(entry);
       }
+      if([...s.pending.values()].some(needsReview))tray.append(node('p','Historikken er oppdatert. Søk opp sakene og velg på nytt, eller bruk Angre for å fjerne et valg.'));
       tray.append(selections,submit);
       list.replaceChildren();
       const rows=work.identity.filter(c=>{
         const key=[...c.personIds].sort().join(':'),deferred=s.deferred.has(key);
         const visible=s.scope==='all'||(s.scope==='followup'?deferred||c.bucket==='followup':
-          s.scope==='pending'?c.bucket==='pending'&&!s.pending.has(key):
+          s.scope==='pending'?c.bucket==='pending'&&(!s.pending.has(key)||needsReview(s.pending.get(key))):
           s.scope==='rejected'?c.caseStatus==='rejected':
           c.bucket===s.scope&&(s.scope!=='finished'||c.caseStatus!=='rejected'));
         return visible&&[c.reason,...c.personIds.map(name)].join(' ').toLocaleLowerCase('nb-NO').includes(s.query.toLocaleLowerCase('nb-NO'));
@@ -542,19 +580,19 @@
               return choose('same-person',c.personIds,main.value,null,
                 'Arrangørbekreftelse i beskyttet personkontroll.',
                 'Arrangøren bekrefter at profilene gjelder samme person.');
-            }),
+            },{draftEdit:true}),
             btn('Forskjellige personer','identityQuickDifferent-'+c.id,()=>{
               return choose('different-people',c.personIds,null,null,
                 'Arrangørbekreftelse i beskyttet personkontroll.',
                 'Arrangøren bekrefter at profilene gjelder forskjellige personer.');
-            })
+            },{draftEdit:true})
           );
           if(!stored)quick.append(btn(s.deferred.has([...c.personIds].sort().join(':'))?'Angre utsettelse':'Undersøk senere',
               'identityQuickLater-'+c.id,()=>{
                 const key=[...c.personIds].sort().join(':');
-                if(s.deferred.has(key)){s.pending.delete(key);s.deferred.delete(key);s.notice=null;return render();}
+                if(s.deferred.has(key)){s.pending.delete(key);s.deferred.delete(key);persistNext();s.notice=null;return render();}
                 return choose('defer',c.personIds,null,null,'Arrangørens private personkontroll.','Saken må undersøkes nærmere før identiteten avgjøres.');
-              })
+              },{draftEdit:true})
           );
           card.append(quick);
         }
@@ -573,7 +611,7 @@
     async function publicationAction(action,extra={}){
       if(principal?.identityPublicationEnabled!==true||s.saved?.publication?.enabled!==true)
         throw Error('Identitetspublisering er ikke aktivert.');
-      if(s.pending.size||s.request)throw Error('Lagre eller angre valgene i økten før publiseringskontroll.');
+      if(s.request||s.pending.size&&!['continue','cancel'].includes(action))throw Error('Lagre eller angre valgene i økten før publiseringskontroll.');
       await identityApi('/identity/publication/'+action,{expectedRevision:s.saved.revision,
         expectedDigest:s.saved.publication.digest,...extra});
       if(action==='publish'||action==='continue')await monitor(45*60*1000,12000);
@@ -1126,6 +1164,7 @@
         });
         if (!response.ok)
           throw Error("Utlogging kunne ikke bekreftes. Prøv igjen.");
+        try{sessionStorage.removeItem('morothon-personkontroll-next-'+principal.userId);}catch{}
         sessionToken = null;
         principal = null;
         saved = null;
