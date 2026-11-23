@@ -714,6 +714,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
       pages: write
       id-token: write
     concurrency:
@@ -735,6 +736,21 @@ jobs:
         with:
           name: github-pages-${{ github.run_attempt }}
           path: _site/
+      - name: Wait for uploaded Pages artifact to appear in Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: github-pages-${{ github.run_attempt }}
+        run: |
+          for attempt in {1..12}; do
+            if count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+              --method GET -f name="$ARTIFACT_NAME" --jq '[.artifacts[] | select(.expired == false)] | length') &&
+              [[ "$count" == 1 ]]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::The Pages artifact for this run attempt was not visible in Actions within one minute."
+          exit 1
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
