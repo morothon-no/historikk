@@ -5,6 +5,13 @@ const {PATHS}=require('./result-release.cjs');
 const {hash}=require('../../tools/diploma-admin/result-release-data.cjs');
 const REPO='morothon-no/historikk',WORKFLOW='pages.yml';
 const VARIABLE_NAMES=['MOROTHON_PUBLIC_DATA_SHA256','MOROTHON_REVIEWED_POLICY_HEAD'];
+const REQUIRED_CHECKS=['Public-safe source regression','Trusted policy and test plan',
+ 'Public package, policy and site build','Independent trusted artifact gate'];
+const PROTECTION_MESSAGE='Main må kreve oppdatert PR, pull request og obligatoriske tester også for administratorer.';
+function requireChecks(names){
+ for(const name of REQUIRED_CHECKS)if(!names.includes(name))throw snapshotFailure('Main mangler påkrevd status: '+name+'.','PROTECTION_CHECKS');
+ return names;
+}
 const snapshotFailure=(message,reason)=>Object.assign(Error(message),{publicSnapshotReason:reason});
 function createInstallationApi({appId,installationId,privateKey,fetchImpl=fetch,clock=Date.now}){
  if(!/^\d+$/.test(appId||'')||!/^\d+$/.test(installationId||'')||!privateKey)throw Error('GitHub App, installasjon og privat servernøkkel må konfigureres.');
@@ -37,15 +44,51 @@ function createGitHubPublisher({api,codeSha,appId}={}){
   const comparison=await get('compare/'+codeSha+'...'+sha);
   if(!['ahead','identical'].includes(comparison.status)||comparison.merge_base_commit?.sha!==codeSha||!Array.isArray(comparison.files)||comparison.files.some(f=>!PATHS.includes(f.filename)))throw snapshotFailure('Main har nyere kode eller sikkerhetsregler. Oppdater den betrodde adminversjonen først.','SOURCE_VERSION');
  }
+ async function rulesetProtection(){
+  // Effective rules prove the rule set applies to main. Rule-set details are
+  // also required because the effective-rules endpoint omits bypass actors.
+  const effective=await get('rules/branches/main?per_page=100');
+  const candidates=Array.isArray(effective)&&effective.length<100
+   ? effective.filter(rule=>rule.ruleset_source_type==='Repository'&&rule.ruleset_source===REPO&&
+     Number.isSafeInteger(rule.ruleset_id)&&rule.ruleset_id>0)
+   : [];
+  const ids=[...new Set(candidates.filter(rule=>rule.type==='required_status_checks').map(rule=>rule.ruleset_id))];
+  if(ids.length!==1)throw snapshotFailure('Ett gjeldende regelsett for obligatoriske kontroller på main må kunne verifiseres.','PROTECTION_RULESET');
+  const id=ids[0],policy=await get('rulesets/'+id);
+  if(policy?.id!==id||policy.source!==REPO||policy.source_type!=='Repository'||
+     policy.target!=='branch'||policy.enforcement!=='active'||!Array.isArray(policy.rules))
+   throw snapshotFailure(PROTECTION_MESSAGE,'PROTECTION_RULESET');
+  if(!Array.isArray(policy.bypass_actors)||policy.bypass_actors.length!==0)
+   throw snapshotFailure('Regelsettet for main må bekrefte at ingen aktører kan omgå det.','PROTECTION_BYPASS');
+  const applies=type=>candidates.some(rule=>rule.ruleset_id===id&&rule.type===type);
+  if(!applies('pull_request')||!policy.rules.some(rule=>rule.type==='pull_request'))
+   throw snapshotFailure(PROTECTION_MESSAGE,'PROTECTION_REVIEWS');
+  const strictChecks=rules=>rules.filter(rule=>rule.type==='required_status_checks'&&
+   rule.parameters?.strict_required_status_checks_policy===true&&
+   Array.isArray(rule.parameters.required_status_checks));
+  const activeChecks=strictChecks(candidates.filter(rule=>rule.ruleset_id===id));
+  const detailedChecks=strictChecks(policy.rules);
+  if(activeChecks.length!==1||detailedChecks.length!==1)
+   throw snapshotFailure(PROTECTION_MESSAGE,'PROTECTION_STRICT');
+  const checks=rules=>rules[0].parameters.required_status_checks.map(check=>check?.context).filter(name=>typeof name==='string');
+  const detailedNames=new Set(checks(detailedChecks));
+  const names=[...new Set(checks(activeChecks).filter(name=>detailedNames.has(name)))];
+  return requireChecks(names);
+ }
  async function protection(){
-  const p=await get('branches/main/protection');
-  const message='Main må kreve oppdatert PR, pull request og obligatoriske tester også for administratorer.';
-  if(p.required_status_checks?.strict!==true)throw snapshotFailure(message,'PROTECTION_STRICT');
-  if(p.enforce_admins?.enabled!==true)throw snapshotFailure(message,'PROTECTION_ADMINS');
-  if(!p.required_pull_request_reviews)throw snapshotFailure(message,'PROTECTION_REVIEWS');
+  let p;
+  try{p=await get('branches/main/protection');}
+  catch(error){
+   if(![403,404].includes(error.githubStatus))throw error;
+   return rulesetProtection();
+  }
+  if(p.required_status_checks?.strict!==true)throw snapshotFailure(PROTECTION_MESSAGE,'PROTECTION_STRICT');
+  if(p.enforce_admins?.enabled!==true)throw snapshotFailure(PROTECTION_MESSAGE,'PROTECTION_ADMINS');
+  if(!p.required_pull_request_reviews)throw snapshotFailure(PROTECTION_MESSAGE,'PROTECTION_REVIEWS');
   const names=[...new Set([...(p.required_status_checks.contexts||[]),...(p.required_status_checks.checks||[]).map(c=>c.context)])];
-  for(const name of ['Public-safe source regression','Trusted policy and test plan','Public package, policy and site build','Independent trusted artifact gate'])if(!names.includes(name))throw snapshotFailure('Main mangler påkrevd status: '+name+'.','PROTECTION_CHECKS');
-  if((p.required_pull_request_reviews.bypass_pull_request_allowances?.apps||[]).some(a=>String(a.id)===String(appId)))throw snapshotFailure('Publiseringsappen må ikke ha unntak fra PR-beskyttelsen.','PROTECTION_BYPASS');return names;
+  requireChecks(names);
+  if((p.required_pull_request_reviews.bypass_pull_request_allowances?.apps||[]).some(a=>String(a.id)===String(appId)))throw snapshotFailure('Publiseringsappen må ikke ha unntak fra PR-beskyttelsen.','PROTECTION_BYPASS');
+  return names;
  }
  async function variable(name){if(!VARIABLE_NAMES.includes(name))throw Error('Ukjent godkjenningsvariabel.');return (await get('actions/variables/'+name,{allow404:true}))?.value??null;}
  async function setVariable(name,value,previous){

@@ -7,6 +7,7 @@ test('private source reads need only green approved public data; protection 404 
  const f=await fakeGitHub(t),{job}=await plan(f);let block=true;
  const adapter=createGitHubPublisher({codeSha:f.codeSha,appId:'123',api:async(route,options)=>{
   if(block&&route.endsWith('/branches/main/protection'))throw Object.assign(Error('Synthetic absent classic rule'),{githubStatus:404});
+  if(route.includes('/rules/branches/main'))return [];
   return f.api(route,options);
  }});
  f.calls.length=0;const stages=[],source=await adapter.readApprovedSource({onStage:s=>stages.push(s)});
@@ -16,12 +17,60 @@ test('private source reads need only green approved public data; protection 404 
  assert.deepEqual(stages,['main-ref','source-version','main-ci','approved-files']);
  assert.ok(f.calls.every(c=>c.method==='GET'&&!c.path.includes('protection')&&!c.path.includes('actions/variables')));
  assert.equal(f.prs.length,0);
- await assert.rejects(()=>adapter.snapshot(),e=>e.githubStatus===404);
- await assert.rejects(()=>adapter.submit(job),e=>e.githubStatus===404);assert.equal(f.prs.length,0);
+ await assert.rejects(()=>adapter.snapshot(),e=>e.publicSnapshotReason==='PROTECTION_RULESET');
+ await assert.rejects(()=>adapter.submit(job),e=>e.publicSnapshotReason==='PROTECTION_RULESET');assert.equal(f.prs.length,0);
  block=false;job.remote=await adapter.submit(job);block=true;
  const writes=f.calls.filter(c=>c.method!=='GET').length;
- await assert.rejects(()=>adapter.advance(job),e=>e.githubStatus===404);
+ await assert.rejects(()=>adapter.advance(job),e=>e.publicSnapshotReason==='PROTECTION_RULESET');
  assert.equal(f.prs[0].merged,false);assert.equal(f.calls.filter(c=>c.method!=='GET').length,writes);
+});
+test('publication verifies an active main ruleset when classic protection is unavailable',async t=>{
+ const f=await fakeGitHub(t),{job}=await plan(f);
+ const repo='morothon-no/historikk',id=42;
+ const names=['Public-safe source regression','Trusted policy and test plan','Public package, policy and site build','Independent trusted artifact gate'];
+ const rules=[
+  {type:'pull_request',parameters:{required_approving_review_count:0}},
+  {type:'required_status_checks',parameters:{strict_required_status_checks_policy:true,
+   required_status_checks:names.map(context=>({context,integration_id:15368}))}},
+ ];
+ let classicStatus=403;
+ const effective=rules.map(rule=>({...structuredClone(rule),ruleset_id:id,ruleset_source:repo,ruleset_source_type:'Repository'}));
+ const policy={id,source:repo,source_type:'Repository',target:'branch',enforcement:'active',rules,bypass_actors:[]};
+ const adapter=createGitHubPublisher({codeSha:f.codeSha,appId:'123',api:async(route,options)=>{
+  if(route.endsWith('/branches/main/protection'))throw Object.assign(Error('Classic endpoint'),{githubStatus:classicStatus});
+  if(route.endsWith('/rules/branches/main?per_page=100'))return effective;
+  if(route.endsWith('/rulesets/'+id))return policy;
+  return f.api(route,options);
+ }});
+ for(const status of [403,404]){
+  classicStatus=status;
+  assert.equal((await adapter.snapshot()).sha,f.codeSha);
+ }
+ classicStatus=429;
+ await assert.rejects(adapter.snapshot,e=>e.githubStatus===429);
+ classicStatus=404;
+ delete policy.bypass_actors;
+ await assert.rejects(()=>adapter.submit(job),e=>e.publicSnapshotReason==='PROTECTION_BYPASS');
+ policy.bypass_actors=[{actor_id:123,actor_type:'Integration',bypass_mode:'always'}];
+ await assert.rejects(()=>adapter.submit(job),e=>e.publicSnapshotReason==='PROTECTION_BYPASS');
+ policy.bypass_actors=[];
+ policy.enforcement='evaluate';
+ await assert.rejects(()=>adapter.submit(job),e=>e.publicSnapshotReason==='PROTECTION_RULESET');
+ policy.enforcement='active';
+ effective[1].parameters.strict_required_status_checks_policy=false;
+ await assert.rejects(()=>adapter.submit(job),e=>e.publicSnapshotReason==='PROTECTION_STRICT');
+ effective[1].parameters.strict_required_status_checks_policy=true;
+ const removed=effective[1].parameters.required_status_checks.pop();
+ await assert.rejects(()=>adapter.submit(job),e=>e.publicSnapshotReason==='PROTECTION_CHECKS');
+ effective[1].parameters.required_status_checks.push(removed);
+ assert.equal(f.prs.length,0);
+ assert.ok(f.calls.every(c=>c.method==='GET'));
+ job.remote=await adapter.submit(job);
+ effective.shift();
+ const writes=f.calls.filter(c=>c.method!=='GET').length;
+ await assert.rejects(()=>adapter.advance(job),e=>e.publicSnapshotReason==='PROTECTION_REVIEWS');
+ assert.equal(f.prs[0].merged,false);
+ assert.equal(f.calls.filter(c=>c.method!=='GET').length,writes);
 });
 test('private source cannot opt out of green main or use changed code',async t=>{
  const f=await fakeGitHub(t);
