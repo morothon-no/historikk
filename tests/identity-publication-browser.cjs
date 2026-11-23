@@ -51,31 +51,36 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  }
  function type(name){return ({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff':'font/woff','.ico':'image/x-icon'})[path.extname(name)]||'application/octet-stream';}
  let {page,context,session}=await open();
- async function action(button,route){const response=page.waitForResponse(r=>new URL(r.url()).pathname===route&&r.request().method()==='POST');await page.click(button);
+ const posted=route=>page.waitForResponse(r=>new URL(r.url()).pathname===route&&r.request().method()==='POST');
+ async function processResponse(response){
   assert.equal((await response).status(),202,JSON.stringify(traffic.slice(-6)));const result=await f.processNext();
   if(!result.completed){const q=await f.control.get('queue-sogne-morothon'),task=await f.control.get('task-'+q.taskId);
    assert.fail(JSON.stringify({verificationFailure,error:task?.error}));}
-  await page.click('#identityRefresh');await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled);}
+ }
+ async function action(button,...routes){
+  const responses=routes.map(posted);await page.click(button);
+  for(const response of responses)await processResponse(response);
+  await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
+ }
  const first=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
  await first.locator('select[id^="identityQuickMain-"]').selectOption('MOR-C220002');await first.getByRole('button',{name:'Samme person',exact:true}).click();
  await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Samme Navn'}).getByRole('button',{name:'Forskjellige personer',exact:true}).click();
- await action('#identityBatchSubmit','/identity/batch');assert.equal(f.remote.merged,0);
- await action('#identityPublicationCheck','/identity/publication/check');
+ await action('#identityBatchSubmit','/identity/batch','/identity/publication/check');assert.equal(f.remote.merged,0);
  assert.match(await page.locator('#identityPublication').textContent(),/Syntetisk Kari N. Nord · 5 deltakelser/);
- assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),false);
+ assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),true);
  for(const width of [1440,768,390]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'No overflow at '+width);
   if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR){await fs.mkdir(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,{recursive:true});await page.locator('#identityPublication').screenshot({path:path.join(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,'for-etter-'+width+'.png')});}}
  await page.setViewportSize({width:1440,height:1000});
- await action('#identityPublicationApprove','/identity/publication/approve');assert.match(await page.locator('#identityPublicationStatus').textContent(),/Godkjent – ikke publisert/);assert.equal(f.remote.merged,0);
- f.remote.checks='success';f.remote.deploy='success';await action('#identityPublicationPublish','/identity/publication/publish');
+ assert.equal(f.remote.merged,0);
+ f.remote.checks='success';f.remote.deploy='success';await action('#identityPublicationPublish','/identity/publication/approve','/identity/publication/publish');
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);assert.equal(f.remote.merged,1);
  assert.deepEqual(f.context.history.results,original.results);assert.equal(f.context.history.redirects['MOR-C220001'],'MOR-C220002');
  await page.click('#identityLogout');await context.close();f.restart();({page,context}=await open(390));
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);
  await action('#identityPublicationReverse','/identity/publication/reverse');assert.equal(f.remote.merged,1);
- assert.match(await page.locator('#identityPublicationStatus').textContent(),/Kontrollert – klar for din godkjenning/,'a reversal preview must not inherit the previous published label');
- assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),false);
- await action('#identityPublicationApprove','/identity/publication/approve');await action('#identityPublicationPublish','/identity/publication/publish');
+ assert.match(await page.locator('#identityPublicationStatus').textContent(),/Kontrollert – klar til publisering/,'a reversal preview must not inherit the previous published label');
+ assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),true);
+ await action('#identityPublicationPublish','/identity/publication/approve','/identity/publication/publish');
  assert.equal(f.remote.merged,2);assert.deepEqual(f.context.history,original);assert.deepEqual(errors,[]);
  const raw=await f.identities.get('sogne-morothon');assert.equal(raw.draft.cases.length,1);assert.equal(raw.draft.cases[0].status,'rejected');
  // Correct JSON is insufficient if the rendered panel shows another name.

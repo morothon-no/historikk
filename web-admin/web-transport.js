@@ -347,12 +347,12 @@
       }
       await render();
     }
-    async function monitor(){
-      const end=Date.now()+MONITOR_TIMEOUT_MS;
-      for(;;){await read();if(!active())break;
+    async function monitor(duration=MONITOR_TIMEOUT_MS,interval=4000){
+      const end=Date.now()+duration;
+      while(panel.isConnected){await read();if(!active())break;
         if(Date.now()>=end)throw Error('Kontrollen pågår fortsatt. Hent status senere; ingen ny innsending er nødvendig.');
-        await new Promise(resolve=>setTimeout(resolve,4000));}
-      checkTask();
+        await new Promise(resolve=>setTimeout(resolve,interval));}
+      if(panel.isConnected)checkTask();
     }
     function checkTask(){
       if(unknownTask())throw Error('Serveren returnerte en ukjent jobbstatus. Hent status senere; ingen ny lagring er bekreftet.');
@@ -394,6 +394,12 @@
       if(s.request)throw Error('Ingen samlet lagringskvittering er mottatt. Hent ny status.');
       s.selected=null;s.selectedCase=null;editor.replaceChildren();
       await render();
+      if(panel.isConnected&&commands.some(command=>command.kind==='same-person')&&
+        principal?.identityPublicationEnabled===true&&s.saved.publication?.enabled===true&&!stale()&&!publishing()){
+        s.notice={text:'Avgjørelsene er lagret privat. Kontrollerer før og etter.'};renderStatus();
+        try{await publicationAction('check');s.notice=null;}
+        catch(error){throw Error('Avgjørelsene er lagret privat. Før-/etter-kontrollen kunne ikke fullføres. '+error.message);}
+      }
     }
     function intent(kind,ids,mainPersonId,nameValue,source,reason){return {
       format:'morothon-identity-decision-v1',version:1,id:'identity-'+crypto.randomUUID(),base,
@@ -562,10 +568,11 @@
       if(principal?.identityPublicationEnabled!==true||s.saved?.publication?.enabled!==true)
         throw Error('Identitetspublisering er ikke aktivert.');
       if(s.pending.size||s.request)throw Error('Lagre eller angre valgene i økten før publiseringskontroll.');
-      s.notice=null;
       await identityApi('/identity/publication/'+action,{expectedRevision:s.saved.revision,
         expectedDigest:s.saved.publication.digest,...extra});
-      await monitor();
+      if(action==='publish'||action==='continue')await monitor(45*60*1000,12000);
+      else await monitor();
+      s.notice=null;
     }
     function renderPublication(){
       publicationPanel.replaceChildren();
@@ -579,9 +586,9 @@
       const unresolvedJob=job&&!['published','cancelled','prepared'].includes(job.stage);
       const privateChanges=p.reversalOf || s.saved.draft?.cases.some(c=>c.change&&c.status!=='rejected');
       const message=node('p',unresolvedJob?label[job.stage]:s.saved.status==='review-approved'&&s.saved.approval?.scope==='identity-publication'?
-        'Godkjent – ikke publisert. Bekreft publisering som en egen handling.':r?.ready?'Kontrollert – klar for din godkjenning.':
-        privateChanges?'Lagret privat. Kontroller før-/etter-visningen før du godkjenner.':label[job?.stage]||
-        'Lagret privat. Kontroller før-/etter-visningen før du godkjenner.');
+        'Godkjent – ikke publisert. Bekreft publisering som en egen handling.':r?.ready?'Kontrollert – klar til publisering.':
+        privateChanges?'Lagret privat. Kontroller før-/etter-visningen før publisering.':label[job?.stage]||
+        'Lagret privat. Kontroller før-/etter-visningen før publisering.');
       message.id='identityPublicationStatus';message.setAttribute('role','status');publicationPanel.append(message);
       if(job?.error)publicationPanel.append(node('p',job.error));
       if(r){
@@ -612,14 +619,19 @@
       const actions=node('div');actions.className='actions';
       const control=(title,id,action,disabled)=>{const b=btn(title,id,action);b.disabled=!!disabled;b.dataset.blocked=String(!!disabled);actions.append(b);};
       control('Kontroller før / etter','identityPublicationCheck',()=>publicationAction('check'),stale()||publishing()&&!p.reversalOf);
-      control('Godkjenn kontrollerte endringer','identityPublicationApprove',()=>{
-        if(confirm('Godkjenne nøyaktig denne serverkontrollerte før-/etter-visningen? Dette publiserer ikke ennå.'))
-          return publicationAction('approve',{candidateDigest:r.candidateDigest});
-      },stale()||p.locked||!r?.ready||s.saved.status==='review-approved');
-      control(p.reversalOf?'Bekreft og publiser tilbakeføring':'Bekreft og publiser identitet','identityPublicationPublish',()=>{
-        if(confirm('Publisere nøyaktig de godkjente identitetsendringene? Sikkerhetskopi, tester og offentlig etterkontroll kreves.'))
-          return publicationAction('publish',{confirmation:true});
-      },stale()||p.locked||!r?.ready||s.saved.status!=='review-approved'||s.saved.approval?.scope!=='identity-publication'||!!job&&!['published','cancelled','failed','prepared'].includes(job.stage));
+      control(p.reversalOf?'Bekreft og publiser tilbakeføring':'Bekreft og publiser identitet','identityPublicationPublish',async()=>{
+        if(!confirm('Godkjenne og publisere nøyaktig endringene i denne før-/etter-visningen? Sikkerhetskopi, tester og offentlig etterkontroll kreves.'))return;
+        const candidateDigest=r.candidateDigest;
+        const revision=s.saved.revision;
+        const approved=s.saved.status==='review-approved'&&s.saved.approval?.scope==='identity-publication';
+        if(!approved)await publicationAction('approve',{candidateDigest});
+        if(!panel.isConnected)return;
+        if(stale()||s.saved.revision!==revision+(approved?0:1)||
+          s.saved.status!=='review-approved'||s.saved.approval?.scope!=='identity-publication'||
+          s.saved.approval?.candidateDigest!==candidateDigest||s.saved.publication?.review?.candidateDigest!==candidateDigest)
+          throw Error('Godkjent før-/etter-grunnlag kunne ikke bekreftes. Hent status før publisering.');
+        await publicationAction('publish',{confirmation:true});
+      },stale()||p.locked||!r?.ready||!!job&&!['published','cancelled','failed','prepared'].includes(job.stage));
       if(job&&!['published','cancelled'].includes(job.stage)&&(job.stage!=='prepared'||p.locked))control('Fortsett publiseringskontroll','identityPublicationContinue',()=>publicationAction('continue'),false);
       if(p.reversalOf||s.saved.approval?.scope==='identity-publication')control('Avbryt godkjenning / tilbakeføringsutkast','identityPublicationCancel',()=>publicationAction('cancel'),p.locked);
       if(job?.stage==='published'&&!p.reversalOf)control('Forbered tilbakeføring','identityPublicationReverse',()=>{
@@ -668,7 +680,7 @@
       const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);}));
     panel.append(node('h2','Personkontroll'),node('p','Identiteter, hovednavn og alias. Resultatimport og resultatkorrigeringer behandles under Årets arrangement.'),
       node('p','Velg raskt eller sammenlign nøye. «Lagre avgjørelser privat» sender valgene samlet til serverkontroll. '+(principal?.identityPublicationEnabled===true?
-        'Publisering krever separat før-/etter-kontroll, godkjenning og bekreftelse.':'Offisiell identitetspublisering er ennå ikke aktivert.')),status,controls,actionHelp,tray,counts,publicationPanel,
+        'Se før-/etter-visningen og bekreft endringene før publisering.':'Offisiell identitetspublisering er ennå ikke aktivert.')),status,controls,actionHelp,tray,counts,publicationPanel,
       field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
     workspace().usePrivateIdentities?.();
@@ -680,6 +692,12 @@
     // the authenticated shell. A queued job is readable state, not a login gate.
     try{await read();if(!active())checkTask();}catch(error){s.notice={text:error.message+' Ingen ny lagring er bekreftet.',error:true};}
     finally{s.busy=false;renderStatus();disable();}
+    if(active()&&['identity-publication-publish','identity-publication-continue'].includes(s.saved.task.action)){
+      s.busy=true;disable();
+      void monitor(45*60*1000,12000).catch(error=>{
+        s.notice={text:error.message,error:true};
+      }).finally(()=>{s.busy=false;renderStatus();disable();});
+    }
   }
   async function login() {
     const verifier = b64(crypto.getRandomValues(new Uint8Array(32))),
