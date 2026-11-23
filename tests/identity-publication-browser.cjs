@@ -98,9 +98,11 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await processResponse(approvalResponse);
  assert.equal((await publish).status(),202);
  await page.waitForFunction(()=>document.querySelector('#identityPublication').textContent.includes('Jobben fortsetter'));
+ await page.selectOption('#identityFilter','finished');
+ await page.locator('#identityWorklist .identity-quick-compare:visible').first().waitFor();
  assert.equal(await page.locator('#identityWorklist .identity-quick-compare:visible').first().isEnabled(),true);
  await page.locator('#identityWorklist .identity-quick-compare:visible').first().click();
- assert.equal(await page.locator('#identityWorklist .identity-quick-actions button:visible').first().isDisabled(),true);
+ assert.equal(await page.locator('#identityBatchSubmit').isDisabled(),true);
  await processResponse(publish);
  await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);assert.equal(f.remote.merged,1);
