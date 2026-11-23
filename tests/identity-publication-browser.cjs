@@ -8,7 +8,11 @@ const {createDeploymentVerifier}=require('../scripts/admin/deployment-verifier.c
 const {ADMIN_SOURCES}=require('../scripts/lib/runtime-files.cjs');
 test('protected owner checks, approves, publishes and reverses synthetic identities on responsive screens; real public engines verify old links, counts and unchanged results',{timeout:180000},async t=>{
  let verificationFailure=null;
- const options={pause:async()=>{if(verificationFailure)throw Error('Synthetic verification failed');}},f=await setup(t,{identityPublicationEnabled:true,publicationOptions:options}),original=structuredClone(f.context.history),
+ const history=require('./public/quick/fixtures/corrections-data.js').history();
+ history.people.push({...history.people[4],i:'MOR-C220006',n:'Syntetisk Status Looper',c:1});
+ history.results.push([2023,'MOR-C220006','Morothon','20 km','Fullført','1:50:00',1,'M','','']);
+
+ const options={pause:async()=>{if(verificationFailure)throw Error('Synthetic verification failed');}},f=await setup(t,{identityPublicationEnabled:true,publicationOptions:options,history}),original=structuredClone(f.context.history),
   assets=path.join(path.dirname(f.directory),'identity-publication-browser'),data=path.join(assets,'package'),approval=path.join(assets,'approval.json');
  await fs.mkdir(path.join(data,'data'),{recursive:true});
  async function build(label){
@@ -45,7 +49,7 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
    traffic.push({path:url.pathname,status:response.status});return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.goto(f.origin+'/admin/#personkontroll');
   await page.waitForFunction(()=>document.querySelector('#identityService'));
-  try{await page.waitForFunction(()=>document.querySelector('#identityPublication:not([hidden])'));}
+  try{await page.waitForFunction(()=>document.querySelector('#identityRefresh:enabled'));}
   catch(error){throw Error(error.message+' '+JSON.stringify({errors,traffic:traffic.slice(-15),status:await page.locator('#identityServiceStatus').textContent()}));}
   return {page,context,session};
  }
@@ -63,10 +67,23 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
   await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  }
  const first=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+ assert.equal(await page.locator('#identityBatchTray').isVisible(),false);
+ assert.equal(await page.locator('#identityPublication').isVisible(),false);
+ assert.equal(await page.locator('#identityWorklist').evaluate(e=>Boolean(e.compareDocumentPosition(document.querySelector('#identityServiceCounts'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);
  await first.locator('select[id^="identityQuickMain-"]').selectOption('MOR-C220002');await first.getByRole('button',{name:'Samme person',exact:true}).click();
  await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Samme Navn'}).getByRole('button',{name:'Forskjellige personer',exact:true}).click();
+ await page.getByText('Finn profiler manuelt',{exact:true}).click();
+ await page.fill('#identityManualSearch0','Statusløper');
+ await page.selectOption('#identityManualPerson0','MOR-C220005');
+ await page.fill('#identityManualSearch1','Status Looper');
+ await page.selectOption('#identityManualPerson1','MOR-C220006');
+ await page.click('#identityManualOpen');
+ await page.selectOption('#identityMainPerson','MOR-C220006');
+ await page.click('#identitySame');
+ await page.waitForFunction(()=>document.querySelectorAll('#identityBatchTray .identity-batch-entry').length===3);
  await action('#identityBatchSubmit','/identity/batch','/identity/publication/check');assert.equal(f.remote.merged,0);
  assert.match(await page.locator('#identityPublication').textContent(),/Syntetisk Kari N. Nord · 5 deltakelser/);
+ assert.match(await page.locator('#identityPublication').textContent(),/2 bekreftede sammenslåinger/);
  assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),true);
  for(const width of [1440,768,390]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'No overflow at '+width);
   if(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR){await fs.mkdir(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,{recursive:true});await page.locator('#identityPublication').screenshot({path:path.join(process.env.MOROTHON_IDENTITY_SCREENSHOT_DIR,'for-etter-'+width+'.png')});}}
@@ -74,9 +91,10 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  assert.equal(f.remote.merged,0);
  f.remote.checks='success';f.remote.deploy='success';await action('#identityPublicationPublish','/identity/publication/approve','/identity/publication/publish');
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);assert.equal(f.remote.merged,1);
- assert.deepEqual(f.context.history.results,original.results);assert.equal(f.context.history.redirects['MOR-C220001'],'MOR-C220002');
+ assert.deepEqual(f.context.history.results,original.results);assert.equal(f.context.history.redirects['MOR-C220001'],'MOR-C220002');assert.equal(f.context.history.redirects['MOR-C220005'],'MOR-C220006');
  await page.click('#identityLogout');await context.close();f.restart();({page,context}=await open(390));
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);
+ await page.click('#identityPublicationHistory summary');
  await action('#identityPublicationReverse','/identity/publication/reverse');assert.equal(f.remote.merged,1);
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Kontrollert – klar til publisering/,'a reversal preview must not inherit the previous published label');
  assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),true);
@@ -94,6 +112,6 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
   personIds:['MOR-C220005'],mainPersonId:null,name:'Syntetisk Ekstra Alias'})},session)).status,202);
  assert.equal((await f.processNext()).completed,true);await page.click('#identityRefresh');
  await page.waitForFunction(()=>document.querySelector('#identityPublicationStatus').textContent.startsWith('Lagret privat.'));
- assert.equal(await page.locator('#identityPublicationPublish').isEnabled(),false,'new private work is never labelled or authorized as already published');
+ assert.equal(await page.locator('#identityPublicationPublish').count(),0,'new private work is never labelled or authorized as already published');
  assert.deepEqual(f.context.history,original);assert.equal(f.remote.merged,2);
 });

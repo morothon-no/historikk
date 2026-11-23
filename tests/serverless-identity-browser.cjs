@@ -180,7 +180,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
   }
  }
  await page.setViewportSize({width:768,height:1000});
- await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'}).getByRole('button',{name:'Sammenlign resultater / flere valg'}).click();
+ await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'}).getByRole('button',{name:'Sammenlign profiler'}).click();
  assert.equal(await page.locator('#identityEditor').evaluate(e=>document.activeElement===e),true,'comparison must receive focus');
  assert.equal(await page.locator('#identityEditor').evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=-2&&r.top<innerHeight-60;}),true,'comparison must be scrolled into the visible viewport');
  await page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'}).locator('select[id^="identityQuickMain-"]').selectOption('MOR-C220002');
@@ -202,7 +202,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.ok((await page.locator('#identityServiceCounts').textContent()).includes('1Behandlede'));
  // The remaining identical-name profiles have overlapping starts. A failed
  // server check must not remove them or block a subsequent distinct decision.
- await page.locator('#identityWorklist article').getByRole('button',{name:'Sammenlign resultater / flere valg'}).click();
+ await page.locator('#identityWorklist article').getByRole('button',{name:'Sammenlign profiler'}).click();
  await page.selectOption('#identityMainPerson','MOR-C220004');
  await page.click('#identitySame');await submitQueued();
  assert.equal((await f.processNext()).completed,false);
@@ -389,7 +389,7 @@ test('Personkontroll keeps unsaved batches and errors truthful through version m
   assert.equal(await first().count(),0);
   assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
   // Add a second, explicit single-profile alias through the existing editor.
-  await second().getByRole('button',{name:'Sammenlign resultater / flere valg'}).click();
+  await second().getByRole('button',{name:'Sammenlign profiler'}).click();
   await page.click('#identityLater');
   await page.locator('#identityEditor details').filter({has:page.getByText('Hovednavn og alias uten sammenslåing',{exact:true})}).locator('summary').click();
   await page.fill('#identityNewName','Syntetisk Kontrollalias');await page.click('#identityAlias');
