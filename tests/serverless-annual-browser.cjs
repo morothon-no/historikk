@@ -42,7 +42,9 @@ test('protected annual web import confirms identities, saves a new year privatel
   assert.match(await page.locator('#annualPrivateStatus').innerText(),/Serverkontrollert|Lagret privat/,await page.locator('#resultStatus').innerText());assert.equal(await page.isEnabled('#annualSave'),true);}
  async function save(page,revision){const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/annual-import/save'&&r.request().method()==='POST');await page.click('#annualSave');assert.equal((await response).status(),202);await pending;
   await page.waitForFunction(r=>!document.querySelector('#annualSave').disabled&&document.querySelector('#annualPrivateStatus').textContent.includes('Lagret privat · revisjon '+r),revision);}
- let {page,context,session}=await open();await upload(page,f.csv());assert.equal(await page.inputValue('#resultYear'),'2027');await choices(page);await preview(page);await save(page,1);
+ let {page,context,session}=await open();
+ assert.equal(await page.getByRole('heading',{name:'Importer endelige resultater',exact:true}).isVisible(),true);
+ await upload(page,f.csv());assert.equal(await page.inputValue('#resultYear'),'2027');await choices(page);await preview(page);await save(page,1);
  const saved=(await f.request('/annual-import',undefined,session)).body;assert.equal(saved.plan.newPeople.length,1);assert.equal(saved.plan.summary.dns,1);assert.equal(saved.plan.ready,true);
  assert.equal(await page.locator('#annualPrivate').getByRole('button',{name:/publiser/i}).count(),0);
  for(const width of [1440,768,390]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);if(process.env.MOROTHON_P1A_REVIEW_DIR){await fs.mkdir(process.env.MOROTHON_P1A_REVIEW_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.MOROTHON_P1A_REVIEW_DIR,'annual-import-'+width+'.png'),fullPage:true});}}
