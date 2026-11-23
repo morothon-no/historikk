@@ -102,7 +102,6 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await page.locator('#identityWorklist .identity-quick-compare:visible').first().waitFor();
  assert.equal(await page.locator('#identityWorklist .identity-quick-compare:visible').first().isEnabled(),true);
  await page.locator('#identityWorklist .identity-quick-compare:visible').first().click();
- await page.getByText('Finn profiler manuelt',{exact:true}).click();
  await page.fill('#identityManualSearch0','Statusløper');
  await page.selectOption('#identityManualPerson0','MOR-C220005');
  await page.click('#identityManualOpen');
