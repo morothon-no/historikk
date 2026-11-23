@@ -88,6 +88,71 @@
       "parent": "60cd7f995f7df7ce33af46831a08a9c76c2ce3e89dfd06835204ce89ecb7303a",
       "kind": "identity",
       "sha256": "5d56fa27139a1edc0fec6b7a383d44dbdabfa43afc27799686f1821f6627e2c4"
+    },
+    {
+      "beforeSha256": "87a38fc2082becf789fecd7a0f97de03da9b7a01fe1359963da10df14cbc1f54",
+      "afterSha256": "99a2bfa08958d82ff1edb38a6dbed9d39ca0536fb6c18a67ccb245e77dde306f",
+      "manifestSha256": "28816884dae45363832524f374e68c263bb76fbb3f494d8b90555df3ccae158c",
+      "dataVersion": 6,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-6181A11",
+          "before": null,
+          "after": "MOR-31F93C5",
+          "beforeIndex": -1,
+          "afterIndex": 40
+        },
+        {
+          "field": "redirects",
+          "key": "MOR-949B680",
+          "before": null,
+          "after": "MOR-14D1ECF",
+          "beforeIndex": -1,
+          "afterIndex": 41
+        },
+        {
+          "field": "redirects",
+          "key": "MOR-9DF04C4",
+          "before": null,
+          "after": "MOR-96A3AC2",
+          "beforeIndex": -1,
+          "afterIndex": 42
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-31F93C5",
+          "before": null,
+          "after": [
+            "Bjørg Haugland"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 43
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-14D1ECF",
+          "before": null,
+          "after": [
+            "Lillian L Jahnsson"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 44
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-96A3AC2",
+          "before": null,
+          "after": [
+            "Martin Vindheim"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 45
+        }
+      ],
+      "parent": "5d56fa27139a1edc0fec6b7a383d44dbdabfa43afc27799686f1821f6627e2c4",
+      "kind": "identity",
+      "sha256": "85ed94b8fea06071a62ef93ade6017f2f2cdb31649f0a5ed83012ba17ea21348"
     }
   ]
 }
