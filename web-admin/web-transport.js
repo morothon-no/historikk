@@ -660,6 +660,7 @@
           detail.append(node('p','Rangeringer: '+Object.entries(v.rankings).map(([id,rank])=>(v.profiles[id]?.name||name(id))+': '+(rank??'samlet i hovedprofil')).join(' · ')));
           for(const record of v.records)detail.append(node('p','Løyperekord: '+[record.event,record.name,record.time,record.year].filter(Boolean).join(' · ')));
         }
+        if(r.otherRankingChanges)detail.append(node('p','Endret rangering for '+r.otherRankingChanges+' øvrige profiler.'));
         const labels={people:'personprofiler',annual:'årsstatistikk',loyalty:'lojalitet',diplomas:'diplomgrunnlag',rankings:'rangeringer',records:'løyperekorder',placements:'plasseringer',redirects:'gamle profillenker',aliases:'alias'};
         detail.append(node('p','Endrede beregninger: '+r.changed.map(key=>labels[key]||key).join(', ')+'. Resultatlinjer, tider, distanser og løypedefinisjoner bevares.'));
         publicationPanel.append(detail);

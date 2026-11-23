@@ -63,16 +63,19 @@ function createIdentityPublication({enabled=false,authenticate,authorizeActor,id
   const changes=D.identityChanges(ctx.history,packet.result.history),ids=personIds(changes),
    before=await ctx.project(ctx.history),after=await ctx.project(packet.result.history),
    candidateDigest=D.hash(JSON.stringify({base:ctx.base,digest:digest(p),after:D.hash(D.encode(packet.result.history)),selectedIds}));
-  const changedRankIds=[...new Set([...Object.keys(before.rankings),...Object.keys(after.rankings)])].filter(id=>!same(before.rankings[id],after.rankings[id]));
+  const selected=new Set(ids);
+  const otherRankingChanges=[...new Set([...Object.keys(before.rankings),...Object.keys(after.rankings)])]
+   .filter(id=>!selected.has(id)&&!same(before.rankings[id],after.rankings[id])).length;
   const affected=(view,history)=>({profiles:Object.fromEntries(ids.map(id=>[id,view.people[id]||null])),
     aliases:Object.fromEntries(ids.map(id=>[id,history.aliases?.[id]||[]])),
     redirects:Object.fromEntries(ids.map(id=>[id,history.redirects?.[id]||null])),
     placements:view.placements.filter(row=>ids.includes(row.personId)),records:view.records,
-    rankings:Object.fromEntries([...new Set([...ids,...changedRankIds])].map(id=>[id,view.rankings[id]??null])),
+    rankings:Object.fromEntries(ids.map(id=>[id,view.rankings[id]??null])),
     loyalty:Object.fromEntries(ids.map(id=>[id,view.loyalty[id]||null]))});
-  // Bound the persisted/UI report; never omit consequences silently.
+  // Persist exact ranks for the affected profiles and count secondary rank changes.
+  // Candidate validation and comparison still run on the complete projections.
   const report={ready:true,operation:p.identityReversal?'reverse':'merge',reversalOf:p.identityReversal?.publicationId||null,
-   candidateDigest,merges:selectedIds.length,retained:{deferred,different},personIds:ids,
+   candidateDigest,otherRankingChanges,merges:selectedIds.length,retained:{deferred,different},personIds:ids,
    before:affected(before,ctx.history),after:affected(after,packet.result.history),changed:Object.keys(before).filter(k=>!same(before[k],after[k]))};
   if(Buffer.byteLength(JSON.stringify(report))>96*1024)throw Error('Konsekvensrapporten er for stor. Avgrens utvalget.');
   if(!same((await loadContext(input.organizer)).base,ctx.base))throw Error('Historikken ble endret under kontrollen.');

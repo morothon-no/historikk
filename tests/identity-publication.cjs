@@ -69,7 +69,16 @@ test('multiple confirmed merges are atomic; current negatives and follow-ups sti
  const f=await fixture(t,{history}),original=structuredClone(history);
  await f.identity.decideBatch({...f.input,expectedRevision:0,commands:[f.command('same-person'),
   f.command('same-person',['MOR-C220005','MOR-C220006']),f.command('different-people',['MOR-C220003','MOR-C220004'])]});
- const report=await f.approve();assert.equal(report.merges,2);assert.equal(report.after.profiles['MOR-C220002'].count,5);
+ const project=f.context.project;
+ f.context.project=async data=>{
+  const view=await project(data),merged=!!data.redirects?.['MOR-C220001'];
+  for(let rank=0;rank<6000;rank++)view.rankings['synthetic-ranked-'+rank]=rank+(merged?1:0);
+  return view;
+ };
+ const report=await f.approve();assert.equal(report.merges,2);
+ assert.equal(report.otherRankingChanges,6000);
+ assert.deepEqual(Object.keys(report.after.rankings),report.personIds);
+assert.equal(report.after.profiles['MOR-C220002'].count,5);
  assert.equal(report.after.profiles['MOR-C220006'].count,3);await f.publication.publish(await f.revision());await f.complete();
  assert.equal(f.remote.merged,1);assert.deepEqual(f.context.history.results,original.results);
  assert.equal(H.create(f.context.history).people.size,4);
