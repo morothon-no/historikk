@@ -7,7 +7,7 @@ const { ADMIN_SOURCES, PUBLIC_CODE, runtimeFiles } = require("../scripts/lib/run
 const fs = require("node:fs/promises"), path = require("node:path"), os = require("node:os");
 const origin = "https://morothon-admin.damofra75.workers.dev";
 const TOKEN = "x".repeat(43);
-function fixture() {
+function fixture(options = {}) {
   let allowed = true, revoked = false, assetReads = 0;
   const auth = {
     exchange: async ({code,verifier}) => {
@@ -24,7 +24,7 @@ function fixture() {
       revoked = true;
     },
   };
-  const gate = createAdminGateway({portalOrigin:origin,apiOrigin:"https://morothon-admin.example.test",auth,assetSource:async name => {
+  const gate = createAdminGateway({portalOrigin:origin,apiOrigin:"https://morothon-admin.example.test",auth,...options,assetSource:async name => {
     assetReads++;
     return { bytes: "PRIVATE:" + name };
   }});
@@ -353,4 +353,53 @@ test('real Worker accepts a signed private OIDC lease in Cloudflare fetch mode, 
   const denied=await fresh.fetch(new Request(env.API_ORIGIN+'/processor/lease',{
     method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+jwt()},body:JSON.stringify({task:taskId,nonce:task.nonce})}),env);
   assert.equal(denied.status,403);assert.equal(calls.length,1,'A redirected JWKS must never be followed or grant a lease');
+});
+
+test("publication access probe only runs for authenticated owner GETs", async () => {
+  let calls = 0, allowed = true;
+  const f = fixture({
+    rateLimit: async () => allowed,
+    publicationAccess: async () => {
+      calls++;
+      return { stage: "ruleset-details", classicStatus: 404, bypassActors: "hidden" };
+    },
+  });
+  const route = "/admin/_publication-access";
+  assert.equal((await f.gate(f.req(route))).status, 401);
+  assert.equal((await f.gate(f.req(route, {method: "HEAD", cookie: TOKEN}))).status, 404);
+  assert.equal((await f.gate(f.req(route, {method: "POST", cookie: TOKEN, headers: {origin}}))).status, 404);
+  assert.equal((await f.gate(f.req(route, {cookie: "y".repeat(43)}))).status, 401);
+  allowed = false;
+  assert.equal((await f.gate(f.req(route, {cookie: TOKEN}))).status, 429);
+  assert.equal(calls, 0);
+  allowed = true;
+  const result = await f.gate(f.req(route, {cookie: TOKEN}));
+  assert.match(result.headers.get("cache-control"), /no-store/);
+  assert.deepEqual(await result.json(), {stage: "ruleset-details", classicStatus: 404, bypassActors: "hidden"});
+  assert.equal(calls, 1);
+  assert.equal(f.reads(), 0);
+});
+
+test("publication access probe reports field visibility without exposing GitHub details", async () => {
+  const {probePublicationAccess} = await import("../scripts/admin/serverless/worker.mjs");
+  const repository = "morothon-no/historikk", requests = [];
+  const api = {
+    repository,
+    token: async () => "private-token",
+    request: async (route, options) => {
+      requests.push(route);
+      assert.equal(options, undefined);
+      if (route === "branches/main/protection") throw Object.assign(Error("private response"), {githubStatus: 403});
+      if (route === "rules/branches/main?per_page=100") return [{
+        type: "required_status_checks", ruleset_id: 42,
+        ruleset_source: repository, ruleset_source_type: "Repository",
+      }];
+      assert.equal(route, "rulesets/42");
+      return {name: "private rule"};
+    },
+  };
+  assert.deepEqual(await probePublicationAccess(api), {stage: "ruleset-details", classicStatus: 403, bypassActors: "hidden"});
+  assert.deepEqual(requests, ["branches/main/protection", "rules/branches/main?per_page=100", "rulesets/42"]);
+  assert.deepEqual(await probePublicationAccess({...api, request: async () => ({private: true})}),
+    {stage: "classic-protection", classicStatus: 200});
 });
