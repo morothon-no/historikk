@@ -81,6 +81,13 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await page.fill('#identityManualSearch1','Status Looper');
  await page.selectOption('#identityManualPerson1','MOR-C220006');
  await page.click('#identityManualOpen');
+ const lookup=page.locator('#identityEditor details').filter({has:page.getByText('Søk etter kilder',{exact:true})});
+ await lookup.locator('summary').click();
+ const google=new URL(await lookup.getByRole('link',{name:'Søk i Google'}).getAttribute('href'));
+ assert.equal(google.origin,'https://www.google.com');
+ assert.match(google.searchParams.get('q'),/Statusløper.*Status Looper/);
+ assert.match(await lookup.getByLabel('Spørsmål til Gemini').inputValue(),/Oppgi lenke, år/);
+
  await page.selectOption('#identityMainPerson','MOR-C220006');
  await page.click('#identitySame');
  await page.waitForFunction(()=>document.querySelectorAll('#identityBatchTray .identity-batch-entry').length===3);

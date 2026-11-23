@@ -342,11 +342,12 @@
         !s.saved.inspection?.ready||
         s.saved.draft.cases.some(c=>!['handoff','rejected'].includes(c.status));
       revalidate.hidden=!s.saved?.stale||s.saved?.publication?.locked===true;revalidate.disabled=s.busy||active()||blocked();
-      reload.hidden=!(s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base));
+      const historyChanged=!!s.saved?.draft&&JSON.stringify(s.saved.draft.base)!==JSON.stringify(base);
+      reload.hidden=!historyChanged||!!s.saved?.stale||publishing()||active()||blocked()||!!s.request;
       check.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length;
       retry.hidden=!s.request&&!active()&&!blocked();
       for(const button of panel.querySelectorAll('#identityEditor button, .identity-quick-actions button, #identityBatchTray button'))
-        button.disabled=button===submit?submit.disabled:button.dataset.draftEdit==='true'?!canEditDraft():s.busy||!s.saved||active()||blocked()||stale()||publishing()||!!s.request;
+        button.disabled=button===submit?submit.disabled:button.dataset.readOnly==='true'?false:button.dataset.draftEdit==='true'?!canEditDraft():s.busy||!s.saved||active()||blocked()||stale()||publishing()||!!s.request;
       for(const button of panel.querySelectorAll('#identityPublication button, #identityPublicationHistory button'))button.disabled=button.dataset.blocked==='true'||s.busy||active()||blocked()||!!s.request||(!!s.pending.size&&!['identityPublicationContinue','identityPublicationCancel'].includes(button.id));
       actionHelp.hidden=!!s.saved&&!s.request&&!active()&&!blocked()&&!stale()&&!publishing();
       actionHelp.textContent=!s.saved?'Hent privat status før du velger avgjørelser.':
@@ -354,8 +355,8 @@
         publicationRunning()?'Du kan velge saker til neste pulje mens publiseringen kjører. Valgene beholdes i denne fanen og kan sendes til privat lagring etterpå.':
         active()?'En privat kontrolljobb pågår. Vent eller hent status senere. Du kan logge ut.':
         blocked()?'Jobbstatus må avklares før nye avgjørelser kan sendes.':
-        stale()?'Kildegrunnlaget må kontrolleres før du kan lagre nye avgjørelser.':
-        publishing()?'En pågående publiseringskontroll sperrer nye avgjørelser.':
+        publishing()?'Avklar publiseringen før du fortsetter med nye avgjørelser. Se status under Publisering av identitet.':
+        stale()?(reload.hidden?'Kontroller ny historikkversjon før du gjør flere valg.':'Historikken er klar. Oppdater Personkontroll for å fortsette. Du må logge inn igjen hvis økten har utløpt.'):
         s.pending.size?'Valgene er ulagret. Bruk «Lagre avgjørelser privat», eller angre.':'Velg en avgjørelse på et personkort eller sammenlign resultatene først.';
     }
     async function read(){
@@ -475,6 +476,27 @@
             'Startnr '+(row[9]||'ikke oppgitt')].join(' · ')));
         p.append(results);profiles.append(p);}
       editor.append(profiles);
+      if(ids.length===2&&ids.every(id=>model.person(id))){
+        const names=ids.map(name),eventName=window.__eventProfile?.name?.trim();
+        const search=new URL('https://www.google.com/search');
+        const quote=value=>'"'+value.replace(/"/g,' ')+'"';
+        search.searchParams.set('q','('+names.map(quote).join(' OR ')+') '+(eventName?quote(eventName)+' ':'')+'resultater');
+        const lookup=node('details');lookup.append(node('summary','Søk etter kilder'));
+        const links=node('div');links.className='actions';
+        const external=(label,url)=>{const link=node('a',label);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;};
+        links.append(external('Søk i Google',search.href),external('Åpne Gemini','https://gemini.google.com/'));
+        const question=node('textarea');question.readOnly=true;question.rows=5;
+        question.value='Kan offentlige resultatlister eller arrangørarkiver knytte «'+names[0]+'» og «'+names[1]+'» til samme løper? '+
+          (eventName?'Se først etter resultater fra '+eventName+'. ':'')+
+          'Oppgi lenke, år og hva hver kilde viser. Pek på motstridende opplysninger, og si fra hvis kildene ikke gir grunnlag for å avgjøre saken.';
+        const feedback=node('p');feedback.setAttribute('role','status');
+        links.append(btn('Kopier spørsmål', 'identityCopyLookup',async()=>{
+          try{await navigator.clipboard.writeText(question.value);feedback.textContent='Spørsmålet er kopiert.';}
+          catch{question.focus();question.select();feedback.textContent='Spørsmålet er markert. Kopier det fra feltet.';}
+        },{readOnly:true}));
+        lookup.append(node('p','Google-søket deler navnene og eventuelt løpsnavn. Bruk kildene til å vurdere saken.'),links,field('Spørsmål til Gemini',question),feedback);
+        editor.append(lookup);
+      }
       if(stored){
         editor.append(node('p',stored.status==='rejected'?'Bekreftet forskjellige personer – lagret privat.':identityState()),
           node('p',stored.reason),node('p','Kilde: '+stored.source));
@@ -711,7 +733,12 @@
       s.notice=null;await monitor();
       if(s.request)throw Error('Uavklart lagringsforsøk. Kontroller serverstatus før eventuell ny innsending.');
     });
-    const reload=btn('Last inn oppdatert historikk','identityReload',()=>location.reload());
+    const reload=btn('Oppdater Personkontroll','identityReload',()=>{
+      if(s.pending.size){
+        sessionStorage.setItem(draftKey,JSON.stringify([...s.pending.values()]));
+      }
+      location.reload();
+    });
     const check=btn('Kontroller lagrede avgjørelser','identityCheck',async()=>{
       s.notice=null;await identityApi('/identity/check',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
     approve.hidden=true;check.hidden=true;
