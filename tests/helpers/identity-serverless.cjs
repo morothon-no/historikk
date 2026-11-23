@@ -12,8 +12,8 @@ const origin='https://identity-admin.example.test',codeSha='a'.repeat(40),workfl
 function memory(){const data=new Map();return {get:async k=>structuredClone(data.get(k)||null),
   transact:async(k,r,fn)=>{const old=data.get(k);if((old?.revision||0)!==r)throw Object.assign(Error('endret'),{status:409});
     const next=fn(structuredClone(old||null));data.set(k,structuredClone(next));return structuredClone(next);}};}
-async function setup(t,{identityPublicationEnabled=false,publicationOptions={}}={}){
-  const f=await sourceFixture(t),control=memory(),authStore=memory(),key=randomBytes(32),dispatches=[];
+async function setup(t,{identityPublicationEnabled=false,publicationOptions={},history}={}){
+  const f=await sourceFixture(t,{history}),control=memory(),authStore=memory(),key=randomBytes(32),dispatches=[];
   const directory=path.join(f.directory,'identity-private');
   const accounts=createAccountDirectory({users:[{userId,active:true}],
     externalIdentities:[{provider:'github',subject:'123',userId}],

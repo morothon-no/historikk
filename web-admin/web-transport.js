@@ -259,13 +259,14 @@
     const s={saved:null,busy:true,notice:null,scope:'pending',query:'',selected:null,selectedCase:null,request:null,pending:new Map(),deferred:new Set(),version:0};
     const panel=node('section');panel.className='panel';panel.id='identityService';
     const status=node('p');status.id='identityServiceStatus';status.setAttribute('role','status');
-    const counts=node('div');counts.id='identityServiceCounts';counts.className='correction-summary';
-    const controls=node('div');controls.className='actions';
+    const counts=node('div');counts.id='identityServiceCounts';counts.className='identity-counts';
+    const controls=node('div');controls.className='actions identity-recovery-actions';
     const actionHelp=node('p');actionHelp.id='identityActionHelp';
     const list=node('div');list.id='identityWorklist';
     const tray=node('section');tray.id='identityBatchTray';tray.setAttribute('aria-label','Valg i denne økten');
     const editor=node('section');editor.id='identityEditor';
     const archive=node('details');archive.id='identityArchive';
+    const publicationHistory=node('details');publicationHistory.id='identityPublicationHistory';publicationHistory.hidden=true;
     const publicationPanel=node('section');publicationPanel.id='identityPublication';publicationPanel.className='panel';publicationPanel.hidden=true;
     const field=(label,input)=>{const e=node('label',label);e.append(input);return e;};
     const select=(options,value,id)=>{const e=node('select');e.id=id;
@@ -320,7 +321,8 @@
       retry.hidden=!s.request&&!active()&&!blocked();
       for(const button of panel.querySelectorAll('#identityEditor button, .identity-quick-actions button, #identityBatchTray button'))
         button.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!!s.request;
-      for(const button of publicationPanel.querySelectorAll('button'))button.disabled=button.dataset.blocked==='true'||s.busy||active()||blocked()||!!s.request||!!s.pending.size;
+      for(const button of panel.querySelectorAll('#identityPublication button, #identityPublicationHistory button'))button.disabled=button.dataset.blocked==='true'||s.busy||active()||blocked()||!!s.request||!!s.pending.size;
+      actionHelp.hidden=!!s.saved&&!s.request&&!active()&&!blocked()&&!stale()&&!publishing();
       actionHelp.textContent=!s.saved?'Hent privat status før du velger avgjørelser.':
         s.request?'Valgene er låst mens lagringen avklares. «Hent status» sender ikke avgjørelsene på nytt.':
         active()?'En privat kontrolljobb pågår. Vent eller hent status senere. Du kan logge ut.':
@@ -347,12 +349,12 @@
       }
       await render();
     }
-    async function monitor(){
-      const end=Date.now()+MONITOR_TIMEOUT_MS;
-      for(;;){await read();if(!active())break;
+    async function monitor(duration=MONITOR_TIMEOUT_MS,interval=4000){
+      const end=Date.now()+duration;
+      while(panel.isConnected){await read();if(!active())break;
         if(Date.now()>=end)throw Error('Kontrollen pågår fortsatt. Hent status senere; ingen ny innsending er nødvendig.');
-        await new Promise(resolve=>setTimeout(resolve,4000));}
-      checkTask();
+        await new Promise(resolve=>setTimeout(resolve,interval));}
+      if(panel.isConnected)checkTask();
     }
     function checkTask(){
       if(unknownTask())throw Error('Serveren returnerte en ukjent jobbstatus. Hent status senere; ingen ny lagring er bekreftet.');
@@ -394,6 +396,12 @@
       if(s.request)throw Error('Ingen samlet lagringskvittering er mottatt. Hent ny status.');
       s.selected=null;s.selectedCase=null;editor.replaceChildren();
       await render();
+      if(panel.isConnected&&commands.some(command=>command.kind==='same-person')&&
+        principal?.identityPublicationEnabled===true&&s.saved.publication?.enabled===true&&!stale()&&!publishing()){
+        s.notice={text:'Avgjørelsene er lagret privat. Kontrollerer før og etter.'};renderStatus();
+        try{await publicationAction('check');s.notice=null;}
+        catch(error){throw Error('Avgjørelsene er lagret privat. Før-/etter-kontrollen kunne ikke fullføres. '+error.message);}
+      }
     }
     function intent(kind,ids,mainPersonId,nameValue,source,reason){return {
       format:'morothon-identity-decision-v1',version:1,id:'identity-'+crypto.randomUUID(),base,
@@ -481,14 +489,15 @@
         node('span','Undersøk senere · lagret privat'));counts.append(followups);
       // Searching/filtering must not erase an unresolved server error.
       renderStatus();
-      tray.replaceChildren();
-      tray.append(node('h3','Valg i denne økten'),node('p',s.pending.size+' av '+MAX_SESSION_DECISIONS+' mulige avgjørelser valgt. Du kan endre dem før du sender alle samlet.'),
-        node('p',s.deferred.size+' valgt til «Undersøk senere». Valgene lagres privat når du sender økten og serveren bekrefter lagringen.'));
+      tray.hidden=!s.pending.size;
+      tray.replaceChildren(node('h3',s.pending.size===1?'1 valgt avgjørelse':s.pending.size+' valgte avgjørelser'));
+      const selections=node('div');selections.className='identity-selection-list';
       for(const [key,cmd] of s.pending){
         const entry=node('div');entry.className='identity-batch-entry';
         entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · Ulagret avgjørelse · '+({ 'same-person':'Samme person – hovednavn: '+(cmd.kind==='same-person'?name(cmd.mainPersonId):''),'different-people':'Forskjellige personer',defer:'Undersøk senere',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
-          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);s.notice=null;return render();}));tray.append(entry);
+          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);s.notice=null;return render();}));selections.append(entry);
       }
+      tray.append(selections,submit);
       list.replaceChildren();
       const rows=work.identity.filter(c=>{
         const key=[...c.personIds].sort().join(':'),deferred=s.deferred.has(key);
@@ -546,7 +555,7 @@
           );
           card.append(quick);
         }
-        const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign resultater / flere valg','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
+        const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign profiler','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
         compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
       if(!rows.length)list.append(node('p',s.scope==='pending'&&s.pending.size?
         'Ingen ubehandlede saker i dette utvalget. Valgene i denne økten er fortsatt ulagret.':
@@ -562,26 +571,30 @@
       if(principal?.identityPublicationEnabled!==true||s.saved?.publication?.enabled!==true)
         throw Error('Identitetspublisering er ikke aktivert.');
       if(s.pending.size||s.request)throw Error('Lagre eller angre valgene i økten før publiseringskontroll.');
-      s.notice=null;
       await identityApi('/identity/publication/'+action,{expectedRevision:s.saved.revision,
         expectedDigest:s.saved.publication.digest,...extra});
-      await monitor();
+      if(action==='publish'||action==='continue')await monitor(45*60*1000,12000);
+      else await monitor();
+      s.notice=null;
     }
     function renderPublication(){
       publicationPanel.replaceChildren();
+      publicationHistory.replaceChildren();
+      publicationHistory.hidden=true;
       publicationPanel.hidden=principal?.identityPublicationEnabled!==true||s.saved?.publication?.enabled!==true;
       if(publicationPanel.hidden)return;
       const p=s.saved.publication,r=p.review,job=p.job;
+      const privateChanges=p.reversalOf || s.saved.draft?.cases.some(c=>c.change&&c.status!=='rejected');
+      publicationPanel.hidden=!privateChanges&&!job;
       const label={prepared:'Godkjent – klar til publisering',submitting:'Sender godkjent endring',checking:'Tester endringen',
         deploying:'Oppdaterer nettsiden',verifying:'Kontrollerer offentlig profil og statistikk',published:'Publisert og etterkontrollert',
         failed:'Publisering stoppet', 'needs-review':'Publisering trenger en godkjenning eller avklaring',cancelled:'Publisering avbrutt'};
       publicationPanel.append(node('h3',p.reversalOf?'Tilbakeføring av identitet':'Publisering av identitet'));
       const unresolvedJob=job&&!['published','cancelled','prepared'].includes(job.stage);
-      const privateChanges=p.reversalOf || s.saved.draft?.cases.some(c=>c.change&&c.status!=='rejected');
       const message=node('p',unresolvedJob?label[job.stage]:s.saved.status==='review-approved'&&s.saved.approval?.scope==='identity-publication'?
-        'Godkjent – ikke publisert. Bekreft publisering som en egen handling.':r?.ready?'Kontrollert – klar for din godkjenning.':
-        privateChanges?'Lagret privat. Kontroller før-/etter-visningen før du godkjenner.':label[job?.stage]||
-        'Lagret privat. Kontroller før-/etter-visningen før du godkjenner.');
+        'Godkjent – ikke publisert. Bekreft publisering som en egen handling.':r?.ready?'Kontrollert – klar til publisering.':
+        privateChanges?'Lagret privat. Kontroller før-/etter-visningen før publisering.':label[job?.stage]||
+        'Lagret privat. Kontroller før-/etter-visningen før publisering.');
       message.id='identityPublicationStatus';message.setAttribute('role','status');publicationPanel.append(message);
       if(job?.error)publicationPanel.append(node('p',job.error));
       if(r){
@@ -610,25 +623,33 @@
         publicationPanel.append(detail);
       }
       const actions=node('div');actions.className='actions';
-      const control=(title,id,action,disabled)=>{const b=btn(title,id,action);b.disabled=!!disabled;b.dataset.blocked=String(!!disabled);actions.append(b);};
-      control('Kontroller før / etter','identityPublicationCheck',()=>publicationAction('check'),stale()||publishing()&&!p.reversalOf);
-      control('Godkjenn kontrollerte endringer','identityPublicationApprove',()=>{
-        if(confirm('Godkjenne nøyaktig denne serverkontrollerte før-/etter-visningen? Dette publiserer ikke ennå.'))
-          return publicationAction('approve',{candidateDigest:r.candidateDigest});
-      },stale()||p.locked||!r?.ready||s.saved.status==='review-approved');
-      control(p.reversalOf?'Bekreft og publiser tilbakeføring':'Bekreft og publiser identitet','identityPublicationPublish',()=>{
-        if(confirm('Publisere nøyaktig de godkjente identitetsendringene? Sikkerhetskopi, tester og offentlig etterkontroll kreves.'))
-          return publicationAction('publish',{confirmation:true});
-      },stale()||p.locked||!r?.ready||s.saved.status!=='review-approved'||s.saved.approval?.scope!=='identity-publication'||!!job&&!['published','cancelled','failed','prepared'].includes(job.stage));
-      if(job&&!['published','cancelled'].includes(job.stage)&&(job.stage!=='prepared'||p.locked))control('Fortsett publiseringskontroll','identityPublicationContinue',()=>publicationAction('continue'),false);
+      const control=(title,id,action,disabled,target=actions)=>{const b=btn(title,id,action);b.disabled=!!disabled;b.dataset.blocked=String(!!disabled);target.append(b);};
+      if(privateChanges&&!r?.ready&&!unresolvedJob)control('Kontroller før / etter','identityPublicationCheck',()=>publicationAction('check'),stale()||publishing()&&!p.reversalOf);
+      if(r?.ready&&!unresolvedJob)control(p.reversalOf?'Bekreft og publiser tilbakeføring':'Bekreft og publiser identitet','identityPublicationPublish',async()=>{
+        if(!confirm('Godkjenne og publisere nøyaktig endringene i denne før-/etter-visningen? Sikkerhetskopi, tester og offentlig etterkontroll kreves.'))return;
+        const candidateDigest=r.candidateDigest;
+        const revision=s.saved.revision;
+        const approved=s.saved.status==='review-approved'&&s.saved.approval?.scope==='identity-publication';
+        if(!approved)await publicationAction('approve',{candidateDigest});
+        if(!panel.isConnected)return;
+        if(stale()||s.saved.revision!==revision+(approved?0:1)||
+          s.saved.status!=='review-approved'||s.saved.approval?.scope!=='identity-publication'||
+          s.saved.approval?.candidateDigest!==candidateDigest||s.saved.publication?.review?.candidateDigest!==candidateDigest)
+          throw Error('Godkjent før-/etter-grunnlag kunne ikke bekreftes. Hent status før publisering.');
+        await publicationAction('publish',{confirmation:true});
+      },stale()||p.locked||!r?.ready||!!job&&!['published','cancelled','failed','prepared'].includes(job.stage));
+      if(job&&!['published','cancelled'].includes(job.stage)&&(job.stage!=='prepared'||p.locked)&&!active())control('Fortsett publiseringskontroll','identityPublicationContinue',()=>publicationAction('continue'),false);
       if(p.reversalOf||s.saved.approval?.scope==='identity-publication')control('Avbryt godkjenning / tilbakeføringsutkast','identityPublicationCancel',()=>publicationAction('cancel'),p.locked);
+      if(actions.childElementCount)publicationPanel.append(actions);
+      if((p.history||[]).length||job?.stage==='published'){
+        publicationHistory.hidden=false;
+        publicationHistory.append(node('summary','Tidligere publiseringer'));
+        for(const entry of p.history||[])publicationHistory.append(node('p','Publisert og kontrollert · '+entry.publishedAt+(entry.reversalOf?' · tilbakeføring':'')));
+      }
       if(job?.stage==='published'&&!p.reversalOf)control('Forbered tilbakeføring','identityPublicationReverse',()=>{
         if(confirm('Forberede tilbakeføring? Før-/etter-visning og en ny eksplisitt godkjenning kreves før noe publiseres.'))
           return publicationAction('reverse',{publicationId:job.id,confirmation:true});
-      },stale());
-      publicationPanel.append(actions);
-      if((p.history||[]).length){const history=node('details');history.append(node('summary','Verifiserte publiseringer · '+p.history.length));
-        for(const entry of p.history)history.append(node('p','Publisert og kontrollert · '+entry.publishedAt+(entry.reversalOf?' · tilbakeføring':'')));publicationPanel.append(history);}
+      },stale(),publicationHistory);
     }
     const submit=btn('Lagre avgjørelser privat','identityBatchSubmit',submitBatch);
     const refresh=btn('Hent lagrede avgjørelser','identityRefresh',async()=>{
@@ -652,7 +673,7 @@
     const check=btn('Kontroller lagrede avgjørelser','identityCheck',async()=>{
       s.notice=null;await identityApi('/identity/check',{expectedRevision:s.saved.revision,expectedDigest:s.saved.digest});await monitor();});
     approve.hidden=true;check.hidden=true;
-    controls.append(submit,refresh,revalidate,retry,reload,btn('Logg ut','identityLogout',()=>actions.logout.click()),approve,check);
+    controls.append(revalidate,retry,reload,approve,check);
     const search=input('identitySearch');search.type='search';search.oninput=()=>{s.query=search.value;render().catch(e=>{status.textContent=e.message;});};
     const filter=select([['pending','Ubehandlede'],['finished','Behandlede'],['rejected','Avviste par'],['followup','Undersøk senere'],['all','Alle saker']],'pending','identityFilter');
     filter.onchange=()=>{s.scope=filter.value;render().catch(e=>{status.textContent=e.message;});};
@@ -666,10 +687,13 @@
       manual.append(field(i?'Andre profil (ved sammenslåing)':'Søk etter profil',q),selectPerson);choices.push(selectPerson);}
     manual.append(btn('Sammenlign valgte profiler','identityManualOpen',()=>{
       const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);}));
-    panel.append(node('h2','Personkontroll'),node('p','Identiteter, hovednavn og alias. Resultatimport og resultatkorrigeringer behandles under Årets arrangement.'),
-      node('p','Velg raskt eller sammenlign nøye. «Lagre avgjørelser privat» sender valgene samlet til serverkontroll. '+(principal?.identityPublicationEnabled===true?
-        'Publisering krever separat før-/etter-kontroll, godkjenning og bekreftelse.':'Offisiell identitetspublisering er ennå ikke aktivert.')),status,controls,actionHelp,tray,counts,publicationPanel,
-      field('Søk i saker',search),field('Vis',filter),list,editor,manual,archive);host.replaceChildren(panel);
+    const filters=node('div');filters.className='identity-filters';
+    filters.append(field('Søk etter navn',search),field('Vis saker',filter));
+    const overview=node('details');overview.append(node('summary','Oversikt over saker'),counts);
+    const footer=node('div');footer.className='actions identity-secondary-actions';
+    footer.append(refresh,btn('Logg ut','identityLogout',()=>actions.logout.click()));
+    panel.append(node('h2','Personkontroll'),filters,status,actionHelp,controls,tray,publicationPanel,
+      list,editor,manual,overview,publicationHistory,archive,footer);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
     workspace().usePrivateIdentities?.();
     // The shared session renderer owns authentication labels. Mounting a
@@ -680,6 +704,12 @@
     // the authenticated shell. A queued job is readable state, not a login gate.
     try{await read();if(!active())checkTask();}catch(error){s.notice={text:error.message+' Ingen ny lagring er bekreftet.',error:true};}
     finally{s.busy=false;renderStatus();disable();}
+    if(active()&&['identity-publication-publish','identity-publication-continue'].includes(s.saved.task.action)){
+      s.busy=true;disable();
+      void monitor(45*60*1000,12000).catch(error=>{
+        s.notice={text:error.message,error:true};
+      }).finally(()=>{s.busy=false;renderStatus();disable();});
+    }
   }
   async function login() {
     const verifier = b64(crypto.getRandomValues(new Uint8Array(32))),
