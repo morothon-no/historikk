@@ -1,5 +1,35 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "baselineSha256": "9c62621abeb3eb05a186b3618b8ba74c86b3d67b6a83539ccc2c1b1df33c4a9e",
-  "entries": []
+  "entries": [
+    {
+      "beforeSha256": "9c62621abeb3eb05a186b3618b8ba74c86b3d67b6a83539ccc2c1b1df33c4a9e",
+      "afterSha256": "24a15e5aaa8169697b23b3947ce7ab73b2a45331501b7628659ed95e1c6d68fa",
+      "manifestSha256": "da9cf7e2f0f4336f1f721088959f0d488d32a6aebd265ef06b672c1af003b66e",
+      "dataVersion": 3,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-65F0DC2",
+          "before": null,
+          "after": "MOR-5576B5A",
+          "beforeIndex": -1,
+          "afterIndex": 37
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-5576B5A",
+          "before": null,
+          "after": [
+            "Martin Ukkelberg"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 40
+        }
+      ],
+      "parent": null,
+      "kind": "identity",
+      "sha256": "a68c3a8f67de28c5a8b3cc656c5eb24e2271e142eeda1a272bd4534e3243cd0a"
+    }
+  ]
 }
