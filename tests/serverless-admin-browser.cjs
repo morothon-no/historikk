@@ -428,7 +428,7 @@ test(
     assert.equal(await identities.get(organizer),null);
     await page.locator('#identityBatchTray').getByRole('button',{name:'Angre',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('[data-identity-count="pending"] strong')?.textContent==='2');
-    await pair.getByRole('button',{name:'Sammenlign resultater / flere valg',exact:true}).click();
+    await pair.getByRole('button',{name:'Sammenlign profiler',exact:true}).click();
     assert.equal(await page.locator('#identityEditor .correction-profile').count(),2);
     assert.match(await page.locator('#identityEditor').innerText(),/2020/);
     assert.match(await page.locator('#identityEditor').innerText(),/2024/);
