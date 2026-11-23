@@ -59,6 +59,35 @@
       "parent": "a68c3a8f67de28c5a8b3cc656c5eb24e2271e142eeda1a272bd4534e3243cd0a",
       "kind": "identity",
       "sha256": "60cd7f995f7df7ce33af46831a08a9c76c2ce3e89dfd06835204ce89ecb7303a"
+    },
+    {
+      "beforeSha256": "6707ba20c81f675ebcb79663694a9eaf5f0500568268548a7ec6dded3abafd7f",
+      "afterSha256": "87a38fc2082becf789fecd7a0f97de03da9b7a01fe1359963da10df14cbc1f54",
+      "manifestSha256": "30cf88dbe87b42204574d7c5a1a7198d2cf7d84558856b750d54a2740c2993d2",
+      "dataVersion": 5,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-A521A4C",
+          "before": null,
+          "after": "MOR-485AE2B",
+          "beforeIndex": -1,
+          "afterIndex": 39
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-485AE2B",
+          "before": null,
+          "after": [
+            "Bodil Sangvik"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 42
+        }
+      ],
+      "parent": "60cd7f995f7df7ce33af46831a08a9c76c2ce3e89dfd06835204ce89ecb7303a",
+      "kind": "identity",
+      "sha256": "5d56fa27139a1edc0fec6b7a383d44dbdabfa43afc27799686f1821f6627e2c4"
     }
   ]
 }
