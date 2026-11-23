@@ -30,6 +30,35 @@
       "parent": null,
       "kind": "identity",
       "sha256": "a68c3a8f67de28c5a8b3cc656c5eb24e2271e142eeda1a272bd4534e3243cd0a"
+    },
+    {
+      "beforeSha256": "24a15e5aaa8169697b23b3947ce7ab73b2a45331501b7628659ed95e1c6d68fa",
+      "afterSha256": "6707ba20c81f675ebcb79663694a9eaf5f0500568268548a7ec6dded3abafd7f",
+      "manifestSha256": "86db3eeccf1b2c4691dc0da57f786cb924af87d21095c2c424e4c3743478a488",
+      "dataVersion": 4,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-211E98B",
+          "before": null,
+          "after": "MOR-7FB61BA",
+          "beforeIndex": -1,
+          "afterIndex": 38
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-7FB61BA",
+          "before": null,
+          "after": [
+            "Åse Høen Brastad"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 41
+        }
+      ],
+      "parent": "a68c3a8f67de28c5a8b3cc656c5eb24e2271e142eeda1a272bd4534e3243cd0a",
+      "kind": "identity",
+      "sha256": "60cd7f995f7df7ce33af46831a08a9c76c2ce3e89dfd06835204ce89ecb7303a"
     }
   ]
 }

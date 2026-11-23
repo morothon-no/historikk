@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "policyVersion": "morothon-public-v1",
-  "dataVersion": 3,
-  "historySha256": "24a15e5aaa8169697b23b3947ce7ab73b2a45331501b7628659ed95e1c6d68fa",
+  "dataVersion": 4,
+  "historySha256": "6707ba20c81f675ebcb79663694a9eaf5f0500568268548a7ec6dded3abafd7f",
   "files": {
     "data/badges.json": {
       "sha256": "626e3455eef044f58b5bf221476f9a79edb6eda8318ea556fa51186a3c3fd8f5",
@@ -13,8 +13,8 @@
       "bytes": 456
     },
     "data/history.json": {
-      "sha256": "24a15e5aaa8169697b23b3947ce7ab73b2a45331501b7628659ed95e1c6d68fa",
-      "bytes": 929451
+      "sha256": "6707ba20c81f675ebcb79663694a9eaf5f0500568268548a7ec6dded3abafd7f",
+      "bytes": 929516
     },
     "data/honors.json": {
       "sha256": "9c0536178352f1a594e2a96ff3ee074ca46600e8d3177f1c31e9cab1abaf4ef3",
