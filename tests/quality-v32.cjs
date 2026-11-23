@@ -73,9 +73,13 @@ test('V3.2 CI runs once per PR update, tests main pushes and deploys only verifi
   const protectedFiles=['data/history.json','data/event-dates.json',originalRegistry.watermark.src,...originalRegistry.badges.flatMap(b=>[b.src,...(b.vectorSource?[b.vectorSource]:[])])];
   for(const f of new Set(protectedFiles)){
    const current=await fs.readFile(path.join(root,f)),original=execFileSync('git',['show','bb22ec8:'+f],{cwd:root});
-   // Keep the original byte-level preservation check. Reverse only the six
-   // organizer-approved November fields; all other data/assets stay frozen.
-   const preserved=f==='data/history.json'?Buffer.from(JSON.stringify(require('./public/quick/fixtures/historical-corrections.js').previousHistory(JSON.parse(current)))):current;
+   let preserved=current;
+   if(f==='data/history.json'){
+    assert.deepEqual(current,await fs.readFile(path.join(root,'public-data/data/history.json')),'Source and public history must match');
+    // Verify and undo later approved releases before checking the original bytes.
+    const historical=require('./public/quick/fixtures/frozen-history.js')(root);
+    preserved=Buffer.from(JSON.stringify(require('./public/quick/fixtures/historical-corrections.js').previousHistory(historical)));
+   }
    assert.deepEqual(preserved,original,f);
   }
  const dates=JSON.parse(await fs.readFile(path.join(root,'data/event-dates.json'),'utf8'));assert.equal(dates.dates['2018'],'2018-11-11');const h=JSON.parse(await fs.readFile(path.join(root,'data/honors.json'),'utf8'));assert.match(h.narrative.timeline[0].text,/128 deltakere/);assert.ok(!h.narrative.uncertainties.some(x=>x.text.includes('1992')));

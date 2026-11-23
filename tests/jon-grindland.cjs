@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),{createHash}=require('node:crypto');
-const {createHarness}=require('../scripts/diploma-harness.cjs');let h,data;
+const {createHarness}=require('../scripts/diploma-harness.cjs');let h,data,historical;
+const root=path.resolve(__dirname,'..');
 // K10-12 and M10-12: corrected EQ Timing screenshot supplied by the organizer, 2026-11-10.
 // M13-14: same class ranking applied to its three unchanged recorded finish times.
 // [ID, name, class, time, former source place, corrected class place]
@@ -27,20 +28,20 @@ const expected=[
  ['MOR-58DA43C','Einar Larsen','M13-14','16:19',9,3]
 ];
 const junior=r=>r[0]===2026&&r[2]==='Junior'&&r[3]==='3 km';
-before(async()=>{data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8'));h=await createHarness();});after(async()=>{await h.close();});
+before(async()=>{data=JSON.parse(await fs.readFile(path.join(__dirname,'../data/history.json'),'utf8'));historical=require('./public/quick/fixtures/frozen-history.js')(root);h=await createHarness();});after(async()=>{await h.close();});
 async function load(width=390,fixture){const p=await h.browser.newPage({viewport:{width,height:900}});if(fixture)await p.route('**/data/history.json',r=>r.fulfill({json:fixture}));await p.goto(h.base);await p.waitForFunction(()=>!document.querySelector('#loading'));return p;}
 test('Jon correction and all 21 junior class places preserve every other historical field byte-for-byte',()=>{
  const rows=data.results.filter(junior);assert.equal(rows.length,expected.length);
  for(const [id,name,cls,time,oldPlace,place]of expected){const r=rows.find(r=>r[1]===id),p=data.people.find(p=>p.i===id);assert.equal(p.n,name);assert.equal(r[7],cls);assert.equal(r[5],time);assert.equal(r[6],place);}
  const jon=data.people.find(p=>p.i==='MOR-638C1F4'),row=rows.find(r=>r[1]===jon.i);assert.equal(jon.g,'Herre');assert.deepEqual(row,[2026,jon.i,'Junior','3 km','Fullført','16:10',7,'M10-12','FRAMSTEG IL','120']);
  // Reconstruct only the documented changed fields in memory: the entire previous file must match.
- const previous=require('./public/quick/fixtures/historical-corrections.js').previousHistory(data);previous.updated='2026-11-09';previous.people.find(p=>p.i===jon.i).g='Dame';
+ const previous=require('./public/quick/fixtures/historical-corrections.js').previousHistory(historical);previous.updated='2026-11-09';previous.people.find(p=>p.i===jon.i).g='Dame';
  for(const [id,,,,oldPlace]of expected)previous.results.find(r=>junior(r)&&r[1]===id)[6]=oldPlace;
  previous.results.find(r=>junior(r)&&r[1]===jon.i)[7]='K10-12';
  assert.equal(createHash('sha256').update(JSON.stringify(previous)).digest('hex'),'e73daae2c4dbc0bb5d68e2bc0174ab7ff3b1e7e1c5024af891e2f4ef6fd9a719');
 });
 test('runtime agrees with EQ class places, gender counts and podiums; participation, records and teams stay unchanged',async()=>{
- const p=await load();try{const r=await p.evaluate(()=>{
+ const p=await load(390,historical);try{const r=await p.evaluate(()=>{
   const rows=S.results.filter(r=>r[0]===2026&&isJuniorRace(r)),started=S.results.filter(r=>r[0]===2026&&countsAsParticipation(r)),count=rows=>Object.fromEntries(['Dame','Herre'].map(g=>[g,new Set(rows.filter(r=>person(r[1])?.g===g).map(r=>resolvePid(r[1]))).size]));
   const jon=person('MOR-638C1F4'),j=performanceStats(jon.i),live=performanceStats('MOR-62BB3A0');
   return {places:rows.map(r=>[r[1],classPlacement(r)]),junior:count(rows),year:count(started),all:Object.fromEntries(['Dame','Herre'].map(g=>[g,S.people.filter(p=>p.g===g).length])),jon:{count:jon.c,wins:j.wins,podiums:j.podiums,best:j.bestPlace,badges:performanceBadgeList(jon).map(b=>b.name)},live2026Win:live.winYears.includes(2026),records:S.courseRecords.map(r=>[r.name,r.time,r.year]),teams:S.data.teamResults.length,milestones:MorothonMilestones.calculate(2026).participants.length};
