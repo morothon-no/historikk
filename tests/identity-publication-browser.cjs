@@ -102,6 +102,14 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await page.locator('#identityWorklist .identity-quick-compare:visible').first().waitFor();
  assert.equal(await page.locator('#identityWorklist .identity-quick-compare:visible').first().isEnabled(),true);
  await page.locator('#identityWorklist .identity-quick-compare:visible').first().click();
+ await page.fill('#identityManualSearch0','Statusløper');
+ await page.selectOption('#identityManualPerson0','MOR-C220005');
+ await page.click('#identityManualOpen');
+ await page.getByText('Hovednavn og alias uten sammenslåing',{exact:true}).click();
+ await page.fill('#identityNewName','Syntetisk neste pulje');
+ await page.click('#identityAlias');
+ await page.locator('#identityBatchTray .identity-batch-entry').waitFor();
+ assert.equal(await page.evaluate(()=>Object.keys(sessionStorage).some(key=>key.startsWith('morothon-personkontroll-next-'))),true);
  assert.equal(await page.locator('#identityBatchSubmit').isDisabled(),true);
  await processResponse(publish);
  await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
