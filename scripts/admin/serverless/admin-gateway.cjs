@@ -117,7 +117,7 @@ function loginPage(apiOrigin) {
     '<p id="status" role="status"></p></main><script>' + safeScript + '</script></body></html>';
 }
 function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource,
-  rateLimit = async () => true }) {
+  rateLimit = async () => true, publicationAccess }) {
   if (new URL(portalOrigin).origin !== portalOrigin ||
       !portalOrigin.startsWith("https://") ||
       new URL(apiOrigin).origin !== apiOrigin || !apiOrigin.startsWith("https://") ||
@@ -174,17 +174,25 @@ function createAdminGateway({ portalOrigin, apiOrigin, auth, assetSource,
     }
     if (request.method !== "GET" && request.method !== "HEAD")
       return response("Method not allowed", 405);
-    if (url.pathname === "/admin/_session") {
+    const publicationProbe = url.pathname === "/admin/_publication-access";
+    if (publicationProbe && (!publicationAccess || request.method !== "GET" || url.search))
+      return response("Not found", 404);
+    if (url.pathname === "/admin/_session" || publicationProbe) {
       // The existing result API consumes a tab-memory bearer token. Expose it
       // only to a browser whose HttpOnly cookie is verified server-side.
       const raw = getCookie(request);
       if (!raw) return response("Unauthorized", 401);
+      if (publicationProbe && !(await rateLimit(request))) return response("Too many requests", 429);
       try {
         const actor = await auth.authenticate(new Request(portalOrigin, {
           headers: { authorization: "Bearer " + raw },
         }));
         if (actor?.roles?.["sogne-morothon"] !== "owner")
           return response("Forbidden", 403);
+        if (publicationProbe) {
+          const result = await publicationAccess().catch(() => ({ stage: "unavailable" }));
+          return response(JSON.stringify(result), 200, { "Content-Type": "application/json" });
+        }
         return response(request.method === "HEAD" ? null :
           JSON.stringify({ sessionToken: raw }), 200, {
           "Content-Type": "application/json",

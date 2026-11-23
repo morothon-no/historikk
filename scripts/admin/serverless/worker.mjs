@@ -58,6 +58,38 @@ export async function cloudflareGithubFetch(url, options = {}, fetchImpl = fetch
   const response = await fetchImpl(url, { ...options, redirect: "manual" });
   return response;
 }
+// The token is scoped exactly as it is for a publication check. Only
+// endpoint visibility is reported, never rule details or provider responses.
+export async function probePublicationAccess(api) {
+  let stage = "installation-token", classicStatus = null;
+  try {
+    await api.token();
+    stage = "classic-protection";
+    try {
+      await api.request("branches/main/protection");
+      return { stage, classicStatus: 200 };
+    } catch (error) {
+      if (![403, 404].includes(error.githubStatus)) throw error;
+      classicStatus = error.githubStatus;
+    }
+    stage = "effective-rules";
+    const rules = await api.request("rules/branches/main?per_page=100");
+    const ids = new Set(Array.isArray(rules) && rules.length < 100 ? rules
+      .filter(rule => rule?.type === "required_status_checks" &&
+        rule.ruleset_source_type === "Repository" && rule.ruleset_source === api.repository &&
+        Number.isSafeInteger(rule.ruleset_id) && rule.ruleset_id > 0)
+      .map(rule => rule.ruleset_id) : []);
+    if (ids.size !== 1) return { stage, classicStatus, ruleset: "unconfirmed" };
+    stage = "ruleset-details";
+    const { bypass_actors: actors } = await api.request("rulesets/" + [...ids][0]) || {};
+    return { stage, classicStatus, bypassActors: !Array.isArray(actors) ? "hidden" :
+      actors.length === 0 ? "empty" : "present" };
+  } catch (error) {
+    const githubStatus = [401, 403, 404, 422, 429, 500, 502, 503].includes(error?.githubStatus)
+      ? error.githubStatus : null;
+    return { stage, classicStatus, githubStatus };
+  }
+}
 // Browser same-origin GETs generally omit Origin. The broker checks Origin on
 // all requests; reconstruct it only for owner-bearer read requests that the
 // browser marks same-origin. Never rewrite cross-origin or mutation requests.
@@ -305,6 +337,16 @@ export default {
             (await env.AUTH_LIMITER.limit({
               key: storeModule.sha(request.headers.get("CF-Connecting-IP") || "unavailable"),
             })).success,
+          publicationAccess: () => probePublicationAccess(connection({
+            ...common,
+            repository: "morothon-no/historikk",
+            permissions: {
+              contents: "read", actions: "read", checks: "read",
+              administration: "read", actions_variables: "read",
+            },
+            fetchImpl: cloudflareGithubFetch,
+            verifyPermissions: true,
+          })),
           assetSource: async (filename) => {
             if (!env.ADMIN_ASSETS) return null; // fail closed until cutover
             const source = new URL("/admin/" + filename, env.PORTAL_URL);
