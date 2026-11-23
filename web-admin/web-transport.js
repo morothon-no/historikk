@@ -272,15 +272,17 @@
     const select=(options,value,id)=>{const e=node('select');e.id=id;
       for(const [key,label] of options){const o=node('option',label);o.value=key;e.append(o);}if(value!==undefined)e.value=value;return e;};
     const input=(id,value='')=>{const e=node('input');e.id=id;e.value=value;return e;};
-    const btn=(label,id,fn)=>{const e=node('button',label);e.type='button';e.id=id;e.className='secondary';
-      e.onclick=async()=>{if(s.busy&&id!=='identityLogout')return;s.busy=true;disable();try{await fn();}catch(error){
+    const btn=(label,id,fn,{readOnly=false}={})=>{const e=node('button',label);e.type='button';e.id=id;e.className='secondary';
+      if(readOnly)e.dataset.readOnly='true';
+      e.onclick=async()=>{if(s.busy&&id!=='identityLogout'&&!readOnly)return;if(!readOnly){s.busy=true;disable();}try{await fn();}catch(error){
         s.notice={text:error.message+' Siste serverbekreftede vurderinger er beholdt.',error:true};
-      }finally{s.busy=false;renderStatus();disable();}};return e;};
+      }finally{if(!readOnly)s.busy=false;renderStatus();disable();}};return e;};
     const active=()=>['queued','running'].includes(s.saved?.task?.state);
     const unknownTask=()=>s.saved?.task&&!['queued','running','completed','failed','blocked'].includes(s.saved.task.state);
     const blocked=()=>s.saved?.task?.state==='blocked'||unknownTask();
     const stale=()=>s.saved?.stale || s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base);
     const publishing=()=>!!s.saved?.publication?.reversalOf || s.saved?.publication?.locked===true;
+    const publicationRunning=()=>active()&&['identity-publication-publish','identity-publication-continue'].includes(s.saved.task.action);
     const name=id=>model.person(id)?.n || id;
     const deferredCase=c=>c?.status==='review'&&!c.change&&
       c.events.filter(e=>/^identity-(defer|same-person|different-people)$/.test(e.action)).at(-1)?.action==='identity-defer';
@@ -310,12 +312,12 @@
       return ids.length===request.commands.length&&request.commands.every(c=>ids.includes(c.id));
     };
     function disable(){
-      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout';
+      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout'&&button.dataset.readOnly!=='true';
       submit.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!s.pending.size||!!s.request;
       approve.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length||s.saved.status==='review-approved'||
         !s.saved.inspection?.ready||
         s.saved.draft.cases.some(c=>!['handoff','rejected'].includes(c.status));
-      revalidate.hidden=!s.saved?.stale;revalidate.disabled=s.busy||active()||blocked();
+      revalidate.hidden=!s.saved?.stale||s.saved?.publication?.locked===true;revalidate.disabled=s.busy||active()||blocked();
       reload.hidden=!(s.saved?.draft && JSON.stringify(s.saved.draft.base)!==JSON.stringify(base));
       check.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length;
       retry.hidden=!s.request&&!active()&&!blocked();
@@ -325,6 +327,7 @@
       actionHelp.hidden=!!s.saved&&!s.request&&!active()&&!blocked()&&!stale()&&!publishing();
       actionHelp.textContent=!s.saved?'Hent privat status før du velger avgjørelser.':
         s.request?'Valgene er låst mens lagringen avklares. «Hent status» sender ikke avgjørelsene på nytt.':
+        publicationRunning()?'Du kan sammenligne profiler og bruke resten av Admin mens publiseringen kjører. Nye avgjørelser kan lagres når publiseringen er avklart.':
         active()?'En privat kontrolljobb pågår. Vent eller hent status senere. Du kan logge ut.':
         blocked()?'Jobbstatus må avklares før nye avgjørelser kan sendes.':
         stale()?'Kildegrunnlaget må kontrolleres før du kan lagre nye avgjørelser.':
@@ -555,7 +558,7 @@
           );
           card.append(quick);
         }
-        const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign profiler','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored));
+        const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign profiler','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored),{readOnly:true});
         compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
       if(!rows.length)list.append(node('p',s.scope==='pending'&&s.pending.size?
         'Ingen ubehandlede saker i dette utvalget. Valgene i denne økten er fortsatt ulagret.':
@@ -596,6 +599,7 @@
         privateChanges?'Lagret privat. Kontroller før-/etter-visningen før publisering.':label[job?.stage]||
         'Lagret privat. Kontroller før-/etter-visningen før publisering.');
       message.id='identityPublicationStatus';message.setAttribute('role','status');publicationPanel.append(message);
+      if(publicationRunning())publicationPanel.append(node('p','Beregn rundt 15 minutter til publisering og etterkontroll. Det kan ta lenger ved kø. Jobben fortsetter hvis du går til en annen side eller må logge inn igjen.'));
       if(job?.error)publicationPanel.append(node('p',job.error));
       if(r){
         publicationPanel.append(node('p',(r.operation==='reverse'?'Tilbakeføring':r.merges+' bekreftede sammenslåinger')+
@@ -625,8 +629,7 @@
       const actions=node('div');actions.className='actions';
       const control=(title,id,action,disabled,target=actions)=>{const b=btn(title,id,action);b.disabled=!!disabled;b.dataset.blocked=String(!!disabled);target.append(b);};
       if(privateChanges&&!r?.ready&&!unresolvedJob)control('Kontroller før / etter','identityPublicationCheck',()=>publicationAction('check'),stale()||publishing()&&!p.reversalOf);
-      if(r?.ready&&!unresolvedJob)control(p.reversalOf?'Bekreft og publiser tilbakeføring':'Bekreft og publiser identitet','identityPublicationPublish',async()=>{
-        if(!confirm('Godkjenne og publisere nøyaktig endringene i denne før-/etter-visningen? Sikkerhetskopi, tester og offentlig etterkontroll kreves.'))return;
+      if(r?.ready&&!unresolvedJob)control(p.reversalOf?'Bekreft og publiser tilbakeføring':'Bekreft publisering','identityPublicationPublish',async()=>{
         const candidateDigest=r.candidateDigest;
         const revision=s.saved.revision;
         const approved=s.saved.status==='review-approved'&&s.saved.approval?.scope==='identity-publication';
@@ -686,7 +689,7 @@
         const o=node('option',p.name);o.value=p.id;selectPerson.append(o);}};
       manual.append(field(i?'Andre profil (ved sammenslåing)':'Søk etter profil',q),selectPerson);choices.push(selectPerson);}
     manual.append(btn('Sammenlign valgte profiler','identityManualOpen',()=>{
-      const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);}));
+      const ids=choices.map(e=>e.value).filter(Boolean);if(!ids.length||new Set(ids).size!==ids.length)throw Error('Velg én eller to ulike profiler.');openComparison(ids,null);},{readOnly:true}));
     const filters=node('div');filters.className='identity-filters';
     filters.append(field('Søk etter navn',search),field('Vis saker',filter));
     const overview=node('details');overview.append(node('summary','Oversikt over saker'),counts);
@@ -704,7 +707,7 @@
     // the authenticated shell. A queued job is readable state, not a login gate.
     try{await read();if(!active())checkTask();}catch(error){s.notice={text:error.message+' Ingen ny lagring er bekreftet.',error:true};}
     finally{s.busy=false;renderStatus();disable();}
-    if(active()&&['identity-publication-publish','identity-publication-continue'].includes(s.saved.task.action)){
+    if(publicationRunning()){
       s.busy=true;disable();
       void monitor(45*60*1000,12000).catch(error=>{
         s.notice={text:error.message,error:true};
