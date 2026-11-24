@@ -34,7 +34,8 @@ test("profile is private: both browser editors use /admin/ while the local pilot
   assert.equal(list.some(f=>f.startsWith("admin/")),false);
   // A client whose cookie/bearer session expired must not keep showing the
   // privileged workspace while rendering an unauthenticated error.
-  assert.match(webTransport,/if \(protectedPortal\) \{\s*location\.replace\("\/admin\/"\)/);
-  assert.match(webTransport,/if \(!response\.ok\) \{ location\.replace\("\/admin\/"\); return; \}/);
+  assert.match(webTransport,/if \(protectedPortal\) \{\s*reloadAdminEntry\(\)/);
+  assert.match(webTransport,/if \(!response\.ok\) \{ reloadAdminEntry\(\); return; \}/);
+  assert.match(webTransport,/function reloadAdminEntry\(\)\{\s*const destination=location\.hash==="#personkontroll"\?"\/admin\/#personkontroll":"\/admin\/";\s*history\.replaceState\(null,"",destination\);\s*location\.reload\(\);/);
   assert.match(webTransport,/if \(!response\.ok\)\s+throw Error\("Utlogging kunne ikke bekreftes\. Prøv igjen\."\)/);
 });
