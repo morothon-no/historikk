@@ -184,6 +184,11 @@
         await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
       ),
     );
+  function reloadAdminEntry(){
+    const destination=location.hash==="#personkontroll"?"/admin/#personkontroll":"/admin/";
+    history.replaceState(null,"",destination);
+    location.reload();
+  }
   async function api(path, value, signal) {
     const r = await fetch(origin + path, {
       method: value === undefined ? "GET" : "POST",
@@ -202,7 +207,7 @@
       // Server authentication has expired. Never leave a private admin
       // workspace visible merely because its HTML was already rendered.
       if (protectedPortal) {
-        location.replace("/admin/");
+        reloadAdminEntry();
         throw Object.assign(Error("Innloggingen er utløpt. Lagret arbeid er bevart."),{status:401});
       }
       render();
@@ -297,7 +302,7 @@
       if(readOnly)e.dataset.readOnly='true';
       if(draftEdit)e.dataset.draftEdit='true';
       e.onclick=async()=>{if(draftEdit&&!canEditDraft())return;const local=readOnly||draftEdit;
-        if(s.busy&&id!=='identityLogout'&&!local)return;if(!local){s.busy=true;disable();}try{await fn();}catch(error){
+        if(s.busy&&!local)return;if(!local){s.busy=true;disable();}try{await fn();}catch(error){
         s.notice={text:error.message+' Siste serverbekreftede vurderinger er beholdt.',error:true};
       }finally{if(!local)s.busy=false;renderStatus();disable();}};return e;};
     const active=()=>['queued','running'].includes(s.saved?.task?.state);
@@ -336,7 +341,7 @@
       return ids.length===request.commands.length&&request.commands.every(c=>ids.includes(c.id));
     };
     function disable(){
-      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout'&&button.dataset.readOnly!=='true';
+      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.dataset.readOnly!=='true';
       submit.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!s.pending.size||!!s.request||[...s.pending.values()].some(needsReview);
       approve.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length||s.saved.status==='review-approved'||
         !s.saved.inspection?.ready||
@@ -454,6 +459,18 @@
       editor.focus({preventScroll:true});
       editor.scrollIntoView({behavior:'auto',block:'start'});
     }
+    function external(label,url){
+      const link=node('a',label);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;
+    }
+    function googleLookup(ids,{ai=true}={}){
+      const search=new URL('https://www.google.com/search');
+      const names=ids.map(id=>'"'+name(id).replace(/"/g,' ')+'"');
+      if(ai)search.searchParams.set('udm','50');
+      search.searchParams.set('q',ai?
+        'Kan offentlige kilder vise om '+names.join(' og ')+' er samme person? Oppgi lenker og skill mellom ulike personer med samme navn.':
+        names.join(' OR '));
+      return external(ai?'Søk med Google AI':'Vanlig Google-søk',search.href);
+    }
     function inspect(ids,stored){
       editor.replaceChildren();s.selected=ids;s.selectedCase=stored?.id || null;
       const title=node('h2',deferredCase(stored)?'Utsatt sak – lagret privat':stored?'Lagret identitetsavgjørelse':'Sammenlign og bekreft identitet');editor.append(title);
@@ -477,24 +494,10 @@
         p.append(results);profiles.append(p);}
       editor.append(profiles);
       if(ids.length===2&&ids.every(id=>model.person(id))){
-        const names=ids.map(name),eventName=window.__eventProfile?.name?.trim();
-        const search=new URL('https://www.google.com/search');
-        const quote=value=>'"'+value.replace(/"/g,' ')+'"';
-        search.searchParams.set('q','('+names.map(quote).join(' OR ')+') '+(eventName?quote(eventName)+' ':'')+'resultater');
         const lookup=node('details');lookup.append(node('summary','Søk etter kilder'));
         const links=node('div');links.className='actions';
-        const external=(label,url)=>{const link=node('a',label);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;};
-        links.append(external('Søk i Google',search.href),external('Åpne Gemini','https://gemini.google.com/'));
-        const question=node('textarea');question.readOnly=true;question.rows=5;
-        question.value='Kan offentlige resultatlister eller arrangørarkiver knytte «'+names[0]+'» og «'+names[1]+'» til samme løper? '+
-          (eventName?'Se først etter resultater fra '+eventName+'. ':'')+
-          'Oppgi lenke, år og hva hver kilde viser. Pek på motstridende opplysninger, og si fra hvis kildene ikke gir grunnlag for å avgjøre saken.';
-        const feedback=node('p');feedback.setAttribute('role','status');
-        links.append(btn('Kopier spørsmål', 'identityCopyLookup',async()=>{
-          try{await navigator.clipboard.writeText(question.value);feedback.textContent='Spørsmålet er kopiert.';}
-          catch{question.focus();question.select();feedback.textContent='Spørsmålet er markert. Kopier det fra feltet.';}
-        },{readOnly:true}));
-        lookup.append(node('p','Google-søket deler navnene og eventuelt løpsnavn. Bruk kildene til å vurdere saken.'),links,field('Spørsmål til Gemini',question),feedback);
+        links.append(googleLookup(ids),googleLookup(ids,{ai:false}));
+        lookup.append(node('p','Google-søket deler navnene. Bruk kildene til å vurdere saken.'),links);
         editor.append(lookup);
       }
       if(stored){
@@ -557,9 +560,15 @@
       for(const [key,cmd] of s.pending){
         const entry=node('div');entry.className='identity-batch-entry';
         entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · '+(needsReview(cmd)?'Kontroller på nytt':'Ulagret avgjørelse')+' · '+({ 'same-person':'Samme person – hovednavn: '+(cmd.kind==='same-person'?name(cmd.mainPersonId):''),'different-people':'Forskjellige personer',defer:'Undersøk senere',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
-          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);persistNext();s.notice=null;return render();},{draftEdit:true}));selections.append(entry);
+          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);persistNext();s.notice=null;return render();},{draftEdit:true}));
+        if(needsReview(cmd)&&cmd.personIds.every(id=>model.resolve(id)===id&&model.person(id))){
+          const stored=s.saved?.draft?.cases.find(c=>keyFor(c.personIds)===key);
+          entry.insertBefore(btn('Gjennomgå valg','identityReviewDraft-'+cmd.id,
+            ()=>openComparison(cmd.personIds,stored),{readOnly:true}),entry.lastChild);
+        }
+        selections.append(entry);
       }
-      if([...s.pending.values()].some(needsReview))tray.append(node('p','Historikken er oppdatert. Søk opp sakene og velg på nytt, eller bruk Angre for å fjerne et valg.'));
+      if([...s.pending.values()].some(needsReview))tray.append(node('p','Historikken er oppdatert. Bruk «Gjennomgå valg» for å se saken og velge på nytt. Bruk «Angre» hvis valget skal fjernes.'));
       tray.append(selections,submit);
       list.replaceChildren();
       const rows=work.identity.filter(c=>{
@@ -619,7 +628,10 @@
           card.append(quick);
         }
         const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign profiler','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored),{readOnly:true});
-        compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
+        compare.classList.add('identity-quick-compare');
+        const sources=node('div');sources.className='actions';sources.append(compare);
+        if(c.personIds.length===2&&c.personIds.every(id=>model.person(id)))sources.append(googleLookup(c.personIds));
+        card.append(sources);list.append(card);}
       if(!rows.length)list.append(node('p',s.scope==='pending'&&s.pending.size?
         'Ingen ubehandlede saker i dette utvalget. Valgene i denne økten er fortsatt ulagret.':
         'Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
@@ -760,7 +772,7 @@
     filters.append(field('Søk etter navn',search),field('Vis saker',filter));
     const overview=node('details');overview.append(node('summary','Oversikt over saker'),counts);
     const footer=node('div');footer.className='actions identity-secondary-actions';
-    footer.append(refresh,btn('Logg ut','identityLogout',()=>actions.logout.click()));
+    footer.append(refresh);
     panel.append(node('h2','Personkontroll'),filters,status,actionHelp,controls,tray,publicationPanel,
       list,editor,manual,overview,publicationHistory,archive,footer);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
@@ -1344,6 +1356,10 @@
     document.querySelector(".portal-footer span:last-child").textContent =
       "Resultatadministrasjon · innlogging og personlig godkjenning kreves.";
     controls.append(...Object.values(actions));
+    if(protectedPortal){
+      actions.logout.classList.add('admin-sidebar-logout');
+      document.querySelector('.sidebar').append(actions.logout);
+    }
     box.append(
       node("h2", "Resultatretting og publisering"),
       node(
@@ -1385,7 +1401,7 @@
         const response = await fetch("/admin/_session", {
           cache: "no-store", credentials: "same-origin",
         });
-        if (!response.ok) { location.replace("/admin/"); return; }
+        if (!response.ok) { reloadAdminEntry(); return; }
         sessionToken = (await response.json()).sessionToken;
         principal = await api("/session");
       } else {
@@ -1395,7 +1411,10 @@
         await read();
         await mountIdentity();
         if (saved?.task && !["completed", "failed", "blocked"].includes(saved.task.state))
-          await monitor();
+          void monitor().catch(error => {
+            status.textContent = error.message;
+            home.textContent = error.message;
+          });
       }
     } catch (e) {
       status.textContent = e.message;
@@ -1403,7 +1422,7 @@
       // This document is only for authenticated users; if its protected
       // session disappears during startup, do not reveal the admin shell.
       if (protectedPortal && !principal) {
-        location.replace("/admin/");
+        reloadAdminEntry();
         return;
       }
     } finally {

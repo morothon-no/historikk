@@ -70,6 +70,9 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
   await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  }
  const first=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+ const quickLookup=first.getByRole('link',{name:'Søk med Google AI',exact:true});
+ assert.equal(await quickLookup.isVisible(),true);
+ assert.equal(new URL(await quickLookup.getAttribute('href')).searchParams.get('udm'),'50');
  assert.equal(await page.locator('#identityBatchTray').isVisible(),false);
  assert.equal(await page.locator('#identityPublication').isVisible(),false);
  assert.equal(await page.locator('#identityWorklist').evaluate(e=>Boolean(e.compareDocumentPosition(document.querySelector('#identityServiceCounts'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);
@@ -83,10 +86,13 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await page.click('#identityManualOpen');
  const lookup=page.locator('#identityEditor details').filter({has:page.getByText('Søk etter kilder',{exact:true})});
  await lookup.locator('summary').click();
- const google=new URL(await lookup.getByRole('link',{name:'Søk i Google'}).getAttribute('href'));
+ const google=new URL(await lookup.getByRole('link',{name:'Søk med Google AI'}).getAttribute('href'));
  assert.equal(google.origin,'https://www.google.com');
- assert.match(google.searchParams.get('q'),/Statusløper.*Status Looper/);
- assert.match(await lookup.getByLabel('Spørsmål til Gemini').inputValue(),/Oppgi lenke, år/);
+ assert.equal(google.searchParams.get('udm'),'50');
+ assert.match(google.searchParams.get('q'),/"Syntetisk Statusløper" og "Syntetisk Status Looper"/);
+ assert.doesNotMatch(google.searchParams.get('q'),/Morothon/);
+ const standard=new URL(await lookup.getByRole('link',{name:'Vanlig Google-søk'}).getAttribute('href'));
+ assert.equal(standard.searchParams.get('q'),'"Syntetisk Statusløper" OR "Syntetisk Status Looper"');
 
  await page.selectOption('#identityMainPerson','MOR-C220006');
  await page.click('#identitySame');
@@ -122,7 +128,9 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);assert.equal(f.remote.merged,1);
  assert.deepEqual(f.context.history.results,original.results);assert.equal(f.context.history.redirects['MOR-C220001'],'MOR-C220002');assert.equal(f.context.history.redirects['MOR-C220005'],'MOR-C220006');
- await page.click('#identityLogout');await context.close();f.restart();({page,context}=await open(390));
+ assert.equal(await page.getByRole('button',{name:'Logg ut',exact:true}).count(),1);
+ assert.equal(await page.locator('.sidebar #resultServiceLogout').isVisible(),true);
+ await page.click('#resultServiceLogout');await context.close();f.restart();({page,context}=await open(390));
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);
  await page.click('#identityPublicationHistory summary');
  await action('#identityPublicationReverse','/identity/publication/reverse');assert.equal(f.remote.merged,1);
