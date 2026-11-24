@@ -153,6 +153,35 @@
       "parent": "5d56fa27139a1edc0fec6b7a383d44dbdabfa43afc27799686f1821f6627e2c4",
       "kind": "identity",
       "sha256": "85ed94b8fea06071a62ef93ade6017f2f2cdb31649f0a5ed83012ba17ea21348"
+    },
+    {
+      "beforeSha256": "99a2bfa08958d82ff1edb38a6dbed9d39ca0536fb6c18a67ccb245e77dde306f",
+      "afterSha256": "34218107c29976973c0c32b7cbf21983b76f0b9b61afc091c802f153bb4042e5",
+      "manifestSha256": "5eac7fffc5ffd1ce164dcf66299424b7174963d02986cca8b4c8beaca5d9550b",
+      "dataVersion": 7,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-9BBBC82",
+          "before": null,
+          "after": "MOR-EB29C46",
+          "beforeIndex": -1,
+          "afterIndex": 43
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-EB29C46",
+          "before": null,
+          "after": [
+            "Brage Bjorvand"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 46
+        }
+      ],
+      "parent": "85ed94b8fea06071a62ef93ade6017f2f2cdb31649f0a5ed83012ba17ea21348",
+      "kind": "identity",
+      "sha256": "6f8dd85de2beb057bc862f9c407ef69a06296deb05ebcbf321dc461702ebcca6"
     }
   ]
 }
