@@ -128,7 +128,9 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);assert.equal(f.remote.merged,1);
  assert.deepEqual(f.context.history.results,original.results);assert.equal(f.context.history.redirects['MOR-C220001'],'MOR-C220002');assert.equal(f.context.history.redirects['MOR-C220005'],'MOR-C220006');
- await page.click('#identityLogout');await context.close();f.restart();({page,context}=await open(390));
+ assert.equal(await page.getByRole('button',{name:'Logg ut',exact:true}).count(),1);
+ assert.equal(await page.locator('.sidebar #resultServiceLogout').isVisible(),true);
+ await page.click('#resultServiceLogout');await context.close();f.restart();({page,context}=await open(390));
  assert.match(await page.locator('#identityPublicationStatus').textContent(),/Publisert og etterkontrollert/);
  await page.click('#identityPublicationHistory summary');
  await action('#identityPublicationReverse','/identity/publication/reverse');assert.equal(f.remote.merged,1);
