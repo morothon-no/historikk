@@ -457,11 +457,14 @@
     function external(label,url){
       const link=node('a',label);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;
     }
-    function googleLookup(ids){
+    function googleLookup(ids,{ai=true}={}){
       const search=new URL('https://www.google.com/search');
       const names=ids.map(id=>'"'+name(id).replace(/"/g,' ')+'"');
-      search.searchParams.set('q',names.join(' OR '));
-      return external('Søk i Google',search.href);
+      if(ai)search.searchParams.set('udm','50');
+      search.searchParams.set('q',ai?
+        'Kan offentlige kilder vise om '+names.join(' og ')+' er samme person? Oppgi lenker og skill mellom ulike personer med samme navn.':
+        names.join(' OR '));
+      return external(ai?'Søk med Google AI':'Vanlig Google-søk',search.href);
     }
     function inspect(ids,stored){
       editor.replaceChildren();s.selected=ids;s.selectedCase=stored?.id || null;
@@ -486,19 +489,10 @@
         p.append(results);profiles.append(p);}
       editor.append(profiles);
       if(ids.length===2&&ids.every(id=>model.person(id))){
-        const names=ids.map(name);
         const lookup=node('details');lookup.append(node('summary','Søk etter kilder'));
         const links=node('div');links.className='actions';
-        links.append(googleLookup(ids),external('Åpne Gemini','https://gemini.google.com/'));
-        const question=node('textarea');question.readOnly=true;question.rows=5;
-        question.value='Kan offentlige resultatlister eller arrangørarkiver knytte «'+names[0]+'» og «'+names[1]+'» til samme løper? '+
-          'Oppgi lenke, år og hva hver kilde viser. Pek på motstridende opplysninger, og si fra hvis kildene ikke gir grunnlag for å avgjøre saken.';
-        const feedback=node('p');feedback.setAttribute('role','status');
-        links.append(btn('Kopier spørsmål', 'identityCopyLookup',async()=>{
-          try{await navigator.clipboard.writeText(question.value);feedback.textContent='Spørsmålet er kopiert.';}
-          catch{question.focus();question.select();feedback.textContent='Spørsmålet er markert. Kopier det fra feltet.';}
-        },{readOnly:true}));
-        lookup.append(node('p','Google-søket deler navnene. Bruk kildene til å vurdere saken.'),links,field('Spørsmål til Gemini',question),feedback);
+        links.append(googleLookup(ids),googleLookup(ids,{ai:false}));
+        lookup.append(node('p','Google-søket deler navnene. Bruk kildene til å vurdere saken.'),links);
         editor.append(lookup);
       }
       if(stored){
