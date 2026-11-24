@@ -184,6 +184,7 @@
         await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
       ),
     );
+  const adminEntry=()=>location.hash==="#personkontroll"?"/admin/#personkontroll":"/admin/";
   async function api(path, value, signal) {
     const r = await fetch(origin + path, {
       method: value === undefined ? "GET" : "POST",
@@ -202,7 +203,7 @@
       // Server authentication has expired. Never leave a private admin
       // workspace visible merely because its HTML was already rendered.
       if (protectedPortal) {
-        location.replace("/admin/");
+        location.replace(adminEntry());
         throw Object.assign(Error("Innloggingen er utløpt. Lagret arbeid er bevart."),{status:401});
       }
       render();
@@ -1385,7 +1386,7 @@
         const response = await fetch("/admin/_session", {
           cache: "no-store", credentials: "same-origin",
         });
-        if (!response.ok) { location.replace("/admin/"); return; }
+        if (!response.ok) { location.replace(adminEntry()); return; }
         sessionToken = (await response.json()).sessionToken;
         principal = await api("/session");
       } else {
@@ -1395,7 +1396,10 @@
         await read();
         await mountIdentity();
         if (saved?.task && !["completed", "failed", "blocked"].includes(saved.task.state))
-          await monitor();
+          void monitor().catch(error => {
+            status.textContent = error.message;
+            home.textContent = error.message;
+          });
       }
     } catch (e) {
       status.textContent = e.message;
@@ -1403,7 +1407,7 @@
       // This document is only for authenticated users; if its protected
       // session disappears during startup, do not reveal the admin shell.
       if (protectedPortal && !principal) {
-        location.replace("/admin/");
+        location.replace(adminEntry());
         return;
       }
     } finally {

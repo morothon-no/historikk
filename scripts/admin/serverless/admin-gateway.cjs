@@ -78,7 +78,7 @@ function loginPage(apiOrigin) {
     button.disabled = true;
     try {
       const verifier = random(), state = random(), challenge = await sha(verifier);
-      sessionStorage.setItem(key,JSON.stringify({verifier,state,created:Date.now()}));
+      sessionStorage.setItem(key,JSON.stringify({verifier,state,created:Date.now(),personkontroll:location.hash==="#personkontroll"}));
       const url = new URL("/auth/begin",api);
       url.search = new URLSearchParams({challenge,state}).toString();
       location.assign(url.href);
@@ -101,7 +101,7 @@ function loginPage(apiOrigin) {
         body:JSON.stringify({code:params.get("morothon-auth"),verifier:pending.verifier})
       });
       if (!response.ok) throw Error("session exchange failed");
-      location.replace("/admin/");
+      location.replace(pending.personkontroll===true?"/admin/#personkontroll":"/admin/");
     } catch { fail(); }
   }
   button.addEventListener("click",begin);
