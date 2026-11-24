@@ -184,6 +184,11 @@
         await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
       ),
     );
+  function reloadAdminEntry(){
+    const destination=location.hash==="#personkontroll"?"/admin/#personkontroll":"/admin/";
+    history.replaceState(null,"",destination);
+    location.reload();
+  }
   async function api(path, value, signal) {
     const r = await fetch(origin + path, {
       method: value === undefined ? "GET" : "POST",
@@ -202,7 +207,7 @@
       // Server authentication has expired. Never leave a private admin
       // workspace visible merely because its HTML was already rendered.
       if (protectedPortal) {
-        location.replace("/admin/");
+        reloadAdminEntry();
         throw Object.assign(Error("Innloggingen er utløpt. Lagret arbeid er bevart."),{status:401});
       }
       render();
@@ -297,7 +302,7 @@
       if(readOnly)e.dataset.readOnly='true';
       if(draftEdit)e.dataset.draftEdit='true';
       e.onclick=async()=>{if(draftEdit&&!canEditDraft())return;const local=readOnly||draftEdit;
-        if(s.busy&&id!=='identityLogout'&&!local)return;if(!local){s.busy=true;disable();}try{await fn();}catch(error){
+        if(s.busy&&!local)return;if(!local){s.busy=true;disable();}try{await fn();}catch(error){
         s.notice={text:error.message+' Siste serverbekreftede vurderinger er beholdt.',error:true};
       }finally{if(!local)s.busy=false;renderStatus();disable();}};return e;};
     const active=()=>['queued','running'].includes(s.saved?.task?.state);
@@ -336,7 +341,7 @@
       return ids.length===request.commands.length&&request.commands.every(c=>ids.includes(c.id));
     };
     function disable(){
-      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.id!=='identityLogout'&&button.dataset.readOnly!=='true';
+      for(const button of panel.querySelectorAll('button'))button.disabled=s.busy&&button.dataset.readOnly!=='true';
       submit.disabled=s.busy||!s.saved||active()||blocked()||stale()||publishing()||!s.pending.size||!!s.request||[...s.pending.values()].some(needsReview);
       approve.disabled=s.busy||active()||blocked()||stale()||!s.saved?.draft?.cases.length||s.saved.status==='review-approved'||
         !s.saved.inspection?.ready||
@@ -760,7 +765,7 @@
     filters.append(field('Søk etter navn',search),field('Vis saker',filter));
     const overview=node('details');overview.append(node('summary','Oversikt over saker'),counts);
     const footer=node('div');footer.className='actions identity-secondary-actions';
-    footer.append(refresh,btn('Logg ut','identityLogout',()=>actions.logout.click()));
+    footer.append(refresh);
     panel.append(node('h2','Personkontroll'),filters,status,actionHelp,controls,tray,publicationPanel,
       list,editor,manual,overview,publicationHistory,archive,footer);host.replaceChildren(panel);
     const nav=node('a','Personkontroll');nav.id='navIdentity';nav.href='#personkontroll';document.querySelector('.sidebar nav').append(nav);
@@ -1344,6 +1349,10 @@
     document.querySelector(".portal-footer span:last-child").textContent =
       "Resultatadministrasjon · innlogging og personlig godkjenning kreves.";
     controls.append(...Object.values(actions));
+    if(protectedPortal){
+      actions.logout.classList.add('admin-sidebar-logout');
+      document.querySelector('.sidebar').append(actions.logout);
+    }
     box.append(
       node("h2", "Resultatretting og publisering"),
       node(
@@ -1385,7 +1394,7 @@
         const response = await fetch("/admin/_session", {
           cache: "no-store", credentials: "same-origin",
         });
-        if (!response.ok) { location.replace("/admin/"); return; }
+        if (!response.ok) { reloadAdminEntry(); return; }
         sessionToken = (await response.json()).sessionToken;
         principal = await api("/session");
       } else {
@@ -1395,7 +1404,10 @@
         await read();
         await mountIdentity();
         if (saved?.task && !["completed", "failed", "blocked"].includes(saved.task.state))
-          await monitor();
+          void monitor().catch(error => {
+            status.textContent = error.message;
+            home.textContent = error.message;
+          });
       }
     } catch (e) {
       status.textContent = e.message;
@@ -1403,7 +1415,7 @@
       // This document is only for authenticated users; if its protected
       // session disappears during startup, do not reveal the admin shell.
       if (protectedPortal && !principal) {
-        location.replace("/admin/");
+        reloadAdminEntry();
         return;
       }
     } finally {

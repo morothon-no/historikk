@@ -163,7 +163,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  assert.equal(await page.locator('[data-identity-count="followup"] strong').textContent(),'1');
  assert.equal(await page.locator('[data-identity-count="session-followup"] strong').textContent(),'0');
  const deferredId=(await f.identities.get('sogne-morothon')).draft.cases[0].id;
- await page.click('#identityLogout');await page.locator('#login').waitFor();
+ await page.click('#resultServiceLogout');await page.locator('#login').waitFor();
  await context.close();f.restart();
  ({page,context,session}=await open({width:768}));
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
@@ -191,7 +191,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  await page.click('#identityBatchSubmit');
  assert.equal((await firstDecision).status(),202,'The authenticated identity POST must pass the real Origin gate');
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('pågår'));
- assert.equal(await page.locator('#identityLogout').isEnabled(),true);
+ assert.equal(await page.locator('#resultServiceLogout').isEnabled(),true);
  assert.equal((await f.identities.get('sogne-morothon')).revision,1);
  assert.equal((await f.processNext()).completed,true);
  await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
@@ -219,7 +219,7 @@ test('protected Personkontroll saves, approves and reopens after a fresh login; 
  await page.selectOption('#identityFilter','rejected');await page.waitForFunction(()=>document.querySelector('#identityWorklist').textContent.includes('Syntetisk Samme Navn'));
  assert.equal(await page.locator('#identityApprove').isVisible(),false,'no redundant second owner approval required');
  assert.equal(writes.some(route=>route.startsWith('/publication/')),false);
- await page.click('#identityLogout');await page.locator('#login').waitFor();
+ await page.click('#resultServiceLogout');await page.locator('#login').waitFor();
  assert.equal((await f.request('/identity',undefined,session)).status,401);
  await context.close();f.restart();
  const again=await open({width:768});
@@ -369,7 +369,7 @@ test('Personkontroll keeps unsaved batches and errors truthful through version m
   await page.clock.runFor(4001);
   await eventually(async()=>/Kontrollen pågår fortsatt/.test(await status()));
   assert.equal(await page.locator('#identityRetry').isEnabled(),true);
-  assert.equal(await page.locator('#identityLogout').isEnabled(),true);
+  assert.equal(await page.locator('#resultServiceLogout').isEnabled(),true);
   assert.equal(f.dispatches.length,1);
   // Complete the existing immutable request; fetching status performs no POST.
   assert.equal((await f.processNext()).completed,true);
@@ -383,7 +383,7 @@ test('Personkontroll keeps unsaved batches and errors truthful through version m
  await t.test('one 202 batch saves two choices only after both exact receipts and survives a fresh login',async()=>{
   // First pair was rejected above. Reopen with a fresh session, without any
   // browser-side command replay; the saved negative must stay out of pending.
-  await page.click('#identityLogout');await page.locator('#login').waitFor();await context.close();f.restart();
+  await page.click('#resultServiceLogout');await page.locator('#login').waitFor();await context.close();f.restart();
   ({page,context,session}=await open({width:390}));
   await page.waitForFunction(()=>document.querySelector('#identityServiceStatus').textContent.includes('Lagret privat'));
   assert.equal(await first().count(),0);
@@ -421,7 +421,7 @@ test('Personkontroll keeps unsaved batches and errors truthful through version m
   await page.waitForFunction(()=>document.querySelector('[data-identity-count="unsaved"] strong').textContent==='0');
   assert.equal((await f.identities.get('sogne-morothon')).revision,revision+1);
   assert.equal(await page.locator('#identityPublication').isVisible(),false);
-  await page.click('#identityLogout');await page.locator('#login').waitFor();await context.close();f.restart();
+  await page.click('#resultServiceLogout');await page.locator('#login').waitFor();await context.close();f.restart();
   ({page,context,session}=await open({width:768}));
   assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
   assert.equal(await page.locator('[data-identity-count="followup"] strong').textContent(),'1');

@@ -449,7 +449,7 @@ test(
     assert.equal(await page.locator('[data-identity-count="pending"] strong').textContent(),'0');
     assert.equal(await page.locator('[data-identity-count="finished"] strong').textContent(),'1');
     assert.equal(await page.locator('[data-identity-count="rejected"] strong').textContent(),'1');
-    await page.click('#identityLogout');await page.locator('#login').waitFor();
+    await page.click('#resultServiceLogout');await page.locator('#login').waitFor();
     await page.setViewportSize({width:390,height:1050});await login();
     await page.locator('a[href="#personkontroll"]').first().click();
     await page.waitForFunction(()=>document.querySelector('#identityServiceStatus')?.textContent.includes('Lagret privat'));
