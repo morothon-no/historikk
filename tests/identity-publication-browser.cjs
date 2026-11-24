@@ -70,6 +70,9 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
   await page.waitForFunction(()=>!document.querySelector('#identityRefresh').disabled,{},{timeout:30000});
  }
  const first=page.locator('#identityWorklist article').filter({hasText:'Syntetisk Kari N. Nord'});
+ const quickLookup=first.getByRole('link',{name:'Søk i Google',exact:true});
+ assert.equal(await quickLookup.isVisible(),true);
+ assert.equal(new URL(await quickLookup.getAttribute('href')).searchParams.get('q').split(' OR ').length,2);
  assert.equal(await page.locator('#identityBatchTray').isVisible(),false);
  assert.equal(await page.locator('#identityPublication').isVisible(),false);
  assert.equal(await page.locator('#identityWorklist').evaluate(e=>Boolean(e.compareDocumentPosition(document.querySelector('#identityServiceCounts'))&Node.DOCUMENT_POSITION_FOLLOWING)),true);
@@ -85,7 +88,7 @@ test('protected owner checks, approves, publishes and reverses synthetic identit
  await lookup.locator('summary').click();
  const google=new URL(await lookup.getByRole('link',{name:'Søk i Google'}).getAttribute('href'));
  assert.equal(google.origin,'https://www.google.com');
- assert.match(google.searchParams.get('q'),/Statusløper.*Status Looper/);
+ assert.equal(google.searchParams.get('q'),'"Syntetisk Statusløper" OR "Syntetisk Status Looper"');
  assert.match(await lookup.getByLabel('Spørsmål til Gemini').inputValue(),/Oppgi lenke, år/);
 
  await page.selectOption('#identityMainPerson','MOR-C220006');
