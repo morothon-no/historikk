@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "policyVersion": "morothon-public-v1",
-  "dataVersion": 8,
-  "manifestSha256": "72f95643800fe7238cb19e36f0fe5d6354952501f53a4cba4ccff247c3fce33b",
-  "historySha256": "90bebe8f9e719e2c0ec7f5fb29bdfe457e5bcb544bf5e7a748adeb180265015f"
+  "dataVersion": 9,
+  "manifestSha256": "9cdbf469580d38a56e1a5d39a77699b7fa2b0782743b2516f6af697c7013873c",
+  "historySha256": "3985efdb4603bbda7686a4136447920561bf3f282d1ce989d7f526b568ad5aa8"
 }

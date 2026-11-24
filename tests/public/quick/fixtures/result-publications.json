@@ -211,6 +211,35 @@
       "parent": "6f8dd85de2beb057bc862f9c407ef69a06296deb05ebcbf321dc461702ebcca6",
       "kind": "identity",
       "sha256": "b2124ab91e910100cb8101962bd0a833946361f29bb628111e76433e8ca14167"
+    },
+    {
+      "beforeSha256": "90bebe8f9e719e2c0ec7f5fb29bdfe457e5bcb544bf5e7a748adeb180265015f",
+      "afterSha256": "3985efdb4603bbda7686a4136447920561bf3f282d1ce989d7f526b568ad5aa8",
+      "manifestSha256": "9cdbf469580d38a56e1a5d39a77699b7fa2b0782743b2516f6af697c7013873c",
+      "dataVersion": 9,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-59BA20D",
+          "before": null,
+          "after": "MOR-43CA7F0",
+          "beforeIndex": -1,
+          "afterIndex": 45
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-43CA7F0",
+          "before": null,
+          "after": [
+            "Mika Andersen"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 48
+        }
+      ],
+      "parent": "b2124ab91e910100cb8101962bd0a833946361f29bb628111e76433e8ca14167",
+      "kind": "identity",
+      "sha256": "9a2bfedb38172c286966fd107805e23f7228e7745b9800ca8fbd5a2427d385b7"
     }
   ]
 }
