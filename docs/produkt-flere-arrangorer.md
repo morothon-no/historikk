@@ -75,4 +75,4 @@ bytter innstillinger for et framtidig år.
 
 Oppstarten skal ta arrangøren fra importert historikk til en gjennomgått første publisering. Vis hvilke år og kilder som ble importert, og presenter mulige duplikater med navn og tilgjengelige kilder. Vis mer kontekst når den finnes, som år, klubb og deltaker-ID fra samme tidtakingskilde. Navnelikhet gir et forslag til sammenligning. Arrangøren bekrefter identiteten før sammenslåing.
 
-Arrangøren skal kunne lagre vurderinger privat underveis og fortsette mens en tidligere pulje publiseres. Senere importer skal gjenbruke bekreftede aliaser og avviste par. Eksterne oppslag med bare navn og eventuelt løpsnavn skal være tilgjengelige også i vanlig Personkontroll. AI-oppslag skal hjelpe arrangøren å finne og vurdere kilder.
+Arrangøren skal kunne lagre vurderinger privat underveis og fortsette mens en tidligere pulje publiseres. Senere importer skal gjenbruke bekreftede aliaser og avviste par. Eksterne oppslag med bare navn skal være tilgjengelige også i vanlig Personkontroll. AI-oppslag skal hjelpe arrangøren å finne og vurdere kilder.

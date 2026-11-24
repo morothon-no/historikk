@@ -454,6 +454,15 @@
       editor.focus({preventScroll:true});
       editor.scrollIntoView({behavior:'auto',block:'start'});
     }
+    function external(label,url){
+      const link=node('a',label);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;
+    }
+    function googleLookup(ids){
+      const search=new URL('https://www.google.com/search');
+      const names=ids.map(id=>'"'+name(id).replace(/"/g,' ')+'"');
+      search.searchParams.set('q',names.join(' OR '));
+      return external('Søk i Google',search.href);
+    }
     function inspect(ids,stored){
       editor.replaceChildren();s.selected=ids;s.selectedCase=stored?.id || null;
       const title=node('h2',deferredCase(stored)?'Utsatt sak – lagret privat':stored?'Lagret identitetsavgjørelse':'Sammenlign og bekreft identitet');editor.append(title);
@@ -477,24 +486,19 @@
         p.append(results);profiles.append(p);}
       editor.append(profiles);
       if(ids.length===2&&ids.every(id=>model.person(id))){
-        const names=ids.map(name),eventName=window.__eventProfile?.name?.trim();
-        const search=new URL('https://www.google.com/search');
-        const quote=value=>'"'+value.replace(/"/g,' ')+'"';
-        search.searchParams.set('q','('+names.map(quote).join(' OR ')+') '+(eventName?quote(eventName)+' ':'')+'resultater');
+        const names=ids.map(name);
         const lookup=node('details');lookup.append(node('summary','Søk etter kilder'));
         const links=node('div');links.className='actions';
-        const external=(label,url)=>{const link=node('a',label);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;};
-        links.append(external('Søk i Google',search.href),external('Åpne Gemini','https://gemini.google.com/'));
+        links.append(googleLookup(ids),external('Åpne Gemini','https://gemini.google.com/'));
         const question=node('textarea');question.readOnly=true;question.rows=5;
         question.value='Kan offentlige resultatlister eller arrangørarkiver knytte «'+names[0]+'» og «'+names[1]+'» til samme løper? '+
-          (eventName?'Se først etter resultater fra '+eventName+'. ':'')+
           'Oppgi lenke, år og hva hver kilde viser. Pek på motstridende opplysninger, og si fra hvis kildene ikke gir grunnlag for å avgjøre saken.';
         const feedback=node('p');feedback.setAttribute('role','status');
         links.append(btn('Kopier spørsmål', 'identityCopyLookup',async()=>{
           try{await navigator.clipboard.writeText(question.value);feedback.textContent='Spørsmålet er kopiert.';}
           catch{question.focus();question.select();feedback.textContent='Spørsmålet er markert. Kopier det fra feltet.';}
         },{readOnly:true}));
-        lookup.append(node('p','Google-søket deler navnene og eventuelt løpsnavn. Bruk kildene til å vurdere saken.'),links,field('Spørsmål til Gemini',question),feedback);
+        lookup.append(node('p','Google-søket deler navnene. Bruk kildene til å vurdere saken.'),links,field('Spørsmål til Gemini',question),feedback);
         editor.append(lookup);
       }
       if(stored){
@@ -619,7 +623,10 @@
           card.append(quick);
         }
         const compare=btn(stored&&!deferredCase(stored)?'Vis lagret avgjørelse':'Sammenlign profiler','identityOpen-'+(c.caseId||c.id),()=>openComparison(c.personIds,stored),{readOnly:true});
-        compare.classList.add('identity-quick-compare');card.append(compare);list.append(card);}
+        compare.classList.add('identity-quick-compare');
+        const sources=node('div');sources.className='actions';sources.append(compare);
+        if(c.personIds.length===2&&c.personIds.every(id=>model.person(id)))sources.append(googleLookup(c.personIds));
+        card.append(sources);list.append(card);}
       if(!rows.length)list.append(node('p',s.scope==='pending'&&s.pending.size?
         'Ingen ubehandlede saker i dette utvalget. Valgene i denne økten er fortsatt ulagret.':
         'Ingen saker i dette utvalget. Lagrede vurderinger finnes under Behandlede eller Avviste par.'));
