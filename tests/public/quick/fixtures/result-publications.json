@@ -182,6 +182,35 @@
       "parent": "85ed94b8fea06071a62ef93ade6017f2f2cdb31649f0a5ed83012ba17ea21348",
       "kind": "identity",
       "sha256": "6f8dd85de2beb057bc862f9c407ef69a06296deb05ebcbf321dc461702ebcca6"
+    },
+    {
+      "beforeSha256": "34218107c29976973c0c32b7cbf21983b76f0b9b61afc091c802f153bb4042e5",
+      "afterSha256": "90bebe8f9e719e2c0ec7f5fb29bdfe457e5bcb544bf5e7a748adeb180265015f",
+      "manifestSha256": "72f95643800fe7238cb19e36f0fe5d6354952501f53a4cba4ccff247c3fce33b",
+      "dataVersion": 8,
+      "changes": [
+        {
+          "field": "redirects",
+          "key": "MOR-E3CE953",
+          "before": null,
+          "after": "MOR-3F48405",
+          "beforeIndex": -1,
+          "afterIndex": 44
+        },
+        {
+          "field": "aliases",
+          "key": "MOR-3F48405",
+          "before": null,
+          "after": [
+            "Randi Hansen"
+          ],
+          "beforeIndex": -1,
+          "afterIndex": 47
+        }
+      ],
+      "parent": "6f8dd85de2beb057bc862f9c407ef69a06296deb05ebcbf321dc461702ebcca6",
+      "kind": "identity",
+      "sha256": "b2124ab91e910100cb8101962bd0a833946361f29bb628111e76433e8ca14167"
     }
   ]
 }
