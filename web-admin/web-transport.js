@@ -555,9 +555,15 @@
       for(const [key,cmd] of s.pending){
         const entry=node('div');entry.className='identity-batch-entry';
         entry.append(node('span',cmd.personIds.map(name).join(' / ')+' · '+(needsReview(cmd)?'Kontroller på nytt':'Ulagret avgjørelse')+' · '+({ 'same-person':'Samme person – hovednavn: '+(cmd.kind==='same-person'?name(cmd.mainPersonId):''),'different-people':'Forskjellige personer',defer:'Undersøk senere',rename:'Hovednavn',alias:'Alias'}[cmd.kind]||cmd.kind)),
-          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);persistNext();s.notice=null;return render();},{draftEdit:true}));selections.append(entry);
+          btn('Angre','identityUndo-'+cmd.id,()=>{s.pending.delete(key);s.deferred.delete(key);persistNext();s.notice=null;return render();},{draftEdit:true}));
+        if(needsReview(cmd)&&cmd.personIds.every(id=>model.resolve(id)===id&&model.person(id))){
+          const stored=s.saved?.draft?.cases.find(c=>keyFor(c.personIds)===key);
+          entry.insertBefore(btn('Gjennomgå valg','identityReviewDraft-'+cmd.id,
+            ()=>openComparison(cmd.personIds,stored),{readOnly:true}),entry.lastChild);
+        }
+        selections.append(entry);
       }
-      if([...s.pending.values()].some(needsReview))tray.append(node('p','Historikken er oppdatert. Søk opp sakene og velg på nytt, eller bruk Angre for å fjerne et valg.'));
+      if([...s.pending.values()].some(needsReview))tray.append(node('p','Historikken er oppdatert. Bruk «Gjennomgå valg» for å se saken og velge på nytt. Bruk «Angre» hvis valget skal fjernes.'));
       tray.append(selections,submit);
       list.replaceChildren();
       const rows=work.identity.filter(c=>{
